@@ -1,12 +1,13 @@
-import type { Board as BoardType, Position, Move } from '../../types'
-import { Square } from '../Square/Square'
+import type { Board as BoardType, Position, Move, HintMove } from '../../types'
+import { FILES, RANKS } from '../../constants'
+import { Square } from '../Square'
 
 interface BoardProps {
   board: BoardType
   selectedPosition: Position | null
   validMoves: Position[]
   lastMove: Move | null
-  hintMove: { from: Position; to: Position } | null
+  hintMove: HintMove | null
   onSquareClick: (pos: Position) => void
 }
 
@@ -18,9 +19,6 @@ export const Board = ({
   hintMove,
   onSquareClick
 }: BoardProps) => {
-  const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-  const ranks = ['8', '7', '6', '5', '4', '3', '2', '1']
-
   const isSelected = (row: number, col: number) =>
     selectedPosition?.row === row && selectedPosition?.col === col
 
@@ -41,7 +39,7 @@ export const Board = ({
     <div className="flex flex-col items-center">
       <div className="flex">
         <div className="w-6 md:w-8" />
-        {files.map(file => (
+        {FILES.map(file => (
           <div
             key={file}
             className="w-12 h-6 md:w-16 md:h-8 flex items-center justify-center text-amber-200 font-mono text-sm"
@@ -53,7 +51,7 @@ export const Board = ({
 
       <div className="flex">
         <div className="flex flex-col">
-          {ranks.map(rank => (
+          {RANKS.map(rank => (
             <div
               key={rank}
               className="w-6 h-12 md:w-8 md:h-16 flex items-center justify-center text-amber-200 font-mono text-sm"
@@ -83,7 +81,7 @@ export const Board = ({
         </div>
 
         <div className="flex flex-col">
-          {ranks.map(rank => (
+          {RANKS.map(rank => (
             <div
               key={rank}
               className="w-6 h-12 md:w-8 md:h-16 flex items-center justify-center text-amber-200 font-mono text-sm"
@@ -96,7 +94,7 @@ export const Board = ({
 
       <div className="flex">
         <div className="w-6 md:w-8" />
-        {files.map(file => (
+        {FILES.map(file => (
           <div
             key={file}
             className="w-12 h-6 md:w-16 md:h-8 flex items-center justify-center text-amber-200 font-mono text-sm"

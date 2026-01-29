@@ -1,5 +1,5 @@
 import type { Square as SquareType, Position } from '../../types'
-import { Piece } from '../Piece/Piece'
+import { Piece } from '../Piece'
 
 interface SquareProps {
   square: SquareType

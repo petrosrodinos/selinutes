@@ -1,5 +1,5 @@
 import type { Piece as PieceType } from '../../types'
-import { getPieceSymbol } from '../../utils/chessLogic'
+import { PIECE_SYMBOLS } from '../../constants'
 
 interface PieceProps {
   piece: PieceType
@@ -13,7 +13,7 @@ export const Piece = ({ piece }: PieceProps) => {
       }`}
       style={{ textShadow: piece.color === 'white' ? '1px 1px 2px rgba(0,0,0,0.5)' : '1px 1px 2px rgba(255,255,255,0.3)' }}
     >
-      {getPieceSymbol(piece)}
+      {PIECE_SYMBOLS[piece.color][piece.type]}
     </span>
   )
 }

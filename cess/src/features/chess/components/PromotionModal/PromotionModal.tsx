@@ -1,5 +1,5 @@
 import type { PieceColor, PieceType } from '../../types'
-import { getPieceSymbol } from '../../utils/chessLogic'
+import { PIECE_SYMBOLS } from '../../constants'
 
 interface PromotionModalProps {
   color: PieceColor
@@ -37,7 +37,7 @@ export const PromotionModal = ({ color, onSelect }: PromotionModalProps) => {
                       : '1px 1px 2px rgba(255,255,255,0.3)'
                 }}
               >
-                {getPieceSymbol({ type, color })}
+                {PIECE_SYMBOLS[color][type]}
               </span>
             </button>
           ))}

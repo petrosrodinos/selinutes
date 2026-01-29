@@ -1,6 +1,5 @@
-import type { PieceColor, Piece, Move } from '../../types'
-import type { BotDifficulty } from '../../utils/chessBot'
-import { getPieceSymbol } from '../../utils/chessLogic'
+import type { PieceColor, Piece, Move, BotDifficulty } from '../../types'
+import { FILES, PIECE_SYMBOLS } from '../../constants'
 
 interface GameInfoProps {
   currentPlayer: PieceColor
@@ -39,11 +38,9 @@ export const GameInfo = ({
   onUndo,
   onHint
 }: GameInfoProps) => {
-  const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-
   const formatMove = (move: Move, index: number) => {
-    const from = `${files[move.from.col]}${8 - move.from.row}`
-    const to = `${files[move.to.col]}${8 - move.to.row}`
+    const from = `${FILES[move.from.col]}${8 - move.from.row}`
+    const to = `${FILES[move.to.col]}${8 - move.to.row}`
     const piece = move.piece.type === 'pawn' ? '' : move.piece.type[0].toUpperCase()
     const capture = move.captured ? 'x' : ''
     const check = index === moveHistory.length - 1 && isCheck ? '+' : ''
@@ -53,22 +50,18 @@ export const GameInfo = ({
   }
 
   const getStatusText = () => {
-    if (isCheckmate) {
-      return `Checkmate! ${currentPlayer === 'white' ? 'Black' : 'White'} wins!`
-    }
-    if (isStalemate) {
-      return 'Stalemate! Game is a draw.'
-    }
-    if (isCheck) {
-      return `${currentPlayer === 'white' ? 'White' : 'Black'} is in check!`
-    }
+    if (isCheckmate) return `Checkmate! ${currentPlayer === 'white' ? 'Black' : 'White'} wins!`
+    if (isStalemate) return 'Stalemate! Game is a draw.'
+    if (isCheck) return `${currentPlayer === 'white' ? 'White' : 'Black'} is in check!`
     return `${currentPlayer === 'white' ? 'White' : 'Black'}'s turn`
   }
 
   const pieceOrder = ['queen', 'rook', 'bishop', 'knight', 'pawn'] as const
 
   const sortedCaptured = (pieces: Piece[]) => {
-    return [...pieces].sort((a, b) => pieceOrder.indexOf(a.type as any) - pieceOrder.indexOf(b.type as any))
+    return [...pieces].sort((a, b) => 
+      pieceOrder.indexOf(a.type as typeof pieceOrder[number]) - pieceOrder.indexOf(b.type as typeof pieceOrder[number])
+    )
   }
 
   return (
@@ -112,7 +105,7 @@ export const GameInfo = ({
             <div className="flex flex-wrap gap-0.5">
               {sortedCaptured(capturedPieces.white).map((piece, i) => (
                 <span key={i} className="text-lg text-amber-50">
-                  {getPieceSymbol(piece)}
+                  {PIECE_SYMBOLS[piece.color][piece.type]}
                 </span>
               ))}
             </div>
@@ -122,7 +115,7 @@ export const GameInfo = ({
             <div className="flex flex-wrap gap-0.5">
               {sortedCaptured(capturedPieces.black).map((piece, i) => (
                 <span key={i} className="text-lg text-stone-900">
-                  {getPieceSymbol(piece)}
+                  {PIECE_SYMBOLS[piece.color][piece.type]}
                 </span>
               ))}
             </div>

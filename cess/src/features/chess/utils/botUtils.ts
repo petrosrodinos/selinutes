@@ -1,79 +1,6 @@
-import type { Board, Position, Move, PieceType } from '../types'
-import { getValidMoves, makeMove, isInCheck } from './chessLogic'
-
-export type BotDifficulty = 'easy' | 'medium' | 'hard'
-
-const pieceValues: Record<PieceType, number> = {
-  pawn: 100,
-  knight: 320,
-  bishop: 330,
-  rook: 500,
-  queen: 900,
-  king: 20000
-}
-
-const positionBonus: Record<PieceType, number[][]> = {
-  pawn: [
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [50, 50, 50, 50, 50, 50, 50, 50],
-    [10, 10, 20, 30, 30, 20, 10, 10],
-    [5, 5, 10, 25, 25, 10, 5, 5],
-    [0, 0, 0, 20, 20, 0, 0, 0],
-    [5, -5, -10, 0, 0, -10, -5, 5],
-    [5, 10, 10, -20, -20, 10, 10, 5],
-    [0, 0, 0, 0, 0, 0, 0, 0]
-  ],
-  knight: [
-    [-50, -40, -30, -30, -30, -30, -40, -50],
-    [-40, -20, 0, 0, 0, 0, -20, -40],
-    [-30, 0, 10, 15, 15, 10, 0, -30],
-    [-30, 5, 15, 20, 20, 15, 5, -30],
-    [-30, 0, 15, 20, 20, 15, 0, -30],
-    [-30, 5, 10, 15, 15, 10, 5, -30],
-    [-40, -20, 0, 5, 5, 0, -20, -40],
-    [-50, -40, -30, -30, -30, -30, -40, -50]
-  ],
-  bishop: [
-    [-20, -10, -10, -10, -10, -10, -10, -20],
-    [-10, 0, 0, 0, 0, 0, 0, -10],
-    [-10, 0, 5, 10, 10, 5, 0, -10],
-    [-10, 5, 5, 10, 10, 5, 5, -10],
-    [-10, 0, 10, 10, 10, 10, 0, -10],
-    [-10, 10, 10, 10, 10, 10, 10, -10],
-    [-10, 5, 0, 0, 0, 0, 5, -10],
-    [-20, -10, -10, -10, -10, -10, -10, -20]
-  ],
-  rook: [
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [5, 10, 10, 10, 10, 10, 10, 5],
-    [-5, 0, 0, 0, 0, 0, 0, -5],
-    [-5, 0, 0, 0, 0, 0, 0, -5],
-    [-5, 0, 0, 0, 0, 0, 0, -5],
-    [-5, 0, 0, 0, 0, 0, 0, -5],
-    [-5, 0, 0, 0, 0, 0, 0, -5],
-    [0, 0, 0, 5, 5, 0, 0, 0]
-  ],
-  queen: [
-    [-20, -10, -10, -5, -5, -10, -10, -20],
-    [-10, 0, 0, 0, 0, 0, 0, -10],
-    [-10, 0, 5, 5, 5, 5, 0, -10],
-    [-5, 0, 5, 5, 5, 5, 0, -5],
-    [0, 0, 5, 5, 5, 5, 0, -5],
-    [-10, 5, 5, 5, 5, 5, 0, -10],
-    [-10, 0, 5, 0, 0, 0, 0, -10],
-    [-20, -10, -10, -5, -5, -10, -10, -20]
-  ],
-  king: [
-    [-30, -40, -40, -50, -50, -40, -40, -30],
-    [-30, -40, -40, -50, -50, -40, -40, -30],
-    [-30, -40, -40, -50, -50, -40, -40, -30],
-    [-30, -40, -40, -50, -50, -40, -40, -30],
-    [-20, -30, -30, -40, -40, -30, -30, -20],
-    [-10, -20, -20, -20, -20, -20, -20, -10],
-    [20, 20, 0, 0, 0, 0, 20, 20],
-    [20, 30, 10, 0, 0, 10, 30, 20]
-  ]
-}
+import type { Board, Position, Move, BotDifficulty, HintMove } from '../types'
+import { PIECE_VALUES, POSITION_BONUS } from '../constants'
+import { getValidMoves, makeMove, isInCheck } from './moveUtils'
 
 const evaluateBoard = (board: Board): number => {
   let score = 0
@@ -81,10 +8,10 @@ const evaluateBoard = (board: Board): number => {
     for (let col = 0; col < 8; col++) {
       const piece = board[row][col]
       if (piece) {
-        const value = pieceValues[piece.type]
+        const value = PIECE_VALUES[piece.type]
         const bonus = piece.color === 'black'
-          ? positionBonus[piece.type][row][col]
-          : positionBonus[piece.type][7 - row][col]
+          ? POSITION_BONUS[piece.type][row][col]
+          : POSITION_BONUS[piece.type][7 - row][col]
         if (piece.color === 'black') {
           score += value + bonus
         } else {
@@ -142,7 +69,7 @@ const evaluateMoveSimple = (board: Board, from: Position, to: Position, lastMove
   let score = Math.random() * 10
 
   if (move.captured) {
-    score += pieceValues[move.captured.type]
+    score += PIECE_VALUES[move.captured.type]
   }
 
   if (isInCheck(newBoard, 'white')) {
@@ -157,7 +84,7 @@ const evaluateMoveMedium = (board: Board, from: Position, to: Position, lastMove
   let score = 0
 
   if (move.captured) {
-    score += pieceValues[move.captured.type] * 10
+    score += PIECE_VALUES[move.captured.type] * 10
   }
 
   if (isInCheck(newBoard, 'white')) {
@@ -166,8 +93,8 @@ const evaluateMoveMedium = (board: Board, from: Position, to: Position, lastMove
 
   const piece = board[from.row][from.col]
   if (piece) {
-    const fromBonus = positionBonus[piece.type][from.row][from.col]
-    const toBonus = positionBonus[piece.type][to.row][to.col]
+    const fromBonus = POSITION_BONUS[piece.type][from.row][from.col]
+    const toBonus = POSITION_BONUS[piece.type][to.row][to.col]
     score += toBonus - fromBonus
   }
 
@@ -186,7 +113,7 @@ const evaluateMoveHard = (board: Board, from: Position, to: Position, lastMove: 
   }
 
   if (newMove.captured) {
-    score += pieceValues[newMove.captured.type] * 0.1
+    score += PIECE_VALUES[newMove.captured.type] * 0.1
   }
 
   return score
@@ -196,7 +123,7 @@ export const getBotMove = (
   board: Board,
   lastMove: Move | null,
   difficulty: BotDifficulty
-): { from: Position; to: Position } | null => {
+): HintMove | null => {
   const allMoves: { from: Position; to: Position; score: number }[] = []
 
   for (let row = 0; row < 8; row++) {
@@ -242,10 +169,7 @@ export const getBotMove = (
   return { from: selected.from, to: selected.to }
 }
 
-export const getHintMove = (
-  board: Board,
-  lastMove: Move | null
-): { from: Position; to: Position } | null => {
+export const getHintMove = (board: Board, lastMove: Move | null): HintMove | null => {
   const allMoves: { from: Position; to: Position; score: number }[] = []
 
   for (let row = 0; row < 8; row++) {
@@ -259,15 +183,15 @@ export const getHintMove = (
           let score = -evaluateBoard(newBoard)
           
           if (move.captured) {
-            score += pieceValues[move.captured.type] * 10
+            score += PIECE_VALUES[move.captured.type] * 10
           }
           
           if (isInCheck(newBoard, 'black')) {
             score += 50
           }
           
-          const fromBonus = positionBonus[piece.type][7 - row][col]
-          const toBonus = positionBonus[piece.type][7 - to.row][to.col]
+          const fromBonus = POSITION_BONUS[piece.type][7 - row][col]
+          const toBonus = POSITION_BONUS[piece.type][7 - to.row][to.col]
           score += toBonus - fromBonus
 
           allMoves.push({ from: { row, col }, to, score })

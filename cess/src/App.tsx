@@ -1,10 +1,23 @@
-import { useChessGame } from './hooks/useChessGame'
-import { Board } from './components/Board/Board'
-import { GameInfo } from './components/GameInfo/GameInfo'
-import { PromotionModal } from './components/PromotionModal/PromotionModal'
+import { useChessGame, Board, GameInfo, PromotionModal } from './features/chess'
 
 function App() {
-  const { gameState, pendingPromotion, botEnabled, botThinking, botDifficulty, canUndo, hintMove, canHint, selectSquare, promotePawn, resetGame, toggleBot, setDifficulty, undoMove, showHint } = useChessGame()
+  const {
+    gameState,
+    pendingPromotion,
+    botEnabled,
+    botThinking,
+    botDifficulty,
+    canUndo,
+    hintMove,
+    canHint,
+    selectSquare,
+    promotePawn,
+    resetGame,
+    toggleBot,
+    setDifficulty,
+    undoMove,
+    showHint
+  } = useChessGame()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-emerald-950 flex items-center justify-center p-4">

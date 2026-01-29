@@ -1,0 +1,5 @@
+export { Board } from './Board'
+export { Square } from './Square'
+export { Piece } from './Piece'
+export { GameInfo } from './GameInfo'
+export { PromotionModal } from './PromotionModal'
