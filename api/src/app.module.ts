@@ -8,6 +8,7 @@ import { RedisModule } from './core/databases/redis/redis.module';
 import { RedisCacheModule } from './modules/internal/redis-cache/redis-cache.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from './shared/config/env/env.module';
+import { GameModule } from './modules/game/game.module';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { ConfigModule } from './shared/config/env/env.module';
     AiModule,
     RedisModule,
     RedisCacheModule,
-    // GraphQLModule,
+    GameModule,
     AuthModule,
   ],
   controllers: [AppController],

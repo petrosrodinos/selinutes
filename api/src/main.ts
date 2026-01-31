@@ -6,8 +6,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Appointly API')
-    .setDescription('The Appointly API documentation')
+    .setTitle('Selinutes API')
+    .setDescription('The Selinutes API documentation')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -15,7 +15,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  const enabledCors = process.env.NODE_ENV !== 'local' ? [process.env.APP_URL, process.env.LANDING_URL] : ['http://localhost:5173', 'http://localhost:3001'];
+  const enabledCors = process.env.NODE_ENV && process.env.NODE_ENV !== 'local' ? [process.env.APP_URL] : ['*'];
 
   app.enableCors({
     origin: enabledCors,
@@ -24,6 +24,6 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Access-Control-Allow-Origin'],
   });
 
-  await app.listen(3000);
+  await app.listen(3001);
 }
 bootstrap();

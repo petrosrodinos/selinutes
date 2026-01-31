@@ -73,6 +73,52 @@ Config rules:
 - Validate config on startup
 - Fail fast on missing config
 
+All constant values used in:
+- dropdowns
+- selects
+- filters
+- enums shown to users
+- game options
+- feature flags
+- size / mode / type selectors
+
+MUST be defined in a dedicated config file.
+
+All dropdown constants must follow this pattern:
+
+- Uppercase keys
+- Literal string values
+- `as const`
+- Exported union type derived from values
+
+DO NOT:
+- Use enums for UI-facing options
+- Use magic strings in JSX
+- Define options inside components
+- Define values without `as const`
+- Manually write union types
+
+NEVER:
+- Inline string literals in components
+- Hardcode enum values inside logic
+- Duplicate option values across files
+
+Helper methods MUST NEVER be defined:
+- Inside components
+- Inside services
+- Inside controllers
+- Inside hooks
+- Inside gateways
+
+Helpers must always live in a dedicated helper or utils folder.
+If a helper is used across multiple features:
+
+Place it in the root utils folder.
+
+Helper files must:
+- End with .helper.ts or .utils.ts
+- Be named after their responsibility
+- Export named functions only
 
 Do NOT:
 - use comments to explain the code
