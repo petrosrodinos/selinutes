@@ -2,6 +2,7 @@ import type { BoardSizeKey } from '../../types'
 import { BotDifficulties, BoardSizeKeys, PlayerColors } from '../../types'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
+import { useGameMode } from '../../../../hooks'
 
 export const TopMenu = () => {
   const {
@@ -16,6 +17,7 @@ export const TopMenu = () => {
   } = useGameStore()
 
   const { is3D, toggle3D, devMode, toggleDevMode, closeTopMenu } = useUIStore()
+  const { showBot, showDev } = useGameMode()
 
   const handleBoardSizeChange = (sizeKey: BoardSizeKey) => {
     resetGame(sizeKey)
@@ -75,53 +77,57 @@ export const TopMenu = () => {
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-xs font-medium text-amber-200">Bot</span>
-          <div className="flex items-center gap-2">
+        {showBot && (
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-xs font-medium text-amber-200">Bot</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleBot}
+                className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${
+                  botEnabled ? 'bg-emerald-600' : 'bg-stone-600'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
+                    botEnabled ? 'translate-x-7' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+              {botEnabled && (
+                <select
+                  value={botDifficulty}
+                  onChange={(e) => setDifficulty(e.target.value as typeof botDifficulty)}
+                  className="bg-stone-700 text-amber-100 text-xs rounded px-2 py-1 border border-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                >
+                  <option value={BotDifficulties.EASY}>Easy</option>
+                  <option value={BotDifficulties.MEDIUM}>Medium</option>
+                  <option value={BotDifficulties.HARD}>Hard</option>
+                </select>
+              )}
+              {botThinking && (
+                <span className="text-xs text-stone-400">Thinking...</span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {showDev && (
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-xs font-medium text-orange-400">Dev</span>
             <button
-              onClick={toggleBot}
+              onClick={toggleDevMode}
               className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${
-                botEnabled ? 'bg-emerald-600' : 'bg-stone-600'
+                devMode ? 'bg-orange-600' : 'bg-stone-600'
               }`}
             >
               <span
                 className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
-                  botEnabled ? 'translate-x-7' : 'translate-x-0'
+                  devMode ? 'translate-x-7' : 'translate-x-0'
                 }`}
               />
             </button>
-            {botEnabled && (
-              <select
-                value={botDifficulty}
-                onChange={(e) => setDifficulty(e.target.value as typeof botDifficulty)}
-                className="bg-stone-700 text-amber-100 text-xs rounded px-2 py-1 border border-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
-              >
-                <option value={BotDifficulties.EASY}>Easy</option>
-                <option value={BotDifficulties.MEDIUM}>Medium</option>
-                <option value={BotDifficulties.HARD}>Hard</option>
-              </select>
-            )}
-            {botThinking && (
-              <span className="text-xs text-stone-400">Thinking...</span>
-            )}
           </div>
-        </div>
-
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-xs font-medium text-orange-400">Dev</span>
-          <button
-            onClick={toggleDevMode}
-            className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${
-              devMode ? 'bg-orange-600' : 'bg-stone-600'
-            }`}
-          >
-            <span
-              className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
-                devMode ? 'translate-x-7' : 'translate-x-0'
-              }`}
-            />
-          </button>
-        </div>
+        )}
       </div>
     </div>
   )

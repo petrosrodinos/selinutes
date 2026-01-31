@@ -2,8 +2,8 @@ import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { User, Users, Plus, LogIn } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
-
-type GameMode = 'single' | 'offline-2p' | 'create' | 'join'
+import { GameModes } from '../../constants'
+import type { GameMode } from '../../constants'
 
 export const Home = () => {
     const navigate = useNavigate()
@@ -11,20 +11,7 @@ export const Home = () => {
     const logout = useAuthStore(state => state.logout)
 
     const handleModeSelect = useCallback((mode: GameMode) => {
-        switch (mode) {
-            case 'single':
-                navigate('/game?mode=single')
-                break
-            case 'offline-2p':
-                navigate('/game?mode=offline-2p')
-                break
-            case 'create':
-                navigate('/game?mode=create')
-                break
-            case 'join':
-                navigate('/game?mode=join')
-                break
-        }
+        navigate(`/game?mode=${mode}`)
     }, [navigate])
 
     const handleLogout = useCallback(() => {
@@ -46,7 +33,7 @@ export const Home = () => {
                     <div className="space-y-4">
                         <button
                             type="button"
-                            onClick={() => handleModeSelect('single')}
+                            onClick={() => handleModeSelect(GameModes.SINGLE)}
                             className="w-full py-4 px-6 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-emerald-500/25 flex items-center justify-center gap-3"
                         >
                             <User className="w-6 h-6" />
@@ -55,7 +42,7 @@ export const Home = () => {
 
                         <button
                             type="button"
-                            onClick={() => handleModeSelect('offline-2p')}
+                            onClick={() => handleModeSelect(GameModes.OFFLINE_2P)}
                             className="w-full py-4 px-6 bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-violet-500/25 flex items-center justify-center gap-3"
                         >
                             <Users className="w-6 h-6" />
@@ -65,7 +52,7 @@ export const Home = () => {
                         <div className="grid grid-cols-2 gap-4 pt-2">
                             <button
                                 type="button"
-                                onClick={() => handleModeSelect('create')}
+                                onClick={() => handleModeSelect(GameModes.CREATE)}
                                 className="py-4 px-4 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-900 font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-amber-500/25 flex items-center justify-center gap-2"
                             >
                                 <Plus className="w-5 h-5" />
@@ -74,7 +61,7 @@ export const Home = () => {
 
                             <button
                                 type="button"
-                                onClick={() => handleModeSelect('join')}
+                                onClick={() => handleModeSelect(GameModes.JOIN)}
                                 className="py-4 px-4 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-rose-500/25 flex items-center justify-center gap-2"
                             >
                                 <LogIn className="w-5 h-5" />
