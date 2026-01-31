@@ -1,8 +1,7 @@
 export const GameModes = {
     SINGLE: 'single',
-    OFFLINE_2P: 'offline-2p',
-    CREATE: 'create',
-    JOIN: 'join'
+    OFFLINE: 'offline',
+    ONLINE: 'online'
 } as const
 
 export type GameMode = typeof GameModes[keyof typeof GameModes]
@@ -13,18 +12,13 @@ export const GAME_MODE_CONFIG = {
         showBot: true,
         showDev: true
     },
-    [GameModes.OFFLINE_2P]: {
-        label: '2 Players Offline',
+    [GameModes.OFFLINE]: {
+        label: 'Offline',
         showBot: false,
         showDev: false
     },
-    [GameModes.CREATE]: {
-        label: 'Create Game',
-        showBot: false,
-        showDev: false
-    },
-    [GameModes.JOIN]: {
-        label: 'Join Game',
+    [GameModes.ONLINE]: {
+        label: 'Online',
         showBot: false,
         showDev: false
     }

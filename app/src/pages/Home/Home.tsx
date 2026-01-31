@@ -1,19 +1,72 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Users, Plus, LogIn } from 'lucide-react'
+import { User, Users, Plus, LogIn, Copy, Check } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { GameModes } from '../../constants'
 import type { GameMode } from '../../constants'
 import { environments } from '../../config/environments'
+import { useCreateGame, useJoinGame } from '../../features/game/hooks'
 
 export const Home = () => {
     const navigate = useNavigate()
     const username = useAuthStore(state => state.username)
     const logout = useAuthStore(state => state.logout)
+    const [gameCode, setGameCode] = useState<string | null>(null)
+    const [copiedLink, setCopiedLink] = useState(false)
+    const [copiedCode, setCopiedCode] = useState(false)
+    const [showJoinMenu, setShowJoinMenu] = useState(false)
+    const [joinCode, setJoinCode] = useState('')
+    const { mutate: createGame, isPending: isCreating } = useCreateGame()
+    const { mutate: joinGame, isPending: isJoining } = useJoinGame()
+
+    const gameLink = gameCode ? `${environments.APP_URL}/game?code=${gameCode}` : null
 
     const handleModeSelect = useCallback((mode: GameMode) => {
         navigate(`/game?mode=${mode}`)
     }, [navigate])
+
+    const handleCreateGame = useCallback(() => {
+        createGame(
+            { playerName: username || '' },
+            {
+                onSuccess: (data) => {
+                    setGameCode(data.code)
+                    setShowJoinMenu(false)
+                },
+            }
+        )
+    }, [createGame, username])
+
+    const handleToggleJoinMenu = useCallback(() => {
+        setShowJoinMenu(prev => !prev)
+        setGameCode(null)
+    }, [])
+
+    const handleJoinGame = useCallback(() => {
+        if (!joinCode.trim()) return
+        joinGame(
+            { code: joinCode.trim(), playerName: username || '' },
+            {
+                onSuccess: (data) => {
+                    navigate(`/game?code=${data.code}`)
+                },
+            }
+        )
+    }, [joinGame, joinCode, username, navigate])
+
+    const handleCopyLink = useCallback(async () => {
+        if (!gameLink) return
+        await navigator.clipboard.writeText(gameLink)
+        setCopiedLink(true)
+        setTimeout(() => setCopiedLink(false), 2000)
+    }, [gameLink])
+
+    const handleCopyCode = useCallback(async () => {
+        if (!gameCode) return
+        await navigator.clipboard.writeText(gameCode)
+        setCopiedCode(true)
+        setTimeout(() => setCopiedCode(false), 2000)
+    }, [gameCode])
 
     const handleLogout = useCallback(() => {
         logout()
@@ -43,32 +96,96 @@ export const Home = () => {
 
                         <button
                             type="button"
-                            onClick={() => handleModeSelect(GameModes.OFFLINE_2P)}
+                            onClick={() => handleModeSelect(GameModes.OFFLINE)}
                             className="w-full py-4 px-6 bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-violet-500/25 flex items-center justify-center gap-3"
                         >
                             <Users className="w-6 h-6" />
                             2 Players Offline
                         </button>
 
-                        <div className="grid grid-cols-2 gap-4 pt-2">
+                        <div className="flex items-center gap-3 pt-4 pb-2">
+                            <div className="flex-1 h-px bg-stone-600/50" />
+                            <span className="text-stone-400 text-sm font-medium">Online Game</span>
+                            <div className="flex-1 h-px bg-stone-600/50" />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
                             <button
                                 type="button"
-                                onClick={() => handleModeSelect(GameModes.CREATE)}
-                                className="py-4 px-4 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-900 font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-amber-500/25 flex items-center justify-center gap-2"
+                                onClick={handleCreateGame}
+                                disabled={isCreating}
+                                className="py-4 px-4 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-900 font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-amber-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Plus className="w-5 h-5" />
-                                Create Game
+                                {isCreating ? 'Creating...' : 'Create Game'}
                             </button>
 
                             <button
                                 type="button"
-                                onClick={() => handleModeSelect(GameModes.JOIN)}
+                                onClick={handleToggleJoinMenu}
                                 className="py-4 px-4 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-rose-500/25 flex items-center justify-center gap-2"
                             >
                                 <LogIn className="w-5 h-5" />
                                 Join Game
                             </button>
                         </div>
+
+                        {showJoinMenu && (
+                            <div className="mt-4 p-4 bg-stone-900/50 rounded-xl border border-stone-600/50">
+                                <p className="text-stone-400 text-sm mb-2">Enter game code:</p>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        value={joinCode}
+                                        onChange={(e) => setJoinCode(e.target.value)}
+                                        placeholder="Enter code..."
+                                        className="flex-1 px-3 py-2 bg-stone-800 border border-stone-600 rounded-lg text-amber-200 text-sm placeholder:text-stone-500"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleJoinGame}
+                                        disabled={isJoining || !joinCode.trim()}
+                                        className="px-4 py-2 bg-rose-600 hover:bg-rose-500 rounded-lg transition-colors text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isJoining ? 'Joining...' : 'Join'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {gameLink && gameCode && (
+                            <div className="mt-4 p-4 bg-stone-900/50 rounded-xl border border-stone-600/50">
+                                <p className="text-stone-400 text-sm mb-2">Share this link with a friend:</p>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        readOnly
+                                        value={gameLink}
+                                        className="flex-1 px-3 py-2 bg-stone-800 border border-stone-600 rounded-lg text-amber-200 text-sm"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleCopyLink}
+                                        className="p-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors"
+                                    >
+                                        {copiedLink ? <Check className="w-5 h-5 text-white" /> : <Copy className="w-5 h-5 text-white" />}
+                                    </button>
+                                </div>
+                                <div className="flex items-center gap-2 mt-3">
+                                    <p className="text-stone-400 text-sm">or copy the code:</p>
+                                    <span className="px-3 py-1 bg-stone-800 border border-stone-600 rounded-lg text-amber-200 text-sm font-mono">
+                                        {gameCode}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={handleCopyCode}
+                                        className="p-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors"
+                                    >
+                                        {copiedCode ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4 text-white" />}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="mt-8 pt-6 border-t border-stone-700/50">
