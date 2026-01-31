@@ -1,33 +1,27 @@
-import { Suspense, useMemo } from 'react'
+import { Suspense, useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import type { Board as BoardType, Position, Move, HintMove, BoardSize } from '../../types'
 import { isPiece, isObstacle } from '../../types'
 import { Piece3D } from './Piece3D'
 import { BoardSquare3D } from './BoardSquare3D'
 import { Obstacle3D } from './Obstacle3D'
+import { useGameStore } from '../../../../store/gameStore'
+import { useUIStore } from '../../../../store/uiStore'
+import { getValidMoves, getValidAttacks } from '../../utils'
 
-interface Board3DProps {
-  board: BoardType
-  boardSize: BoardSize
-  selectedPosition: Position | null
-  validMoves: Position[]
-  validAttacks: Position[]
-  lastMove: Move | null
-  hintMove: HintMove | null
-  onSquareClick: (pos: Position) => void
-}
-
-const GameScene = ({
-  board,
-  boardSize,
-  selectedPosition,
-  validMoves,
-  validAttacks,
-  lastMove,
-  hintMove,
-  onSquareClick
-}: Board3DProps) => {
+const GameScene = () => {
+  const { gameState, hintMove, selectSquare } = useGameStore()
+  const { board, boardSize, selectedPosition, validMoves, validAttacks, lastMove } = gameState
+  const { helpEnabled } = useUIStore()
+  
+  // Help mode: show moves for any clicked piece
+  const [helpPosition, setHelpPosition] = useState<{ row: number; col: number } | null>(null)
+  const helpMoves = helpPosition && helpEnabled
+    ? getValidMoves(board, helpPosition, boardSize)
+    : []
+  const helpAttacks = helpPosition && helpEnabled
+    ? getValidAttacks(board, helpPosition, boardSize)
+    : []
   const { rows, cols } = boardSize
   const offsetX = (cols - 1) / 2
   const offsetZ = (rows - 1) / 2
@@ -57,12 +51,30 @@ const GameScene = ({
       (hintMove.to.row === row && hintMove.to.col === col))
 
   const isHintAttackSquare = (row: number, col: number) =>
-    hintMove !== null && hintMove.isAttack &&
+    hintMove !== null && hintMove.isAttack === true &&
     ((hintMove.from.row === row && hintMove.from.col === col) ||
       (hintMove.to.row === row && hintMove.to.col === col))
 
   const isHintPiece = (row: number, col: number) =>
     hintMove !== null && hintMove.from.row === row && hintMove.from.col === col
+
+  const isHelpMove = (row: number, col: number) =>
+    helpEnabled && helpMoves.some(m => m.row === row && m.col === col)
+
+  const isHelpAttack = (row: number, col: number) =>
+    helpEnabled && helpAttacks.some(a => a.row === row && a.col === col)
+
+  const handleSquareClick = (row: number, col: number) => {
+    if (helpEnabled) {
+      const cell = board[row][col]
+      if (cell && isPiece(cell)) {
+        setHelpPosition({ row, col })
+        return
+      }
+      setHelpPosition(null)
+    }
+    selectSquare({ row, col })
+  }
 
   return (
     <>
@@ -100,13 +112,13 @@ const GameScene = ({
               key={`square-${rowIndex}-${colIndex}`}
               position={[x, 0, z]}
               isLight={isLight}
-              isValidMove={isValidMove(rowIndex, colIndex)}
-              isValidAttack={isValidAttack(rowIndex, colIndex)}
+              isValidMove={isValidMove(rowIndex, colIndex) || isHelpMove(rowIndex, colIndex)}
+              isValidAttack={isValidAttack(rowIndex, colIndex) || isHelpAttack(rowIndex, colIndex)}
               isLastMove={isLastMove(rowIndex, colIndex)}
               isHint={isHintSquare(rowIndex, colIndex)}
               isHintAttack={isHintAttackSquare(rowIndex, colIndex)}
-              isObstacle={hasObstacle || false}
-              onClick={() => onSquareClick({ row: rowIndex, col: colIndex })}
+              isObstacle={!!hasObstacle}
+              onClick={() => handleSquareClick(rowIndex, colIndex)}
             />
           )
         })
@@ -135,10 +147,10 @@ const GameScene = ({
                 type={cell.type}
                 color={cell.color}
                 position={[x, 0.1, z]}
-                isSelected={isSelected(rowIndex, colIndex)}
+                isSelected={isSelected(rowIndex, colIndex) || (helpEnabled && helpPosition?.row === rowIndex && helpPosition?.col === colIndex)}
                 isHint={isHintPiece(rowIndex, colIndex)}
-                isTargeted={isValidAttack(rowIndex, colIndex)}
-                onClick={() => onSquareClick({ row: rowIndex, col: colIndex })}
+                isTargeted={isValidAttack(rowIndex, colIndex) || isHelpAttack(rowIndex, colIndex)}
+                onClick={() => handleSquareClick(rowIndex, colIndex)}
               />
             )
           }
@@ -150,8 +162,9 @@ const GameScene = ({
   )
 }
 
-export const Board3D = (props: Board3DProps) => {
-  const { boardSize } = props
+export const Board3D = () => {
+  const { gameState } = useGameStore()
+  const { boardSize } = gameState
   const maxDim = Math.max(boardSize.rows, boardSize.cols)
   const cameraY = maxDim * 1.1
   const cameraZ = maxDim * 0.9
@@ -166,7 +179,7 @@ export const Board3D = (props: Board3DProps) => {
       >
         <color attach="background" args={['#1f2937']} />
         <Suspense fallback={null}>
-          <GameScene {...props} />
+          <GameScene />
         </Suspense>
       </Canvas>
     </div>

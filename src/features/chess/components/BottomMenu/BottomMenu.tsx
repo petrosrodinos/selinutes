@@ -1,26 +1,15 @@
-interface BottomMenuProps {
-  canUndo: boolean
-  canHint: boolean
-  onUndo: () => void
-  onHint: () => void
-  onReset: () => void
-}
+import { useGameStore } from '../../../../store/gameStore'
 
-export const BottomMenu = ({
-  canUndo,
-  canHint,
-  onUndo,
-  onHint,
-  onReset
-}: BottomMenuProps) => {
+export const BottomMenu = () => {
+  const { canUndo, canHint, undoMove, showHint, resetGame } = useGameStore()
   return (
     <div className="bg-stone-800/80 backdrop-blur rounded-xl p-4 border border-stone-700 mt-4">
       <div className="flex gap-3 justify-center">
         <button
-          onClick={onHint}
-          disabled={!canHint}
+          onClick={showHint}
+          disabled={!canHint()}
           className={`py-2 px-6 font-medium rounded-lg transition-all duration-200 ${
-            canHint
+            canHint()
               ? 'bg-cyan-600 hover:bg-cyan-500 text-white'
               : 'bg-stone-700 text-stone-500 cursor-not-allowed'
           }`}
@@ -28,10 +17,10 @@ export const BottomMenu = ({
           Hint
         </button>
         <button
-          onClick={onUndo}
-          disabled={!canUndo}
+          onClick={undoMove}
+          disabled={!canUndo()}
           className={`py-2 px-6 font-medium rounded-lg transition-all duration-200 ${
-            canUndo
+            canUndo()
               ? 'bg-amber-600 hover:bg-amber-500 text-white'
               : 'bg-stone-700 text-stone-500 cursor-not-allowed'
           }`}
@@ -39,7 +28,7 @@ export const BottomMenu = ({
           Undo
         </button>
         <button
-          onClick={onReset}
+          onClick={() => resetGame()}
           className="py-2 px-6 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-rose-500/25"
         >
           New Game

@@ -1,18 +1,11 @@
 import type { Piece, Move } from '../../types'
 import { BOARD_SIZES, PieceTypes } from '../../types'
 import { generateFiles, PIECE_SYMBOLS, PIECE_RULES } from '../../constants'
+import { useGameStore } from '../../../../store/gameStore'
 
-interface RightSidebarProps {
-  boardSizeKey: string
-  capturedPieces: { white: Piece[]; black: Piece[] }
-  moveHistory: Move[]
-}
-
-export const RightSidebar = ({
-  boardSizeKey,
-  capturedPieces,
-  moveHistory
-}: RightSidebarProps) => {
+export const RightSidebar = () => {
+  const { gameState, boardSizeKey } = useGameStore()
+  const { capturedPieces, moveHistory } = gameState
   const boardSize = BOARD_SIZES[boardSizeKey as keyof typeof BOARD_SIZES]
   const files = generateFiles(boardSize.cols)
 

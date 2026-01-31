@@ -6,13 +6,13 @@ const getObstacleCounts = (boardSizeKey: BoardSizeKey): Record<ObstacleType, num
   return OBSTACLE_COUNTS[boardSizeKey] || OBSTACLE_COUNTS[BoardSizeKeys.SMALL]
 }
 
-const getBoardSizeKey = (rows: number, cols: number): BoardSizeKey => {
+const getBoardSizeKey = (_rows: number, cols: number): BoardSizeKey => {
   if (cols === 20) return BoardSizeKeys.LARGE
   if (cols === 16) return BoardSizeKeys.MEDIUM
   return BoardSizeKeys.SMALL
 }
 
-const isProtectedZone = (row: number, col: number, rows: number): boolean => {
+const isProtectedZone = (row: number, _col: number, rows: number): boolean => {
   return row < 2 || row >= rows - 2
 }
 

@@ -1,6 +1,6 @@
 import type { CellContent, Position } from '../../types'
 import { isPiece, isObstacle } from '../../types'
-import { OBSTACLE_SYMBOLS } from '../../constants'
+import { OBSTACLE_SYMBOLS, OBSTACLE_NAMES } from '../../constants'
 import { Piece } from '../Piece'
 
 interface SquareProps {
@@ -58,7 +58,10 @@ export const Square = ({
     <div className={getSquareClasses()} onClick={onClick}>
       {cell && isPiece(cell) && <Piece piece={cell} />}
       {cell && isObstacle(cell) && (
-        <span className="text-2xl md:text-3xl select-none">
+        <span 
+          className="text-2xl md:text-3xl select-none"
+          title={OBSTACLE_NAMES[cell.type]}
+        >
           {OBSTACLE_SYMBOLS[cell.type]}
         </span>
       )}

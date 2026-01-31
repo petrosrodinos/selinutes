@@ -1,28 +1,24 @@
-import type { Board as BoardType, Position, Move, HintMove, BoardSize } from '../../types'
+import { useState } from 'react'
 import { generateFiles, generateRanks } from '../../constants'
 import { Square } from '../Square'
+import { useGameStore } from '../../../../store/gameStore'
+import { useUIStore } from '../../../../store/uiStore'
+import { getValidMoves, getValidAttacks } from '../../utils'
+import { isPiece } from '../../types'
 
-interface BoardProps {
-  board: BoardType
-  boardSize: BoardSize
-  selectedPosition: Position | null
-  validMoves: Position[]
-  validAttacks: Position[]
-  lastMove: Move | null
-  hintMove: HintMove | null
-  onSquareClick: (pos: Position) => void
-}
-
-export const Board = ({
-  board,
-  boardSize,
-  selectedPosition,
-  validMoves,
-  validAttacks,
-  lastMove,
-  hintMove,
-  onSquareClick
-}: BoardProps) => {
+export const Board = () => {
+  const { gameState, hintMove, selectSquare } = useGameStore()
+  const { board, boardSize, selectedPosition, validMoves, validAttacks, lastMove } = gameState
+  const { helpEnabled } = useUIStore()
+  
+  // Help mode: show moves for any clicked piece
+  const [helpPosition, setHelpPosition] = useState<{ row: number; col: number } | null>(null)
+  const helpMoves = helpPosition && helpEnabled
+    ? getValidMoves(board, helpPosition, boardSize)
+    : []
+  const helpAttacks = helpPosition && helpEnabled
+    ? getValidAttacks(board, helpPosition, boardSize)
+    : []
   const files = generateFiles(boardSize.cols)
   const ranks = generateRanks(boardSize.rows)
 
@@ -46,9 +42,27 @@ export const Board = ({
       (hintMove.to.row === row && hintMove.to.col === col))
 
   const isHintAttack = (row: number, col: number) =>
-    hintMove !== null && hintMove.isAttack &&
+    hintMove !== null && hintMove.isAttack === true &&
     ((hintMove.from.row === row && hintMove.from.col === col) ||
       (hintMove.to.row === row && hintMove.to.col === col))
+
+  const isHelpMove = (row: number, col: number) =>
+    helpEnabled && helpMoves.some(m => m.row === row && m.col === col)
+
+  const isHelpAttack = (row: number, col: number) =>
+    helpEnabled && helpAttacks.some(a => a.row === row && a.col === col)
+
+  const handleSquareClick = (row: number, col: number) => {
+    if (helpEnabled) {
+      const cell = board[row][col]
+      if (cell && isPiece(cell)) {
+        setHelpPosition({ row, col })
+        return
+      }
+      setHelpPosition(null)
+    }
+    selectSquare({ row, col })
+  }
 
   return (
     <div className="flex flex-col items-center overflow-auto max-h-[80vh]">
@@ -84,13 +98,13 @@ export const Board = ({
                   key={`${rowIndex}-${colIndex}`}
                   cell={cell}
                   position={{ row: rowIndex, col: colIndex }}
-                  isSelected={isSelected(rowIndex, colIndex)}
-                  isValidMove={isValidMove(rowIndex, colIndex)}
-                  isValidAttack={isValidAttack(rowIndex, colIndex)}
+                  isSelected={isSelected(rowIndex, colIndex) || (helpEnabled && helpPosition?.row === rowIndex && helpPosition?.col === colIndex)}
+                  isValidMove={isValidMove(rowIndex, colIndex) || isHelpMove(rowIndex, colIndex)}
+                  isValidAttack={isValidAttack(rowIndex, colIndex) || isHelpAttack(rowIndex, colIndex)}
                   isLastMove={isLastMove(rowIndex, colIndex)}
                   isHint={isHint(rowIndex, colIndex)}
                   isHintAttack={isHintAttack(rowIndex, colIndex)}
-                  onClick={() => onSquareClick({ row: rowIndex, col: colIndex })}
+                  onClick={() => handleSquareClick(rowIndex, colIndex)}
                 />
               ))}
             </div>

@@ -246,7 +246,7 @@ const isAttackPathClear = (
   board: Board,
   from: Position,
   to: Position,
-  piece: Piece,
+  _piece: Piece,
   boardSize: BoardSize
 ): boolean => {
   const rowDir = to.row === from.row ? 0 : (to.row > from.row ? 1 : -1)
@@ -323,7 +323,7 @@ export const getValidMoves = (board: Board, pos: Position, boardSize: BoardSize)
 }
 
 export const isValidMove = (
-  piece: PieceType,
+  _piece: PieceType,
   start: Position,
   end: Position,
   board: Board,
@@ -334,7 +334,7 @@ export const isValidMove = (
 }
 
 export const canAttack = (
-  piece: PieceType,
+  _piece: PieceType,
   start: Position,
   target: Position,
   board: Board,
@@ -348,7 +348,7 @@ export const makeMove = (
   board: Board,
   from: Position,
   to: Position,
-  boardSize: BoardSize,
+  _boardSize: BoardSize,
   isAttack: boolean = false
 ): { newBoard: Board; move: Move } => {
   const newBoard = cloneBoard(board)

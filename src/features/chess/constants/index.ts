@@ -114,6 +114,28 @@ export const OBSTACLE_SYMBOLS = {
   [ObstacleTypes.MYSTERY_BOX]: '❓'
 } as const
 
+export const PIECE_NAMES = {
+  [PieceTypes.HOPLITE]: 'Hoplite',
+  [PieceTypes.RAM_TOWER]: 'Ram Tower',
+  [PieceTypes.CHARIOT]: 'Chariot',
+  [PieceTypes.BOMBER]: 'Bomber',
+  [PieceTypes.PALADIN]: 'Paladin',
+  [PieceTypes.WARLOCK]: 'Warlock',
+  [PieceTypes.MONARCH]: 'Monarch',
+  [PieceTypes.DUCHESS]: 'Duchess',
+  [PieceTypes.NECROMANCER]: 'Necromancer'
+} as const
+
+export const OBSTACLE_NAMES = {
+  [ObstacleTypes.CAVE]: 'Cave',
+  [ObstacleTypes.TREE]: 'Tree',
+  [ObstacleTypes.ROCK]: 'Rock',
+  [ObstacleTypes.RIVER]: 'River',
+  [ObstacleTypes.LAKE]: 'Lake',
+  [ObstacleTypes.CANYON]: 'Canyon',
+  [ObstacleTypes.MYSTERY_BOX]: 'Mystery Box'
+} as const
+
 export const OBSTACLE_COLORS = {
   [ObstacleTypes.CAVE]: '#2d2d2d',
   [ObstacleTypes.TREE]: '#228b22',

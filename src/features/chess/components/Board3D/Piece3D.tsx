@@ -231,18 +231,6 @@ const DefaultPiece = ({ color }: { color: PlayerColor }) => (
   </group>
 )
 
-const pieceComponents: Record<PieceType, React.FC<{ color: PlayerColor }>> = {
-  [PieceTypes.HOPLITE]: Hoplite,
-  [PieceTypes.RAM_TOWER]: RamTower,
-  [PieceTypes.CHARIOT]: Chariot,
-  [PieceTypes.BOMBER]: Bomber,
-  [PieceTypes.PALADIN]: Paladin,
-  [PieceTypes.WARLOCK]: Warlock,
-  [PieceTypes.MONARCH]: Monarch,
-  [PieceTypes.DUCHESS]: Duchess,
-  [PieceTypes.NECROMANCER]: Necromancer
-}
-
 export const Piece3D = ({ type, color, position, isSelected, isHint, isTargeted, onClick }: Piece3DProps) => {
   const groupRef = useRef<Group>(null)
   

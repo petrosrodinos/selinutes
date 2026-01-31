@@ -1,1 +1,0 @@
-export { PromotionModal } from './PromotionModal'

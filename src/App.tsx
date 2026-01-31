@@ -1,35 +1,28 @@
-import { useState } from 'react'
-import { useGame, Board, Board3D, TopMenu, BottomMenu, RightSidebar } from './features/chess'
-import type { BoardSizeKey } from './features/chess/types'
+import { useEffect } from 'react'
+import { Board, Board3D, TopMenu, BottomMenu, RightSidebar } from './features/chess'
 import { Modal } from './components/Modal'
+import { useGameStore } from './store/gameStore'
+import { useUIStore } from './store/uiStore'
+import { PlayerColors } from './features/chess/types'
+import { BOT_DELAY } from './features/chess/constants'
 
 function App() {
-  const [is3D, setIs3D] = useState(true)
-  const [isTopMenuOpen, setIsTopMenuOpen] = useState(false)
-  const [isRightMenuOpen, setIsRightMenuOpen] = useState(false)
+  const { gameState, botEnabled, botDifficulty, botThinking, processBotMove } = useGameStore()
+  const { is3D, isTopMenuOpen, isRightMenuOpen, openTopMenu, closeTopMenu, openRightMenu, closeRightMenu } = useUIStore()
 
-  const {
-    gameState,
-    boardSizeKey,
-    botEnabled,
-    botThinking,
-    botDifficulty,
-    canUndo,
-    hintMove,
-    canHint,
-    selectSquare,
-    resetGame,
-    toggleBot,
-    setDifficulty,
-    undoMove,
-    showHint
-  } = useGame()
+  // Bot move effect
+  useEffect(() => {
+    if (!botEnabled) return
+    if (gameState.currentPlayer !== PlayerColors.BLACK) return
+    if (gameState.gameOver) return
+    if (botThinking) return
 
-  const toggle3D = () => setIs3D(prev => !prev)
+    const timer = setTimeout(() => {
+      processBotMove()
+    }, BOT_DELAY[botDifficulty])
 
-  const handleBoardSizeChange = (sizeKey: BoardSizeKey) => {
-    resetGame(sizeKey)
-  }
+    return () => clearTimeout(timer)
+  }, [botEnabled, botDifficulty, gameState.currentPlayer, gameState.gameOver, botThinking])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-emerald-950 p-4">
@@ -55,67 +48,22 @@ function App() {
         <div className="flex flex-col lg:flex-row gap-1 items-start justify-center">
           <div className="flex flex-col items-center w-full">
             <div className="hidden lg:block  mb-2">
-              <TopMenu
-                currentPlayer={gameState.currentPlayer}
-                gameOver={gameState.gameOver}
-                winner={gameState.winner}
-                boardSizeKey={boardSizeKey}
-                is3D={is3D}
-                botEnabled={botEnabled}
-                botThinking={botThinking}
-                botDifficulty={botDifficulty}
-                onBoardSizeChange={handleBoardSizeChange}
-                onToggle3D={toggle3D}
-                onToggleBot={toggleBot}
-                onDifficultyChange={setDifficulty}
-              />
+              <TopMenu />
             </div>
 
-            {is3D ? (
-              <Board3D
-                board={gameState.board}
-                boardSize={gameState.boardSize}
-                selectedPosition={gameState.selectedPosition}
-                validMoves={gameState.validMoves}
-                validAttacks={gameState.validAttacks}
-                lastMove={gameState.lastMove}
-                hintMove={hintMove}
-                onSquareClick={selectSquare}
-              />
-            ) : (
-              <Board
-                board={gameState.board}
-                boardSize={gameState.boardSize}
-                selectedPosition={gameState.selectedPosition}
-                validMoves={gameState.validMoves}
-                validAttacks={gameState.validAttacks}
-                lastMove={gameState.lastMove}
-                hintMove={hintMove}
-                onSquareClick={selectSquare}
-              />
-            )}
+            {is3D ? <Board3D /> : <Board />}
 
-            <BottomMenu
-              canUndo={canUndo}
-              canHint={canHint}
-              onUndo={undoMove}
-              onHint={showHint}
-              onReset={() => resetGame()}
-            />
+            <BottomMenu />
           </div>
 
           <div className="hidden lg:block w-full lg:w-64 flex-shrink-0">
-            <RightSidebar
-              boardSizeKey={boardSizeKey}
-              capturedPieces={gameState.capturedPieces}
-              moveHistory={gameState.moveHistory}
-            />
+            <RightSidebar />
           </div>
         </div>
 
         <div className="fixed bottom-20 right-4 lg:hidden flex flex-col gap-2 z-40">
           <button
-            onClick={() => setIsTopMenuOpen(true)}
+            onClick={openTopMenu}
             className="bg-amber-600 hover:bg-amber-700 text-white rounded-full p-3 shadow-lg transition-colors"
             aria-label="Open game settings"
           >
@@ -125,7 +73,7 @@ function App() {
             </svg>
           </button>
           <button
-            onClick={() => setIsRightMenuOpen(true)}
+            onClick={openRightMenu}
             className="bg-violet-600 hover:bg-violet-700 text-white rounded-full p-3 shadow-lg transition-colors"
             aria-label="Open game info"
           >
@@ -137,38 +85,18 @@ function App() {
 
         <Modal
           isOpen={isTopMenuOpen}
-          onClose={() => setIsTopMenuOpen(false)}
+          onClose={closeTopMenu}
           title="Game Settings"
         >
-          <TopMenu
-            currentPlayer={gameState.currentPlayer}
-            gameOver={gameState.gameOver}
-            winner={gameState.winner}
-            boardSizeKey={boardSizeKey}
-            is3D={is3D}
-            botEnabled={botEnabled}
-            botThinking={botThinking}
-            botDifficulty={botDifficulty}
-            onBoardSizeChange={(size) => {
-              handleBoardSizeChange(size)
-              setIsTopMenuOpen(false)
-            }}
-            onToggle3D={toggle3D}
-            onToggleBot={toggleBot}
-            onDifficultyChange={setDifficulty}
-          />
+          <TopMenu />
         </Modal>
 
         <Modal
           isOpen={isRightMenuOpen}
-          onClose={() => setIsRightMenuOpen(false)}
+          onClose={closeRightMenu}
           title="Game Info"
         >
-          <RightSidebar
-            boardSizeKey={boardSizeKey}
-            capturedPieces={gameState.capturedPieces}
-            moveHistory={gameState.moveHistory}
-          />
+          <RightSidebar />
         </Modal>
       </div>
     </div>

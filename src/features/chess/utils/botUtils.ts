@@ -114,7 +114,7 @@ const evaluateMoveSimple = (
   boardSize: BoardSize,
   isAttack: boolean
 ): number => {
-  const { newBoard, move } = makeMove(board, from, to, boardSize, isAttack)
+  const { move } = makeMove(board, from, to, boardSize, isAttack)
   let score = Math.random() * 10
 
   if (move.captured) {
@@ -179,7 +179,7 @@ const evaluateMoveHard = (
 
 export const getBotMove = (
   board: Board,
-  lastMove: Move | null,
+  _lastMove: Move | null,
   difficulty: BotDifficulty,
   boardSize: BoardSize
 ): HintMove | null => {
@@ -220,7 +220,7 @@ export const getBotMove = (
   return { from: selected.from, to: selected.to, isAttack: selected.isAttack }
 }
 
-export const getHintMove = (board: Board, lastMove: Move | null, boardSize: BoardSize): HintMove | null => {
+export const getHintMove = (board: Board, _lastMove: Move | null, boardSize: BoardSize): HintMove | null => {
   const allActions = getAllMovesAndAttacks(board, PlayerColors.WHITE, boardSize)
 
   if (allActions.length === 0) {
