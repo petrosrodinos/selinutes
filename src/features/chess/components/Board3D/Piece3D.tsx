@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import type { Group } from 'three'
+import * as THREE from 'three'
 import type { PieceType, PlayerColor } from '../../types'
 import { PlayerColors, PieceTypes } from '../../types'
 
@@ -233,21 +234,38 @@ const DefaultPiece = ({ color }: { color: PlayerColor }) => (
 
 export const Piece3D = ({ type, color, position, isSelected, isHint, isTargeted, onClick }: Piece3DProps) => {
   const groupRef = useRef<Group>(null)
+  const currentPosRef = useRef<THREE.Vector3>(new THREE.Vector3(...position))
+  const targetPosRef = useRef<THREE.Vector3>(new THREE.Vector3(...position))
   
-  useFrame((state) => {
+  // Update target when position changes
+  if (targetPosRef.current.x !== position[0] || 
+      targetPosRef.current.y !== position[1] || 
+      targetPosRef.current.z !== position[2]) {
+    targetPosRef.current.set(...position)
+  }
+  
+  useFrame((state, delta) => {
     if (!groupRef.current) return
     
+    // Smoothly lerp to target position
+    currentPosRef.current.lerp(targetPosRef.current, Math.min(delta * 8, 1))
+    
+    groupRef.current.position.x = currentPosRef.current.x
+    groupRef.current.position.z = currentPosRef.current.z
+    
+    // Animate Y position based on state (selection, hint, etc.)
+    const baseY = currentPosRef.current.y
     if (isSelected) {
-      groupRef.current.position.y = position[1] + 0.15 + Math.sin(state.clock.elapsedTime * 3) * 0.08
+      groupRef.current.position.y = baseY + 0.15 + Math.sin(state.clock.elapsedTime * 3) * 0.08
       groupRef.current.rotation.y = state.clock.elapsedTime * 2
     } else if (isHint) {
-      groupRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 4) * 0.05
+      groupRef.current.position.y = baseY + Math.sin(state.clock.elapsedTime * 4) * 0.05
       groupRef.current.rotation.y = 0
     } else if (isTargeted) {
-      groupRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 5) * 0.03
+      groupRef.current.position.y = baseY + Math.sin(state.clock.elapsedTime * 5) * 0.03
       groupRef.current.rotation.y = 0
     } else {
-      groupRef.current.position.y = position[1]
+      groupRef.current.position.y = baseY
       groupRef.current.rotation.y = 0
     }
   })

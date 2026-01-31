@@ -1,6 +1,16 @@
-import type { Board, PieceType, BoardSize, ObstacleType, CellContent, BoardSizeKey } from '../types'
+import type { Board, PieceType, BoardSize, ObstacleType, CellContent, BoardSizeKey, Piece } from '../types'
 import { isPiece, isObstacle, PlayerColors, PieceTypes, ObstacleTypes, BoardSizeKeys } from '../types'
 import { OBSTACLE_COUNTS, BACK_ROW_PIECES } from '../constants'
+
+let pieceIdCounter = 0
+const generatePieceId = (): string => `piece-${++pieceIdCounter}`
+
+const createPiece = (type: PieceType, color: typeof PlayerColors.WHITE | typeof PlayerColors.BLACK): Piece => ({
+  id: generatePieceId(),
+  type,
+  color,
+  hasMoved: false
+})
 
 const getObstacleCounts = (boardSizeKey: BoardSizeKey): Record<ObstacleType, number> => {
   return OBSTACLE_COUNTS[boardSizeKey] || OBSTACLE_COUNTS[BoardSizeKeys.SMALL]
@@ -72,19 +82,19 @@ export const createInitialBoard = (boardSize: BoardSize): Board => {
   const backRow = generateBackRow(cols)
 
   for (let col = 0; col < cols; col++) {
-    board[0][col] = { type: backRow[col], color: PlayerColors.BLACK, hasMoved: false }
+    board[0][col] = createPiece(backRow[col], PlayerColors.BLACK)
   }
 
   for (let col = 0; col < cols; col++) {
-    board[1][col] = { type: PieceTypes.HOPLITE, color: PlayerColors.BLACK, hasMoved: false }
+    board[1][col] = createPiece(PieceTypes.HOPLITE, PlayerColors.BLACK)
   }
 
   for (let col = 0; col < cols; col++) {
-    board[rows - 2][col] = { type: PieceTypes.HOPLITE, color: PlayerColors.WHITE, hasMoved: false }
+    board[rows - 2][col] = createPiece(PieceTypes.HOPLITE, PlayerColors.WHITE)
   }
 
   for (let col = 0; col < cols; col++) {
-    board[rows - 1][col] = { type: backRow[col], color: PlayerColors.WHITE, hasMoved: false }
+    board[rows - 1][col] = createPiece(backRow[col], PlayerColors.WHITE)
   }
 
   placeObstacles(board, rows, cols)

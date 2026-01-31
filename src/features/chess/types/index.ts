@@ -65,6 +65,7 @@ export interface PieceRules {
 }
 
 export interface Piece {
+  id: string
   type: PieceType
   color: PlayerColor
   hasMoved?: boolean

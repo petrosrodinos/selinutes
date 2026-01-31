@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { AnimatePresence } from 'framer-motion'
 import { generateFiles, generateRanks } from '../../constants'
 import { Square } from '../Square'
+import { AnimatedPiece } from '../Piece/AnimatedPiece'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
 import { getValidMoves, getValidAttacks } from '../../utils'
@@ -90,7 +92,7 @@ export const Board = () => {
           ))}
         </div>
 
-        <div className="border-2 border-stone-800 rounded shadow-2xl">
+        <div className="border-2 border-stone-800 rounded shadow-2xl relative">
           {board.map((row, rowIndex) => (
             <div key={rowIndex} className="flex">
               {row.map((cell, colIndex) => (
@@ -109,6 +111,25 @@ export const Board = () => {
               ))}
             </div>
           ))}
+          <AnimatePresence>
+            {board.map((row, rowIndex) =>
+              row.map((c, colIndex) => {
+                if (c && isPiece(c)) {
+                  const squareSize = 48
+                  return (
+                    <AnimatedPiece
+                      key={c.id}
+                      piece={c}
+                      position={{ row: rowIndex, col: colIndex }}
+                      squareSize={squareSize}
+                      onClick={() => handleSquareClick(rowIndex, colIndex)}
+                    />
+                  )
+                }
+                return null
+              })
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="flex flex-col">
