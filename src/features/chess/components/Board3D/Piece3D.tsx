@@ -222,6 +222,15 @@ const Necromancer = ({ color }: { color: PlayerColor }) => (
   </group>
 )
 
+const DefaultPiece = ({ color }: { color: PlayerColor }) => (
+  <group>
+    <mesh position={[0, 0.15, 0]} castShadow>
+      <cylinderGeometry args={[0.2, 0.24, 0.3, 16]} />
+      <meshStandardMaterial color={pieceColorMap[color]} />
+    </mesh>
+  </group>
+)
+
 const pieceComponents: Record<PieceType, React.FC<{ color: PlayerColor }>> = {
   [PieceTypes.HOPLITE]: Hoplite,
   [PieceTypes.RAM_TOWER]: RamTower,
@@ -255,7 +264,33 @@ export const Piece3D = ({ type, color, position, isSelected, isHint, isTargeted,
     }
   })
 
-  const PieceComponent = pieceComponents[type]
+  const getPieceComponent = (): React.FC<{ color: PlayerColor }> => {
+    switch (type) {
+      case PieceTypes.HOPLITE:
+        return Hoplite
+      case PieceTypes.RAM_TOWER:
+        return RamTower
+      case PieceTypes.CHARIOT:
+        return Chariot
+      case PieceTypes.BOMBER:
+        return Bomber
+      case PieceTypes.PALADIN:
+        return Paladin
+      case PieceTypes.WARLOCK:
+        return Warlock
+      case PieceTypes.MONARCH:
+        return Monarch
+      case PieceTypes.DUCHESS:
+        return Duchess
+      case PieceTypes.NECROMANCER:
+        return Necromancer
+      default:
+        console.warn(`Unknown piece type: ${type}, using default`)
+        return DefaultPiece
+    }
+  }
+
+  const PieceComponent = getPieceComponent()
 
   return (
     <group
