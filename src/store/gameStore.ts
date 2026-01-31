@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import type { GameState, Position, BotDifficulty, HintMove, BoardSizeKey, PlayerColor } from '../features/chess/types'
-import { isPiece, BOARD_SIZES, PlayerColors, BotDifficulties, BoardSizeKeys } from '../features/chess/types'
+import type { GameState, Position, BotDifficulty, HintMove, BoardSizeKey, PlayerColor, CellContent } from '../features/chess/types'
+import { isPiece, isObstacle, BOARD_SIZES, PlayerColors, BotDifficulties, BoardSizeKeys } from '../features/chess/types'
 import { DEFAULT_BOARD_SIZE } from '../features/chess/constants'
 import {
     createInitialBoard,
@@ -26,6 +26,7 @@ interface GameStore {
     botThinking: boolean
     botDifficulty: BotDifficulty
     hintMove: HintMove | null
+    devModeSelected: Position | null
 
     // Computed
     canUndo: () => boolean
@@ -33,6 +34,7 @@ interface GameStore {
 
     // Actions
     selectSquare: (pos: Position) => void
+    devModeSelectSquare: (pos: Position) => void
     resetGame: (newBoardSizeKey?: BoardSizeKey) => void
     toggleBot: () => void
     setDifficulty: (difficulty: BotDifficulty) => void
@@ -83,6 +85,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     botThinking: false,
     botDifficulty: BotDifficulties.MEDIUM,
     hintMove: null,
+    devModeSelected: null,
 
     // Computed values
     canUndo: () => {
@@ -192,6 +195,45 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     validAttacks: attacks
                 }
             })
+        }
+    },
+
+    devModeSelectSquare: (pos: Position) => {
+        const { gameState, devModeSelected } = get()
+        const cell = gameState.board[pos.row][pos.col]
+
+        if (devModeSelected) {
+            const selectedCell = gameState.board[devModeSelected.row][devModeSelected.col]
+            
+            if (cell === null && selectedCell !== null) {
+                const newBoard = gameState.board.map(row => [...row])
+                newBoard[pos.row][pos.col] = selectedCell
+                newBoard[devModeSelected.row][devModeSelected.col] = null as CellContent
+                
+                set({
+                    gameState: {
+                        ...gameState,
+                        board: newBoard,
+                        selectedPosition: null,
+                        validMoves: [],
+                        validAttacks: []
+                    },
+                    devModeSelected: null
+                })
+                return
+            }
+
+            if (cell !== null && (isPiece(cell) || isObstacle(cell))) {
+                set({ devModeSelected: pos })
+                return
+            }
+
+            set({ devModeSelected: null })
+            return
+        }
+
+        if (cell !== null && (isPiece(cell) || isObstacle(cell))) {
+            set({ devModeSelected: pos })
         }
     },
 

@@ -9,9 +9,9 @@ import { getValidMoves, getValidAttacks } from '../../utils'
 import { isPiece } from '../../types'
 
 export const Board = () => {
-  const { gameState, hintMove, selectSquare } = useGameStore()
+  const { gameState, hintMove, selectSquare, devModeSelectSquare, devModeSelected } = useGameStore()
   const { board, boardSize, selectedPosition, validMoves, validAttacks, lastMove } = gameState
-  const { helpEnabled } = useUIStore()
+  const { helpEnabled, devMode } = useUIStore()
   
   // Help mode: show moves for any clicked piece
   const [helpPosition, setHelpPosition] = useState<{ row: number; col: number } | null>(null)
@@ -24,8 +24,18 @@ export const Board = () => {
   const files = generateFiles(boardSize.cols)
   const ranks = generateRanks(boardSize.rows)
 
-  const isSelected = (row: number, col: number) =>
-    selectedPosition?.row === row && selectedPosition?.col === col
+  const isSelected = (row: number, col: number) => {
+    if (devMode && devModeSelected) {
+      return devModeSelected.row === row && devModeSelected.col === col
+    }
+    return selectedPosition?.row === row && selectedPosition?.col === col
+  }
+
+  const isDevModeTarget = (row: number, col: number) => {
+    if (!devMode || !devModeSelected) return false
+    const cell = board[row][col]
+    return cell === null
+  }
 
   const isValidMove = (row: number, col: number) =>
     validMoves.some(m => m.row === row && m.col === col)
@@ -55,6 +65,10 @@ export const Board = () => {
     helpEnabled && helpAttacks.some(a => a.row === row && a.col === col)
 
   const handleSquareClick = (row: number, col: number) => {
+    if (devMode) {
+      devModeSelectSquare({ row, col })
+      return
+    }
     if (helpEnabled) {
       const cell = board[row][col]
       if (cell && isPiece(cell)) {
@@ -101,7 +115,7 @@ export const Board = () => {
                   cell={cell}
                   position={{ row: rowIndex, col: colIndex }}
                   isSelected={isSelected(rowIndex, colIndex) || (helpEnabled && helpPosition?.row === rowIndex && helpPosition?.col === colIndex)}
-                  isValidMove={isValidMove(rowIndex, colIndex) || isHelpMove(rowIndex, colIndex)}
+                  isValidMove={isValidMove(rowIndex, colIndex) || isHelpMove(rowIndex, colIndex) || isDevModeTarget(rowIndex, colIndex)}
                   isValidAttack={isValidAttack(rowIndex, colIndex) || isHelpAttack(rowIndex, colIndex)}
                   isLastMove={isLastMove(rowIndex, colIndex)}
                   isHint={isHint(rowIndex, colIndex)}

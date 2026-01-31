@@ -15,7 +15,7 @@ export const TopMenu = () => {
     setDifficulty
   } = useGameStore()
 
-  const { is3D, toggle3D, helpEnabled, toggleHelp, closeTopMenu } = useUIStore()
+  const { is3D, toggle3D, helpEnabled, toggleHelp, devMode, toggleDevMode, closeTopMenu } = useUIStore()
 
   const handleBoardSizeChange = (sizeKey: BoardSizeKey) => {
     resetGame(sizeKey)
@@ -127,6 +127,22 @@ export const TopMenu = () => {
               <span className="text-xs text-stone-400">Thinking...</span>
             )}
           </div>
+        </div>
+
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-xs font-medium text-orange-400">Dev</span>
+          <button
+            onClick={toggleDevMode}
+            className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${
+              devMode ? 'bg-orange-600' : 'bg-stone-600'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
+                devMode ? 'translate-x-7' : 'translate-x-0'
+              }`}
+            />
+          </button>
         </div>
       </div>
     </div>

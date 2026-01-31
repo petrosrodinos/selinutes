@@ -234,8 +234,13 @@ const DefaultPiece = ({ color }: { color: PlayerColor }) => (
 
 export const Piece3D = ({ type, color, position, isSelected, isHint, isTargeted, onClick }: Piece3DProps) => {
   const groupRef = useRef<Group>(null)
-  const currentPosRef = useRef<THREE.Vector3>(new THREE.Vector3(...position))
+  const currentPosRef = useRef<THREE.Vector3 | null>(null)
   const targetPosRef = useRef<THREE.Vector3>(new THREE.Vector3(...position))
+  
+  // Initialize current position on first render
+  if (currentPosRef.current === null) {
+    currentPosRef.current = new THREE.Vector3(...position)
+  }
   
   // Update target when position changes
   if (targetPosRef.current.x !== position[0] || 
@@ -245,10 +250,11 @@ export const Piece3D = ({ type, color, position, isSelected, isHint, isTargeted,
   }
   
   useFrame((state, delta) => {
-    if (!groupRef.current) return
+    if (!groupRef.current || !currentPosRef.current) return
     
     // Smoothly lerp to target position
-    currentPosRef.current.lerp(targetPosRef.current, Math.min(delta * 8, 1))
+    const lerpFactor = 1 - Math.pow(0.001, delta)
+    currentPosRef.current.lerp(targetPosRef.current, lerpFactor)
     
     groupRef.current.position.x = currentPosRef.current.x
     groupRef.current.position.z = currentPosRef.current.z
@@ -301,7 +307,6 @@ export const Piece3D = ({ type, color, position, isSelected, isHint, isTargeted,
   return (
     <group
       ref={groupRef}
-      position={position}
       onClick={(e) => {
         e.stopPropagation()
         onClick()
