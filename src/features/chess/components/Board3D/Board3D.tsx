@@ -28,7 +28,7 @@ const GameScene = () => {
 
   const cameraDistance = useMemo(() => {
     const maxDim = Math.max(rows, cols)
-    return maxDim * 1.2
+    return maxDim * 1
   }, [rows, cols])
 
   const isSelected = (row: number, col: number) =>
@@ -82,8 +82,8 @@ const GameScene = () => {
         enablePan={false}
         minPolarAngle={Math.PI / 6}
         maxPolarAngle={Math.PI / 2.2}
-        minDistance={cameraDistance * 0.8}
-        maxDistance={cameraDistance * 1.8}
+        minDistance={cameraDistance * 0.2}
+        maxDistance={cameraDistance * 1.5}
       />
 
       <ambientLight intensity={0.5} />
@@ -166,8 +166,8 @@ export const Board3D = () => {
   const { gameState } = useGameStore()
   const { boardSize } = gameState
   const maxDim = Math.max(boardSize.rows, boardSize.cols)
-  const cameraY = maxDim * 1.1
-  const cameraZ = maxDim * 0.9
+  const cameraY = maxDim * 0.75
+  const cameraZ = maxDim * 0.6
 
   return (
     <div className="w-[500px] h-[500px] md:w-[600px] md:h-[600px] rounded-xl overflow-hidden shadow-2xl">

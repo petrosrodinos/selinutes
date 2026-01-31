@@ -87,9 +87,20 @@ const getCrossMoves = (board: Board, pos: Position, piece: Piece, boardSize: Boa
 
       if (cell) {
         if (isPiece(cell)) break
-        if (isObstacle(cell) && !canPassObstacle(piece.type, cell.type)) break
+        if (isObstacle(cell)) {
+          if (canPassObstacle(piece.type, cell.type)) {
+            // Can pass through, continue to next square
+            row += rowDir
+            col += colDir
+            continue
+          } else {
+            // Cannot pass, stop here
+            break
+          }
+        }
       }
 
+      // Only add empty squares as valid moves
       moves.push({ row, col })
       row += rowDir
       col += colDir
@@ -112,9 +123,20 @@ const getSidewaysMoves = (board: Board, pos: Position, piece: Piece, boardSize: 
 
       if (cell) {
         if (isPiece(cell)) break
-        if (isObstacle(cell) && !canPassObstacle(piece.type, cell.type)) break
+        if (isObstacle(cell)) {
+          if (canPassObstacle(piece.type, cell.type)) {
+            // Can pass through, continue to next square
+            row += rowDir
+            col += colDir
+            continue
+          } else {
+            // Cannot pass, stop here
+            break
+          }
+        }
       }
 
+      // Only add empty squares as valid moves
       moves.push({ row, col })
       row += rowDir
       col += colDir
@@ -143,9 +165,18 @@ const getAnyDirectionMoves = (board: Board, pos: Position, piece: Piece, boardSi
 
       if (cell) {
         if (isPiece(cell)) break
-        if (isObstacle(cell) && !canPassObstacle(piece.type, cell.type)) break
+        if (isObstacle(cell)) {
+          if (canPassObstacle(piece.type, cell.type)) {
+            // Can pass through, continue to next step
+            continue
+          } else {
+            // Cannot pass, stop here
+            break
+          }
+        }
       }
 
+      // Only add empty squares as valid moves
       moves.push({ row, col })
     }
   }
