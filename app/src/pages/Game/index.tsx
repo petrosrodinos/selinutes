@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Settings, Info, Loader2 } from 'lucide-react'
 import { Board } from './components/Board'
 import { Board3D } from './components/Board3D'
 import { TopMenu } from './components/TopMenu'
 import { BottomMenu } from './components/BottomMenu'
 import { RightSidebar } from './components/RightSidebar'
+import { GameResultModal } from './components/GameResultModal'
 import { Modal } from '../../components/Modal'
 import { useGameStore } from '../../store/gameStore'
 import { useUIStore } from '../../store/uiStore'
@@ -20,6 +21,7 @@ export const Game = () => {
 
     const { gameState, botEnabled, botDifficulty, botThinking, processBotMove } = useGameStore()
     const { is3D, isTopMenuOpen, isRightMenuOpen, openTopMenu, closeTopMenu, openRightMenu, closeRightMenu } = useUIStore()
+    const [isResultModalOpen, setIsResultModalOpen] = useState(false)
 
     const {
         gameSession,
@@ -55,6 +57,13 @@ export const Game = () => {
 
         return () => clearTimeout(timer)
     }, [isOnline, botEnabled, botDifficulty, gameState.currentPlayer, gameState.gameOver, botThinking, processBotMove])
+
+    useEffect(() => {
+        const isGameOver = isOnline ? onlineGameOver : gameState.gameOver
+        if (isGameOver) {
+            setIsResultModalOpen(true)
+        }
+    }, [isOnline, onlineGameOver, gameState.gameOver])
 
     if (isOnline && isLoading) {
         return (
@@ -232,6 +241,16 @@ export const Game = () => {
                         onlineMoveHistory={onlineMoveHistory}
                     />
                 </Modal>
+
+                <GameResultModal
+                    isOpen={isResultModalOpen}
+                    onClose={() => setIsResultModalOpen(false)}
+                    winner={winner}
+                    capturedPieces={isOnline ? onlineCapturedPieces : gameState.capturedPieces}
+                    isOnline={isOnline}
+                    currentPlayer={currentPlayer}
+                    players={gameSession?.players}
+                />
             </div>
         </div>
     )
