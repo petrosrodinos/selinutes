@@ -23,7 +23,6 @@ export const Home = () => {
     const username = useAuthStore(state => state.username)
     const logout = useAuthStore(state => state.logout)
     const [gameCode, setGameCode] = useState<string | null>(null)
-    const [copiedLink, setCopiedLink] = useState(false)
     const [copiedCode, setCopiedCode] = useState(false)
     const [showJoinMenu, setShowJoinMenu] = useState(false)
     const [joinCode, setJoinCode] = useState('')
@@ -94,13 +93,6 @@ export const Home = () => {
         setIsJoining(true)
         emit(SocketEvents.JOIN_GAME, { code: joinCode.trim(), playerId: userId, playerName: username || '' })
     }, [emit, joinCode, userId, username])
-
-    const handleCopyLink = useCallback(async () => {
-        if (!gameLink) return
-        await navigator.clipboard.writeText(gameLink)
-        setCopiedLink(true)
-        setTimeout(() => setCopiedLink(false), 2000)
-    }, [gameLink])
 
     const handleCopyCode = useCallback(async () => {
         if (!gameCode) return
@@ -214,24 +206,9 @@ export const Home = () => {
                                         <span className="text-sm font-medium">Waiting for opponent to join...</span>
                                     </div>
                                 )}
-                                <p className="text-stone-400 text-sm mb-2">Share this link with a friend:</p>
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="text"
-                                        readOnly
-                                        value={gameLink}
-                                        className="flex-1 px-3 py-2 bg-stone-800 border border-stone-600 rounded-lg text-amber-200 text-sm"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={handleCopyLink}
-                                        className="p-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors"
-                                    >
-                                        {copiedLink ? <Check className="w-5 h-5 text-white" /> : <Copy className="w-5 h-5 text-white" />}
-                                    </button>
-                                </div>
+                               
                                 <div className="flex items-center gap-2 mt-3">
-                                    <p className="text-stone-400 text-sm">or copy the code:</p>
+                                    <p className="text-stone-400 text-sm">Copy the code:</p>
                                     <span className="px-3 py-1 bg-stone-800 border border-stone-600 rounded-lg text-amber-200 text-sm font-mono">
                                         {gameCode}
                                     </span>
