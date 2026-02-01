@@ -64,6 +64,12 @@ export class GameService {
             throw new NotFoundException('Game not found')
         }
 
+        const existingPlayer = gameSession.players.find(p => p.id === dto.playerId)
+
+        if (existingPlayer) {
+            return gameSession
+        }
+
         if (gameSession.status !== GameStatuses.WAITING) {
             throw new BadRequestException('Game already started or finished')
         }

@@ -5,6 +5,7 @@ import { useSocket } from './useSocket'
 import { useOnlineGameStore } from '../store/onlineGameStore'
 import { useAuthStore } from '../store/authStore'
 import { SocketEvents } from '../constants'
+import { getSocket } from '../lib/socket'
 import type { GameSession } from '../features/game/interfaces'
 import type { Position } from '../pages/Game/types'
 
@@ -15,6 +16,8 @@ export const useOnlineGame = () => {
     const userId = useAuthStore(state => state.userId)
     const hasJoinedRef = useRef(false)
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const gameCodeRef = useRef(gameCode)
+    const resetRef = useRef<() => void>(() => { })
 
     const {
         gameSession,
@@ -78,13 +81,15 @@ export const useOnlineGame = () => {
             syncFromServer(data)
         }
 
-        const handlePlayerJoined = (data: GameSession) => {
+        const handlePlayerJoined = (data: GameSession & { joinedPlayerId?: string }) => {
             clearTimeoutIfExists()
             setGameSession(data)
             setLoading(false)
-            const newPlayer = data.players[data.players.length - 1]
-            if (newPlayer && newPlayer.id !== userId) {
-                toast.info(`${newPlayer.name} joined the game`)
+            const joinedPlayer = data.joinedPlayerId
+                ? data.players.find(p => p.id === data.joinedPlayerId)
+                : data.players[data.players.length - 1]
+            if (joinedPlayer && joinedPlayer.id !== userId) {
+                toast.success(`${joinedPlayer.name} joined the game!`)
             }
         }
 
@@ -102,11 +107,17 @@ export const useOnlineGame = () => {
             toast.error(data.message)
         }
 
+        const handlePlayerLeft = (data: { message: string }) => {
+            // setError(data.message)
+            toast.error(data.message)
+        }
+
         on<GameSession>(SocketEvents.GAME_STATE, handleGameState)
         on<GameSession>(SocketEvents.GAME_UPDATE, handleGameUpdate)
         on<GameSession>(SocketEvents.PLAYER_JOINED, handlePlayerJoined)
         on<GameSession>(SocketEvents.GAME_START, handleGameStart)
         on<{ message: string }>(SocketEvents.ERROR, handleError)
+        on<{ message: string }>(SocketEvents.PLAYER_LEFT, handlePlayerLeft)
 
         emit(SocketEvents.GET_GAME, { code: gameCode, playerId: userId })
 
@@ -123,6 +134,7 @@ export const useOnlineGame = () => {
             off(SocketEvents.PLAYER_JOINED)
             off(SocketEvents.GAME_START)
             off(SocketEvents.ERROR)
+            off(SocketEvents.PLAYER_LEFT)
         }
     }, [gameCode, isConnected, userId, emit, on, off, socket, setGameSession, setCurrentPlayerId, syncFromServer, setLoading, setError])
 
@@ -133,11 +145,22 @@ export const useOnlineGame = () => {
     }, [gameSession, gameState, initializeBoard])
 
     useEffect(() => {
+        gameCodeRef.current = gameCode
+        resetRef.current = reset
+    }, [gameCode, reset])
+
+    useEffect(() => {
         return () => {
+            if (gameCodeRef.current) {
+                const socket = getSocket()
+                if (socket.connected) {
+                    socket.emit(SocketEvents.LEAVE_GAME, { code: gameCodeRef.current })
+                }
+            }
             hasJoinedRef.current = false
-            reset()
+            resetRef.current()
         }
-    }, [reset])
+    }, [])
 
     const handleSquareClick = useCallback((pos: Position) => {
         if (!gameCode) return

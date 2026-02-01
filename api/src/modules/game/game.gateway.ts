@@ -43,14 +43,16 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         const gameCode = this.clientGameMap.get(client.id)
         if (!gameCode) return
 
+        this.clientGameMap.delete(client.id)
 
         const room = this.server.sockets.adapter.rooms.get(gameCode)
         const roomSize = room?.size ?? 0
 
-        this.logger.log(`Room ${gameCode} has ${roomSize} clients remaining`)
+        if (roomSize > 0) {
+            this.server.to(gameCode).emit(SocketEvents.PLAYER_LEFT, { message: 'Your opponent has left the game.' })
+        }
 
         if (roomSize === 0) {
-            this.logger.log(`Deleting empty game: ${gameCode}`)
             await this.gameService.deleteGame(gameCode)
         }
     }
@@ -62,7 +64,6 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: CreateGameDto
     ): Promise<void> {
-        this.logger.log(`[CREATE_GAME] Received from ${client.id}: ${JSON.stringify(payload)}`)
         try {
             const gameSession = await this.gameService.createGame(payload)
 
@@ -83,7 +84,6 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: JoinGameDto
     ): Promise<void> {
-        this.logger.log(`[JOIN_GAME] Received from ${client.id}: ${JSON.stringify(payload)}`)
         try {
             const gameSession = await this.gameService.joinGame(payload)
 
@@ -95,7 +95,6 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
             this.server.to(gameSession.code).emit(SocketEvents.PLAYER_JOINED, gameSession)
 
             if (gameSession.players.length === 2) {
-                this.logger.log(`Game ${gameSession.code} is starting with both players`)
                 this.server.to(gameSession.code).emit(SocketEvents.GAME_START, gameSession)
             }
         } catch (error) {
@@ -109,17 +108,27 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: GetGameDto
     ): Promise<void> {
-        this.logger.log(`[GET_GAME] Received from ${client.id}: ${JSON.stringify(payload)}`)
         try {
             const gameSession = await this.gameService.getGame(payload)
+
+            const room = this.server.sockets.adapter.rooms.get(gameSession.code)
+            const roomSize = room?.size ?? 0
+
+            if (roomSize >= 2) {
+                client.emit(SocketEvents.ERROR, { message: 'Game is full.' })
+                return
+            }
 
             await client.join(gameSession.code)
             this.trackClientGame(client.id, gameSession.code)
 
-            this.logger.log(`Player fetched game: ${gameSession.code}`)
-
             client.emit(SocketEvents.GAME_STATE, gameSession)
-            this.logger.log(`[GET_GAME] Emitted GAME_STATE to ${client.id}`)
+
+            const joiningPlayer = gameSession.players.find(p => p.id === payload.playerId)
+            client.to(gameSession.code).emit(SocketEvents.PLAYER_JOINED, {
+                ...gameSession,
+                joinedPlayerId: joiningPlayer?.id
+            })
         } catch (error) {
             this.logger.error(`Error getting game: ${error.message}`)
             client.emit(SocketEvents.ERROR, { message: error.message })
@@ -143,6 +152,34 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         } catch (error) {
             this.logger.error(`Error syncing game: ${error.message}`)
             client.emit(SocketEvents.ERROR, { message: error.message })
+        }
+    }
+
+    @SubscribeMessage(SocketEvents.LEAVE_GAME)
+    async handleLeaveGame(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() payload: { code: string }
+    ): Promise<void> {
+        this.logger.log(`[LEAVE_GAME] Received from ${client.id}`)
+
+        const gameCode = payload.code
+        if (!gameCode) {
+            return
+        }
+
+        this.clientGameMap.delete(client.id)
+        client.leave(gameCode)
+
+        const room = this.server.sockets.adapter.rooms.get(gameCode)
+        const roomSize = room?.size ?? 0
+
+
+        if (roomSize > 0) {
+            this.server.to(gameCode).emit(SocketEvents.PLAYER_LEFT, { message: 'Your opponent has left the game.' })
+        }
+
+        if (roomSize === 0) {
+            await this.gameService.deleteGame(gameCode)
         }
     }
 
