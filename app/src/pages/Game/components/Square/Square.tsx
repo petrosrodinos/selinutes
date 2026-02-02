@@ -1,5 +1,5 @@
-import type { CellContent, Position } from '../../types'
-import { isPiece, isObstacle } from '../../types'
+import type { CellContent, Position, PlayerColor } from '../../types'
+import { isPiece, isObstacle, PlayerColors } from '../../types'
 import { OBSTACLE_SYMBOLS, OBSTACLE_NAMES } from '../../constants'
 
 interface SquareProps {
@@ -11,6 +11,7 @@ interface SquareProps {
   isLastMove: boolean
   isHint: boolean
   isHintAttack: boolean
+  hasNarc?: PlayerColor | null
   onClick: () => void
 }
 
@@ -23,6 +24,7 @@ export const Square = ({
   isLastMove,
   isHint,
   isHintAttack,
+  hasNarc = null,
   onClick
 }: SquareProps) => {
   const isLight = (position.row + position.col) % 2 === 0
@@ -71,6 +73,16 @@ export const Square = ({
       )}
       {(isHint || isHintAttack) && (
         <div className={`absolute inset-0 ring-4 ${isHintAttack ? 'ring-rose-400' : 'ring-cyan-400'} ring-inset animate-pulse`} />
+      )}
+      {hasNarc && !cell && (
+        <div 
+          className={`absolute w-2 h-2 rounded-full ${
+            hasNarc === PlayerColors.WHITE 
+              ? 'bg-amber-200/60' 
+              : 'bg-stone-800/60'
+          }`}
+          title="Narc trap"
+        />
       )}
     </div>
   )

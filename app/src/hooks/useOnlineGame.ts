@@ -181,7 +181,8 @@ export const useOnlineGame = () => {
                 capturedPieces: currentGameState.capturedPieces,
                 lastMove: currentGameState.lastMove,
                 gameOver: currentGameState.gameOver,
-                winner: currentGameState.winner
+                winner: currentGameState.winner,
+                narcs: currentGameState.narcs
             }
         })
     }, [gameCode, selectSquare, getGameStateForSync, emit])

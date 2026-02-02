@@ -91,7 +91,8 @@ export const useOnlineGameStore = create<OnlineGameStore>((set, get) => ({
                 capturedPieces: gameSession.gameState.capturedPieces || { white: [], black: [] },
                 lastMove: gameSession.gameState.lastMove || null,
                 gameOver: gameSession.gameState.gameOver || false,
-                winner: gameSession.gameState.winner || null
+                winner: gameSession.gameState.winner || null,
+                narcs: gameSession.gameState.narcs || []
             }
         })
     },
@@ -120,12 +121,13 @@ export const useOnlineGameStore = create<OnlineGameStore>((set, get) => ({
             )
 
             if (isValidMoveTarget || isValidAttackTarget) {
-                const { newBoard, move } = makeMove(
+                const { newBoard, move, newNarcs } = makeMove(
                     board,
                     selectedPosition,
                     pos,
                     boardSize,
-                    isValidAttackTarget
+                    isValidAttackTarget,
+                    gameState.narcs
                 )
 
                 const nextPlayer = gameState.currentPlayer === PlayerColors.WHITE
@@ -154,7 +156,8 @@ export const useOnlineGameStore = create<OnlineGameStore>((set, get) => ({
                         capturedPieces: newCaptured,
                         lastMove: move,
                         gameOver,
-                        winner
+                        winner,
+                        narcs: newNarcs
                     },
                     selectedPosition: null,
                     validMoves: [],
@@ -212,7 +215,8 @@ export const useOnlineGameStore = create<OnlineGameStore>((set, get) => ({
                 capturedPieces: session.gameState.capturedPieces || { white: [], black: [] },
                 lastMove: session.gameState.lastMove || null,
                 gameOver: session.gameState.gameOver || false,
-                winner: session.gameState.winner || null
+                winner: session.gameState.winner || null,
+                narcs: session.gameState.narcs || []
             },
             selectedPosition: null,
             validMoves: [],

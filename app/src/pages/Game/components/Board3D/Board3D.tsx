@@ -1,14 +1,14 @@
 import { Suspense, useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import { isPiece, isObstacle } from '../../types'
+import { isPiece, isObstacle, PlayerColors } from '../../types'
 import type { Board as BoardType, BoardSize, Position, Move } from '../../types'
 import { Piece3D } from './Piece3D'
 import { BoardSquare3D } from './BoardSquare3D'
 import { Obstacle3D } from './Obstacle3D'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
-import { getValidMoves, getValidAttacks } from '../../utils'
+import { getValidMoves, getValidAttacks, getAllNarcNetPositions } from '../../utils'
 
 interface GameSceneProps {
   isOnline?: boolean
@@ -41,6 +41,11 @@ const GameScene = ({
   const validAttacks = isOnline ? onlineValidAttacks : gameState.validAttacks
   const lastMove = isOnline ? onlineLastMove : gameState.lastMove
   const currentHintMove = isOnline ? null : hintMove
+
+  const narcNetPositions = useMemo(() => {
+    if (!board || board.length === 0) return []
+    return getAllNarcNetPositions(board, boardSize)
+  }, [board, boardSize])
   
   const [helpPosition, setHelpPosition] = useState<{ row: number; col: number } | null>(null)
   const helpMoves = helpPosition && helpEnabled && !isOnline
@@ -204,6 +209,27 @@ const GameScene = ({
           return null
         })
       )}
+
+      {narcNetPositions.map((narcNet, index) => {
+        const x = narcNet.position.col - offsetX
+        const z = narcNet.position.row - offsetZ
+        const cell = board[narcNet.position.row]?.[narcNet.position.col]
+        if (cell) return null
+
+        return (
+          <mesh
+            key={`narc-net-${index}`}
+            position={[x, 0.05, z]}
+          >
+            <sphereGeometry args={[0.08, 16, 16]} />
+            <meshStandardMaterial
+              color={narcNet.ownerColor === PlayerColors.WHITE ? '#f5deb3' : '#3d3d3d'}
+              transparent
+              opacity={0.6}
+            />
+          </mesh>
+        )
+      })}
     </>
   )
 }

@@ -76,7 +76,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
             capturedPieces: { white: [], black: [] },
             lastMove: null,
             gameOver: false,
-            winner: null
+            winner: null,
+            narcs: []
         }
     })(),
     boardSizeKey: BoardSizeKeys.SMALL,
@@ -120,15 +121,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
             if (isValidMoveTarget || isValidAttackTarget) {
                 const newHistory = [...history, { gameState }]
 
-                const { newBoard, move } = makeMove(
+                const { newBoard, move, newNarcs } = makeMove(
                     gameState.board,
                     gameState.selectedPosition,
                     pos,
                     gameState.boardSize,
-                    isValidAttackTarget
+                    isValidAttackTarget,
+                    gameState.narcs
                 )
 
-                const nextPlayer = gameState.currentPlayer === PlayerColors.WHITE ? PlayerColors.BLACK : PlayerColors.WHITE
+                let nextPlayer = gameState.currentPlayer === PlayerColors.WHITE ? PlayerColors.BLACK : PlayerColors.WHITE
+                
+                if (move.terminatedByNarc) {
+                    nextPlayer = gameState.currentPlayer === PlayerColors.WHITE ? PlayerColors.BLACK : PlayerColors.WHITE
+                }
+
                 const { gameOver, winner } = checkGameOver(newBoard, nextPlayer, gameState.boardSize)
 
                 const newCaptured = { ...gameState.capturedPieces }
@@ -152,7 +159,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         capturedPieces: newCaptured,
                         lastMove: move,
                         gameOver,
-                        winner
+                        winner,
+                        narcs: newNarcs
                     },
                     history: newHistory
                 })
@@ -254,7 +262,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 capturedPieces: { white: [], black: [] },
                 lastMove: null,
                 gameOver: false,
-                winner: null
+                winner: null,
+                narcs: []
             },
             boardSizeKey: newBoardSizeKey ? newBoardSizeKey : currentSizeKey,
             history: [],
@@ -318,12 +327,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
             return
         }
 
-        const { newBoard, move } = makeMove(
+        const { newBoard, move, newNarcs } = makeMove(
             gameState.board,
             botMove.from,
             botMove.to,
             gameState.boardSize,
-            botMove.isAttack || false
+            botMove.isAttack || false,
+            gameState.narcs
         )
 
         const nextPlayer = PlayerColors.WHITE
@@ -350,7 +360,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 capturedPieces: newCaptured,
                 lastMove: move,
                 gameOver,
-                winner
+                winner,
+                narcs: newNarcs
             },
             botThinking: false
         })

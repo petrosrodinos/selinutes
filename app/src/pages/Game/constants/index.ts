@@ -204,7 +204,8 @@ export const INITIAL_GAME_STATE: GameState = {
   capturedPieces: { white: [], black: [] },
   lastMove: null,
   gameOver: false,
-  winner: null
+  winner: null,
+  narcs: []
 }
 
 export const BOT_DELAY = {

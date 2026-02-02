@@ -21,3 +21,13 @@ export {
   canAttack
 } from './moveUtils'
 export { getBotMove, getHintMove } from './botUtils'
+export {
+  getNarcPositions,
+  createNarcsForBomber,
+  findNarcAtPosition,
+  removeNarcsForBomber,
+  checkNarcTrigger,
+  checkNarcNetTrigger,
+  getAllNarcNetPositions
+} from './narcUtils'
+export type { NarcNetPosition } from './narcUtils'

@@ -107,6 +107,7 @@ export interface Move {
   piece: Piece
   captured?: Piece
   isAttack?: boolean
+  terminatedByNarc?: boolean
 }
 
 export interface GameState {
@@ -121,10 +122,18 @@ export interface GameState {
   lastMove: Move | null
   gameOver: boolean
   winner: PlayerColor | null
+  narcs: Narc[]
 }
 
 export interface HintMove {
   from: Position
   to: Position
   isAttack?: boolean
+}
+
+export interface Narc {
+  id: string
+  position: Position
+  ownerColor: PlayerColor
+  bomberId: string
 }
