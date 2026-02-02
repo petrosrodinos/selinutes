@@ -152,8 +152,8 @@ export const OBSTACLE_COUNTS: Record<string, Record<ObstacleType, number>> = {
     [ObstacleTypes.TREE]: 2,
     [ObstacleTypes.ROCK]: 2,
     [ObstacleTypes.LAKE]: 4,
-    [ObstacleTypes.RIVER]: 3,
-    [ObstacleTypes.CANYON]: 3,
+    [ObstacleTypes.RIVER]: 2,
+    [ObstacleTypes.CANYON]: 2,
     [ObstacleTypes.MYSTERY_BOX]: 2
   },
   [BoardSizeKeys.MEDIUM]: {
