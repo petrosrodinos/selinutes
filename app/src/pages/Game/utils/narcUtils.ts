@@ -16,10 +16,10 @@ export const getNarcPositions = (bomberPos: Position): Position[] => {
     ]
 
     const orthogonalPositions: Position[] = [
-        { row: row - 1, col },
-        { row: row + 1, col },
-        { row, col: col - 1 },
-        { row, col: col + 1 }
+        { row: row - 2, col },
+        { row: row + 2, col },
+        { row, col: col - 2 },
+        { row, col: col + 2 }
     ]
 
     return [...diagonalPositions, ...orthogonalPositions]
