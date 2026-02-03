@@ -7,7 +7,7 @@ import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
 import { getValidMoves, getValidAttacks, getAllNarcNetPositions } from '../../utils'
 import { isPiece } from '../../types'
-import type { Board as BoardType, BoardSize, Position, Move, SwapTarget } from '../../types'
+import type { Board as BoardType, BoardSize, Position, Move, SwapTarget, MysteryBoxState } from '../../types'
 
 interface BoardProps {
     isOnline?: boolean
@@ -18,6 +18,7 @@ interface BoardProps {
     onlineValidAttacks?: Position[]
     onlineValidSwaps?: SwapTarget[]
     onlineLastMove?: Move | null
+    onlineMysteryBoxState?: MysteryBoxState
     onSquareClick?: (pos: Position) => void
 }
 
@@ -30,10 +31,13 @@ export const Board = ({
     onlineValidAttacks = [],
     onlineValidSwaps = [],
     onlineLastMove,
+    onlineMysteryBoxState,
     onSquareClick
 }: BoardProps) => {
-    const { gameState, hintMove, selectSquare, devModeSelectSquare, devModeSelected, mysteryBoxState, handleMysteryBoxSelection } = useGameStore()
+    const { gameState, hintMove, selectSquare, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection: offlineHandleMysteryBoxSelection } = useGameStore()
     const { helpEnabled, devMode } = useUIStore()
+    
+    const mysteryBoxState = isOnline && onlineMysteryBoxState ? onlineMysteryBoxState : offlineMysteryBoxState
 
     const board = isOnline && onlineBoard ? onlineBoard : gameState.board
     const boardSize = isOnline && onlineBoardSize ? onlineBoardSize : gameState.boardSize
@@ -109,17 +113,17 @@ export const Board = ({
     }
 
     const isMysteryBoxSelectedObstacle = (row: number, col: number) => {
-        if (isOnline || !mysteryBoxState.isActive) return false
+        if (!mysteryBoxState.isActive) return false
         return mysteryBoxState.selectedObstacles.some(p => p.row === row && p.col === col)
     }
 
     const isMysteryBoxSelectedEmptyTile = (row: number, col: number) => {
-        if (isOnline || !mysteryBoxState.isActive) return false
+        if (!mysteryBoxState.isActive) return false
         return mysteryBoxState.selectedEmptyTiles.some(p => p.row === row && p.col === col)
     }
 
     const isMysteryBoxSelectedFigure = (row: number, col: number) => {
-        if (isOnline || !mysteryBoxState.isActive) return false
+        if (!mysteryBoxState.isActive) return false
         if (!mysteryBoxState.firstFigurePosition) return false
         return mysteryBoxState.firstFigurePosition.row === row && mysteryBoxState.firstFigurePosition.col === col
     }
@@ -130,8 +134,8 @@ export const Board = ({
             return
         }
 
-        if (!isOnline && mysteryBoxState.isActive) {
-            handleMysteryBoxSelection({ row, col })
+        if (!isOnline && offlineMysteryBoxState.isActive) {
+            offlineHandleMysteryBoxSelection({ row, col })
             return
         }
 

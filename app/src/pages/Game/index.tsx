@@ -20,7 +20,7 @@ export const Game = () => {
     const { mode } = useGameMode()
     const isOnline = mode === GameModes.ONLINE
 
-    const { gameState, botEnabled, botDifficulty, botThinking, processBotMove, mysteryBoxState, selectRevivePiece, cancelMysteryBox } = useGameStore()
+    const { gameState, botEnabled, botDifficulty, botThinking, processBotMove, mysteryBoxState: offlineMysteryBoxState, selectRevivePiece: offlineSelectRevivePiece, cancelMysteryBox: offlineCancelMysteryBox } = useGameStore()
     const { is3D, isTopMenuOpen, isRightMenuOpen, openTopMenu, closeTopMenu, openRightMenu, closeRightMenu } = useUIStore()
     const [isResultModalOpen, setIsResultModalOpen] = useState(false)
 
@@ -37,13 +37,20 @@ export const Game = () => {
         moveHistory: onlineMoveHistory,
         gameOver: onlineGameOver,
         winner: onlineWinner,
+        mysteryBoxState: onlineMysteryBoxState,
         currentPlayer,
         currentTurnPlayer,
         isMyTurn,
         isLoading,
         error,
-        handleSquareClick
+        handleSquareClick,
+        selectRevivePiece: onlineSelectRevivePiece,
+        cancelMysteryBox: onlineCancelMysteryBox
     } = useOnlineGame()
+
+    const mysteryBoxState = isOnline ? onlineMysteryBoxState : offlineMysteryBoxState
+    const selectRevivePiece = isOnline ? onlineSelectRevivePiece : offlineSelectRevivePiece
+    const cancelMysteryBox = isOnline ? onlineCancelMysteryBox : offlineCancelMysteryBox
 
     useEffect(() => {
         if (isOnline) return
@@ -168,6 +175,7 @@ export const Game = () => {
                                 onlineValidMoves={onlineValidMoves}
                                 onlineValidAttacks={onlineValidAttacks}
                                 onlineLastMove={onlineLastMove}
+                                onlineMysteryBoxState={onlineMysteryBoxState}
                                 onSquareClick={handleSquareClick}
                             />
                         ) : (
@@ -179,6 +187,7 @@ export const Game = () => {
                                 onlineValidMoves={onlineValidMoves}
                                 onlineValidAttacks={onlineValidAttacks}
                                 onlineLastMove={onlineLastMove}
+                                onlineMysteryBoxState={onlineMysteryBoxState}
                                 onSquareClick={handleSquareClick}
                             />
                         )}
@@ -253,15 +262,13 @@ export const Game = () => {
                     players={gameSession?.players}
                 />
 
-                {!isOnline && (
-                    <MysteryBoxReviveModal
-                        isOpen={mysteryBoxState.isActive && mysteryBoxState.phase === MysteryBoxPhases.WAITING_REVIVE_FIGURE}
-                        onClose={cancelMysteryBox}
-                        pieces={mysteryBoxState.revivablePieces}
-                        onSelectPiece={selectRevivePiece}
-                        selectedPieceId={mysteryBoxState.selectedRevivePiece?.id || null}
-                    />
-                )}
+                <MysteryBoxReviveModal
+                    isOpen={mysteryBoxState.isActive && mysteryBoxState.phase === MysteryBoxPhases.WAITING_REVIVE_FIGURE}
+                    onClose={cancelMysteryBox}
+                    pieces={mysteryBoxState.revivablePieces}
+                    onSelectPiece={selectRevivePiece}
+                    selectedPieceId={mysteryBoxState.selectedRevivePiece?.id || null}
+                />
             </div>
         </div>
     )

@@ -9,7 +9,9 @@ export const SocketEvents = {
     GAME_STATE: 'game:state',
     SYNC_GAME: 'game:sync',
     GAME_UPDATE: 'game:update',
-    ERROR: 'game:error'
+    ERROR: 'game:error',
+    MYSTERY_BOX_TRIGGERED: 'game:mystery_box_triggered',
+    MYSTERY_BOX_COMPLETE: 'game:mystery_box_complete'
 } as const
 
 export type SocketEvent = typeof SocketEvents[keyof typeof SocketEvents]

@@ -183,6 +183,43 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         }
     }
 
+    @SubscribeMessage(SocketEvents.MYSTERY_BOX_TRIGGERED)
+    async handleMysteryBoxTriggered(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() payload: { code: string; playerName: string; option: number; optionName: string; diceRoll: number | null; gameState?: any }
+    ): Promise<void> {
+        this.logger.log(`[MYSTERY_BOX_TRIGGERED] ${payload.playerName} triggered mystery box in game ${payload.code}`)
+
+        if (payload.gameState) {
+            await this.gameService.updateGameState(payload.code, payload.gameState)
+        }
+
+        client.to(payload.code).emit(SocketEvents.MYSTERY_BOX_TRIGGERED, payload)
+    }
+
+    @SubscribeMessage(SocketEvents.MYSTERY_BOX_COMPLETE)
+    async handleMysteryBoxComplete(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() payload: SyncGameDto
+    ): Promise<void> {
+        try {
+            const gameSession = await this.gameService.updateGameState(
+                payload.code,
+                payload.gameState as any
+            )
+
+            this.logger.log(`[MYSTERY_BOX_COMPLETE] Mystery box completed in game ${payload.code}`)
+
+            client.to(gameSession.code).emit(SocketEvents.MYSTERY_BOX_COMPLETE, {
+                code: gameSession.code,
+                gameState: gameSession.gameState
+            })
+        } catch (error) {
+            this.logger.error(`Error completing mystery box: ${error.message}`)
+            client.emit(SocketEvents.ERROR, { message: error.message })
+        }
+    }
+
     private trackClientGame(clientId: string, gameCode: string): void {
         this.clientGameMap.set(clientId, gameCode)
     }

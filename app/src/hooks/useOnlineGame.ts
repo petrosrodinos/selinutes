@@ -9,6 +9,20 @@ import { getSocket } from '../lib/socket'
 import type { GameSession } from '../features/game/interfaces'
 import type { Position } from '../pages/Game/types'
 
+interface MysteryBoxTriggeredPayload {
+    code: string
+    playerName: string
+    option: number
+    optionName: string
+    diceRoll: number | null
+    gameState?: GameSession['gameState']
+}
+
+interface MysteryBoxCompletePayload {
+    code: string
+    gameState: GameSession['gameState']
+}
+
 export const useOnlineGame = () => {
     const [searchParams] = useSearchParams()
     const gameCode = searchParams.get('code')
@@ -25,6 +39,7 @@ export const useOnlineGame = () => {
         selectedPosition,
         validMoves,
         validAttacks,
+        mysteryBoxState,
         isLoading,
         error,
         setGameSession,
@@ -38,7 +53,10 @@ export const useOnlineGame = () => {
         getCurrentPlayer,
         getCurrentTurnPlayer,
         isMyTurn,
-        getGameStateForSync
+        getGameStateForSync,
+        handleMysteryBoxSelection,
+        selectRevivePiece,
+        cancelMysteryBox,
     } = useOnlineGameStore()
 
     useEffect(() => {
@@ -116,8 +134,40 @@ export const useOnlineGame = () => {
         }
 
         const handlePlayerLeft = (data: { message: string }) => {
-            // setError(data.message)
             toast.error(data.message)
+        }
+
+        const handleMysteryBoxTriggeredByOpponent = (data: MysteryBoxTriggeredPayload) => {
+            if (data.gameState) {
+                const currentSession = useOnlineGameStore.getState().gameSession
+                if (currentSession) {
+                    const updatedSession = { ...currentSession, gameState: data.gameState } as GameSession
+                    syncFromServer(updatedSession)
+                }
+            }
+
+            toast.info(`🎁 ${data.playerName} triggered a Mystery Box!`, { autoClose: 3000 })
+
+            const opponentOptionDescriptions: Record<number, string> = {
+                1: `🔄 ${data.playerName} can swap two of their pieces!`,
+                2: `⚔️ ${data.playerName} will sacrifice a Hoplite to revive one of your captured pieces!`,
+                3: `🎲 ${data.playerName} rolled ${data.diceRoll}! They can swap ${data.diceRoll} obstacle(s) with empty tiles!`
+            }
+
+            if (data.option && opponentOptionDescriptions[data.option]) {
+                toast.warning(opponentOptionDescriptions[data.option], { autoClose: 5000 })
+            }
+        }
+
+        const handleMysteryBoxCompleteByOpponent = (data: MysteryBoxCompletePayload) => {
+            if (data.gameState) {
+                const currentSession = useOnlineGameStore.getState().gameSession
+                if (currentSession) {
+                    const updatedSession = { ...currentSession, gameState: data.gameState } as GameSession
+                    syncFromServer(updatedSession)
+                    toast.success('🎉 Mystery Box action completed!', { autoClose: 2000 })
+                }
+            }
         }
 
         on<GameSession>(SocketEvents.GAME_STATE, handleGameState)
@@ -126,6 +176,8 @@ export const useOnlineGame = () => {
         on<GameSession>(SocketEvents.GAME_START, handleGameStart)
         on<{ message: string }>(SocketEvents.ERROR, handleError)
         on<{ message: string }>(SocketEvents.PLAYER_LEFT, handlePlayerLeft)
+        on<MysteryBoxTriggeredPayload>(SocketEvents.MYSTERY_BOX_TRIGGERED, handleMysteryBoxTriggeredByOpponent)
+        on<MysteryBoxCompletePayload>(SocketEvents.MYSTERY_BOX_COMPLETE, handleMysteryBoxCompleteByOpponent)
 
         emit(SocketEvents.GET_GAME, { code: gameCode, playerId: userId })
 
@@ -143,6 +195,8 @@ export const useOnlineGame = () => {
             off(SocketEvents.GAME_START)
             off(SocketEvents.ERROR)
             off(SocketEvents.PLAYER_LEFT)
+            off(SocketEvents.MYSTERY_BOX_TRIGGERED)
+            off(SocketEvents.MYSTERY_BOX_COMPLETE)
         }
     }, [gameCode, isConnected, userId, emit, on, off, socket, setGameSession, setCurrentPlayerId, syncFromServer, setLoading, setError])
 
@@ -173,9 +227,78 @@ export const useOnlineGame = () => {
     const handleSquareClick = useCallback((pos: Position) => {
         if (!gameCode) return
 
-        const moveMade = selectSquare(pos)
+        const currentMysteryBoxState = useOnlineGameStore.getState().mysteryBoxState
+        console.log('🎯 Online Click:', { pos, mysteryBoxActive: currentMysteryBoxState.isActive, phase: currentMysteryBoxState.phase, option: currentMysteryBoxState.option })
 
-        if (!moveMade) return
+        if (currentMysteryBoxState.isActive) {
+            console.log('🎁 Mystery Box Active - calling handleMysteryBoxSelection')
+            const actionCompleted = handleMysteryBoxSelection(pos)
+            console.log('🎁 handleMysteryBoxSelection returned:', actionCompleted)
+
+            if (actionCompleted) {
+                const currentGameState = getGameStateForSync()
+                if (!currentGameState) return
+
+                emit(SocketEvents.MYSTERY_BOX_COMPLETE, {
+                    code: gameCode,
+                    gameState: {
+                        board: currentGameState.board,
+                        currentPlayer: currentGameState.currentPlayer,
+                        moveHistory: currentGameState.moveHistory,
+                        capturedPieces: currentGameState.capturedPieces,
+                        lastMove: currentGameState.lastMove,
+                        gameOver: currentGameState.gameOver,
+                        winner: currentGameState.winner,
+                        narcs: currentGameState.narcs
+                    }
+                })
+
+                toast.success('🎉 Mystery Box action completed!', { autoClose: 2000 })
+            }
+            return
+        }
+
+        const result = selectSquare(pos)
+
+        if (typeof result === 'object' && result.triggered) {
+            const myPlayer = getCurrentPlayer()
+            const playerName = myPlayer?.name || 'Player'
+            const currentGameState = getGameStateForSync()
+
+            if (currentGameState) {
+                emit(SocketEvents.MYSTERY_BOX_TRIGGERED, {
+                    code: gameCode,
+                    playerName,
+                    option: result.option,
+                    optionName: result.optionName,
+                    diceRoll: result.diceRoll,
+                    gameState: {
+                        board: currentGameState.board,
+                        currentPlayer: currentGameState.currentPlayer,
+                        moveHistory: currentGameState.moveHistory,
+                        capturedPieces: currentGameState.capturedPieces,
+                        lastMove: currentGameState.lastMove,
+                        gameOver: currentGameState.gameOver,
+                        winner: currentGameState.winner,
+                        narcs: currentGameState.narcs
+                    }
+                })
+            }
+
+            const optionDescriptions: Record<number, string> = {
+                1: '✨ Swap positions of any two of your pieces!',
+                2: '⚔️ Sacrifice a Hoplite to revive an opponent piece as your own!',
+                3: `🎲 Roll: ${result.diceRoll}! Swap ${result.diceRoll} obstacle(s) with empty tiles!`
+            }
+
+            toast.info(`🎁 Mystery Box Activated!`, { autoClose: 2500 })
+            if (result.option) {
+                toast.success(optionDescriptions[result.option], { autoClose: 5000 })
+            }
+            return
+        }
+
+        if (!result) return
 
         const currentGameState = getGameStateForSync()
         if (!currentGameState) return
@@ -193,7 +316,7 @@ export const useOnlineGame = () => {
                 narcs: currentGameState.narcs
             }
         })
-    }, [gameCode, selectSquare, getGameStateForSync, emit])
+    }, [gameCode, selectSquare, getGameStateForSync, emit, handleMysteryBoxSelection, getCurrentPlayer])
 
     const board = gameState?.board ?? []
     const boardSize = gameState?.boardSize ?? gameSession?.boardSize ?? { rows: 12, cols: 12 }
@@ -216,11 +339,14 @@ export const useOnlineGame = () => {
         gameOver,
         winner,
         moveHistory,
+        mysteryBoxState,
         currentPlayer: getCurrentPlayer(),
         currentTurnPlayer: getCurrentTurnPlayer(),
         isMyTurn: isMyTurn(),
         isLoading: gameCode ? isLoading : false,
         error,
-        handleSquareClick
+        handleSquareClick,
+        selectRevivePiece,
+        cancelMysteryBox
     }
 }

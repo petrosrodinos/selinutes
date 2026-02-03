@@ -2,7 +2,7 @@ import { Suspense, useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { isPiece, isObstacle, PlayerColors } from '../../types'
-import type { Board as BoardType, BoardSize, Position, Move, SwapTarget } from '../../types'
+import type { Board as BoardType, BoardSize, Position, Move, SwapTarget, MysteryBoxState } from '../../types'
 import { Piece3D } from './Piece3D'
 import { BoardSquare3D } from './BoardSquare3D'
 import { Obstacle3D } from './Obstacle3D'
@@ -19,6 +19,7 @@ interface GameSceneProps {
   onlineValidAttacks?: Position[]
   onlineValidSwaps?: SwapTarget[]
   onlineLastMove?: Move | null
+  onlineMysteryBoxState?: MysteryBoxState
   onSquareClick?: (pos: Position) => void
 }
 
@@ -31,10 +32,13 @@ const GameScene = ({
   onlineValidAttacks = [],
   onlineValidSwaps = [],
   onlineLastMove,
+  onlineMysteryBoxState,
   onSquareClick
 }: GameSceneProps) => {
-  const { gameState, hintMove, selectSquare, devModeSelectSquare, devModeSelected, mysteryBoxState, handleMysteryBoxSelection } = useGameStore()
+  const { gameState, hintMove, selectSquare, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection: offlineHandleMysteryBoxSelection } = useGameStore()
   const { helpEnabled, devMode } = useUIStore()
+  
+  const mysteryBoxState = isOnline && onlineMysteryBoxState ? onlineMysteryBoxState : offlineMysteryBoxState
 
   const board = isOnline && onlineBoard ? onlineBoard : gameState.board
   const boardSize = isOnline && onlineBoardSize ? onlineBoardSize : gameState.boardSize
@@ -113,17 +117,17 @@ const GameScene = ({
     !isOnline && helpEnabled && helpAttacks.some(a => a.row === row && a.col === col)
 
   const isMysteryBoxSelectedObstacle = (row: number, col: number) => {
-    if (isOnline || !mysteryBoxState.isActive) return false
+    if (!mysteryBoxState.isActive) return false
     return mysteryBoxState.selectedObstacles.some(p => p.row === row && p.col === col)
   }
 
   const isMysteryBoxSelectedEmptyTile = (row: number, col: number) => {
-    if (isOnline || !mysteryBoxState.isActive) return false
+    if (!mysteryBoxState.isActive) return false
     return mysteryBoxState.selectedEmptyTiles.some(p => p.row === row && p.col === col)
   }
 
   const isMysteryBoxSelectedFigure = (row: number, col: number) => {
-    if (isOnline || !mysteryBoxState.isActive) return false
+    if (!mysteryBoxState.isActive) return false
     if (!mysteryBoxState.firstFigurePosition) return false
     return mysteryBoxState.firstFigurePosition.row === row && mysteryBoxState.firstFigurePosition.col === col
   }
@@ -134,8 +138,8 @@ const GameScene = ({
       return
     }
 
-    if (!isOnline && mysteryBoxState.isActive) {
-      handleMysteryBoxSelection({ row, col })
+    if (!isOnline && offlineMysteryBoxState.isActive) {
+      offlineHandleMysteryBoxSelection({ row, col })
       return
     }
 
@@ -275,6 +279,7 @@ interface Board3DProps {
   onlineValidAttacks?: Position[]
   onlineValidSwaps?: SwapTarget[]
   onlineLastMove?: Move | null
+  onlineMysteryBoxState?: MysteryBoxState
   onSquareClick?: (pos: Position) => void
 }
 
@@ -287,6 +292,7 @@ export const Board3D = ({
   onlineValidAttacks = [],
   onlineValidSwaps = [],
   onlineLastMove,
+  onlineMysteryBoxState,
   onSquareClick
 }: Board3DProps) => {
   const { gameState } = useGameStore()
@@ -314,6 +320,7 @@ export const Board3D = ({
             onlineValidAttacks={onlineValidAttacks}
             onlineValidSwaps={onlineValidSwaps}
             onlineLastMove={onlineLastMove}
+            onlineMysteryBoxState={onlineMysteryBoxState}
             onSquareClick={onSquareClick}
           />
         </Suspense>
