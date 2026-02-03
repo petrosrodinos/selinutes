@@ -73,8 +73,8 @@ export const PIECE_RULES: Record<string, PieceRules> = {
     points: 27
   },
   [PieceTypes.NECROMANCER]: {
-    move: MovePatterns.ANY,
-    attackRange: 1,
+    move: [[1, 0], [0, 1], [1, 1]],
+    attackRange: 8,
     canPass: [ObstacleTypes.CAVE, ObstacleTypes.LAKE],
     points: 13
   }
