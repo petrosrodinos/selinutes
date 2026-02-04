@@ -32,6 +32,7 @@ export const Game = () => {
         selectedPosition: onlineSelectedPosition,
         validMoves: onlineValidMoves,
         validAttacks: onlineValidAttacks,
+        validSwaps: onlineValidSwaps,
         lastMove: onlineLastMove,
         capturedPieces: onlineCapturedPieces,
         moveHistory: onlineMoveHistory,
@@ -174,6 +175,7 @@ export const Game = () => {
                                 onlineSelectedPosition={onlineSelectedPosition}
                                 onlineValidMoves={onlineValidMoves}
                                 onlineValidAttacks={onlineValidAttacks}
+                                onlineValidSwaps={onlineValidSwaps}
                                 onlineLastMove={onlineLastMove}
                                 onlineMysteryBoxState={onlineMysteryBoxState}
                                 onSquareClick={handleSquareClick}
@@ -186,6 +188,7 @@ export const Game = () => {
                                 onlineSelectedPosition={onlineSelectedPosition}
                                 onlineValidMoves={onlineValidMoves}
                                 onlineValidAttacks={onlineValidAttacks}
+                                onlineValidSwaps={onlineValidSwaps}
                                 onlineLastMove={onlineLastMove}
                                 onlineMysteryBoxState={onlineMysteryBoxState}
                                 onSquareClick={handleSquareClick}
