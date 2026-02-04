@@ -5,15 +5,22 @@ const mockUserPoints = 8250
 const mockWins = 42
 const mockLosses = 28
 const mockWinRate = 60
+const mockUserRank = 6
 
 export const UserStats = () => {
     const username = useAuthStore(state => state.username)
     return (
         <div className="bg-stone-800/60 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-stone-700/50">
             <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h2 className="text-2xl font-bold text-amber-400">{username}</h2>
-                    <p className="text-stone-400 text-sm">Player Profile</p>
+                <div className="flex items-center gap-4">
+                    <div>
+                        <h2 className="text-2xl font-bold text-amber-400">{username}</h2>
+                        <p className="text-stone-400 text-sm">Player Profile</p>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-stone-900/50 rounded-lg border border-stone-700/30">
+                        <Trophy className="w-4 h-4 text-amber-400" />
+                        <span className="text-amber-400 font-bold text-sm">Rank #{mockUserRank}</span>
+                    </div>
                 </div>
                 <div className="text-right">
                     <div className="flex items-center gap-2 justify-end mb-1">
