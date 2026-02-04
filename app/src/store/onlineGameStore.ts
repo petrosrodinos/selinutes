@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { toast } from 'react-toastify'
 import type { Position, GameState, PlayerColor, SwapTarget, MysteryBoxState, Piece } from '../pages/Game/types'
 import { isPiece, isObstacle, PlayerColors, PieceTypes, MysteryBoxOptions, MysteryBoxPhases, ObstacleTypes } from '../pages/Game/types'
 import type { GameSession, Player } from '../features/game/interfaces'
@@ -428,12 +429,10 @@ export const useOnlineGameStore = create<OnlineGameStore>((set, get) => ({
 
     handleMysteryBoxSelection: (pos: Position): boolean => {
         const { gameState, mysteryBoxState } = get()
-        console.log('🔍 handleMysteryBoxSelection called:', { pos, isActive: mysteryBoxState.isActive, hasGameState: !!gameState })
         if (!mysteryBoxState.isActive || !gameState) return false
 
         const { board, boardSize, capturedPieces, currentPlayer } = gameState
         const { option, phase, diceRoll, firstFigurePosition, selectedObstacles, selectedEmptyTiles, selectedRevivePiece } = mysteryBoxState
-        console.log('🔍 Mystery Box State:', { option, phase, diceRoll, selectedObstacles: selectedObstacles.length })
 
         if (option === MysteryBoxOptions.FIGURE_SWAP) {
             if (phase === MysteryBoxPhases.WAITING_FIRST_FIGURE) {
@@ -449,6 +448,7 @@ export const useOnlineGameStore = create<OnlineGameStore>((set, get) => ({
                         firstFigurePosition: pos
                     }
                 })
+                toast.info('✨ Now select another piece to swap positions with!', { autoClose: 4000 })
                 return false
             }
 
@@ -505,6 +505,7 @@ export const useOnlineGameStore = create<OnlineGameStore>((set, get) => ({
                         revivablePieces
                     }
                 })
+                toast.info('⚔️ Hoplite sacrificed! Now select a captured piece to revive from the modal.', { autoClose: 4000 })
                 return false
             }
 
@@ -542,12 +543,8 @@ export const useOnlineGameStore = create<OnlineGameStore>((set, get) => ({
         }
 
         if (option === MysteryBoxOptions.OBSTACLE_SWAP && diceRoll) {
-            console.log('🎲 Obstacle Swap option detected, diceRoll:', diceRoll)
             if (phase === MysteryBoxPhases.WAITING_OBSTACLE_SELECTION) {
-                console.log('🎲 In WAITING_OBSTACLE_SELECTION phase')
-                const isSelectable = isSelectableObstacle(board, pos)
-                console.log('🎲 isSelectableObstacle:', isSelectable, 'at pos:', pos)
-                if (!isSelectable) {
+                if (!isSelectableObstacle(board, pos)) {
                     return false
                 }
                 if (isPositionInList(pos, selectedObstacles)) {
@@ -575,6 +572,7 @@ export const useOnlineGameStore = create<OnlineGameStore>((set, get) => ({
                             phase: MysteryBoxPhases.WAITING_EMPTY_TILE_SELECTION
                         }
                     })
+                    toast.info(`🎯 Now select ${diceRoll} empty tile(s) to swap the obstacles to!`, { autoClose: 4000 })
                 } else {
                     set({
                         mysteryBoxState: {
@@ -652,6 +650,7 @@ export const useOnlineGameStore = create<OnlineGameStore>((set, get) => ({
                 selectedRevivePiece: piece
             }
         })
+        toast.info('📍 Now click on an empty tile to place the revived piece!', { autoClose: 4000 })
     },
 
     confirmObstacleSelection: () => {

@@ -228,12 +228,9 @@ export const useOnlineGame = () => {
         if (!gameCode) return
 
         const currentMysteryBoxState = useOnlineGameStore.getState().mysteryBoxState
-        console.log('🎯 Online Click:', { pos, mysteryBoxActive: currentMysteryBoxState.isActive, phase: currentMysteryBoxState.phase, option: currentMysteryBoxState.option })
 
         if (currentMysteryBoxState.isActive) {
-            console.log('🎁 Mystery Box Active - calling handleMysteryBoxSelection')
             const actionCompleted = handleMysteryBoxSelection(pos)
-            console.log('🎁 handleMysteryBoxSelection returned:', actionCompleted)
 
             if (actionCompleted) {
                 const currentGameState = getGameStateForSync()

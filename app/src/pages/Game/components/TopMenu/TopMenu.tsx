@@ -2,8 +2,11 @@ import type { BoardSizeKey, PlayerColor } from '../../types'
 import { BotDifficulties, BoardSizeKeys, PlayerColors } from '../../types'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
+import { useAuthStore } from '../../../../store/authStore'
 import { useGameMode } from '../../../../hooks'
 import type { Player } from '../../../../features/game/interfaces'
+
+const ADMIN_USER = import.meta.env.VITE_ADMIN_USER
 
 interface TopMenuProps {
     isOnline?: boolean
@@ -37,7 +40,10 @@ export const TopMenu = ({
     } = useGameStore()
 
     const { is3D, toggle3D, devMode, toggleDevMode, closeTopMenu } = useUIStore()
+    const { username } = useAuthStore()
     const { showBot, showDev } = useGameMode()
+    
+    const isAdmin = username === ADMIN_USER
 
     const handleBoardSizeChange = (sizeKey: BoardSizeKey) => {
         resetGame(sizeKey)
@@ -171,19 +177,19 @@ export const TopMenu = ({
                                 </div>
                             </div>
                         )}
-
-                        {showDev && (
-                            <div className="flex flex-col items-center gap-1">
-                                <span className="text-xs font-medium text-orange-400">Dev</span>
-                                <button
-                                    onClick={toggleDevMode}
-                                    className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${devMode ? 'bg-orange-600' : 'bg-stone-600'}`}
-                                >
-                                    <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${devMode ? 'translate-x-7' : 'translate-x-0'}`} />
-                                </button>
-                            </div>
-                        )}
                     </>
+                )}
+
+                {(showDev || (isOnline && isAdmin)) && (
+                    <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-medium text-orange-400">Dev</span>
+                        <button
+                            onClick={toggleDevMode}
+                            className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${devMode ? 'bg-orange-600' : 'bg-stone-600'}`}
+                        >
+                            <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${devMode ? 'translate-x-7' : 'translate-x-0'}`} />
+                        </button>
+                    </div>
                 )}
             </div>
         </div>
