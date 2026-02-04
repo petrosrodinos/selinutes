@@ -1,9 +1,13 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { LogOut } from 'lucide-react'
 import type { BoardSizeKey, PlayerColor } from '../../types'
 import { BotDifficulties, BoardSizeKeys, PlayerColors } from '../../types'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
 import { useAuthStore } from '../../../../store/authStore'
 import { useGameMode } from '../../../../hooks'
+import { Modal } from '../../../../components/Modal'
 import type { Player } from '../../../../features/game/interfaces'
 
 const ADMIN_USER = import.meta.env.VITE_ADMIN_USER
@@ -28,6 +32,9 @@ export const TopMenu = ({
     gameOver: onlineGameOver,
     winner: onlineWinner
 }: TopMenuProps) => {
+    const navigate = useNavigate()
+    const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false)
+    
     const {
         gameState,
         boardSizeKey,
@@ -36,7 +43,8 @@ export const TopMenu = ({
         botDifficulty,
         resetGame,
         toggleBot,
-        setDifficulty
+        setDifficulty,
+        reset: resetOnlineState
     } = useGameStore()
 
     const { is3D, toggle3D, devMode, toggleDevMode, closeTopMenu } = useUIStore()
@@ -48,6 +56,27 @@ export const TopMenu = ({
     const handleBoardSizeChange = (sizeKey: BoardSizeKey) => {
         resetGame(sizeKey)
         closeTopMenu()
+    }
+
+    const handleLeaveGame = () => {
+        setIsLeaveModalOpen(true)
+    }
+
+    const handleConfirmLeave = () => {
+        setIsLeaveModalOpen(false)
+        closeTopMenu()
+        
+        if (isOnline) {
+            resetOnlineState()
+        } else {
+            resetGame()
+        }
+        
+        navigate('/')
+    }
+
+    const handleCancelLeave = () => {
+        setIsLeaveModalOpen(false)
     }
 
     const whitePlayer = players.find(p => p.color === PlayerColors.WHITE)
@@ -94,104 +123,142 @@ export const TopMenu = ({
     }
 
     return (
-        <div className="bg-stone-800/80 backdrop-blur rounded-xl p-3 border border-stone-700">
-            <div className="flex flex-wrap items-end gap-4 justify-center">
-                {isOnline && (
-                    <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
-                            <span className="text-stone-200 text-sm font-medium">
-                                {whitePlayer?.name || 'Waiting...'}
-                            </span>
-                            {currentPlayer?.color === PlayerColors.WHITE && (
-                                <span className="text-amber-400 text-xs">(You)</span>
-                            )}
-                        </div>
-                        <span className="text-stone-500">vs</span>
-                        <div className="flex items-center gap-2">
-                            <span className="text-stone-200 text-sm font-medium">
-                                {blackPlayer?.name || 'Waiting...'}
-                            </span>
-                            {currentPlayer?.color === PlayerColors.BLACK && (
-                                <span className="text-amber-400 text-xs">(You)</span>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                <div className={`px-3 py-1.5 rounded-lg text-sm font-medium ${getStatusColor()}`}>
-                    {getStatusText()}
-                </div>
-
-                <div className="flex flex-col items-center gap-1">
-                    <span className="text-xs font-medium text-amber-200">View</span>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={toggle3D}
-                            className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${is3D ? 'bg-violet-600' : 'bg-stone-600'}`}
-                        >
-                            <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${is3D ? 'translate-x-7' : 'translate-x-0'}`} />
-                        </button>
-                        <span className="text-xs text-stone-300">{is3D ? '3D' : '2D'}</span>
-                    </div>
-                </div>
-
-                {!isOnline && (
-                    <>
-                        <div className="flex flex-col items-center gap-1">
-                            <span className="text-xs font-medium text-amber-200">Size</span>
-                            <select
-                                value={boardSizeKey}
-                                onChange={(e) => handleBoardSizeChange(e.target.value as BoardSizeKey)}
-                                className="bg-stone-700 text-amber-100 text-xs rounded px-2 py-1.5 border border-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
-                            >
-                                <option value={BoardSizeKeys.SMALL}>Small (12×12)</option>
-                                <option value={BoardSizeKeys.MEDIUM}>Medium (12×16)</option>
-                                <option value={BoardSizeKeys.LARGE}>Large (12×20)</option>
-                            </select>
-                        </div>
-
-                        {showBot && (
-                            <div className="flex flex-col items-center gap-1">
-                                <span className="text-xs font-medium text-amber-200">Bot</span>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={toggleBot}
-                                        className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${botEnabled ? 'bg-emerald-600' : 'bg-stone-600'}`}
-                                    >
-                                        <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${botEnabled ? 'translate-x-7' : 'translate-x-0'}`} />
-                                    </button>
-                                    {botEnabled && (
-                                        <select
-                                            value={botDifficulty}
-                                            onChange={(e) => setDifficulty(e.target.value as typeof botDifficulty)}
-                                            className="bg-stone-700 text-amber-100 text-xs rounded px-2 py-1 border border-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
-                                        >
-                                            <option value={BotDifficulties.EASY}>Easy</option>
-                                            <option value={BotDifficulties.MEDIUM}>Medium</option>
-                                            <option value={BotDifficulties.HARD}>Hard</option>
-                                        </select>
-                                    )}
-                                    {botThinking && (
-                                        <span className="text-xs text-stone-400">Thinking...</span>
-                                    )}
-                                </div>
+        <>
+            <div className="bg-stone-800/80 backdrop-blur rounded-xl p-3 border border-stone-700">
+                <div className="flex flex-wrap items-end gap-4 justify-center">
+                    {isOnline && (
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                                <span className="text-stone-200 text-sm font-medium">
+                                    {whitePlayer?.name || 'Waiting...'}
+                                </span>
+                                {currentPlayer?.color === PlayerColors.WHITE && (
+                                    <span className="text-amber-400 text-xs">(You)</span>
+                                )}
                             </div>
-                        )}
-                    </>
-                )}
+                            <span className="text-stone-500">vs</span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-stone-200 text-sm font-medium">
+                                    {blackPlayer?.name || 'Waiting...'}
+                                </span>
+                                {currentPlayer?.color === PlayerColors.BLACK && (
+                                    <span className="text-amber-400 text-xs">(You)</span>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
-                {(showDev || (isOnline && isAdmin)) && (
+                    <div className={`px-3 py-1.5 rounded-lg text-sm font-medium ${getStatusColor()}`}>
+                        {getStatusText()}
+                    </div>
+
                     <div className="flex flex-col items-center gap-1">
-                        <span className="text-xs font-medium text-orange-400">Dev</span>
+                        <span className="text-xs font-medium text-amber-200">View</span>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={toggle3D}
+                                className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${is3D ? 'bg-violet-600' : 'bg-stone-600'}`}
+                            >
+                                <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${is3D ? 'translate-x-7' : 'translate-x-0'}`} />
+                            </button>
+                            <span className="text-xs text-stone-300">{is3D ? '3D' : '2D'}</span>
+                        </div>
+                    </div>
+
+                    {!isOnline && (
+                        <>
+                            <div className="flex flex-col items-center gap-1">
+                                <span className="text-xs font-medium text-amber-200">Size</span>
+                                <select
+                                    value={boardSizeKey}
+                                    onChange={(e) => handleBoardSizeChange(e.target.value as BoardSizeKey)}
+                                    className="bg-stone-700 text-amber-100 text-xs rounded px-2 py-1.5 border border-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                                >
+                                    <option value={BoardSizeKeys.SMALL}>Small (12×12)</option>
+                                    <option value={BoardSizeKeys.MEDIUM}>Medium (12×16)</option>
+                                    <option value={BoardSizeKeys.LARGE}>Large (12×20)</option>
+                                </select>
+                            </div>
+
+                            {showBot && (
+                                <div className="flex flex-col items-center gap-1">
+                                    <span className="text-xs font-medium text-amber-200">Bot</span>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={toggleBot}
+                                            className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${botEnabled ? 'bg-emerald-600' : 'bg-stone-600'}`}
+                                        >
+                                            <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${botEnabled ? 'translate-x-7' : 'translate-x-0'}`} />
+                                        </button>
+                                        {botEnabled && (
+                                            <select
+                                                value={botDifficulty}
+                                                onChange={(e) => setDifficulty(e.target.value as typeof botDifficulty)}
+                                                className="bg-stone-700 text-amber-100 text-xs rounded px-2 py-1 border border-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                                            >
+                                                <option value={BotDifficulties.EASY}>Easy</option>
+                                                <option value={BotDifficulties.MEDIUM}>Medium</option>
+                                                <option value={BotDifficulties.HARD}>Hard</option>
+                                            </select>
+                                        )}
+                                        {botThinking && (
+                                            <span className="text-xs text-stone-400">Thinking...</span>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+
+                    {(showDev || (isOnline && isAdmin)) && (
+                        <div className="flex flex-col items-center gap-1">
+                            <span className="text-xs font-medium text-orange-400">Dev</span>
+                            <button
+                                onClick={toggleDevMode}
+                                className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${devMode ? 'bg-orange-600' : 'bg-stone-600'}`}
+                            >
+                                <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${devMode ? 'translate-x-7' : 'translate-x-0'}`} />
+                            </button>
+                        </div>
+                    )}
+
+                    <button
+                        onClick={handleLeaveGame}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                        <LogOut className="w-4 h-4" />
+                        <span>Leave</span>
+                    </button>
+                </div>
+            </div>
+
+            <Modal
+                isOpen={isLeaveModalOpen}
+                onClose={handleCancelLeave}
+                title="Leave Game"
+            >
+                <div className="space-y-4">
+                    <p className="text-stone-300">
+                        {isOnline
+                            ? 'Are you sure you want to leave this game? You will forfeit the match.'
+                            : 'Are you sure you want to leave? Your current game progress will be lost.'}
+                    </p>
+                    <div className="flex gap-3 justify-end">
                         <button
-                            onClick={toggleDevMode}
-                            className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${devMode ? 'bg-orange-600' : 'bg-stone-600'}`}
+                            onClick={handleCancelLeave}
+                            className="px-4 py-2 bg-stone-700 hover:bg-stone-600 text-stone-200 rounded-lg transition-colors"
                         >
-                            <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${devMode ? 'translate-x-7' : 'translate-x-0'}`} />
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleConfirmLeave}
+                            className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg transition-colors"
+                        >
+                            Leave Game
                         </button>
                     </div>
-                )}
-            </div>
-        </div>
+                </div>
+            </Modal>
+        </>
     )
 }
