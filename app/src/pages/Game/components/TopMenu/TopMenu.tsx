@@ -34,7 +34,7 @@ export const TopMenu = ({ onOpenSettings }: TopMenuProps) => {
     } else {
       resetGame();
     }
-    navigate("/");
+    navigate("/home");
   };
 
   const handleCancelLeave = () => {
