@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { Settings, Info, Loader2 } from 'lucide-react'
 import { Board } from './components/Board'
@@ -12,8 +12,8 @@ import { ZombieReviveModal } from './components/ZombieReviveModal'
 import { Modal } from '../../components/Modal'
 import { useGameStore } from '../../store/gameStore'
 import { useUIStore } from '../../store/uiStore'
-import { useGameMode, useOnlineGame } from '../../hooks'
-import { PlayerColors, MysteryBoxPhases, PieceTypes, type Piece } from './types'
+import { useGameMode, useOnlineGame, useSoundEffects } from '../../hooks'
+import { PlayerColors, MysteryBoxPhases, PieceTypes, ObstacleTypes, isObstacle, type Piece } from './types'
 import { BOT_DELAY } from './constants'
 import { environments } from '../../config/environments'
 import { GameModes } from '../../constants'
@@ -106,6 +106,18 @@ export const Game = () => {
     const boardSize = isOnline ? onlineBoardSize : gameState.boardSize
     const currentPlayerColor = gameState.currentPlayer
     const capturedPieces = isOnline ? onlineCapturedPieces : gameState.capturedPieces
+    const lastMove = isOnline ? onlineLastMove : gameState.lastMove
+
+    const { playBoardClick, playSwap, playMysteryBox, playCaveTeleport, playRevive } = useSoundEffects(lastMove)
+
+    const prevMysteryBoxPhaseRef = useRef(mysteryBoxState.phase)
+    useEffect(() => {
+        const prevPhase = prevMysteryBoxPhaseRef.current
+        prevMysteryBoxPhaseRef.current = mysteryBoxState.phase
+        if (prevPhase === MysteryBoxPhases.WAITING_REVIVE_PLACEMENT && !mysteryBoxState.isActive) {
+            playRevive()
+        }
+    }, [mysteryBoxState.phase, mysteryBoxState.isActive, playRevive])
 
     const getMobileStatusText = (): string => {
         if (isOnline) {
@@ -222,6 +234,7 @@ export const Game = () => {
                 revivePiece: selectedZombiePiece,
                 target
             })
+            playRevive()
             closeZombieRevive()
             return true
         }
@@ -231,6 +244,7 @@ export const Game = () => {
             target
         })
         if (success) {
+            playRevive()
             closeZombieRevive()
         }
         return success
@@ -258,6 +272,30 @@ export const Game = () => {
     }
 
     const onSquareClick = (pos: { row: number; col: number }) => {
+        const hasSelection = isOnline ? onlineSelectedPosition !== null : gameState.selectedPosition !== null
+        const currentSwaps = isOnline ? onlineValidSwaps : gameState.validSwaps
+        const currentValidMoves = isOnline ? onlineValidMoves : gameState.validMoves
+        const currentValidAttacks = isOnline ? onlineValidAttacks : gameState.validAttacks
+
+        const isSwapTarget = hasSelection && currentSwaps.some(s => s.position.row === pos.row && s.position.col === pos.col)
+        const isMoveOrAttack = hasSelection && (
+            currentValidMoves.some(m => m.row === pos.row && m.col === pos.col) ||
+            currentValidAttacks.some(a => a.row === pos.row && a.col === pos.col)
+        )
+        const targetCell = board[pos.row]?.[pos.col]
+        const isMysteryBoxTarget = isMoveOrAttack && targetCell && isObstacle(targetCell) && targetCell.type === ObstacleTypes.MYSTERY_BOX
+        const isCaveTarget = isMoveOrAttack && targetCell && isObstacle(targetCell) && targetCell.type === ObstacleTypes.CAVE
+
+        if (isSwapTarget) {
+            playSwap()
+        } else if (isMysteryBoxTarget) {
+            playMysteryBox()
+        } else if (isCaveTarget) {
+            playCaveTeleport()
+        } else if (!hasSelection) {
+            playBoardClick()
+        }
+
         if (awaitingZombiePlacement) {
             if (board[pos.row][pos.col] === null) {
                 executeRevive(pos)
@@ -332,6 +370,7 @@ export const Game = () => {
                                 onlineLastMove={onlineLastMove}
                                 onlineMysteryBoxState={onlineMysteryBoxState}
                                 onSquareClick={onSquareClick}
+                                onMysteryBoxClick={playBoardClick}
                             />
                         ) : (
                             <Board
@@ -345,6 +384,7 @@ export const Game = () => {
                                 onlineLastMove={onlineLastMove}
                                 onlineMysteryBoxState={onlineMysteryBoxState}
                                 onSquareClick={onSquareClick}
+                                onMysteryBoxClick={playBoardClick}
                             />
                         )}
 
