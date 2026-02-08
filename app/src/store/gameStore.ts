@@ -47,6 +47,7 @@ interface MysteryBoxTriggerResult {
 interface GameStore {
     gameState: GameState
     boardSizeKey: BoardSizeKey
+    gameStartTimestamp: number
     history: HistoryEntry[]
     botEnabled: boolean
     botThinking: boolean
@@ -71,6 +72,7 @@ interface GameStore {
     selectSquare: (pos: Position, isOnline?: boolean) => MysteryBoxTriggerResult | boolean
     devModeSelectSquare: (pos: Position) => void
     resetGame: (newBoardSizeKey?: BoardSizeKey) => void
+    startGameTimer: () => void
     toggleBot: () => void
     setDifficulty: (difficulty: BotDifficulty) => void
     undoMove: () => void
@@ -138,6 +140,7 @@ const createInitialGameState = (): GameState => {
 export const useGameStore = create<GameStore>((set, get) => ({
     gameState: createInitialGameState(),
     boardSizeKey: BoardSizeKeys.SMALL,
+    gameStartTimestamp: 0,
     history: [],
     botEnabled: false,
     botThinking: false,
@@ -710,11 +713,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 nightMode: false
             },
             boardSizeKey: newBoardSizeKey ? newBoardSizeKey : currentSizeKey,
+            gameStartTimestamp: Date.now(),
             history: [],
             botThinking: false,
             hintMove: null,
             mysteryBoxState: getInitialMysteryBoxState()
         })
+    },
+
+    startGameTimer: () => {
+        const { gameStartTimestamp } = get()
+        if (gameStartTimestamp === 0) {
+            set({ gameStartTimestamp: Date.now() })
+        }
     },
 
     toggleBot: () => {
