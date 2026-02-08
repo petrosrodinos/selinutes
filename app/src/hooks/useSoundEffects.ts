@@ -53,5 +53,9 @@ export const useSoundEffects = (lastMove: Move | null | undefined) => {
     SoundManager.play(SoundEvents.REVIVE)
   }, [])
 
-  return { playBoardClick, playSwap, playMysteryBox, playCaveTeleport, playRevive }
+  const playGameOver = useCallback(() => {
+    SoundManager.play(SoundEvents.GAME_OVER)
+  }, [])
+
+  return { playBoardClick, playSwap, playMysteryBox, playCaveTeleport, playRevive, playGameOver }
 }

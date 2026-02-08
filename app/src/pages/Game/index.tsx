@@ -67,7 +67,20 @@ export const Game = () => {
   const capturedPieces = isOnline ? onlineCapturedPieces : gameState.capturedPieces;
   const lastMove = isOnline ? onlineLastMove : gameState.lastMove;
 
-  const { playBoardClick, playSwap, playMysteryBox, playCaveTeleport, playRevive } = useSoundEffects(lastMove);
+  const { playBoardClick, playSwap, playMysteryBox, playCaveTeleport, playRevive, playGameOver } = useSoundEffects(lastMove);
+
+  const prevGameOverRef = useRef(false);
+  useEffect(() => {
+    const isGameOver = isOnline ? onlineGameOver : gameState.gameOver;
+    if (isGameOver) {
+      if (!prevGameOverRef.current) {
+        playGameOver();
+      }
+      prevGameOverRef.current = true;
+    } else {
+      prevGameOverRef.current = false;
+    }
+  }, [isOnline, onlineGameOver, gameState.gameOver, playGameOver]);
 
   useEffect(() => {
     if (!isOnline) startGameTimer();
