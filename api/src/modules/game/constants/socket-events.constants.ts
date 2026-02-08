@@ -11,7 +11,8 @@ export const SocketEvents = {
     GAME_UPDATE: 'game:update',
     ERROR: 'game:error',
     MYSTERY_BOX_TRIGGERED: 'game:mystery_box_triggered',
-    MYSTERY_BOX_COMPLETE: 'game:mystery_box_complete'
+    MYSTERY_BOX_COMPLETE: 'game:mystery_box_complete',
+    NECROMANCER_REVIVE_STARTED: 'game:necromancer_revive_started'
 } as const
 
 export type SocketEvent = typeof SocketEvents[keyof typeof SocketEvents]

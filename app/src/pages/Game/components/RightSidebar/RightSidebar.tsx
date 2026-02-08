@@ -1,24 +1,18 @@
-import type { Piece, Move, BoardSize } from '../../types'
-import {  PieceTypes } from '../../types'
-import {    PIECE_SYMBOLS, PIECE_RULES } from '../../constants'
+import type { Piece } from '../../types'
+import { PieceTypes, PlayerColors } from '../../types'
+import { PIECE_SYMBOLS, PIECE_RULES } from '../../constants'
 import { useGameStore } from '../../../../store/gameStore'
 
 interface RightSidebarProps {
-    isOnline?: boolean
-    onlineBoardSize?: BoardSize
-    onlineCapturedPieces?: { white: Piece[]; black: Piece[] }
-    onlineMoveHistory?: Move[]
+    onOpenZombieRevive?: () => void
 }
 
 export const RightSidebar = ({
-    isOnline = false,
-    onlineCapturedPieces,
+    onOpenZombieRevive,
 }: RightSidebarProps) => {
     const { gameState } = useGameStore()
 
-    const capturedPieces = isOnline && onlineCapturedPieces
-        ? onlineCapturedPieces
-        : gameState.capturedPieces
+    const capturedPieces = gameState.capturedPieces
     // const moveHistory = isOnline && onlineMoveHistory
     //     ? onlineMoveHistory
     //     : gameState.moveHistory
@@ -64,6 +58,8 @@ export const RightSidebar = ({
         }, 0)
     }
 
+    const reviveSectionColor = gameState.currentPlayer
+
     return (
         <div className="bg-stone-800/80 backdrop-blur rounded-xl p-4 border border-stone-700 w-64">
             <div className="mb-4">
@@ -73,25 +69,41 @@ export const RightSidebar = ({
                         <div className="flex items-center gap-1 mb-1">
                             <span className="text-xs text-stone-400">White ({getTotalPoints(capturedPieces.white)}pts):</span>
                         </div>
-                        <div className="flex flex-wrap gap-0.5 min-h-[28px]">
+                        <button
+                            type="button"
+                            onClick={reviveSectionColor === PlayerColors.WHITE ? onOpenZombieRevive : undefined}
+                            className={`flex flex-wrap gap-0.5 min-h-[28px] w-full text-left ${
+                                reviveSectionColor === PlayerColors.WHITE && onOpenZombieRevive
+                                    ? 'hover:bg-stone-700/50 rounded-md p-1 -m-1'
+                                    : ''
+                            }`}
+                        >
                             {sortedCaptured(capturedPieces.white).map((piece, i) => (
                                 <span key={i} className="text-lg">
                                     {PIECE_SYMBOLS[piece.color][piece.type]}
                                 </span>
                             ))}
-                        </div>
+                        </button>
                     </div>
                     <div>
                         <div className="flex items-center gap-1 mb-1">
                             <span className="text-xs text-stone-400">Black ({getTotalPoints(capturedPieces.black)}pts):</span>
                         </div>
-                        <div className="flex flex-wrap gap-0.5 min-h-[28px]">
+                        <button
+                            type="button"
+                            onClick={reviveSectionColor === PlayerColors.BLACK ? onOpenZombieRevive : undefined}
+                            className={`flex flex-wrap gap-0.5 min-h-[28px] w-full text-left ${
+                                reviveSectionColor === PlayerColors.BLACK && onOpenZombieRevive
+                                    ? 'hover:bg-stone-700/50 rounded-md p-1 -m-1'
+                                    : ''
+                            }`}
+                        >
                             {sortedCaptured(capturedPieces.black).map((piece, i) => (
                                 <span key={i} className="text-lg">
                                     {PIECE_SYMBOLS[piece.color][piece.type]}
                                 </span>
                             ))}
-                        </div>
+                        </button>
                     </div>
                 </div>
             </div>

@@ -220,6 +220,15 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         }
     }
 
+    @SubscribeMessage(SocketEvents.NECROMANCER_REVIVE_STARTED)
+    handleNecromancerReviveStarted(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() payload: { code: string; playerName: string }
+    ): void {
+        this.logger.log(`[NECROMANCER_REVIVE_STARTED] ${payload.playerName} started revive in game ${payload.code}`)
+        client.to(payload.code).emit(SocketEvents.NECROMANCER_REVIVE_STARTED, { playerName: payload.playerName })
+    }
+
     private trackClientGame(clientId: string, gameCode: string): void {
         this.clientGameMap.set(clientId, gameCode)
     }

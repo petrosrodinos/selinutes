@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { toast } from 'react-toastify'
 import { Settings, Info, Loader2 } from 'lucide-react'
 import { Board } from './components/Board'
 import { Board3D } from './components/Board3D'
@@ -7,14 +8,23 @@ import { BottomMenu } from './components/BottomMenu'
 import { RightSidebar } from './components/RightSidebar'
 import { GameResultModal } from './components/GameResultModal'
 import { MysteryBoxReviveModal } from './components/MysteryBoxReviveModal'
+import { ZombieReviveModal } from './components/ZombieReviveModal'
 import { Modal } from '../../components/Modal'
 import { useGameStore } from '../../store/gameStore'
 import { useUIStore } from '../../store/uiStore'
 import { useGameMode, useOnlineGame } from '../../hooks'
-import { PlayerColors, MysteryBoxPhases } from './types'
+import { PlayerColors, MysteryBoxPhases, PieceTypes, type Piece } from './types'
 import { BOT_DELAY } from './constants'
 import { environments } from '../../config/environments'
 import { GameModes } from '../../constants'
+import {
+    areRevivalGuardsInPlace,
+    findPiecePosition,
+    getZombieRevivePieces,
+    getZombieReviveStatusMessage,
+    getZombieReviveConfirmState,
+    isZombieReviveTargetEmpty
+} from './utils'
 
 export const Game = () => {
     const { mode } = useGameMode()
@@ -29,14 +39,18 @@ export const Game = () => {
         mysteryBoxState: offlineMysteryBoxState,
         selectRevivePiece: offlineSelectRevivePiece,
         cancelMysteryBox: offlineCancelMysteryBox,
-        selectSquare: offlineSelectSquare
+        selectSquare: offlineSelectSquare,
+        reviveZombie: offlineReviveZombie
     } = useGameStore()
     const { is3D, isTopMenuOpen, isRightMenuOpen, openTopMenu, closeTopMenu, openRightMenu, closeRightMenu } = useUIStore()
     const [isResultModalOpen, setIsResultModalOpen] = useState(false)
+    const [isZombieReviveOpen, setIsZombieReviveOpen] = useState(false)
+    const [awaitingZombiePlacement, setAwaitingZombiePlacement] = useState(false)
+    const [selectedZombiePiece, setSelectedZombiePiece] = useState<Piece | null>(null)
+    const [selectedZombieTarget, setSelectedZombieTarget] = useState<{ row: number; col: number } | null>(null)
 
     const {
         gameSession,
-        gameCode,
         board: onlineBoard,
         boardSize: onlineBoardSize,
         selectedPosition: onlineSelectedPosition,
@@ -45,7 +59,6 @@ export const Game = () => {
         validSwaps: onlineValidSwaps,
         lastMove: onlineLastMove,
         capturedPieces: onlineCapturedPieces,
-        moveHistory: onlineMoveHistory,
         gameOver: onlineGameOver,
         winner: onlineWinner,
         mysteryBoxState: onlineMysteryBoxState,
@@ -56,7 +69,9 @@ export const Game = () => {
         error,
         handleSquareClick,
         selectRevivePiece: onlineSelectRevivePiece,
-        cancelMysteryBox: onlineCancelMysteryBox
+        cancelMysteryBox: onlineCancelMysteryBox,
+        requestZombieRevive,
+        notifyReviveStarted
     } = useOnlineGame()
 
     const mysteryBoxState = isOnline ? onlineMysteryBoxState : offlineMysteryBoxState
@@ -84,31 +99,13 @@ export const Game = () => {
         }
     }, [isOnline, onlineGameOver, gameState.gameOver])
 
-    if (isOnline && isLoading) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-emerald-950 flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-12 h-12 text-amber-400 animate-spin" />
-                    <p className="text-amber-200 text-lg">Loading game...</p>
-                </div>
-            </div>
-        )
-    }
-
-    if (isOnline && error) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-emerald-950 flex items-center justify-center">
-                <div className="bg-rose-600/20 border border-rose-500 rounded-xl p-6 max-w-md">
-                    <h2 className="text-rose-400 text-xl font-bold mb-2">Error</h2>
-                    <p className="text-stone-200">{error}</p>
-                </div>
-            </div>
-        )
-    }
-
     const gameOver = isOnline ? onlineGameOver : gameState.gameOver
     const winner = isOnline ? onlineWinner : gameState.winner
     const winnerPlayer = isOnline && winner ? gameSession?.players.find(p => p.color === winner) : null
+    const board = isOnline ? onlineBoard : gameState.board
+    const boardSize = isOnline ? onlineBoardSize : gameState.boardSize
+    const currentPlayerColor = gameState.currentPlayer
+    const capturedPieces = isOnline ? onlineCapturedPieces : gameState.capturedPieces
 
     const getMobileStatusText = (): string => {
         if (isOnline) {
@@ -149,8 +146,159 @@ export const Game = () => {
         return 'bg-emerald-600 text-white'
     }
 
-    const onSquareClick = isOnline ? handleSquareClick : (pos: { row: number; col: number }) => {
-        offlineSelectSquare(pos, false)
+    const revivableZombiePieces = useMemo(() => {
+        return getZombieRevivePieces(capturedPieces, currentPlayerColor)
+    }, [capturedPieces, currentPlayerColor])
+    const necromancerPosition = useMemo(() => {
+        return findPiecePosition(board, PieceTypes.NECROMANCER, currentPlayerColor)
+    }, [board, currentPlayerColor])
+    const guardsInPlace = useMemo(() => {
+        return areRevivalGuardsInPlace(board, boardSize, currentPlayerColor)
+    }, [board, boardSize, currentPlayerColor])
+    const targetIsEmpty = useMemo(() => {
+        return isZombieReviveTargetEmpty(board, selectedZombieTarget)
+    }, [board, selectedZombieTarget])
+    const canConfirmZombieRevive = useMemo(() => {
+        return getZombieReviveConfirmState({
+            necromancerPosition,
+            selectedZombiePiece,
+            selectedZombieTarget,
+            targetIsEmpty,
+            guardsInPlace,
+            isOnline,
+            isMyTurn
+        })
+    }, [
+        necromancerPosition,
+        selectedZombiePiece,
+        selectedZombieTarget,
+        targetIsEmpty,
+        guardsInPlace,
+        isOnline,
+        isMyTurn
+    ])
+
+    const zombieReviveStatusMessage = useMemo(() => {
+        return getZombieReviveStatusMessage({
+            isOnline,
+            isMyTurn,
+            necromancerPosition,
+            guardsInPlace,
+            revivableCount: revivableZombiePieces.length,
+            selectedZombiePiece,
+            selectedZombieTarget,
+            targetIsEmpty
+        })
+    }, [
+        isOnline,
+        isMyTurn,
+        necromancerPosition,
+        guardsInPlace,
+        revivableZombiePieces.length,
+        selectedZombiePiece,
+        selectedZombieTarget,
+        targetIsEmpty
+    ])
+
+    const openZombieRevive = () => {
+        setSelectedZombiePiece(null)
+        setSelectedZombieTarget(null)
+        setAwaitingZombiePlacement(false)
+        setIsZombieReviveOpen(true)
+    }
+
+    const closeZombieRevive = () => {
+        setIsZombieReviveOpen(false)
+        setAwaitingZombiePlacement(false)
+        setSelectedZombiePiece(null)
+        setSelectedZombieTarget(null)
+    }
+
+    const executeRevive = (target: { row: number; col: number }) => {
+        if (!selectedZombiePiece || !necromancerPosition) return false
+        if (isOnline) {
+            requestZombieRevive({
+                necromancerPosition,
+                revivePiece: selectedZombiePiece,
+                target
+            })
+            closeZombieRevive()
+            return true
+        }
+        const success = offlineReviveZombie({
+            necromancerPosition,
+            revivePiece: selectedZombiePiece,
+            target
+        })
+        if (success) {
+            closeZombieRevive()
+        }
+        return success
+    }
+
+    const confirmZombieRevive = () => {
+        if (!selectedZombiePiece || !selectedZombieTarget || !necromancerPosition) return
+        if (!canConfirmZombieRevive) return
+        executeRevive(selectedZombieTarget)
+    }
+
+    const handleReviveZombieClick = () => {
+        if (!selectedZombiePiece) return
+        if (selectedZombieTarget && canConfirmZombieRevive) {
+            confirmZombieRevive()
+            return
+        }
+        if (isOnline) {
+            notifyReviveStarted()
+        }
+        setIsZombieReviveOpen(false)
+        setSelectedZombieTarget(null)
+        setAwaitingZombiePlacement(true)
+        toast.info('Select an empty tile on the board to place the revived piece.', { autoClose: 5000 })
+    }
+
+    const onSquareClick = (pos: { row: number; col: number }) => {
+        if (awaitingZombiePlacement) {
+            if (board[pos.row][pos.col] === null) {
+                executeRevive(pos)
+            } else {
+                toast.warning('Select an empty tile to place the revived piece.', { autoClose: 3000 })
+            }
+            return
+        }
+        if (isZombieReviveOpen) {
+            if (board[pos.row][pos.col] === null) {
+                setSelectedZombieTarget(pos)
+            }
+            return
+        }
+        if (isOnline) {
+            handleSquareClick(pos)
+        } else {
+            offlineSelectSquare(pos, false)
+        }
+    }
+
+    if (isOnline && isLoading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-emerald-950 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-12 h-12 text-amber-400 animate-spin" />
+                    <p className="text-amber-200 text-lg">Loading game...</p>
+                </div>
+            </div>
+        )
+    }
+
+    if (isOnline && error) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-emerald-950 flex items-center justify-center">
+                <div className="bg-rose-600/20 border border-rose-500 rounded-xl p-6 max-w-md">
+                    <h2 className="text-rose-400 text-xl font-bold mb-2">Error</h2>
+                    <p className="text-stone-200">{error}</p>
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -169,16 +317,7 @@ export const Game = () => {
                 <div className="flex flex-col lg:flex-row gap-2 items-start justify-center">
                     <div className="flex flex-col items-center">
                         <div className="hidden lg:block mb-2">
-                            <TopMenu
-                                isOnline={isOnline}
-                                gameCode={gameCode}
-                                players={gameSession?.players}
-                                currentPlayer={currentPlayer}
-                                currentTurnPlayer={currentTurnPlayer}
-                                isMyTurn={isMyTurn}
-                                gameOver={onlineGameOver}
-                                winner={onlineWinner}
-                            />
+                            <TopMenu />
                         </div>
 
                         {is3D ? (
@@ -214,10 +353,7 @@ export const Game = () => {
 
                     <div className="hidden lg:block flex-shrink-0">
                         <RightSidebar
-                            isOnline={isOnline}
-                            onlineBoardSize={onlineBoardSize}
-                            onlineCapturedPieces={onlineCapturedPieces}
-                            onlineMoveHistory={onlineMoveHistory}
+                            onOpenZombieRevive={openZombieRevive}
                         />
                     </div>
                 </div>
@@ -244,16 +380,7 @@ export const Game = () => {
                     onClose={closeTopMenu}
                     title={isOnline ? 'Game Info' : 'Game Settings'}
                 >
-                    <TopMenu
-                        isOnline={isOnline}
-                        gameCode={gameCode}
-                        players={gameSession?.players}
-                        currentPlayer={currentPlayer}
-                        currentTurnPlayer={currentTurnPlayer}
-                        isMyTurn={isMyTurn}
-                        gameOver={onlineGameOver}
-                        winner={onlineWinner}
-                    />
+                    <TopMenu />
                 </Modal>
 
                 <Modal
@@ -262,10 +389,7 @@ export const Game = () => {
                     title="Game Info"
                 >
                     <RightSidebar
-                        isOnline={isOnline}
-                        onlineBoardSize={onlineBoardSize}
-                        onlineCapturedPieces={onlineCapturedPieces}
-                        onlineMoveHistory={onlineMoveHistory}
+                        onOpenZombieRevive={openZombieRevive}
                     />
                 </Modal>
 
@@ -285,6 +409,18 @@ export const Game = () => {
                     pieces={mysteryBoxState.revivablePieces}
                     onSelectPiece={selectRevivePiece}
                     selectedPieceId={mysteryBoxState.selectedRevivePiece?.id || null}
+                />
+
+                <ZombieReviveModal
+                    isOpen={isZombieReviveOpen}
+                    onClose={closeZombieRevive}
+                    pieces={revivableZombiePieces}
+                    onSelectPiece={setSelectedZombiePiece}
+                    selectedPieceId={selectedZombiePiece?.id || null}
+                    selectedTarget={selectedZombieTarget}
+                    onConfirm={handleReviveZombieClick}
+                    canConfirm={!!selectedZombiePiece}
+                    statusMessage={zombieReviveStatusMessage}
                 />
             </div>
         </div>

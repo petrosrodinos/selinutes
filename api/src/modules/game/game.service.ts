@@ -31,7 +31,8 @@ export class GameService {
             capturedPieces: { white: [], black: [] },
             lastMove: null,
             gameOver: false,
-            winner: null
+            winner: null,
+            nightMode: false
         }
 
         const gameSession: GameSession = {
@@ -127,7 +128,8 @@ export class GameService {
                 capturedPieces: gameState?.capturedPieces,
                 lastMove: gameState?.lastMove,
                 gameOver: gameState?.gameOver,
-                winner: gameState?.winner
+                winner: gameState?.winner,
+                nightMode: gameState?.nightMode ?? false
             },
             status: gameState?.gameOver ? GameStatuses.FINISHED : gameSession.status
         }

@@ -7,7 +7,7 @@ import { useAuthStore } from '../store/authStore'
 import { SocketEvents } from '../constants'
 import { getSocket } from '../lib/socket'
 import type { GameSession } from '../features/game/interfaces'
-import type { Position } from '../pages/Game/types'
+import type { Position, Piece } from '../pages/Game/types'
 
 interface MysteryBoxTriggeredPayload {
     code: string
@@ -21,6 +21,12 @@ interface MysteryBoxTriggeredPayload {
 interface MysteryBoxCompletePayload {
     code: string
     gameState: GameSession['gameState']
+}
+
+interface ZombieRevivePayload {
+    necromancerPosition: Position
+    revivePiece: Piece
+    target: Position
 }
 
 export const useOnlineGame = () => {
@@ -171,6 +177,10 @@ export const useOnlineGame = () => {
             }
         }
 
+        const handleNecromancerReviveStarted = (data: { playerName: string }) => {
+            toast.info(`🧟 ${data.playerName} is reviving a piece.`, { autoClose: 4000 })
+        }
+
         on<GameSession>(SocketEvents.GAME_STATE, handleGameState)
         on<GameSession>(SocketEvents.GAME_UPDATE, handleGameUpdate)
         on<GameSession>(SocketEvents.PLAYER_JOINED, handlePlayerJoined)
@@ -179,6 +189,7 @@ export const useOnlineGame = () => {
         on<{ message: string }>(SocketEvents.PLAYER_LEFT, handlePlayerLeft)
         on<MysteryBoxTriggeredPayload>(SocketEvents.MYSTERY_BOX_TRIGGERED, handleMysteryBoxTriggeredByOpponent)
         on<MysteryBoxCompletePayload>(SocketEvents.MYSTERY_BOX_COMPLETE, handleMysteryBoxCompleteByOpponent)
+        on<{ playerName: string }>(SocketEvents.NECROMANCER_REVIVE_STARTED, handleNecromancerReviveStarted)
 
         emit(SocketEvents.GET_GAME, { code: gameCode, playerId: userId })
 
@@ -198,6 +209,7 @@ export const useOnlineGame = () => {
             off(SocketEvents.PLAYER_LEFT)
             off(SocketEvents.MYSTERY_BOX_TRIGGERED)
             off(SocketEvents.MYSTERY_BOX_COMPLETE)
+            off(SocketEvents.NECROMANCER_REVIVE_STARTED)
         }
     }, [gameCode, isConnected, userId, emit, on, off, socket, setGameSession, setCurrentPlayerId, syncFromServer, setLoading, setError])
 
@@ -247,7 +259,8 @@ export const useOnlineGame = () => {
                         lastMove: currentGameState.lastMove,
                         gameOver: currentGameState.gameOver,
                         winner: currentGameState.winner,
-                        narcs: currentGameState.narcs
+                        narcs: currentGameState.narcs,
+                        nightMode: currentGameState.nightMode
                     }
                 })
 
@@ -278,7 +291,8 @@ export const useOnlineGame = () => {
                         lastMove: currentGameState.lastMove,
                         gameOver: currentGameState.gameOver,
                         winner: currentGameState.winner,
-                        narcs: currentGameState.narcs
+                        narcs: currentGameState.narcs,
+                        nightMode: currentGameState.nightMode
                     }
                 })
             }
@@ -311,10 +325,46 @@ export const useOnlineGame = () => {
                 lastMove: currentGameState.lastMove,
                 gameOver: currentGameState.gameOver,
                 winner: currentGameState.winner,
-                narcs: currentGameState.narcs
+                narcs: currentGameState.narcs,
+                nightMode: currentGameState.nightMode
             }
         })
     }, [gameCode, selectSquare, getGameStateForSync, emit, handleMysteryBoxSelection, getCurrentPlayer])
+
+    const requestZombieRevive = useCallback((payload: ZombieRevivePayload) => {
+        if (!gameCode) return
+        const revived = useGameStore.getState().reviveZombie({
+            necromancerPosition: payload.necromancerPosition,
+            revivePiece: payload.revivePiece,
+            target: payload.target
+        })
+        if (!revived) return
+
+        const currentGameState = getGameStateForSync()
+        if (!currentGameState) return
+
+        emit(SocketEvents.SYNC_GAME, {
+            code: gameCode,
+            gameState: {
+                board: currentGameState.board,
+                currentPlayer: currentGameState.currentPlayer,
+                moveHistory: currentGameState.moveHistory,
+                capturedPieces: currentGameState.capturedPieces,
+                lastMove: currentGameState.lastMove,
+                gameOver: currentGameState.gameOver,
+                winner: currentGameState.winner,
+                narcs: currentGameState.narcs,
+                nightMode: currentGameState.nightMode
+            }
+        })
+    }, [gameCode, emit, getGameStateForSync])
+
+    const notifyReviveStarted = useCallback(() => {
+        if (!gameCode) return
+        const myPlayer = getCurrentPlayer()
+        const playerName = myPlayer?.name || 'Opponent'
+        emit(SocketEvents.NECROMANCER_REVIVE_STARTED, { code: gameCode, playerName })
+    }, [gameCode, emit, getCurrentPlayer])
 
     const handleSelectRevivePiece = useCallback((piece: Parameters<typeof selectRevivePiece>[0]) => {
         selectRevivePiece(piece, true)
@@ -350,6 +400,8 @@ export const useOnlineGame = () => {
         error,
         handleSquareClick,
         selectRevivePiece: handleSelectRevivePiece,
-        cancelMysteryBox
+        cancelMysteryBox,
+        requestZombieRevive,
+        notifyReviveStarted
     }
 }

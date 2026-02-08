@@ -1,40 +1,21 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
-import type { BoardSizeKey, PlayerColor } from '../../types'
+import type { BoardSizeKey } from '../../types'
 import { BotDifficulties, BoardSizeKeys, PlayerColors } from '../../types'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
 import { useAuthStore } from '../../../../store/authStore'
 import { useGameMode } from '../../../../hooks'
 import { Modal } from '../../../../components/Modal'
-import type { Player } from '../../../../features/game/interfaces'
+import { GameModes } from '../../../../constants'
 
 const ADMIN_USER = import.meta.env.VITE_ADMIN_USER
 
-interface TopMenuProps {
-    isOnline?: boolean
-    gameCode?: string | null
-    players?: Player[]
-    currentPlayer?: Player
-    currentTurnPlayer?: Player
-    isMyTurn?: boolean
-    gameOver?: boolean
-    winner?: PlayerColor | null
-}
-
-export const TopMenu = ({
-    isOnline = false,
-    players = [],
-    currentPlayer,
-    currentTurnPlayer,
-    isMyTurn = false,
-    gameOver: onlineGameOver,
-    winner: onlineWinner
-}: TopMenuProps) => {
+export const TopMenu = () => {
     const navigate = useNavigate()
     const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false)
-    
+
     const {
         gameState,
         boardSizeKey,
@@ -44,13 +25,18 @@ export const TopMenu = ({
         resetGame,
         toggleBot,
         setDifficulty,
-        reset: resetOnlineState
+        reset: resetOnlineState,
+        gameSession,
+        getCurrentPlayer,
+        getCurrentTurnPlayer,
+        isMyTurn
     } = useGameStore()
 
     const { is3D, toggle3D, devMode, toggleDevMode, closeTopMenu } = useUIStore()
     const { username } = useAuthStore()
-    const { showBot, showDev } = useGameMode()
+    const { showBot, showDev, mode } = useGameMode()
     
+    const isOnline = mode === GameModes.ONLINE
     const isAdmin = username === ADMIN_USER
 
     const handleBoardSizeChange = (sizeKey: BoardSizeKey) => {
@@ -79,11 +65,15 @@ export const TopMenu = ({
         setIsLeaveModalOpen(false)
     }
 
+    const players = gameSession?.players || []
+    const currentPlayer = getCurrentPlayer()
+    const currentTurnPlayer = getCurrentTurnPlayer()
+    const myTurn = isMyTurn()
     const whitePlayer = players.find(p => p.color === PlayerColors.WHITE)
     const blackPlayer = players.find(p => p.color === PlayerColors.BLACK)
-    const winnerPlayer = onlineWinner ? players.find(p => p.color === onlineWinner) : null
-
-    const gameOver = isOnline ? onlineGameOver : gameState.gameOver
+    const winnerPlayer = gameState.winner ? players.find(p => p.color === gameState.winner) : null
+    const gameOver = gameState.gameOver
+    const nightMode = gameState.nightMode
 
     const getStatusText = () => {
         if (isOnline) {
@@ -96,16 +86,16 @@ export const TopMenu = ({
             if (!currentTurnPlayer) {
                 return 'Waiting for players...'
             }
-            if (isMyTurn) {
+            if (myTurn) {
                 return 'Your Turn'
             }
             return `${currentTurnPlayer.name}'s Turn`
         }
 
-        if (gameState.gameOver && gameState.winner) {
+        if (gameOver && gameState.winner) {
             return `${gameState.winner === PlayerColors.WHITE ? 'White' : 'Black'} Wins!`
         }
-        if (gameState.gameOver) {
+        if (gameOver) {
             return 'Game Over'
         }
         return `${gameState.currentPlayer === PlayerColors.WHITE ? 'White' : 'Black'}'s Turn`
@@ -151,6 +141,12 @@ export const TopMenu = ({
                     <div className={`px-3 py-1.5 rounded-lg text-sm font-medium ${getStatusColor()}`}>
                         {getStatusText()}
                     </div>
+
+                    {nightMode && (
+                        <div className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-violet-700/80 text-violet-100 border border-violet-500">
+                            Night Mode
+                        </div>
+                    )}
 
                     <div className="flex flex-col items-center gap-1">
                         <span className="text-xs font-medium text-amber-200">View</span>

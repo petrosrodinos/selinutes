@@ -207,7 +207,8 @@ export const INITIAL_GAME_STATE: GameState = {
   lastMove: null,
   gameOver: false,
   winner: null,
-  narcs: []
+  narcs: [],
+  nightMode: false
 }
 
 export const BOT_DELAY = {

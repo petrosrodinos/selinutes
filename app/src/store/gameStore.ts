@@ -26,7 +26,11 @@ import {
     getPhaseForOption,
     removeMysteryBoxFromBoard,
     isSelectableObstacle,
-    isPositionInList
+    isPositionInList,
+    filterZombieRevivablePieces,
+    getNightModeFromBoard,
+    areRevivalGuardsInPlace,
+    reviveZombiePiece
 } from '../pages/Game/utils'
 
 interface HistoryEntry {
@@ -54,6 +58,7 @@ interface GameStore {
     validMoves: Position[]
     validAttacks: Position[]
     validSwaps: SwapTarget[]
+    reviveZombie: (payload: { necromancerPosition: Position; revivePiece: Piece; target: Position }) => boolean
 
     gameSession: GameSession | null
     currentPlayerId: string | null
@@ -125,7 +130,8 @@ const createInitialGameState = (): GameState => {
         lastMove: null,
         gameOver: false,
         winner: null,
-        narcs: []
+        narcs: [],
+        nightMode: false
     }
 }
 
@@ -209,7 +215,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                                 validSwaps: [],
                                 lastMove: null,
                                 gameOver,
-                                winner
+                                winner,
+                                nightMode: getNightModeFromBoard(swapResult.board)
                             },
                             selectedPosition: null,
                             validMoves: [],
@@ -269,7 +276,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                                 moveHistory: [...gameState.moveHistory, move],
                                 capturedPieces: newCaptured,
                                 lastMove: move,
-                                narcs: newNarcs
+                                narcs: newNarcs,
+                                nightMode: getNightModeFromBoard(movedBoard)
                             },
                             selectedPosition: null,
                             validMoves: [],
@@ -334,7 +342,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                             lastMove: move,
                             gameOver,
                             winner,
-                            narcs: newNarcs
+                            narcs: newNarcs,
+                            nightMode: getNightModeFromBoard(newBoard)
                         },
                         selectedPosition: null,
                         validMoves: [],
@@ -433,7 +442,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                             validSwaps: [],
                             lastMove: null,
                             gameOver,
-                            winner
+                            winner,
+                            nightMode: getNightModeFromBoard(swapResult.board)
                         },
                         history: newHistory
                     })
@@ -492,7 +502,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                             moveHistory: [...gameState.moveHistory, move],
                             capturedPieces: newCaptured,
                             lastMove: move,
-                            narcs: newNarcs
+                            narcs: newNarcs,
+                            nightMode: getNightModeFromBoard(movedBoard)
                         },
                         mysteryBoxState: {
                             isActive: true,
@@ -552,7 +563,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         lastMove: move,
                         gameOver,
                         winner,
-                        narcs: newNarcs
+                        narcs: newNarcs,
+                        nightMode: getNightModeFromBoard(newBoard)
                     },
                     history: newHistory
                 })
@@ -673,7 +685,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 lastMove: null,
                 gameOver: false,
                 winner: null,
-                narcs: []
+                narcs: [],
+                nightMode: false
             },
             boardSizeKey: newBoardSizeKey ? newBoardSizeKey : currentSizeKey,
             history: [],
@@ -773,7 +786,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 lastMove: move,
                 gameOver,
                 winner,
-                narcs: newNarcs
+                narcs: newNarcs,
+                nightMode: getNightModeFromBoard(newBoard)
             },
             botThinking: false
         })
@@ -848,7 +862,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         board: newBoard,
                         currentPlayer: nextPlayer,
                         gameOver,
-                        winner
+                        winner,
+                        nightMode: getNightModeFromBoard(newBoard)
                     },
                     mysteryBoxState: getInitialMysteryBoxState()
                 })
@@ -934,7 +949,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         currentPlayer: nextPlayer,
                         capturedPieces: newCaptured,
                         gameOver,
-                        winner
+                        winner,
+                        nightMode: getNightModeFromBoard(newBoard)
                     },
                     mysteryBoxState: getInitialMysteryBoxState()
                 })
@@ -1052,7 +1068,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                             board: newBoard,
                             currentPlayer: nextPlayer,
                             gameOver,
-                            winner
+                            winner,
+                            nightMode: getNightModeFromBoard(newBoard)
                         },
                         mysteryBoxState: getInitialMysteryBoxState()
                     })
@@ -1148,7 +1165,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 lastMove: gameSession.gameState.lastMove || null,
                 gameOver: gameSession.gameState.gameOver || false,
                 winner: gameSession.gameState.winner || null,
-                narcs: gameSession.gameState.narcs || []
+                narcs: gameSession.gameState.narcs || [],
+                nightMode: gameSession.gameState.nightMode ?? getNightModeFromBoard(gameSession.gameState.board)
             }
         })
     },
@@ -1171,7 +1189,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 lastMove: session.gameState.lastMove || null,
                 gameOver: session.gameState.gameOver || false,
                 winner: session.gameState.winner || null,
-                narcs: session.gameState.narcs || []
+                narcs: session.gameState.narcs || [],
+                nightMode: session.gameState.nightMode ?? getNightModeFromBoard(session.gameState.board)
             },
             selectedPosition: null,
             validMoves: [],
@@ -1200,6 +1219,61 @@ export const useGameStore = create<GameStore>((set, get) => ({
             validSwaps: [],
             mysteryBoxState: getInitialMysteryBoxState()
         })
+    },
+    reviveZombie: (payload) => {
+        const { gameState, history, botEnabled } = get()
+        if (botEnabled && gameState.currentPlayer === PlayerColors.BLACK) return false
+        if (gameState.gameOver) return false
+
+        const { necromancerPosition, revivePiece, target } = payload
+        const board = gameState.board
+        const boardSize = gameState.boardSize
+        const currentPlayer = gameState.currentPlayer
+
+        if (!areRevivalGuardsInPlace(board, boardSize, currentPlayer)) return false
+
+        const targetCell = board[target.row][target.col]
+        if (targetCell !== null) return false
+
+        const eligiblePieces = filterZombieRevivablePieces([revivePiece])
+        if (eligiblePieces.length === 0) return false
+
+        const available = gameState.capturedPieces[currentPlayer] || []
+        const match = available.find(p => p.id === revivePiece.id && p.type === revivePiece.type && p.color === revivePiece.color)
+        if (!match) return false
+
+        const necromancerCell = board[necromancerPosition.row][necromancerPosition.col]
+        if (!necromancerCell || !isPiece(necromancerCell)) return false
+        if (necromancerCell.type !== PieceTypes.NECROMANCER || necromancerCell.color !== currentPlayer) return false
+
+        const newBoard = reviveZombiePiece(board, necromancerPosition, match, target, currentPlayer)
+        const newCaptured = { ...gameState.capturedPieces }
+        newCaptured[currentPlayer] = newCaptured[currentPlayer].filter(
+            p => !(p.id === match.id && p.type === match.type && p.color === match.color)
+        )
+
+        const nextPlayer = currentPlayer === PlayerColors.WHITE ? PlayerColors.BLACK : PlayerColors.WHITE
+        const { gameOver, winner } = checkGameOver(newBoard, nextPlayer, boardSize)
+        const newHistory = [...history, { gameState }]
+
+        set({
+            gameState: {
+                ...gameState,
+                board: newBoard,
+                currentPlayer: nextPlayer,
+                selectedPosition: null,
+                validMoves: [],
+                validAttacks: [],
+                validSwaps: [],
+                capturedPieces: newCaptured,
+                gameOver,
+                winner,
+                nightMode: getNightModeFromBoard(newBoard)
+            },
+            history: newHistory
+        })
+
+        return true
     },
 
     getCurrentPlayer: () => {

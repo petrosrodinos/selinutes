@@ -71,6 +71,7 @@ export interface Piece {
   color: PlayerColor
   hasMoved?: boolean
   isZombie?: boolean
+  reviveCount?: number
 }
 
 export interface Obstacle {
@@ -130,6 +131,7 @@ export interface GameState {
   gameOver: boolean
   winner: PlayerColor | null
   narcs: Narc[]
+  nightMode: boolean
 }
 
 export interface HintMove {
