@@ -35,6 +35,10 @@ export const LandingPage = () => {
     navigate('/login')
   }, [navigate])
 
+  const handleRules = useCallback(() => {
+    navigate('/rules')
+  }, [navigate])
+
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(180,83,9,0.15),transparent)] pointer-events-none" />
@@ -60,13 +64,20 @@ export const LandingPage = () => {
           <motion.p variants={item} className="text-stone-400 text-center text-lg md:text-xl max-w-2xl mx-auto mb-10">
             A strategic board game of monarchs, units, and tactics. Conquer the board alone, with a friend, or online.
           </motion.p>
-          <motion.div variants={item} className="flex justify-center">
+          <motion.div variants={item} className="flex flex-wrap justify-center gap-3 sm:gap-4">
             <button
               type="button"
               onClick={handleGetStarted}
               className="px-8 py-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-900 font-semibold shadow-lg shadow-amber-900/30 hover:shadow-amber-700/25 transition-all duration-200"
             >
               Enter the battlefield
+            </button>
+            <button
+              type="button"
+              onClick={handleRules}
+              className="px-8 py-4 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-400 font-semibold hover:bg-amber-500/20 hover:border-amber-500/60 transition-all duration-200"
+            >
+              Check the rules
             </button>
           </motion.div>
         </motion.section>

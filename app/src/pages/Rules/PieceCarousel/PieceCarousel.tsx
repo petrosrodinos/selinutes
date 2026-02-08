@@ -55,7 +55,10 @@ export const PieceCarousel = () => {
               <p className="text-base sm:text-lg font-semibold text-amber-200/95">{RULES_FIGURE_SECTION_TITLES[pieceType]}</p>
             </div>
           ) : (
-            <Piece3DShowcase pieceType={pieceType} />
+            <div className="flex flex-col rounded-xl bg-stone-800/50 border border-stone-700/50 overflow-hidden">
+              <Piece3DShowcase pieceType={pieceType} />
+              <p className="text-center py-3 px-4 text-base sm:text-lg font-semibold text-amber-200/95 bg-stone-900/60 border-t border-stone-700/50">{RULES_FIGURE_SECTION_TITLES[pieceType]}</p>
+            </div>
           )}
         </div>
 
