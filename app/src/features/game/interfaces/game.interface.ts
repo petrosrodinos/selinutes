@@ -50,6 +50,7 @@ export interface GameBoardState {
     gameOver: boolean
     winner: PlayerColor | null
     narcs: Narc[]
+    nightMode: boolean
 }
 
 export interface GameSession {

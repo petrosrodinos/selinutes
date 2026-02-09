@@ -21,6 +21,7 @@ interface GameSceneProps {
   onlineLastMove?: Move | null
   onlineMysteryBoxState?: MysteryBoxState
   onSquareClick?: (pos: Position) => void
+  onMysteryBoxClick?: () => void
 }
 
 const GameScene = ({
@@ -33,7 +34,8 @@ const GameScene = ({
   onlineValidSwaps = [],
   onlineLastMove,
   onlineMysteryBoxState,
-  onSquareClick
+  onSquareClick,
+  onMysteryBoxClick
 }: GameSceneProps) => {
   const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection } = useGameStore()
   const { helpEnabled, devMode } = useUIStore()
@@ -135,6 +137,7 @@ const GameScene = ({
   const handleSquareClick = (row: number, col: number) => {
     if (onSquareClick) {
       if (!isOnline && offlineMysteryBoxState.isActive) {
+        onMysteryBoxClick?.()
         handleMysteryBoxSelection({ row, col }, false)
         return
       }
@@ -281,6 +284,7 @@ interface Board3DProps {
   onlineLastMove?: Move | null
   onlineMysteryBoxState?: MysteryBoxState
   onSquareClick?: (pos: Position) => void
+  onMysteryBoxClick?: () => void
 }
 
 export const Board3D = ({
@@ -293,7 +297,8 @@ export const Board3D = ({
   onlineValidSwaps = [],
   onlineLastMove,
   onlineMysteryBoxState,
-  onSquareClick
+  onSquareClick,
+  onMysteryBoxClick
 }: Board3DProps) => {
   const { gameState } = useGameStore()
   const boardSize = isOnline && onlineBoardSize ? onlineBoardSize : gameState.boardSize
@@ -322,6 +327,7 @@ export const Board3D = ({
             onlineLastMove={onlineLastMove}
             onlineMysteryBoxState={onlineMysteryBoxState}
             onSquareClick={onSquareClick}
+            onMysteryBoxClick={onMysteryBoxClick}
           />
         </Suspense>
       </Canvas>

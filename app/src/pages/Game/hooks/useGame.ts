@@ -10,7 +10,8 @@ import {
     hasLegalMoves,
     isMonarchCaptured,
     getBotMove,
-    getHintMove
+    getHintMove,
+    getNightModeFromBoard
 } from '../utils'
 
 interface HistoryEntry {
@@ -35,6 +36,7 @@ export const useGame = (initialBoardSizeKey: BoardSizeKey = BoardSizeKeys.SMALL)
         winner: null,
         narcs: [],
         validSwaps: [],
+        nightMode: false,
 
     }))
 
@@ -108,7 +110,8 @@ export const useGame = (initialBoardSizeKey: BoardSizeKey = BoardSizeKeys.SMALL)
                 capturedPieces: newCaptured,
                 lastMove: move,
                 gameOver,
-                winner
+                winner,
+                nightMode: getNightModeFromBoard(newBoard)
             }))
 
             setBotThinking(false)
@@ -214,6 +217,7 @@ export const useGame = (initialBoardSizeKey: BoardSizeKey = BoardSizeKeys.SMALL)
             winner: null,
             narcs: [],
             validSwaps: [],
+            nightMode: false,
 
         })
         setHistory([])

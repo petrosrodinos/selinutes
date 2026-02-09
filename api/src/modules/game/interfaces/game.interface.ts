@@ -25,6 +25,7 @@ export interface GameBoardState {
     lastMove: unknown | null
     gameOver: boolean
     winner: PlayerColor | null
+    nightMode?: boolean
 }
 
 export interface GameSession {

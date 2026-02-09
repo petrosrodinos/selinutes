@@ -6,8 +6,11 @@ import { useGameStore } from '../store/gameStore'
 import { useAuthStore } from '../store/authStore'
 import { SocketEvents } from '../constants'
 import { getSocket } from '../lib/socket'
+import { SoundManager } from '../lib/soundManager'
+import { SoundEvents } from '../config/audio'
+import { getMoveSound, isValidSoundEvent } from '../utils/sound.utils'
 import type { GameSession } from '../features/game/interfaces'
-import type { Position } from '../pages/Game/types'
+import type { Position, Piece } from '../pages/Game/types'
 
 interface MysteryBoxTriggeredPayload {
     code: string
@@ -16,11 +19,19 @@ interface MysteryBoxTriggeredPayload {
     optionName: string
     diceRoll: number | null
     gameState?: GameSession['gameState']
+    soundKey?: unknown
 }
 
 interface MysteryBoxCompletePayload {
     code: string
     gameState: GameSession['gameState']
+    soundKey?: unknown
+}
+
+interface ZombieRevivePayload {
+    necromancerPosition: Position
+    revivePiece: Piece
+    target: Position
 }
 
 export const useOnlineGame = () => {
@@ -43,7 +54,6 @@ export const useOnlineGame = () => {
         mysteryBoxState,
         isLoading,
         error,
-        setGameSession,
         setCurrentPlayerId,
         initializeBoard,
         selectSquare,
@@ -93,7 +103,7 @@ export const useOnlineGame = () => {
 
         const handleGameState = (data: GameSession) => {
             clearTimeoutIfExists()
-            setGameSession(data)
+            syncFromServer(data)
             setLoading(false)
 
             if (userId) {
@@ -104,13 +114,18 @@ export const useOnlineGame = () => {
             }
         }
 
-        const handleGameUpdate = (data: GameSession) => {
-            syncFromServer(data)
+        const handleGameUpdate = (data: GameSession & { soundKey?: unknown }) => {
+            const { soundKey, ...session } = data
+            syncFromServer(session)
+            if (isValidSoundEvent(soundKey)) {
+                SoundManager.play(soundKey)
+            }
         }
 
         const handlePlayerJoined = (data: GameSession & { joinedPlayerId?: string }) => {
             clearTimeoutIfExists()
-            setGameSession(data)
+            const { joinedPlayerId: _joinedPlayerId, ...session } = data
+            syncFromServer(session)
             setLoading(false)
             const joinedPlayer = data.joinedPlayerId
                 ? data.players.find(p => p.id === data.joinedPlayerId)
@@ -122,7 +137,7 @@ export const useOnlineGame = () => {
 
         const handleGameStart = (data: GameSession) => {
             clearTimeoutIfExists()
-            setGameSession(data)
+            syncFromServer(data)
             setLoading(false)
             toast.success('Game started!')
         }
@@ -146,7 +161,9 @@ export const useOnlineGame = () => {
                     syncFromServer(updatedSession)
                 }
             }
-
+            if (isValidSoundEvent(data.soundKey)) {
+                SoundManager.play(data.soundKey)
+            }
             toast.info(`🎁 ${data.playerName} triggered a Mystery Box!`, { autoClose: 3000 })
 
             const opponentOptionDescriptions: Record<number, string> = {
@@ -169,6 +186,13 @@ export const useOnlineGame = () => {
                     toast.success('🎉 Mystery Box action completed!', { autoClose: 2000 })
                 }
             }
+            if (isValidSoundEvent(data.soundKey)) {
+                SoundManager.play(data.soundKey)
+            }
+        }
+
+        const handleNecromancerReviveStarted = (data: { playerName: string }) => {
+            toast.info(`🧟 ${data.playerName} is reviving a piece.`, { autoClose: 4000 })
         }
 
         on<GameSession>(SocketEvents.GAME_STATE, handleGameState)
@@ -179,6 +203,7 @@ export const useOnlineGame = () => {
         on<{ message: string }>(SocketEvents.PLAYER_LEFT, handlePlayerLeft)
         on<MysteryBoxTriggeredPayload>(SocketEvents.MYSTERY_BOX_TRIGGERED, handleMysteryBoxTriggeredByOpponent)
         on<MysteryBoxCompletePayload>(SocketEvents.MYSTERY_BOX_COMPLETE, handleMysteryBoxCompleteByOpponent)
+        on<{ playerName: string }>(SocketEvents.NECROMANCER_REVIVE_STARTED, handleNecromancerReviveStarted)
 
         emit(SocketEvents.GET_GAME, { code: gameCode, playerId: userId })
 
@@ -198,8 +223,9 @@ export const useOnlineGame = () => {
             off(SocketEvents.PLAYER_LEFT)
             off(SocketEvents.MYSTERY_BOX_TRIGGERED)
             off(SocketEvents.MYSTERY_BOX_COMPLETE)
+            off(SocketEvents.NECROMANCER_REVIVE_STARTED)
         }
-    }, [gameCode, isConnected, userId, emit, on, off, socket, setGameSession, setCurrentPlayerId, syncFromServer, setLoading, setError])
+    }, [gameCode, isConnected, userId, emit, on, off, socket, setCurrentPlayerId, syncFromServer, setLoading, setError])
 
     useEffect(() => {
         if (gameSession && !gameState) {
@@ -237,8 +263,10 @@ export const useOnlineGame = () => {
                 const currentGameState = getGameStateForSync()
                 if (!currentGameState) return
 
+                SoundManager.play(SoundEvents.SWAP)
                 emit(SocketEvents.MYSTERY_BOX_COMPLETE, {
                     code: gameCode,
+                    soundKey: SoundEvents.SWAP,
                     gameState: {
                         board: currentGameState.board,
                         currentPlayer: currentGameState.currentPlayer,
@@ -247,7 +275,8 @@ export const useOnlineGame = () => {
                         lastMove: currentGameState.lastMove,
                         gameOver: currentGameState.gameOver,
                         winner: currentGameState.winner,
-                        narcs: currentGameState.narcs
+                        narcs: currentGameState.narcs,
+                        nightMode: currentGameState.nightMode
                     }
                 })
 
@@ -270,6 +299,7 @@ export const useOnlineGame = () => {
                     option: result.option,
                     optionName: result.optionName,
                     diceRoll: result.diceRoll,
+                    soundKey: SoundEvents.MYSTERY_BOX,
                     gameState: {
                         board: currentGameState.board,
                         currentPlayer: currentGameState.currentPlayer,
@@ -278,7 +308,8 @@ export const useOnlineGame = () => {
                         lastMove: currentGameState.lastMove,
                         gameOver: currentGameState.gameOver,
                         winner: currentGameState.winner,
-                        narcs: currentGameState.narcs
+                        narcs: currentGameState.narcs,
+                        nightMode: currentGameState.nightMode
                     }
                 })
             }
@@ -301,6 +332,7 @@ export const useOnlineGame = () => {
         const currentGameState = getGameStateForSync()
         if (!currentGameState) return
 
+        const soundKey = currentGameState.lastMove ? getMoveSound(currentGameState.lastMove) : undefined
         emit(SocketEvents.SYNC_GAME, {
             code: gameCode,
             gameState: {
@@ -311,10 +343,49 @@ export const useOnlineGame = () => {
                 lastMove: currentGameState.lastMove,
                 gameOver: currentGameState.gameOver,
                 winner: currentGameState.winner,
-                narcs: currentGameState.narcs
-            }
+                narcs: currentGameState.narcs,
+                nightMode: currentGameState.nightMode
+            },
+            soundKey
         })
     }, [gameCode, selectSquare, getGameStateForSync, emit, handleMysteryBoxSelection, getCurrentPlayer])
+
+    const requestZombieRevive = useCallback((payload: ZombieRevivePayload) => {
+        if (!gameCode) return
+        const revived = useGameStore.getState().reviveZombie({
+            necromancerPosition: payload.necromancerPosition,
+            revivePiece: payload.revivePiece,
+            target: payload.target
+        })
+        if (!revived) return
+
+        const currentGameState = getGameStateForSync()
+        if (!currentGameState) return
+
+        const soundKey = currentGameState.lastMove ? getMoveSound(currentGameState.lastMove) : undefined
+        emit(SocketEvents.SYNC_GAME, {
+            code: gameCode,
+            gameState: {
+                board: currentGameState.board,
+                currentPlayer: currentGameState.currentPlayer,
+                moveHistory: currentGameState.moveHistory,
+                capturedPieces: currentGameState.capturedPieces,
+                lastMove: currentGameState.lastMove,
+                gameOver: currentGameState.gameOver,
+                winner: currentGameState.winner,
+                narcs: currentGameState.narcs,
+                nightMode: currentGameState.nightMode
+            },
+            soundKey
+        })
+    }, [gameCode, emit, getGameStateForSync])
+
+    const notifyReviveStarted = useCallback(() => {
+        if (!gameCode) return
+        const myPlayer = getCurrentPlayer()
+        const playerName = myPlayer?.name || 'Opponent'
+        emit(SocketEvents.NECROMANCER_REVIVE_STARTED, { code: gameCode, playerName })
+    }, [gameCode, emit, getCurrentPlayer])
 
     const handleSelectRevivePiece = useCallback((piece: Parameters<typeof selectRevivePiece>[0]) => {
         selectRevivePiece(piece, true)
@@ -350,6 +421,8 @@ export const useOnlineGame = () => {
         error,
         handleSquareClick,
         selectRevivePiece: handleSelectRevivePiece,
-        cancelMysteryBox
+        cancelMysteryBox,
+        requestZombieRevive,
+        notifyReviveStarted
     }
 }

@@ -5,12 +5,20 @@ import { OBSTACLE_COUNTS, BACK_ROW_PIECES } from '../constants'
 let pieceIdCounter = 0
 const generatePieceId = (): string => `piece-${++pieceIdCounter}`
 
-const createPiece = (type: PieceType, color: typeof PlayerColors.WHITE | typeof PlayerColors.BLACK): Piece => ({
-  id: generatePieceId(),
-  type,
-  color,
-  hasMoved: false
-})
+const createPiece = (type: PieceType, color: typeof PlayerColors.WHITE | typeof PlayerColors.BLACK): Piece => {
+  const piece: Piece = {
+    id: generatePieceId(),
+    type,
+    color,
+    hasMoved: false
+  }
+
+  if (type === PieceTypes.NECROMANCER) {
+    piece.reviveCount = 0
+  }
+
+  return piece
+}
 
 const getObstacleCounts = (boardSizeKey: BoardSizeKey): Record<ObstacleType, number> => {
   return OBSTACLE_COUNTS[boardSizeKey] || OBSTACLE_COUNTS[BoardSizeKeys.SMALL]
@@ -199,11 +207,15 @@ const generateBackRow = (cols: number): PieceType[] => {
   return row
 }
 
+export const getBackRowForBoardSize = (cols: number): PieceType[] => {
+  return generateBackRow(cols)
+}
+
 export const createInitialBoard = (boardSize: BoardSize): Board => {
   const { rows, cols } = boardSize
   const board: Board = Array(rows).fill(null).map(() => Array(cols).fill(null))
 
-  const backRow = generateBackRow(cols)
+  const backRow = getBackRowForBoardSize(cols)
 
   for (let col = 0; col < cols; col++) {
     board[0][col] = createPiece(backRow[col], PlayerColors.BLACK)

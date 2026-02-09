@@ -39,6 +39,22 @@ export {
 } from './swapUtils'
 export type { SwapResult, SwapTarget } from './swapUtils'
 export {
+  isZombieEligibleType,
+  filterZombieRevivablePieces,
+  getNightModeFromBoard,
+  getAdjustedAttackRange,
+  areRevivalGuardsInPlace,
+  findPiecePosition,
+  reviveZombiePiece,
+  getStartingPositionForPieceType,
+  getZombieRevivePieces,
+  isZombieReviveTargetEmpty,
+  getZombieReviveOpenState,
+  getZombieReviveConfirmState,
+  getZombieReviveStatusMessage
+} from './zombieUtils'
+
+export {
   getInitialMysteryBoxState,
   rollDice,
   getRandomMysteryBoxOption,

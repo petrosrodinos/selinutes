@@ -20,6 +20,7 @@ interface BoardProps {
     onlineLastMove?: Move | null
     onlineMysteryBoxState?: MysteryBoxState
     onSquareClick?: (pos: Position) => void
+    onMysteryBoxClick?: () => void
 }
 
 export const Board = ({
@@ -32,7 +33,8 @@ export const Board = ({
     onlineValidSwaps = [],
     onlineLastMove,
     onlineMysteryBoxState,
-    onSquareClick
+    onSquareClick,
+    onMysteryBoxClick
 }: BoardProps) => {
     const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection } = useGameStore()
     const { helpEnabled, devMode } = useUIStore()
@@ -131,6 +133,7 @@ export const Board = ({
     const handleSquareClick = (row: number, col: number) => {
         if (onSquareClick) {
             if (!isOnline && offlineMysteryBoxState.isActive) {
+                onMysteryBoxClick?.()
                 handleMysteryBoxSelection({ row, col }, false)
                 return
             }

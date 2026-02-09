@@ -3,6 +3,7 @@ import { isPiece, isObstacle, PlayerColors, PieceTypes, ObstacleTypes, MovePatte
 import { isInBounds, cloneBoard, getObstacleType, findAllCaves } from './boardUtils'
 import { PIECE_RULES } from '../constants'
 import { createNarcsForBomber, checkNarcNetTrigger, removeNarcsForBomber } from './narcUtils'
+import { getAdjustedAttackRange } from './zombieUtils'
 
 const canPassObstacle = (pieceType: PieceType, obstacleType: ObstacleType): boolean => {
   const rules = PIECE_RULES[pieceType]
@@ -409,9 +410,10 @@ export const getValidAttacks = (board: Board, pos: Position, boardSize: BoardSiz
   if (!cell || !isPiece(cell)) return []
 
   const rules = PIECE_RULES[cell.type]
+  const attackRange = getAdjustedAttackRange(cell, rules.attackRange)
   const attacks: Position[] = []
 
-  if (rules.attackRange === 0) return []
+  if (attackRange === 0) return []
 
   if (cell.type === PieceTypes.HOPLITE) {
     for (const colOff of [-1, 1]) {
@@ -434,7 +436,7 @@ export const getValidAttacks = (board: Board, pos: Position, boardSize: BoardSiz
       if (!targetCell || !isPiece(targetCell)) continue
       if (targetCell.color === cell.color) continue
 
-      if (!isInAttackRange(pos, { row, col }, rules.attackRange)) continue
+      if (!isInAttackRange(pos, { row, col }, attackRange)) continue
 
       if (!isAttackPathClear(board, pos, { row, col }, cell, boardSize)) continue
 
