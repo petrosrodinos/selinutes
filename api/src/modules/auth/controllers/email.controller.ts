@@ -1,10 +1,12 @@
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { EmailAuthService } from '../services/email.service';
 import { RegisterEmailDto } from '../dto/register-email.dto';
 import { LoginEmailDto } from '../dto/login-email.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthResponse } from '../entities/auth-response.entity';
-import { WaitlistDto } from '../dto/waitlist.dto';
+import { UseGuards } from '@nestjs/common';
+import { JwtGuard } from 'src/shared/guards/jwt.guard';
+import { CurrentUser } from '@/shared/decorators/current-user.decorator';
 
 @ApiTags('Email Authentication')
 @Controller('auth/email')
@@ -43,15 +45,16 @@ export class EmailAuthController {
         return this.authService.loginWithEmail(dto);
     }
 
-    @Post('/waitlist')
-    @ApiOperation({ summary: 'Waitlist a user with ref code' })
-    @ApiBody({ type: WaitlistDto })
+
+    @Get('refresh-token')
+    @UseGuards(JwtGuard)
+    @ApiOperation({ summary: 'Refresh token' })
     @ApiResponse({
         status: 200,
-        description: 'User referred successfully',
+        description: 'Token refreshed successfully',
         type: AuthResponse
     })
-    async waitlist(@Body() dto: WaitlistDto) {
-        return this.authService.waitlist(dto);
+    async getMe(@CurrentUser('uuid') uuid: string) {
+        return this.authService.refreshToken(uuid);
     }
 }

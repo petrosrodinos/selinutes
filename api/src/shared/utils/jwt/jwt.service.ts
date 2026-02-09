@@ -12,7 +12,7 @@ export class CreateJwtService {
         private config: ConfigService,
     ) {
         this.secret = this.config.get('JWT_SECRET');
-        this.expiration = this.config.get('JWT_EXPIRATION_TIME');
+        this.expiration = this.config.get('JWT_EXPIRATION_TIME') || '1m';
     }
 
     async signToken(payload: any): Promise<string> {
