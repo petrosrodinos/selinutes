@@ -167,7 +167,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
     'Moves in corner patterns: 2-1, 1-2, 2-2, 3-1, 1-3 steps.',
     'Can pass over other figures on its path.',
     'Units killed by Chariot cannot be revived until Chariot is destroyed.',
-    'Attacks: Gamma-shaped (L) at 3–4 block radius and ranged orthogonal up to 4 steps.',
+    'Attacks: Gamma-shaped (L) up to 4 steps; trees can be shot over, all other obstacles block.',
     'Can pass through rivers (up to 2 steps wide).',
     'Cannot pass through lake, canyon, cave.'
   ],

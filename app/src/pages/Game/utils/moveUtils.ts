@@ -456,9 +456,7 @@ const isInAttackRange = (from: Position, to: Position, attackRange: number): boo
 
 const CHARIOT_GAMMA_OFFSETS: [number, number][] = [
   [3, 1], [3, -1], [-3, 1], [-3, -1],
-  [1, 3], [1, -3], [-1, 3], [-1, -3],
-  [4, 1], [4, -1], [-4, 1], [-4, -1],
-  [1, 4], [1, -4], [-1, 4], [-1, -4]
+  [1, 3], [1, -3], [-1, 3], [-1, -3]
 ]
 
 const isChariotGammaAttack = (from: Position, to: Position): boolean => {
@@ -467,12 +465,75 @@ const isChariotGammaAttack = (from: Position, to: Position): boolean => {
   return CHARIOT_GAMMA_OFFSETS.some(([or, oc]) => dr === or && dc === oc)
 }
 
-const isChariotRangedAttack = (from: Position, to: Position, maxRange: number): boolean => {
+const isChariotGammaPathOptionClear = (
+  board: Board,
+  from: Position,
+  firstRowDir: number,
+  firstColDir: number,
+  firstSteps: number,
+  secondRowDir: number,
+  secondColDir: number,
+  secondSteps: number,
+  boardSize: BoardSize
+): boolean => {
+  let row = from.row
+  let col = from.col
+  const traversed: Position[] = []
+
+  for (let i = 0; i < firstSteps; i++) {
+    row += firstRowDir
+    col += firstColDir
+    if (!isInBounds(row, col, boardSize)) return false
+    traversed.push({ row, col })
+  }
+
+  for (let i = 0; i < secondSteps; i++) {
+    row += secondRowDir
+    col += secondColDir
+    if (!isInBounds(row, col, boardSize)) return false
+    traversed.push({ row, col })
+  }
+
+  for (let i = 0; i < traversed.length - 1; i++) {
+    const cell = board[traversed[i].row][traversed[i].col]
+    if (!cell) continue
+    if (isPiece(cell)) return false
+    if (isObstacle(cell) && cell.type !== ObstacleTypes.TREE) return false
+  }
+
+  return true
+}
+
+const isChariotGammaPathClear = (board: Board, from: Position, to: Position, boardSize: BoardSize): boolean => {
   const dr = to.row - from.row
   const dc = to.col - from.col
-  if (dr !== 0 && dc !== 0) return false
-  const dist = Math.abs(dr) + Math.abs(dc)
-  return dist > 0 && dist <= maxRange
+  const absDr = Math.abs(dr)
+  const absDc = Math.abs(dc)
+
+  if ((absDr !== 3 && absDr !== 4 && absDr !== 1) || (absDc !== 3 && absDc !== 4 && absDc !== 1)) {
+    return false
+  }
+  if (absDr !== 1 && absDc !== 1) {
+    return false
+  }
+  if (Math.max(absDr, absDc) > 4) {
+    return false
+  }
+
+  const rowSign = Math.sign(dr)
+  const colSign = Math.sign(dc)
+
+  if (absDr > absDc) {
+    return (
+      isChariotGammaPathOptionClear(board, from, rowSign, 0, absDr, 0, colSign, absDc, boardSize) ||
+      isChariotGammaPathOptionClear(board, from, 0, colSign, absDc, rowSign, 0, absDr, boardSize)
+    )
+  }
+
+  return (
+    isChariotGammaPathOptionClear(board, from, 0, colSign, absDc, rowSign, 0, absDr, boardSize) ||
+    isChariotGammaPathOptionClear(board, from, rowSign, 0, absDr, 0, colSign, absDc, boardSize)
+  )
 }
 
 const getRamTowerValidAttacks = (board: Board, pos: Position, boardSize: BoardSize, cell: Piece): Position[] => {
@@ -545,11 +606,9 @@ const getChariotValidAttacks = (board: Board, pos: Position, boardSize: BoardSiz
 
       const target = { row, col }
       const isGamma = isChariotGammaAttack(pos, target)
-      const isRanged = isChariotRangedAttack(pos, target, attackRange)
+      const inRange = Math.max(Math.abs(row - pos.row), Math.abs(col - pos.col)) <= attackRange
 
-      if (isGamma) {
-        attacks.push(target)
-      } else if (isRanged && isAttackPathClear(board, pos, target, cell, boardSize)) {
+      if (isGamma && inRange && isChariotGammaPathClear(board, pos, target, boardSize)) {
         attacks.push(target)
       }
     }
