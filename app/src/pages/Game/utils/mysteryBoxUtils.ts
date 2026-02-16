@@ -1,5 +1,5 @@
 import type { Board, Position, Piece, PlayerColor, MysteryBoxState, MysteryBoxOption, MysteryBoxPhase } from '../types'
-import { PlayerColors, PieceTypes, ObstacleTypes, MysteryBoxOptions, MysteryBoxPhases } from '../types'
+import { PieceTypes, ObstacleTypes, MysteryBoxOptions, MysteryBoxPhases } from '../types'
 import { isPiece, isObstacle } from '../types'
 
 export const getInitialMysteryBoxState = (): MysteryBoxState => ({
@@ -28,8 +28,7 @@ export const getRandomMysteryBoxOption = (
         MysteryBoxOptions.OBSTACLE_SWAP
     ]
 
-    const opponentColor = currentPlayerColor === PlayerColors.WHITE ? PlayerColors.BLACK : PlayerColors.WHITE
-    if (capturedPieces[opponentColor] && capturedPieces[opponentColor].length > 0) {
+    if (capturedPieces[currentPlayerColor] && capturedPieces[currentPlayerColor].length > 0) {
         options.push(MysteryBoxOptions.HOPLITE_SACRIFICE_REVIVE)
     }
 
@@ -157,9 +156,8 @@ export const canPlayerUseMysteryBoxOption1 = (board: Board, playerColor: PlayerC
 }
 
 export const canPlayerUseMysteryBoxOption2 = (board: Board, playerColor: PlayerColor, capturedPieces: { white: Piece[]; black: Piece[] }): boolean => {
-    const opponentColor = playerColor === PlayerColors.WHITE ? PlayerColors.BLACK : PlayerColors.WHITE
     const hasHoplite = getPlayerHoplites(board, playerColor).length > 0
-    const hasRevivable = capturedPieces[opponentColor] && capturedPieces[opponentColor].length > 0
+    const hasRevivable = capturedPieces[playerColor] && capturedPieces[playerColor].length > 0
     return hasHoplite && hasRevivable
 }
 
@@ -179,8 +177,7 @@ export const getRevivablePieces = (
     color: PlayerColor,
     capturedPieces: { white: Piece[]; black: Piece[] }
 ): Piece[] => {
-    const opponentColor = color === PlayerColors.WHITE ? PlayerColors.BLACK : PlayerColors.WHITE
-    return capturedPieces[opponentColor] || []
+    return capturedPieces[color] || []
 }
 
 export const getPhaseForOption = (option: MysteryBoxOption): MysteryBoxPhase => {

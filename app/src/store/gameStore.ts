@@ -473,7 +473,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
                     const optionDescriptions = {
                         [MysteryBoxOptions.FIGURE_SWAP]: '✨ Swap positions of any two of your pieces!',
-                        [MysteryBoxOptions.HOPLITE_SACRIFICE_REVIVE]: '⚔️ Sacrifice a Hoplite to revive an opponent piece as your own!',
+                        [MysteryBoxOptions.HOPLITE_SACRIFICE_REVIVE]: '⚔️ Sacrifice a Hoplite to revive one of your captured pieces as your own!',
                         [MysteryBoxOptions.OBSTACLE_SWAP]: `🎲 Roll: ${diceRoll}! Swap ${diceRoll} obstacle(s) with empty tiles!`
                     }
 
@@ -924,7 +924,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 const revivablePieces = getRevivablePieces(currentPlayer, capturedPieces)
 
                 if (!isOnline) {
-                    toast.success('⚔️ Hoplite sacrificed! A modal will appear - select an opponent piece you\'ve captured to revive as YOUR own!', { autoClose: 5000 })
+                    toast.success('⚔️ Hoplite sacrificed! A modal will appear - select one of your captured pieces to revive.', { autoClose: 5000 })
                 } else {
                     toast.info('⚔️ Hoplite sacrificed! Now select a captured piece to revive from the modal.', { autoClose: 4000 })
                 }
@@ -961,9 +961,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 }
 
                 const newCaptured = { ...capturedPieces }
-                const opponentColor = currentPlayer === PlayerColors.WHITE ? PlayerColors.BLACK : PlayerColors.WHITE
-
-                newCaptured[opponentColor] = newCaptured[opponentColor].filter(
+                newCaptured[currentPlayer] = newCaptured[currentPlayer].filter(
                     p => !(p.id === selectedRevivePiece.id && p.type === selectedRevivePiece.type && p.color === selectedRevivePiece.color)
                 )
 

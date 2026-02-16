@@ -168,7 +168,7 @@ export const useOnlineGame = () => {
 
             const opponentOptionDescriptions: Record<number, string> = {
                 1: `🔄 ${data.playerName} can swap two of their pieces!`,
-                2: `⚔️ ${data.playerName} will sacrifice a Hoplite to revive one of your captured pieces!`,
+                2: `⚔️ ${data.playerName} will sacrifice a Hoplite to revive one of their captured pieces!`,
                 3: `🎲 ${data.playerName} rolled ${data.diceRoll}! They can swap ${data.diceRoll} obstacle(s) with empty tiles!`
             }
 
@@ -316,7 +316,7 @@ export const useOnlineGame = () => {
 
             const optionDescriptions: Record<number, string> = {
                 1: '✨ Swap positions of any two of your pieces!',
-                2: '⚔️ Sacrifice a Hoplite to revive an opponent piece as your own!',
+                2: '⚔️ Sacrifice a Hoplite to revive one of your captured pieces!',
                 3: `🎲 Roll: ${result.diceRoll}! Swap ${result.diceRoll} obstacle(s) with empty tiles!`
             }
 
