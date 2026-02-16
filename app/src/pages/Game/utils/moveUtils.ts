@@ -22,6 +22,10 @@ const getMaxRiverWidth = (pieceType: PieceType): number => {
   return rules.maxRiverWidth ?? Infinity
 }
 
+const canTeleportThroughCave = (pieceType: PieceType): boolean => {
+  return pieceType === PieceTypes.BOMBER || pieceType === PieceTypes.HOPLITE
+}
+
 const getAdjacentEmptyPositions = (board: Board, pos: Position, boardSize: BoardSize): Position[] => {
   const directions = [
     [-1, 0], [1, 0], [0, -1], [0, 1],
@@ -130,7 +134,11 @@ const getHopliteMoves = (board: Board, pos: Position, piece: Piece, boardSize: B
           if (canStopOnObstacle(targetCell.type)) {
             const obstaclePos = { row: newRow, col: pos.col }
             if (targetCell.type === ObstacleTypes.CAVE) {
-              if (canEnterCave(board, obstaclePos, boardSize)) {
+              if (canTeleportThroughCave(piece.type)) {
+                if (canEnterCave(board, obstaclePos, boardSize)) {
+                  moves.push(obstaclePos)
+                }
+              } else {
                 moves.push(obstaclePos)
               }
             } else if (targetCell.type === ObstacleTypes.MYSTERY_BOX) {
@@ -176,7 +184,11 @@ const getCrossMoves = (board: Board, pos: Position, piece: Piece, boardSize: Boa
             if (canStopOnObstacle(cell.type)) {
               const obstaclePos = { row, col }
               if (cell.type === ObstacleTypes.CAVE) {
-                if (canEnterCave(board, obstaclePos, boardSize)) {
+                if (canTeleportThroughCave(piece.type)) {
+                  if (canEnterCave(board, obstaclePos, boardSize)) {
+                    moves.push(obstaclePos)
+                  }
+                } else {
                   moves.push(obstaclePos)
                 }
               } else if (cell.type === ObstacleTypes.MYSTERY_BOX) {
@@ -229,7 +241,11 @@ const getSidewaysMoves = (board: Board, pos: Position, piece: Piece, boardSize: 
             if (canStopOnObstacle(cell.type)) {
               const obstaclePos = { row, col }
               if (cell.type === ObstacleTypes.CAVE) {
-                if (canEnterCave(board, obstaclePos, boardSize)) {
+                if (canTeleportThroughCave(piece.type)) {
+                  if (canEnterCave(board, obstaclePos, boardSize)) {
+                    moves.push(obstaclePos)
+                  }
+                } else {
                   moves.push(obstaclePos)
                 }
               } else if (cell.type === ObstacleTypes.MYSTERY_BOX) {
@@ -282,7 +298,11 @@ const getDiagonalMoves = (board: Board, pos: Position, piece: Piece, boardSize: 
             if (canStopOnObstacle(cell.type)) {
               const obstaclePos = { row, col }
               if (cell.type === ObstacleTypes.CAVE) {
-                if (canEnterCave(board, obstaclePos, boardSize)) {
+                if (canTeleportThroughCave(piece.type)) {
+                  if (canEnterCave(board, obstaclePos, boardSize)) {
+                    moves.push(obstaclePos)
+                  }
+                } else {
                   moves.push(obstaclePos)
                 }
               } else if (cell.type === ObstacleTypes.MYSTERY_BOX) {
@@ -341,7 +361,11 @@ const getAnyDirectionMoves = (board: Board, pos: Position, piece: Piece, boardSi
             if (canStopOnObstacle(cell.type)) {
               const obstaclePos = { row, col }
               if (cell.type === ObstacleTypes.CAVE) {
-                if (canEnterCave(board, obstaclePos, boardSize)) {
+                if (canTeleportThroughCave(piece.type)) {
+                  if (canEnterCave(board, obstaclePos, boardSize)) {
+                    moves.push(obstaclePos)
+                  }
+                } else {
                   moves.push(obstaclePos)
                 }
               } else if (cell.type === ObstacleTypes.MYSTERY_BOX) {
@@ -714,7 +738,10 @@ export const makeMove = (
   const sourceObstacle = piece.standingOnObstacle
 
   let finalPosition = to
-  const isCaveDestination = targetCell && isObstacle(targetCell) && targetCell.type === ObstacleTypes.CAVE
+  const isCaveDestination = targetCell &&
+    isObstacle(targetCell) &&
+    targetCell.type === ObstacleTypes.CAVE &&
+    canTeleportThroughCave(piece.type)
 
   if (isCaveDestination && !isAttack) {
     const caveExit = getRandomCaveExit(newBoard, to, boardSize)
