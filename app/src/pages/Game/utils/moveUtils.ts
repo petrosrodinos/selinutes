@@ -577,13 +577,22 @@ export const getValidAttacks = (board: Board, pos: Position, boardSize: BoardSiz
   }
 
   if (cell.type === PieceTypes.HOPLITE) {
-    for (const colOff of [-1, 1]) {
-      const newCol = pos.col + colOff
-      if (!isInBounds(pos.row, newCol, boardSize)) continue
+    const forwardDirection = cell.color === PlayerColors.WHITE ? -1 : 1
+    const directions = [
+      [forwardDirection, -1],
+      [forwardDirection, 0],
+      [forwardDirection, 1],
+      [0, -1],
+      [0, 1]
+    ]
+    for (const [rowOff, colOff] of directions) {
+      const row = pos.row + rowOff
+      const col = pos.col + colOff
+      if (!isInBounds(row, col, boardSize)) continue
 
-      const targetCell = board[pos.row][newCol]
+      const targetCell = board[row][col]
       if (targetCell && isPiece(targetCell) && targetCell.color !== cell.color) {
-        attacks.push({ row: pos.row, col: newCol })
+        attacks.push({ row, col })
       }
     }
     return attacks
