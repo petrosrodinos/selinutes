@@ -76,5 +76,6 @@ export {
   getPhaseForOption,
   getMysteryBoxOptionName,
   removeMysteryBoxFromBoard,
-  isPositionInList
+  isPositionInList,
+  isObstacleSwapPlacementAllowed
 } from './mysteryBoxUtils'

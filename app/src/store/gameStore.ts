@@ -27,6 +27,7 @@ import {
     removeMysteryBoxFromBoard,
     isSelectableObstacle,
     isPositionInList,
+    isObstacleSwapPlacementAllowed,
     filterZombieRevivablePieces,
     getNightModeFromBoard,
     areRevivalGuardsInPlace,
@@ -1050,6 +1051,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 if (board[pos.row][pos.col] !== null) {
                     if (!isOnline) {
                         toast.warning('❌ Invalid Selection - You must select EMPTY tiles (no pieces or obstacles)!', { autoClose: 3000 })
+                    }
+                    return false
+                }
+                if (!isObstacleSwapPlacementAllowed(board, pos)) {
+                    if (!isOnline) {
+                        toast.warning('❌ Invalid Selection - The 3rd row from each side is disabled for obstacle placement.', { autoClose: 3000 })
                     }
                     return false
                 }

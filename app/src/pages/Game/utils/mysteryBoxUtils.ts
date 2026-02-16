@@ -31,6 +31,7 @@ export const getRandomMysteryBoxOption = (
     if (capturedPieces[currentPlayerColor] && capturedPieces[currentPlayerColor].length > 0) {
         options.push(MysteryBoxOptions.HOPLITE_SACRIFICE_REVIVE)
     }
+    return options[1]
 
     return options[Math.floor(Math.random() * options.length)]
 }
@@ -136,6 +137,11 @@ export const executeObstacleSwap = (
     if (obstaclePositions.length !== emptyPositions.length) {
         return { success: false, newBoard: board }
     }
+    const rows = board.length
+    const hasDisabledPlacement = emptyPositions.some(pos => isObstacleSwapPlacementRowDisabled(pos.row, rows))
+    if (hasDisabledPlacement) {
+        return { success: false, newBoard: board }
+    }
 
     const newBoard = board.map(row => [...row])
 
@@ -170,7 +176,17 @@ export const canPlayerUseMysteryBoxOption3 = (board: Board): boolean => {
         ObstacleTypes.LAKE,
         ObstacleTypes.CANYON
     ])
-    return selectableObstacles.length > 0 && getEmptyTiles(board).length > 0
+    const rows = board.length
+    const hasAllowedEmptyTiles = getEmptyTiles(board).some(pos => !isObstacleSwapPlacementRowDisabled(pos.row, rows))
+    return selectableObstacles.length > 0 && hasAllowedEmptyTiles
+}
+
+export const isObstacleSwapPlacementRowDisabled = (row: number, rows: number): boolean => {
+    return row === 2 || row === rows - 3
+}
+
+export const isObstacleSwapPlacementAllowed = (board: Board, pos: Position): boolean => {
+    return !isObstacleSwapPlacementRowDisabled(pos.row, board.length)
 }
 
 export const getRevivablePieces = (
