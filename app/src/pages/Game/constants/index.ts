@@ -56,7 +56,7 @@ export const PIECE_RULES: Record<string, PieceRules> = {
   },
   [PieceTypes.WARLOCK]: {
     move: [[2, 0], [0, 2], [2, 2]],
-    attackRange: 2,
+    attackRange: 1,
     canPass: [ObstacleTypes.CAVE, ObstacleTypes.LAKE, ObstacleTypes.MYSTERY_BOX],
     canJumpPieces: true,
     points: 11
@@ -186,6 +186,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   ],
   [PieceTypes.WARLOCK]: [
     'Moves in 2-step corner patterns.',
+    'Can attack 1 step diagonally.',
     'Can pass over figures in its path.',
     'Can swap positions with any Hoplite and the Monarch.',
     'Can pass through lake and cave.',

@@ -73,6 +73,7 @@ export interface Piece {
   hasMoved?: boolean
   isZombie?: boolean
   reviveCount?: number
+  standingOnObstacle?: ObstacleType
 }
 
 export interface Obstacle {

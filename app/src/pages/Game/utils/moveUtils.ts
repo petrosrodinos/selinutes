@@ -606,6 +606,21 @@ export const getValidAttacks = (board: Board, pos: Position, boardSize: BoardSiz
     return getPaladinValidAttacks(board, pos, boardSize, cell)
   }
 
+  if (cell.type === PieceTypes.WARLOCK) {
+    const directions = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
+    for (const [rowOff, colOff] of directions) {
+      const row = pos.row + rowOff
+      const col = pos.col + colOff
+      if (!isInBounds(row, col, boardSize)) continue
+
+      const targetCell = board[row][col]
+      if (targetCell && isPiece(targetCell) && targetCell.color !== cell.color) {
+        attacks.push({ row, col })
+      }
+    }
+    return attacks
+  }
+
   for (let row = 0; row < boardSize.rows; row++) {
     for (let col = 0; col < boardSize.cols; col++) {
       if (row === pos.row && col === pos.col) continue
@@ -696,6 +711,7 @@ export const makeMove = (
   const piece = cell
   const targetCell = newBoard[to.row][to.col]
   const captured = targetCell && isPiece(targetCell) ? targetCell : undefined
+  const sourceObstacle = piece.standingOnObstacle
 
   let finalPosition = to
   const isCaveDestination = targetCell && isObstacle(targetCell) && targetCell.type === ObstacleTypes.CAVE
@@ -711,7 +727,7 @@ export const makeMove = (
   const triggeredNarcNet = checkNarcNetTrigger(board, boardSize, finalPosition, piece.color)
 
   if (triggeredNarcNet && !isAttack) {
-    newBoard[from.row][from.col] = null
+    newBoard[from.row][from.col] = sourceObstacle ? { type: sourceObstacle } : null
 
     const move: Move = {
       from,
@@ -739,12 +755,15 @@ export const makeMove = (
       newNarcs = removeNarcsForBomber(newNarcs, captured.id)
     }
   } else {
-    newBoard[finalPosition.row][finalPosition.col] = { ...piece, hasMoved: true }
-    newBoard[from.row][from.col] = null
-  }
-
-  if (!isAttack) {
-    newBoard[from.row][from.col] = null
+    const destinationCell = newBoard[finalPosition.row][finalPosition.col]
+    const destinationObstacle =
+      destinationCell && isObstacle(destinationCell) ? destinationCell.type : undefined
+    newBoard[finalPosition.row][finalPosition.col] = {
+      ...piece,
+      hasMoved: true,
+      standingOnObstacle: destinationObstacle
+    }
+    newBoard[from.row][from.col] = sourceObstacle ? { type: sourceObstacle } : null
   }
 
   if (piece.type === PieceTypes.BOMBER && !piece.isZombie && !isAttack) {
