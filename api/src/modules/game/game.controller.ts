@@ -1,11 +1,17 @@
-import { Controller, Post, Get, Body, Param, HttpCode, HttpStatus } from '@nestjs/common'
+import { Controller, Post, Get, Body, Param, HttpCode, HttpStatus, UseGuards } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { GameService } from './game.service'
 import { CreateGameDto } from './dto/create-game.dto'
 import { JoinGameDto } from './dto/join-game.dto'
+import { Roles } from '@/shared/decorators/roles.decorator';
+import { JwtGuard } from '@/shared/guards/jwt.guard';
+import { RolesGuard } from '@/shared/guards/roles.guard';
+import { AuthRoles } from 'src/modules/auth/interfaces/auth.interface';
 
 @ApiTags('Game')
 @Controller('games')
+@UseGuards(JwtGuard, RolesGuard)
+@Roles(AuthRoles.ADMIN)
 export class GameController {
     constructor(private readonly gameService: GameService) { }
 
