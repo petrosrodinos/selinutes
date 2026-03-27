@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { Medal, Trophy, AlertCircle } from "lucide-react";
 import { useAuthStore } from "../../../store/authStore";
 import { POINTS_LABEL } from "../../../constants/game";
-import { useLeaderboard } from "../../../features/stats";
+import { useLeaderboard, type LeaderboardEntry } from "../../../features/stats";
+import { PlayerStatsModal } from "./PlayerStatsModal";
 
 export const Leaderboard = () => {
   const username = useAuthStore((state) => state.username);
-  const { data: leaderboard, isLoading, isError } = useLeaderboard(10);
+  const { data: leaderboard, isLoading, isError } = useLeaderboard();
+  const [selectedPlayer, setSelectedPlayer] = useState<LeaderboardEntry | null>(null);
 
   const renderContent = () => {
     if (isLoading) {
@@ -49,29 +52,38 @@ export const Leaderboard = () => {
     return (
       <div className="space-y-3 overflow-y-auto max-h-96 pr-1">
         {leaderboard.map((entry) => (
-          <div key={entry.user_uuid} className={`rounded-lg p-3 border transition-colors ${entry.username === username ? "bg-amber-900/30 border-amber-600/50" : "bg-stone-900/50 border-stone-700/30 hover:border-stone-600/50"}`}>
+          <button
+            key={entry.user_uuid}
+            onClick={() => setSelectedPlayer(entry)}
+            className={`w-full text-left rounded-lg p-3 border transition-colors cursor-pointer ${entry.username === username ? "bg-amber-900/30 border-amber-600/50 hover:border-amber-500/70" : "bg-stone-900/50 border-stone-700/30 hover:border-stone-600/50"}`}
+          >
             <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${entry.rank === 1 ? "bg-amber-500 text-stone-900" : entry.rank === 2 ? "bg-stone-400 text-stone-900" : entry.rank === 3 ? "bg-orange-600 text-white" : "bg-stone-700 text-stone-300"}`}>#{entry.rank}</div>
-              <div className="flex-1">
-                <p className="text-stone-200 font-medium text-sm">{entry.username}</p>
-                <p className="text-amber-400 text-xs font-bold">
-                  {entry.points.toLocaleString()} {POINTS_LABEL}
-                </p>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${entry.rank === 1 ? "bg-amber-500 text-stone-900" : entry.rank === 2 ? "bg-stone-400 text-stone-900" : entry.rank === 3 ? "bg-orange-600 text-white" : "bg-stone-700 text-stone-300"}`}>#{entry.rank}</div>
+              <div className="flex-1 min-w-0">
+                <p className="text-stone-200 font-medium text-sm truncate">{entry.username}</p>
+                <p className="text-amber-400 text-xs font-bold">{entry.points.toLocaleString()} {POINTS_LABEL}</p>
               </div>
             </div>
-          </div>
+          </button>
         ))}
       </div>
     );
   };
 
   return (
-    <div className="bg-stone-800/60 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-stone-700/50 h-full">
-      <div className="flex items-center gap-2 mb-4">
-        <Medal className="w-5 h-5 text-amber-400" />
-        <h3 className="text-xl font-bold text-amber-200">Leaderboard</h3>
+    <>
+      <div className="bg-stone-800/60 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-stone-700/50 h-full">
+        <div className="flex items-center gap-2 mb-4">
+          <Medal className="w-5 h-5 text-amber-400" />
+          <h3 className="text-xl font-bold text-amber-200">Leaderboard</h3>
+        </div>
+        {renderContent()}
       </div>
-      {renderContent()}
-    </div>
+
+      <PlayerStatsModal
+        player={selectedPlayer}
+        onClose={() => setSelectedPlayer(null)}
+      />
+    </>
   );
 };

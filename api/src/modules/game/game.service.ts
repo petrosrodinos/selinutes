@@ -310,6 +310,7 @@ export class GameService {
                 const newLosses = (existingStats?.losses ?? 0) + (status === GameStatus.LOSS ? 1 : 0)
                 const newDraws = (existingStats?.draws ?? 0) + (status === GameStatus.DRAW ? 1 : 0)
                 const newLevel = getLevelFromPoints(newPoints)
+                const newRank = await this.calculateRank(player.id, newPoints)
 
                 await this.prisma.userStats.upsert({
                     where: { user_uuid: player.id },
@@ -320,6 +321,7 @@ export class GameService {
                         losses: newLosses,
                         draws: newDraws,
                         level: newLevel,
+                        rank: newRank,
                     },
                     update: {
                         points: newPoints,
@@ -327,14 +329,25 @@ export class GameService {
                         losses: newLosses,
                         draws: newDraws,
                         level: newLevel,
+                        rank: newRank,
                     }
                 })
 
-                this.logger.log(`Saved game record for player ${player.id} (${status}, ${points} pts)`)
+                this.logger.log(`Saved game record for player ${player.id} (${status}, ${points} pts, rank #${newRank})`)
             }
         } catch (error) {
             this.logger.error(`Failed to save finished game ${gameSession.code}: ${error.message}`)
         }
+    }
+
+    private async calculateRank(userUuid: string, newPoints: number): Promise<number> {
+        const usersAhead = await this.prisma.userStats.count({
+            where: {
+                points: { gt: newPoints },
+                user_uuid: { not: userUuid },
+            }
+        })
+        return usersAhead + 1
     }
 
     private async getGameSession(code: string): Promise<GameSession | undefined> {
