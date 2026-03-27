@@ -109,7 +109,7 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         @MessageBody() payload: GetGameDto
     ): Promise<void> {
         try {
-            const gameSession = await this.gameService.getGame(payload)
+            const gameSession = await this.gameService.getLocalGame(payload)
 
             const room = this.server.sockets.adapter.rooms.get(gameSession.code)
             const roomSize = room?.size ?? 0

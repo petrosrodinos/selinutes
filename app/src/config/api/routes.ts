@@ -15,8 +15,22 @@ export const ApiRoutes = {
         prefix: "/users",
         me: "/users/me",
     },
+    stats: {
+        me: '/stats/me',
+        byUser: (userUuid: string) => `/stats?user_uuid=${userUuid}`,
+        leaderboard: (limit?: number) => `/stats/leaderboard${limit ? `?limit=${limit}` : ''}`,
+    },
     games: {
         prefix: "/games",
+        list: (params?: Record<string, string | number | undefined>) => {
+            const query = params ? new URLSearchParams(
+                Object.entries(params)
+                    .filter(([, v]) => v !== undefined)
+                    .map(([k, v]) => [k, String(v)])
+            ).toString() : ''
+            return `/games${query ? `?${query}` : ''}`
+        },
+        record: (uuid: string) => `/games/record/${uuid}`,
         create: "/games/create",
         join: "/games/join",
         get: (code: string) => `/games/${code}`,

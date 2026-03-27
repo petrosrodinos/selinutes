@@ -93,3 +93,39 @@ export interface SaveOfflineGameRequest {
     moves: number
     points: number
 }
+
+export type GameMode = 'SINGLE' | 'OFFLINE' | 'ONLINE'
+export type GameRecordStatus = 'WIN' | 'LOSS' | 'DRAW'
+
+export interface GameRecord {
+    id: number
+    uuid: string
+    user_uuid: string
+    code: string | null
+    board_size: string
+    mode: GameMode
+    status: GameRecordStatus
+    time: number | null
+    moves: number
+    points: number
+    created_at: string
+    finished_at: string | null
+}
+
+export interface GetGamesParams {
+    page?: number
+    limit?: number
+    user_uuid?: string
+    mode?: GameMode
+    status?: GameRecordStatus
+    board_size?: string
+    sort_by?: 'created_at' | 'finished_at' | 'points' | 'moves' | 'time'
+    sort_order?: 'asc' | 'desc'
+}
+
+export interface PaginatedGamesResponse {
+    data: GameRecord[]
+    total: number
+    page: number
+    limit: number
+}

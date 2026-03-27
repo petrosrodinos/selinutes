@@ -1,6 +1,6 @@
 import axiosInstance from '../../../config/api/axios'
 import { ApiRoutes } from '../../../config/api/routes'
-import type { CreateGameRequest, JoinGameRequest, GameSession, SaveOfflineGameRequest } from '../interfaces'
+import type { CreateGameRequest, JoinGameRequest, GameSession, SaveOfflineGameRequest, GetGamesParams, PaginatedGamesResponse, GameRecord } from '../interfaces'
 
 export const createGame = async (data: CreateGameRequest): Promise<GameSession> => {
     try {
@@ -43,4 +43,14 @@ export const saveOfflineGame = async (data: SaveOfflineGameRequest): Promise<voi
     } catch (error) {
         throw error
     }
+}
+
+export const getGames = async (params?: GetGamesParams): Promise<PaginatedGamesResponse> => {
+    const response = await axiosInstance.get<PaginatedGamesResponse>(ApiRoutes.games.list(params as Record<string, string | number | undefined>))
+    return response.data
+}
+
+export const getGameRecord = async (uuid: string): Promise<GameRecord> => {
+    const response = await axiosInstance.get<GameRecord>(ApiRoutes.games.record(uuid))
+    return response.data
 }

@@ -14,7 +14,7 @@ export class SaveOfflineGameDto {
 
     @ApiProperty({ description: 'Game mode', enum: OFFLINE_GAME_MODES })
     @IsIn(OFFLINE_GAME_MODES)
-    mode: GameMode.SINGLE | GameMode.OFFLINE
+    mode: typeof OFFLINE_GAME_MODES[number]
 
     @ApiProperty({ description: 'Winner color', enum: [...PLAYER_COLOR_VALUES, null], nullable: true })
     @IsOptional()

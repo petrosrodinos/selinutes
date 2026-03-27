@@ -19,6 +19,8 @@ import { generateGameCode, getGameKey } from './helpers/game.helper'
 import { GameMode, GameStatus } from 'generated/prisma'
 import { getLevelFromPoints } from './constants/game-rewards.constants'
 import { SaveOfflineGameDto } from './dto/save-offline-game.dto'
+import { GetGamesDto, GameSortBy, SortOrder } from './dto/get-games.dto'
+import { Game } from 'generated/prisma'
 
 @Injectable()
 export class GameService {
@@ -28,6 +30,40 @@ export class GameService {
         private readonly cacheService: CacheService,
         private readonly prisma: PrismaService
     ) { }
+
+    async getGameRecord(uuid: string): Promise<Game> {
+        const game = await this.prisma.game.findUnique({ where: { uuid } })
+
+        if (!game) {
+            throw new NotFoundException('Game not found')
+        }
+
+        return game
+    }
+
+    async getGames(dto: GetGamesDto): Promise<{ data: Game[]; total: number; page: number; limit: number }> {
+        const { page = 1, limit = 10, user_uuid, mode, status, board_size, sort_by = GameSortBy.CREATED_AT, sort_order = SortOrder.DESC } = dto
+        const skip = (page - 1) * limit
+
+        const where = {
+            ...(user_uuid && { user_uuid }),
+            ...(mode && { mode }),
+            ...(status && { status }),
+            ...(board_size && { board_size }),
+        }
+
+        const [data, total] = await Promise.all([
+            this.prisma.game.findMany({
+                where,
+                skip,
+                take: limit,
+                orderBy: { [sort_by]: sort_order },
+            }),
+            this.prisma.game.count({ where }),
+        ])
+
+        return { data, total, page, limit }
+    }
 
     async createGame(dto: CreateGameDto): Promise<GameSession> {
         const code = generateGameCode()
@@ -111,7 +147,7 @@ export class GameService {
         return updatedGameSession
     }
 
-    async getGame(dto: GetGameDto): Promise<GameSession> {
+    async getLocalGame(dto: GetGameDto): Promise<GameSession> {
         const gameSession = await this.getGameSession(dto.code)
 
         if (!gameSession) {

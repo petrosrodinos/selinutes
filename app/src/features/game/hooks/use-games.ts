@@ -1,7 +1,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
-import { createGame, finishGame, getGame, joinGame, saveOfflineGame } from '../services'
+import { createGame, finishGame, getGame, joinGame, saveOfflineGame, getGames, getGameRecord } from '../services'
 import { getErrorMessage } from '../../../lib/error'
+import type { GetGamesParams } from '../interfaces'
 
 
 
@@ -45,5 +46,21 @@ export const useSaveOfflineGame = () => {
         onError: (error: any) => {
             console.error('Failed to save offline game result:', getErrorMessage(error))
         },
+    })
+}
+
+export const useGetGames = (params?: GetGamesParams) => {
+    return useQuery({
+        queryKey: ['games', params],
+        queryFn: () => getGames(params),
+        enabled: true,
+    })
+}
+
+export const useGetGameRecord = (uuid: string) => {
+    return useQuery({
+        queryKey: ['game-record', uuid],
+        queryFn: () => getGameRecord(uuid),
+        enabled: !!uuid,
     })
 }

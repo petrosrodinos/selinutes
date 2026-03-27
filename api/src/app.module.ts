@@ -9,6 +9,7 @@ import { RedisCacheModule } from './modules/internal/redis-cache/redis-cache.mod
 import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from './shared/config/env/env.module';
 import { GameModule } from './modules/game/game.module';
+import { StatsModule } from './modules/stats/stats.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { GameModule } from './modules/game/game.module';
     RedisCacheModule,
     GameModule,
     AuthModule,
+    StatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
