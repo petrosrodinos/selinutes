@@ -3702,7 +3702,7 @@ export namespace Prisma {
     id: number
     uuid: string
     user_uuid: string
-    code: string
+    code: string | null
     board_size: string
     mode: $Enums.GameMode
     status: $Enums.GameStatus
@@ -3815,7 +3815,7 @@ export namespace Prisma {
       id: number
       uuid: string
       user_uuid: string
-      code: string
+      code: string | null
       board_size: string
       mode: $Enums.GameMode
       status: $Enums.GameStatus
@@ -5036,7 +5036,7 @@ export namespace Prisma {
     id?: IntFilter<"Game"> | number
     uuid?: StringFilter<"Game"> | string
     user_uuid?: StringFilter<"Game"> | string
-    code?: StringFilter<"Game"> | string
+    code?: StringNullableFilter<"Game"> | string | null
     board_size?: StringFilter<"Game"> | string
     mode?: EnumGameModeFilter<"Game"> | $Enums.GameMode
     status?: EnumGameStatusFilter<"Game"> | $Enums.GameStatus
@@ -5052,7 +5052,7 @@ export namespace Prisma {
     id?: SortOrder
     uuid?: SortOrder
     user_uuid?: SortOrder
-    code?: SortOrder
+    code?: SortOrderInput | SortOrder
     board_size?: SortOrder
     mode?: SortOrder
     status?: SortOrder
@@ -5071,7 +5071,7 @@ export namespace Prisma {
     OR?: GameWhereInput[]
     NOT?: GameWhereInput | GameWhereInput[]
     user_uuid?: StringFilter<"Game"> | string
-    code?: StringFilter<"Game"> | string
+    code?: StringNullableFilter<"Game"> | string | null
     board_size?: StringFilter<"Game"> | string
     mode?: EnumGameModeFilter<"Game"> | $Enums.GameMode
     status?: EnumGameStatusFilter<"Game"> | $Enums.GameStatus
@@ -5087,7 +5087,7 @@ export namespace Prisma {
     id?: SortOrder
     uuid?: SortOrder
     user_uuid?: SortOrder
-    code?: SortOrder
+    code?: SortOrderInput | SortOrder
     board_size?: SortOrder
     mode?: SortOrder
     status?: SortOrder
@@ -5110,7 +5110,7 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"Game"> | number
     uuid?: StringWithAggregatesFilter<"Game"> | string
     user_uuid?: StringWithAggregatesFilter<"Game"> | string
-    code?: StringWithAggregatesFilter<"Game"> | string
+    code?: StringNullableWithAggregatesFilter<"Game"> | string | null
     board_size?: StringWithAggregatesFilter<"Game"> | string
     mode?: EnumGameModeWithAggregatesFilter<"Game"> | $Enums.GameMode
     status?: EnumGameStatusWithAggregatesFilter<"Game"> | $Enums.GameStatus
@@ -5299,7 +5299,7 @@ export namespace Prisma {
 
   export type GameCreateInput = {
     uuid?: string
-    code: string
+    code?: string | null
     board_size: string
     mode: $Enums.GameMode
     status: $Enums.GameStatus
@@ -5315,7 +5315,7 @@ export namespace Prisma {
     id?: number
     uuid?: string
     user_uuid: string
-    code: string
+    code?: string | null
     board_size: string
     mode: $Enums.GameMode
     status: $Enums.GameStatus
@@ -5328,7 +5328,7 @@ export namespace Prisma {
 
   export type GameUpdateInput = {
     uuid?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     board_size?: StringFieldUpdateOperationsInput | string
     mode?: EnumGameModeFieldUpdateOperationsInput | $Enums.GameMode
     status?: EnumGameStatusFieldUpdateOperationsInput | $Enums.GameStatus
@@ -5344,7 +5344,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     uuid?: StringFieldUpdateOperationsInput | string
     user_uuid?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     board_size?: StringFieldUpdateOperationsInput | string
     mode?: EnumGameModeFieldUpdateOperationsInput | $Enums.GameMode
     status?: EnumGameStatusFieldUpdateOperationsInput | $Enums.GameStatus
@@ -5359,7 +5359,7 @@ export namespace Prisma {
     id?: number
     uuid?: string
     user_uuid: string
-    code: string
+    code?: string | null
     board_size: string
     mode: $Enums.GameMode
     status: $Enums.GameStatus
@@ -5372,7 +5372,7 @@ export namespace Prisma {
 
   export type GameUpdateManyMutationInput = {
     uuid?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     board_size?: StringFieldUpdateOperationsInput | string
     mode?: EnumGameModeFieldUpdateOperationsInput | $Enums.GameMode
     status?: EnumGameStatusFieldUpdateOperationsInput | $Enums.GameStatus
@@ -5387,7 +5387,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     uuid?: StringFieldUpdateOperationsInput | string
     user_uuid?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     board_size?: StringFieldUpdateOperationsInput | string
     mode?: EnumGameModeFieldUpdateOperationsInput | $Enums.GameMode
     status?: EnumGameStatusFieldUpdateOperationsInput | $Enums.GameStatus
@@ -5653,6 +5653,21 @@ export namespace Prisma {
     draws?: SortOrder
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type EnumGameModeFilter<$PrismaModel = never> = {
     equals?: $Enums.GameMode | EnumGameModeFieldRefInput<$PrismaModel>
     in?: $Enums.GameMode[] | ListEnumGameModeFieldRefInput<$PrismaModel>
@@ -5735,6 +5750,24 @@ export namespace Prisma {
     time?: SortOrder
     moves?: SortOrder
     points?: SortOrder
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type EnumGameModeWithAggregatesFilter<$PrismaModel = never> = {
@@ -5889,6 +5922,10 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutGamesInput, UserUncheckedCreateWithoutGamesInput>
     connectOrCreate?: UserCreateOrConnectWithoutGamesInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
   }
 
   export type EnumGameModeFieldUpdateOperationsInput = {
@@ -6062,6 +6099,20 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedEnumGameModeFilter<$PrismaModel = never> = {
     equals?: $Enums.GameMode | EnumGameModeFieldRefInput<$PrismaModel>
     in?: $Enums.GameMode[] | ListEnumGameModeFieldRefInput<$PrismaModel>
@@ -6074,6 +6125,23 @@ export namespace Prisma {
     in?: $Enums.GameStatus[] | ListEnumGameStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.GameStatus[] | ListEnumGameStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumGameStatusFilter<$PrismaModel> | $Enums.GameStatus
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumGameModeWithAggregatesFilter<$PrismaModel = never> = {
@@ -6153,7 +6221,7 @@ export namespace Prisma {
 
   export type GameCreateWithoutUserInput = {
     uuid?: string
-    code: string
+    code?: string | null
     board_size: string
     mode: $Enums.GameMode
     status: $Enums.GameStatus
@@ -6167,7 +6235,7 @@ export namespace Prisma {
   export type GameUncheckedCreateWithoutUserInput = {
     id?: number
     uuid?: string
-    code: string
+    code?: string | null
     board_size: string
     mode: $Enums.GameMode
     status: $Enums.GameStatus
@@ -6245,7 +6313,7 @@ export namespace Prisma {
     id?: IntFilter<"Game"> | number
     uuid?: StringFilter<"Game"> | string
     user_uuid?: StringFilter<"Game"> | string
-    code?: StringFilter<"Game"> | string
+    code?: StringNullableFilter<"Game"> | string | null
     board_size?: StringFilter<"Game"> | string
     mode?: EnumGameModeFilter<"Game"> | $Enums.GameMode
     status?: EnumGameStatusFilter<"Game"> | $Enums.GameStatus
@@ -6391,7 +6459,7 @@ export namespace Prisma {
   export type GameCreateManyUserInput = {
     id?: number
     uuid?: string
-    code: string
+    code?: string | null
     board_size: string
     mode: $Enums.GameMode
     status: $Enums.GameStatus
@@ -6404,7 +6472,7 @@ export namespace Prisma {
 
   export type GameUpdateWithoutUserInput = {
     uuid?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     board_size?: StringFieldUpdateOperationsInput | string
     mode?: EnumGameModeFieldUpdateOperationsInput | $Enums.GameMode
     status?: EnumGameStatusFieldUpdateOperationsInput | $Enums.GameStatus
@@ -6418,7 +6486,7 @@ export namespace Prisma {
   export type GameUncheckedUpdateWithoutUserInput = {
     id?: IntFieldUpdateOperationsInput | number
     uuid?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     board_size?: StringFieldUpdateOperationsInput | string
     mode?: EnumGameModeFieldUpdateOperationsInput | $Enums.GameMode
     status?: EnumGameStatusFieldUpdateOperationsInput | $Enums.GameStatus
@@ -6432,7 +6500,7 @@ export namespace Prisma {
   export type GameUncheckedUpdateManyWithoutUserInput = {
     id?: IntFieldUpdateOperationsInput | number
     uuid?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     board_size?: StringFieldUpdateOperationsInput | string
     mode?: EnumGameModeFieldUpdateOperationsInput | $Enums.GameMode
     status?: EnumGameStatusFieldUpdateOperationsInput | $Enums.GameStatus

@@ -171,21 +171,19 @@ async function main() {
     console.log(`Created ${ONLINE_GAMES.length} online games (${ONLINE_GAMES.length * 2} records)`)
 
     // 3. Create solo/offline games
-    for (const game of SOLO_GAMES) {
-        await prisma.game.create({
-            data: {
-                user_uuid: users[game.userIndex].uuid,
-                code: null,
-                board_size: game.boardSize,
-                mode: game.mode,
-                status: game.status,
-                moves: game.moves,
-                points: game.points,
-                time: game.time,
-                finished_at: new Date(),
-            },
-        })
-    }
+    await prisma.game.createMany({
+        data: SOLO_GAMES.map(game => ({
+            user_uuid: users[game.userIndex].uuid,
+            code: null,
+            board_size: game.boardSize,
+            mode: game.mode,
+            status: game.status,
+            moves: game.moves,
+            points: game.points,
+            time: game.time,
+            finished_at: new Date(),
+        })),
+    })
 
     console.log(`Created ${SOLO_GAMES.length} solo/offline games`)
 
