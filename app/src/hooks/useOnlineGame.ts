@@ -12,6 +12,7 @@ import { getMoveSound, isValidSoundEvent } from '../utils/sound.utils'
 import type { GameSession } from '../features/game/interfaces'
 import type { Position, Piece } from '../pages/Game/types'
 import { PIECE_NAMES, PIECE_SYMBOLS } from '../pages/Game/constants'
+import { useFinishGame } from '../features/game/hooks'
 
 interface MysteryBoxTriggeredPayload {
     code: string
@@ -52,6 +53,8 @@ export const useOnlineGame = () => {
     const gameCodeRef = useRef(gameCode)
     const resetRef = useRef<() => void>(() => { })
     const lastCaptureToastKeyRef = useRef<string | null>(null)
+    const gameFinishedRef = useRef(false)
+    const { mutate: saveFinishedGame } = useFinishGame()
 
     const {
         gameSession,
@@ -125,6 +128,10 @@ export const useOnlineGame = () => {
 
         const handleGameUpdate = (data: GameSession & { soundKey?: unknown }) => {
             const { soundKey, ...session } = data
+            if (session.gameState?.gameOver && !gameFinishedRef.current) {
+                gameFinishedRef.current = true
+                saveFinishedGame(session.code)
+            }
             syncFromServer(session)
             if (isValidSoundEvent(soundKey)) {
                 SoundManager.play(soundKey)
@@ -386,7 +393,12 @@ export const useOnlineGame = () => {
             },
             soundKey
         })
-    }, [gameCode, selectSquare, getGameStateForSync, emit, handleMysteryBoxSelection, getCurrentPlayer])
+
+        if (currentGameState.gameOver && !gameFinishedRef.current) {
+            gameFinishedRef.current = true
+            saveFinishedGame(gameCode)
+        }
+    }, [gameCode, selectSquare, getGameStateForSync, emit, handleMysteryBoxSelection, getCurrentPlayer, saveFinishedGame])
 
     const requestZombieRevive = useCallback((payload: ZombieRevivePayload) => {
         if (!gameCode) return

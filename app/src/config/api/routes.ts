@@ -20,5 +20,7 @@ export const ApiRoutes = {
         create: "/games/create",
         join: "/games/join",
         get: (code: string) => `/games/${code}`,
+        finish: (code: string) => `/games/${code}/finish`,
+        finishOffline: "/games/offline/finish",
     },
 }

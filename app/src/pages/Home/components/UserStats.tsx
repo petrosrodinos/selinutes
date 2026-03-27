@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Trophy, Crown, Target, Award } from "lucide-react";
 import { useAuthStore } from "../../../store/authStore";
 import { getStatsData, getPointsForLevel } from "../../../lib/level";
-import { MAX_LEVEL } from "../../../constants/game";
+import { MAX_LEVEL, POINTS_LABEL } from "../../../constants/game";
 import { Modal } from "../../../components/Modal";
 
 const mockUserPoints = 826;
@@ -94,7 +94,7 @@ export const UserStats = () => {
                   Level {level}{isUserLevel ? " (you)" : ""}
                 </span>
                 <span className={isUserLevel ? "font-semibold text-amber-400" : "text-stone-400"}>
-                  {points.toLocaleString()} pts
+                  {points.toLocaleString()} {POINTS_LABEL}
                 </span>
               </li>
             );

@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common'
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common'
 import { CacheService } from '@/shared/services/cache/cache.service'
+import { PrismaService } from '@/core/databases/prisma/prisma.service'
 import { CreateGameDto } from './dto/create-game.dto'
 import { JoinGameDto } from './dto/join-game.dto'
 import { GetGameDto } from './dto/get-game.dto'
@@ -15,10 +16,18 @@ import {
     PlayerColors
 } from './constants/game.constants'
 import { generateGameCode, getGameKey } from './helpers/game.helper'
+import { GameMode, GameStatus } from 'generated/prisma'
+import { getLevelFromPoints } from './constants/game-rewards.constants'
+import { SaveOfflineGameDto } from './dto/save-offline-game.dto'
 
 @Injectable()
 export class GameService {
-    constructor(private readonly cacheService: CacheService) { }
+    private readonly logger = new Logger(GameService.name)
+
+    constructor(
+        private readonly cacheService: CacheService,
+        private readonly prisma: PrismaService
+    ) { }
 
     async createGame(dto: CreateGameDto): Promise<GameSession> {
         const code = generateGameCode()
@@ -119,19 +128,30 @@ export class GameService {
             throw new NotFoundException('Game not found')
         }
 
+        const winner = gameState?.winner ?? null
+        const isGameOver = gameState?.gameOver ?? false
+
+        const updatedPlayers = isGameOver
+            ? gameSession.players.map(player => ({
+                ...player,
+                points: winner === null ? 5 : player.color === winner ? 10 : 2
+            }))
+            : gameSession.players
+
         const updatedGameSession: GameSession = {
             ...gameSession,
+            players: updatedPlayers,
             gameState: {
                 board: gameState?.board,
                 currentPlayer: gameState?.currentPlayer,
                 moveHistory: gameState?.moveHistory,
                 capturedPieces: gameState?.capturedPieces,
                 lastMove: gameState?.lastMove,
-                gameOver: gameState?.gameOver,
+                gameOver: isGameOver,
                 winner: gameState?.winner,
                 nightMode: gameState?.nightMode ?? false
             },
-            status: gameState?.gameOver ? GameStatuses.FINISHED : gameSession.status
+            status: isGameOver ? GameStatuses.FINISHED : gameSession.status
         }
 
         await this.cacheService.set(
@@ -140,11 +160,145 @@ export class GameService {
             GAME_TTL
         )
 
+        if (gameState?.gameOver && !gameSession.gameState?.gameOver) {
+            await this.saveFinishedGame(updatedGameSession)
+        }
+
         return updatedGameSession
+    }
+
+    async saveOfflineGame(userUuid: string, dto: SaveOfflineGameDto): Promise<void> {
+        const status: GameStatus = dto.winner === null
+            ? GameStatus.DRAW
+            : dto.playerColor === dto.winner
+                ? GameStatus.WIN
+                : GameStatus.LOSS
+
+        await this.prisma.game.create({
+            data: {
+                user_uuid: userUuid,
+                code: '',
+                board_size: dto.boardSizeKey,
+                mode: dto.mode,
+                status,
+                moves: dto.moves,
+                points: dto.points,
+                finished_at: new Date(),
+            }
+        })
+
+        const existingStats = await this.prisma.userStats.findUnique({ where: { user_uuid: userUuid } })
+        const newPoints = (existingStats?.points ?? 0) + dto.points
+        const newWins = (existingStats?.wins ?? 0) + (status === GameStatus.WIN ? 1 : 0)
+        const newLosses = (existingStats?.losses ?? 0) + (status === GameStatus.LOSS ? 1 : 0)
+        const newDraws = (existingStats?.draws ?? 0) + (status === GameStatus.DRAW ? 1 : 0)
+
+        await this.prisma.userStats.upsert({
+            where: { user_uuid: userUuid },
+            create: {
+                user_uuid: userUuid,
+                points: newPoints,
+                wins: newWins,
+                losses: newLosses,
+                draws: newDraws,
+                level: getLevelFromPoints(newPoints),
+            },
+            update: {
+                points: newPoints,
+                wins: newWins,
+                losses: newLosses,
+                draws: newDraws,
+                level: getLevelFromPoints(newPoints),
+            }
+        })
     }
 
     async deleteGame(code: string): Promise<void> {
         await this.cacheService.delete(getGameKey(code))
+    }
+
+    async finishGame(code: string): Promise<void> {
+        const gameSession = await this.getGameSession(code)
+
+        if (!gameSession) {
+            throw new NotFoundException('Game not found')
+        }
+
+        if (!gameSession.gameState?.gameOver) {
+            throw new BadRequestException('Game is not over yet')
+        }
+
+        await this.saveFinishedGame(gameSession)
+    }
+
+    private async saveFinishedGame(gameSession: GameSession): Promise<void> {
+        try {
+            const existing = await this.prisma.game.findMany({ where: { code: gameSession.code } })
+            if (existing.length > 2) return
+
+            const { code, boardSizeKey, players, createdAt, gameState } = gameSession
+            const winner = gameState?.winner ?? null
+            const moves = gameState?.moveHistory?.length ?? 0
+            const finishedAt = new Date()
+            const timeInSeconds = Math.floor((finishedAt.getTime() - new Date(createdAt).getTime()) / 1000)
+
+            for (const player of players) {
+                const status: GameStatus = winner === null
+                    ? GameStatus.DRAW
+                    : player.color === winner
+                        ? GameStatus.WIN
+                        : GameStatus.LOSS
+
+                const points = player.points ?? 0
+
+                await this.prisma.game.create({
+                    data: {
+                        user_uuid: player.id,
+                        code,
+                        board_size: boardSizeKey,
+                        mode: GameMode.ONLINE,
+                        status,
+                        time: timeInSeconds,
+                        moves,
+                        points,
+                        finished_at: finishedAt,
+                    }
+                })
+
+                const existingStats = await this.prisma.userStats.findUnique({
+                    where: { user_uuid: player.id }
+                })
+
+                const newPoints = (existingStats?.points ?? 0) + points
+                const newWins = (existingStats?.wins ?? 0) + (status === GameStatus.WIN ? 1 : 0)
+                const newLosses = (existingStats?.losses ?? 0) + (status === GameStatus.LOSS ? 1 : 0)
+                const newDraws = (existingStats?.draws ?? 0) + (status === GameStatus.DRAW ? 1 : 0)
+                const newLevel = getLevelFromPoints(newPoints)
+
+                await this.prisma.userStats.upsert({
+                    where: { user_uuid: player.id },
+                    create: {
+                        user_uuid: player.id,
+                        points: newPoints,
+                        wins: newWins,
+                        losses: newLosses,
+                        draws: newDraws,
+                        level: newLevel,
+                    },
+                    update: {
+                        points: newPoints,
+                        wins: newWins,
+                        losses: newLosses,
+                        draws: newDraws,
+                        level: newLevel,
+                    }
+                })
+
+                this.logger.log(`Saved game record for player ${player.id} (${status}, ${points} pts)`)
+            }
+        } catch (error) {
+            this.logger.error(`Failed to save finished game ${gameSession.code}: ${error.message}`)
+        }
     }
 
     private async getGameSession(code: string): Promise<GameSession | undefined> {

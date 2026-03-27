@@ -15,6 +15,7 @@ export interface Player {
     name: string
     color: PlayerColor
     joinedAt: Date
+    points?: number
 }
 
 export interface GameBoardState {

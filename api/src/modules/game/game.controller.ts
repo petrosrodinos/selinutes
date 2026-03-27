@@ -3,9 +3,11 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { GameService } from './game.service'
 import { CreateGameDto } from './dto/create-game.dto'
 import { JoinGameDto } from './dto/join-game.dto'
+import { SaveOfflineGameDto } from './dto/save-offline-game.dto'
 import { Roles } from '@/shared/decorators/roles.decorator';
 import { JwtGuard } from '@/shared/guards/jwt.guard';
 import { RolesGuard } from '@/shared/guards/roles.guard';
+import { CurrentUser } from '@/shared/decorators/current-user.decorator';
 import { AuthRoles } from 'src/modules/auth/interfaces/auth.interface';
 
 @ApiTags('Game')
@@ -37,5 +39,28 @@ export class GameController {
     @ApiResponse({ status: HttpStatus.OK, description: 'Game info retrieved successfully' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Game not found' })
     getGame(@Param('code') code: string): void {
+    }
+
+    @Post(':code/finish')
+    @Roles(AuthRoles.USER)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Save a finished game and update player stats' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Game saved successfully' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Game not found' })
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Game is not over yet' })
+    async finishGame(@Param('code') code: string): Promise<void> {
+        await this.gameService.finishGame(code)
+    }
+
+    @Post('offline/finish')
+    @Roles(AuthRoles.USER)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Save a finished offline or single-player game and update stats' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Game saved successfully' })
+    async saveOfflineGame(
+        @CurrentUser('uuid') userUuid: string,
+        @Body() dto: SaveOfflineGameDto
+    ): Promise<void> {
+        await this.gameService.saveOfflineGame(userUuid, dto)
     }
 }

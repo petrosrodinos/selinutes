@@ -3,9 +3,10 @@ import { GameController } from './game.controller'
 import { GameService } from './game.service'
 import { GameGateway } from './game.gateway'
 import { AppCacheModule } from '@/shared/services/cache/cache.module'
+import { PrismaModule } from '@/core/databases/prisma/prisma.module'
 
 @Module({
-    imports: [AppCacheModule],
+    imports: [AppCacheModule, PrismaModule],
     controllers: [GameController],
     providers: [GameService, GameGateway],
     exports: [GameService]

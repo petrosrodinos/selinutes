@@ -39,6 +39,7 @@ export interface Player {
     name: string
     color: PlayerColor
     joinedAt: Date
+    points?: number
 }
 
 export interface GameBoardState {
@@ -82,4 +83,13 @@ export interface GetGameRequest {
 export interface SyncGameRequest {
     code: string
     gameState: GameBoardState
+}
+
+export interface SaveOfflineGameRequest {
+    boardSizeKey: BoardSizeKey
+    mode: 'SINGLE' | 'OFFLINE'
+    winner: PlayerColor | null
+    playerColor: PlayerColor
+    moves: number
+    points: number
 }
