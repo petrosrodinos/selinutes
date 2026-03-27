@@ -37,7 +37,7 @@ export class GameController {
     @ApiOperation({ summary: 'Get a stored game record by UUID' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Game record retrieved successfully' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Game not found' })
-    async getGameRecord(@Param('uuid') uuid: string): Promise<Game> {
+    async getGameRecord(@Param('uuid') uuid: string): Promise<Game & { opponent: (Game & { username: string; stats: object | null }) | null }> {
         return this.gameService.getGameRecord(uuid)
     }
 

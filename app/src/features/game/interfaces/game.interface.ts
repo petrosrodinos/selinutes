@@ -97,6 +97,26 @@ export interface SaveOfflineGameRequest {
 export type GameMode = 'SINGLE' | 'OFFLINE' | 'ONLINE'
 export type GameRecordStatus = 'WIN' | 'LOSS' | 'DRAW'
 
+export interface OpponentStats {
+    points: number
+    level: number
+    wins: number
+    losses: number
+    draws: number
+    rank: number
+}
+
+export interface OpponentRecord {
+    uuid: string
+    user_uuid: string
+    status: GameRecordStatus
+    points: number
+    moves: number
+    time: number | null
+    username: string
+    stats: OpponentStats | null
+}
+
 export interface GameRecord {
     id: number
     uuid: string
@@ -110,6 +130,7 @@ export interface GameRecord {
     points: number
     created_at: string
     finished_at: string | null
+    opponent?: OpponentRecord | null
 }
 
 export interface GetGamesParams {

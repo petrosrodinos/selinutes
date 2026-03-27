@@ -31,14 +31,39 @@ export class GameService {
         private readonly prisma: PrismaService
     ) { }
 
-    async getGameRecord(uuid: string): Promise<Game> {
+    async getGameRecord(uuid: string): Promise<Game & { opponent: (Game & { username: string; stats: { points: number; level: number; wins: number; losses: number; draws: number; rank: number } | null }) | null }> {
         const game = await this.prisma.game.findUnique({ where: { uuid } })
 
         if (!game) {
             throw new NotFoundException('Game not found')
         }
 
-        return game
+        let opponent = null
+        if (game.code) {
+            const opponentGame = await this.prisma.game.findFirst({
+                where: { code: game.code, user_uuid: { not: game.user_uuid } },
+            })
+
+            if (opponentGame) {
+                const [opponentUser] = await Promise.all([
+                    this.prisma.user.findUnique({
+                        where: { uuid: opponentGame.user_uuid },
+                        select: {
+                            username: true,
+                            stats: true
+                        }
+                    }),
+                ])
+
+                opponent = {
+                    ...opponentGame,
+                    username: opponentUser?.username ?? 'Unknown',
+                    stats: opponentUser?.stats ?? null,
+                }
+            }
+        }
+
+        return { ...game, opponent }
     }
 
     async getGames(dto: GetGamesDto): Promise<{ data: Game[]; total: number; page: number; limit: number }> {

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '@/core/databases/prisma/prisma.service'
-import { UserStats } from 'generated/prisma'
+import { GameMode, UserStats } from 'generated/prisma'
+import { getLevelFromPoints } from '../game/constants/game-rewards.constants'
 
 export interface LeaderboardEntry {
     rank: number
@@ -15,7 +16,7 @@ export interface LeaderboardEntry {
 
 @Injectable()
 export class StatsService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) { }
 
     async getStats(userUuid: string): Promise<UserStats> {
         const stats = await this.prisma.userStats.findUnique({
@@ -30,21 +31,44 @@ export class StatsService {
     }
 
     async getLeaderboard(limit = 10): Promise<LeaderboardEntry[]> {
-        const rows = await this.prisma.userStats.findMany({
-            orderBy: { points: 'desc' },
+        const groups = await this.prisma.game.groupBy({
+            by: ['user_uuid'],
+            where: { mode: GameMode.ONLINE },
+            _sum: { points: true },
+            orderBy: { _sum: { points: 'desc' } },
             take: limit,
-            include: { user: { select: { username: true } } },
         })
 
-        return rows.map((row, index) => ({
-            rank: index + 1,
-            user_uuid: row.user_uuid,
-            username: row.user.username,
-            points: row.points,
-            level: row.level,
-            wins: row.wins,
-            losses: row.losses,
-            draws: row.draws,
-        }))
+        if (groups.length === 0) return []
+
+        const userUuids = groups.map(g => g.user_uuid)
+
+        const [users, statsRows] = await Promise.all([
+            this.prisma.user.findMany({
+                where: { uuid: { in: userUuids } },
+                select: { uuid: true, username: true },
+            }),
+            this.prisma.userStats.findMany({
+                where: { user_uuid: { in: userUuids } },
+            }),
+        ])
+
+        const usernameMap = new Map(users.map(u => [u.uuid, u.username]))
+        const statsMap = new Map(statsRows.map(s => [s.user_uuid, s]))
+
+        return groups.map((g, index) => {
+            const points = g._sum.points ?? 0
+            const stats = statsMap.get(g.user_uuid)
+            return {
+                rank: index + 1,
+                user_uuid: g.user_uuid,
+                username: usernameMap.get(g.user_uuid) ?? 'Unknown',
+                points,
+                level: stats?.level ?? 0,
+                wins: stats?.wins ?? 0,
+                losses: stats?.losses ?? 0,
+                draws: stats?.draws ?? 0,
+            }
+        })
     }
 }

@@ -4,6 +4,7 @@ import { POINTS_LABEL } from "../../../constants/game";
 import { useGetGames } from "../../../features/game/hooks";
 import { useAuthStore } from "../../../store/authStore";
 import type { GameRecord } from "../../../features/game/interfaces";
+import { GameDetailModal } from "./GameDetailModal";
 
 const LIMIT = 5;
 
@@ -50,6 +51,7 @@ const SkeletonCard = () => (
 
 export const RecentGames = () => {
     const [page, setPage] = useState(1);
+    const [selectedGame, setSelectedGame] = useState<GameRecord | null>(null);
     const user_uuid = useAuthStore((state) => state.user_uuid);
 
     const { data, isLoading } = useGetGames(
@@ -63,6 +65,7 @@ export const RecentGames = () => {
     const totalPages = Math.ceil(total / LIMIT);
 
     return (
+        <>
         <div className="bg-stone-800/60 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-stone-700/50">
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -96,9 +99,10 @@ export const RecentGames = () => {
                     : games.length === 0
                     ? <p className="text-stone-500 text-sm col-span-full">No games played yet.</p>
                     : games.map((game) => (
-                        <div
+                        <button
                             key={game.uuid}
-                            className="bg-stone-900/50 rounded-lg p-4 border border-stone-700/30 hover:border-stone-600/50 transition-colors"
+                            onClick={() => setSelectedGame(game)}
+                            className="w-full text-left bg-stone-900/50 rounded-lg p-4 border border-stone-700/30 hover:border-stone-600/50 transition-colors cursor-pointer"
                         >
                             <div className="flex flex-col gap-2">
                                 <ResultBadge status={game.status} />
@@ -112,9 +116,15 @@ export const RecentGames = () => {
                                     +{game.points} {POINTS_LABEL}
                                 </p>
                             </div>
-                        </div>
+                        </button>
                     ))}
             </div>
         </div>
-    );
+
+        <GameDetailModal
+            game={selectedGame}
+            onClose={() => setSelectedGame(null)}
+        />
+    </>
+  );
 };
