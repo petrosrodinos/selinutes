@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect } from 'react'
+import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import type { Group } from 'three'
@@ -48,20 +48,11 @@ const pieceGLBMap: Record<PieceType, { white: string; black: string }> = {
   [PieceTypes.WARLOCK]:     { white: warlockA,     black: warlockB },
 }
 
-const GLBPiece = ({ url, rotationY }: { url: string; rotationY: number }) => {
+const GLBPiece = ({ url, rotationY, scale = 1.4 }: { url: string; rotationY: number; scale?: number }) => {
   const { scene } = useGLTF(url)
   const cloned = useMemo(() => scene.clone(true), [scene])
 
-  useEffect(() => {
-    cloned.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        child.castShadow = true
-        child.receiveShadow = true
-      }
-    })
-  }, [cloned])
-
-  return <primitive object={cloned} scale={1.4} position-y={0.7} rotation-y={rotationY} />
+  return <primitive object={cloned} scale={scale} position-y={0.7} rotation-y={rotationY} />
 }
 
 export const Piece3D = ({ type, color, position, isSelected, isHint, isTargeted, isSwapTarget, onClick }: Piece3DProps) => {
@@ -111,8 +102,12 @@ export const Piece3D = ({ type, color, position, isSelected, isHint, isTargeted,
 
   const urls = pieceGLBMap[type]
   const url = urls[color === PlayerColors.WHITE ? 'white' : 'black']
-  // White faces +Z (toward black's side), black faces -Z (toward white's side)
-  const rotationY = color === PlayerColors.WHITE ? Math.PI / 2 : -Math.PI / 2
+  const baseRotation = color === PlayerColors.WHITE ? Math.PI / 2 : -Math.PI / 2
+  // Chariot model already faces Z axis — use 0/π instead of the ±π/2 used by other pieces
+  const rotationY = type === PieceTypes.CHARIOT
+    ? (color === PlayerColors.WHITE ? 0 : Math.PI)
+    : baseRotation
+  const pieceScale = type === PieceTypes.CHARIOT ? 1.2 : 1.4
 
   return (
     <group
@@ -122,7 +117,7 @@ export const Piece3D = ({ type, color, position, isSelected, isHint, isTargeted,
         onClick()
       }}
     >
-      <GLBPiece url={url} rotationY={rotationY} />
+      <GLBPiece url={url} rotationY={rotationY} scale={pieceScale} />
       {isSelected && (
         <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <ringGeometry args={[0.28, 0.38, 32]} />

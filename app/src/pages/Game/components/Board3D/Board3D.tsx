@@ -171,11 +171,11 @@ const GameScene = ({
         maxDistance={cameraDistance * 3}
       />
 
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 20, 10]} intensity={1} castShadow />
-      <directionalLight position={[-10, 10, -10]} intensity={0.3} />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[10, 20, 10]} intensity={1.2} />
+      <directionalLight position={[-10, 10, -10]} intensity={0.4} />
 
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.25, 0]} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.25, 0]}>
         <planeGeometry args={[cols + 10, rows + 10]} />
         <meshStandardMaterial color="#1a1a2e" />
       </mesh>
@@ -309,10 +309,9 @@ export const Board3D = ({
   return (
     <div className="w-[680px] h-[680px] md:w-[800px] md:h-[800px] rounded-xl overflow-hidden shadow-2xl">
       <Canvas
-        shadows
         camera={{ position: [0, cameraY, cameraZ], fov: 45 }}
         gl={{ antialias: true }}
-        dpr={[1, 2]}
+        dpr={[1, 1.5]}
       >
         <color attach="background" args={['#1f2937']} />
         <Suspense fallback={null}>

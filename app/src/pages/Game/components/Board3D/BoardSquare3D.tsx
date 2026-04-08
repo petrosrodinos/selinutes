@@ -53,8 +53,7 @@ export const BoardSquare3D = ({
   return (
     <group position={position}>
       <mesh
-        receiveShadow
-        onClick={(e) => {
+onClick={(e) => {
           e.stopPropagation()
           onClick()
         }}

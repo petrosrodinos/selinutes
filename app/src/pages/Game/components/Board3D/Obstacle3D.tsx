@@ -1,8 +1,7 @@
-import { useRef, useMemo, useEffect } from 'react'
+import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import type { Group } from 'three'
-import * as THREE from 'three'
 import type { ObstacleType } from '../../types'
 import { ObstacleTypes } from '../../types'
 import { OBSTACLE_COLORS } from '../../constants'
@@ -18,20 +17,11 @@ interface Obstacle3DProps {
   position: [number, number, number]
 }
 
-const GLBObstacle = ({ url }: { url: string }) => {
+const GLBObstacle = ({ url, scale = 1.4, positionY = 0.4 }: { url: string; scale?: number; positionY?: number }) => {
   const { scene } = useGLTF(url)
   const cloned = useMemo(() => scene.clone(true), [scene])
 
-  useEffect(() => {
-    cloned.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        child.castShadow = true
-        child.receiveShadow = true
-      }
-    })
-  }, [cloned])
-
-  return <primitive object={cloned} scale={1.4} position-y={0.4} rotation-y={Math.PI / 2} />
+  return <primitive object={cloned} scale={scale} position-y={positionY} rotation-y={Math.PI / 2} />
 }
 
 const AnimatedRiver = () => {
@@ -43,7 +33,7 @@ const AnimatedRiver = () => {
   })
   return (
     <group ref={ref}>
-      <GLBObstacle url={riverGLB} />
+      <GLBObstacle url={riverGLB} scale={0.95} positionY={0.08} />
     </group>
   )
 }
@@ -57,19 +47,19 @@ const AnimatedLake = () => {
   })
   return (
     <group ref={ref}>
-      <GLBObstacle url={lakeGLB} />
+      <GLBObstacle url={lakeGLB} scale={0.95} positionY={0.08} />
     </group>
   )
 }
 
 const Rock = ({ color }: { color: string }) => (
-  <group>
-    <mesh position={[0, 0.15, 0]} castShadow>
-      <dodecahedronGeometry args={[0.25, 0]} />
+  <group position={[0, 0.08, 0]}>
+    <mesh position={[0, 0.08, 0]}>
+      <dodecahedronGeometry args={[0.28, 0]} />
       <meshStandardMaterial color={color} roughness={0.9} flatShading />
     </mesh>
-    <mesh position={[0.15, 0.08, 0.1]} castShadow>
-      <dodecahedronGeometry args={[0.12, 0]} />
+    <mesh position={[0.16, 0.04, 0.1]}>
+      <dodecahedronGeometry args={[0.14, 0]} />
       <meshStandardMaterial color={color} roughness={0.9} flatShading />
     </mesh>
   </group>
@@ -85,7 +75,7 @@ const MysteryBox = ({ color }: { color: string }) => {
   })
   return (
     <group ref={ref} position={[0, 0.25, 0]}>
-      <mesh castShadow>
+      <mesh>
         <boxGeometry args={[0.3, 0.3, 0.3]} />
         <meshStandardMaterial color={color} metalness={0.5} roughness={0.3} />
       </mesh>
@@ -102,9 +92,9 @@ export const Obstacle3D = ({ type, position }: Obstacle3DProps) => {
 
   const content = (() => {
     switch (type) {
-      case ObstacleTypes.CANYON:     return <GLBObstacle url={canyonGLB} />
-      case ObstacleTypes.CAVE:       return <GLBObstacle url={caveGLB} />
-      case ObstacleTypes.TREE:       return <GLBObstacle url={treeGLB} />
+      case ObstacleTypes.CANYON:     return <GLBObstacle url={canyonGLB} scale={0.9} />
+      case ObstacleTypes.CAVE:       return <GLBObstacle url={caveGLB} scale={0.9} />
+      case ObstacleTypes.TREE:       return <GLBObstacle url={treeGLB} scale={1.4} />
       case ObstacleTypes.RIVER:      return <AnimatedRiver />
       case ObstacleTypes.LAKE:       return <AnimatedLake />
       case ObstacleTypes.ROCK:       return <Rock color={color} />
