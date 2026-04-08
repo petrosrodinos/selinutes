@@ -164,11 +164,11 @@ const GameScene = ({
   return (
     <>
       <OrbitControls
-        enablePan={false}
-        minPolarAngle={Math.PI / 6}
-        maxPolarAngle={Math.PI / 2.2}
-        minDistance={cameraDistance * 0.2}
-        maxDistance={cameraDistance * 1.5}
+        enablePan={true}
+        minPolarAngle={0}
+        maxPolarAngle={Math.PI}
+        minDistance={1}
+        maxDistance={cameraDistance * 3}
       />
 
       <ambientLight intensity={0.5} />
@@ -303,11 +303,11 @@ export const Board3D = ({
   const { gameState } = useGameStore()
   const boardSize = isOnline && onlineBoardSize ? onlineBoardSize : gameState.boardSize
   const maxDim = Math.max(boardSize.rows, boardSize.cols)
-  const cameraY = maxDim * 0.75
-  const cameraZ = maxDim * 0.6
+  const cameraY = maxDim * 0.6
+  const cameraZ = maxDim * 0.48
 
   return (
-    <div className="w-[500px] h-[500px] md:w-[600px] md:h-[600px] rounded-xl overflow-hidden shadow-2xl">
+    <div className="w-[680px] h-[680px] md:w-[800px] md:h-[800px] rounded-xl overflow-hidden shadow-2xl">
       <Canvas
         shadows
         camera={{ position: [0, cameraY, cameraZ], fov: 45 }}
