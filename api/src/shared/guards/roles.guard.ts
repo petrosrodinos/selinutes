@@ -5,6 +5,13 @@ import { AuthRole } from 'generated/prisma';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
+    private readonly roleHierarchy: Record<AuthRole, AuthRole[]> = {
+        [AuthRole.USER]: [AuthRole.USER],
+        [AuthRole.SUPPORT]: [AuthRole.SUPPORT, AuthRole.USER],
+        [AuthRole.ADMIN]: [AuthRole.ADMIN, AuthRole.SUPPORT, AuthRole.USER],
+        [AuthRole.SUPER_ADMIN]: [AuthRole.SUPER_ADMIN, AuthRole.ADMIN, AuthRole.SUPPORT, AuthRole.USER],
+    };
+
     constructor(
         private reflector: Reflector,
     ) { }
@@ -26,10 +33,7 @@ export class RolesGuard implements CanActivate {
             return false;
         }
 
-        if (user.role === AuthRole.SUPER_ADMIN) {
-            return true;
-        }
-
-        return requiredRoles.includes(user.role);
+        const userAllowedRoles = this.roleHierarchy[user.role as AuthRole] ?? [];
+        return requiredRoles.some((role) => userAllowedRoles.includes(role));
     }
 }
