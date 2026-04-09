@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Settings, LogOut, BookOpen } from "lucide-react";
+import { Settings, LogOut, BookOpen, Shield } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
 import { environments } from "../../../config/environments";
@@ -10,7 +10,10 @@ export const Navigation = () => {
   const navigate = useNavigate();
   const username = useAuthStore((state) => state.username);
   const userId = useAuthStore((state) => state.userId);
+  const email = useAuthStore((state) => state.user?.email ?? null);
   const logout = useAuthStore((state) => state.logout);
+  const role = useAuthStore((state) => state.user?.role);
+  const isAdmin = ["ADMIN", "SUPER_ADMIN"].includes(role ?? "");
   const [showSettings, setShowSettings] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
@@ -32,6 +35,11 @@ export const Navigation = () => {
               {environments.APP_NAME}
             </Link>
             <div className="flex items-center gap-2">
+              {isAdmin ? (
+                <Link to="/admin/users" className="p-2.5 bg-stone-700/60 hover:bg-stone-600/60 rounded-lg transition-all duration-200 border border-stone-600/50" aria-label="Admin users">
+                  <Shield className="w-5 h-5 text-amber-400" />
+                </Link>
+              ) : null}
               <Link to="/rules" className="p-2.5 bg-stone-700/60 hover:bg-stone-600/60 rounded-lg transition-all duration-200 border border-stone-600/50" aria-label="Rules">
                 <BookOpen className="w-5 h-5 text-amber-400" />
               </Link>
@@ -46,7 +54,13 @@ export const Navigation = () => {
         </div>
       </nav>
 
-      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} username={username} userId={userId} />
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        username={username}
+        email={email}
+        userId={userId}
+      />
 
       <ConfirmationDialog isOpen={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)} onConfirm={handleLogoutConfirm} title="Confirm Logout" message="Are you sure you want to sign out? Any ongoing games will be lost." confirmText="Sign Out" cancelText="Cancel" />
     </>

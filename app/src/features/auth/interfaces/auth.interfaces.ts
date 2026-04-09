@@ -17,3 +17,12 @@ export interface AuthResponse {
     expires_in: number;
     user: User;
 }
+
+export interface UpdateUsernamePayload {
+    username: string;
+}
+
+export interface UpdatePasswordPayload {
+    current_password: string;
+    new_password: string;
+}

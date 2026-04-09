@@ -23,6 +23,8 @@ export interface GameBoardState {
     currentPlayer: PlayerColor
     moveHistory: unknown[]
     capturedPieces: { white: unknown[]; black: unknown[] }
+    whitePoints?: number
+    blackPoints?: number
     lastMove: unknown | null
     gameOver: boolean
     winner: PlayerColor | null

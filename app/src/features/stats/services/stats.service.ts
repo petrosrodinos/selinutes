@@ -1,6 +1,6 @@
 import axiosInstance from '../../../config/api/axios'
 import { ApiRoutes } from '../../../config/api/routes'
-import type { UserStats, LeaderboardEntry } from '../interfaces/stats.interface'
+import type { UserStats, LeaderboardEntry, AdminUserOverviewEntry } from '../interfaces/stats.interface'
 
 export const getMyStats = async (): Promise<UserStats> => {
     const response = await axiosInstance.get<UserStats>(ApiRoutes.stats.me)
@@ -14,5 +14,15 @@ export const getStatsByUser = async (userUuid: string): Promise<UserStats> => {
 
 export const getLeaderboard = async (limit?: number): Promise<LeaderboardEntry[]> => {
     const response = await axiosInstance.get<LeaderboardEntry[]>(ApiRoutes.stats.leaderboard(limit))
+    return response.data
+}
+
+export const getAdminUsersOverview = async (): Promise<AdminUserOverviewEntry[]> => {
+    const response = await axiosInstance.get<AdminUserOverviewEntry[]>(ApiRoutes.stats.adminUsersOverview)
+    return response.data
+}
+
+export const deleteAdminUser = async (userUuid: string): Promise<{ message: string }> => {
+    const response = await axiosInstance.delete<{ message: string }>(ApiRoutes.stats.adminDeleteUser(userUuid))
     return response.data
 }

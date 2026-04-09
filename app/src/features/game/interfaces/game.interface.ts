@@ -47,6 +47,8 @@ export interface GameBoardState {
     currentPlayer: PlayerColor
     moveHistory: Move[]
     capturedPieces: { white: Piece[]; black: Piece[] }
+    whitePoints?: number
+    blackPoints?: number
     lastMove: Move | null
     gameOver: boolean
     winner: PlayerColor | null

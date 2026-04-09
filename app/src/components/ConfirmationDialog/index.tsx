@@ -8,6 +8,7 @@ interface ConfirmationDialogProps {
     message: string
     confirmText?: string
     cancelText?: string
+    isConfirming?: boolean
 }
 
 export const ConfirmationDialog = ({
@@ -17,7 +18,8 @@ export const ConfirmationDialog = ({
     title,
     message,
     confirmText = 'Confirm',
-    cancelText = 'Cancel'
+    cancelText = 'Cancel',
+    isConfirming = false,
 }: ConfirmationDialogProps) => {
     if (!isOpen) return null
 
@@ -39,14 +41,16 @@ export const ConfirmationDialog = ({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 py-3 px-4 bg-stone-700 hover:bg-stone-600 text-stone-200 font-semibold rounded-xl transition-colors"
+                        disabled={isConfirming}
+                        className="flex-1 py-3 px-4 bg-stone-700 hover:bg-stone-600 text-stone-200 font-semibold rounded-xl transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                         {cancelText}
                     </button>
                     <button
                         type="button"
                         onClick={onConfirm}
-                        className="flex-1 py-3 px-4 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-xl transition-colors"
+                        disabled={isConfirming}
+                        className="flex-1 py-3 px-4 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-xl transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                         {confirmText}
                     </button>

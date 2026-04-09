@@ -99,6 +99,8 @@ export class GameService {
             currentPlayer: PlayerColors.WHITE,
             moveHistory: [],
             capturedPieces: { white: [], black: [] },
+            whitePoints: 0,
+            blackPoints: 0,
             lastMove: null,
             gameOver: false,
             winner: null,
@@ -191,11 +193,13 @@ export class GameService {
 
         const winner = gameState?.winner ?? null
         const isGameOver = gameState?.gameOver ?? false
+        const whitePoints = gameState?.whitePoints ?? 0
+        const blackPoints = gameState?.blackPoints ?? 0
 
         const updatedPlayers = isGameOver
             ? gameSession.players.map(player => ({
                 ...player,
-                points: winner === null ? 5 : player.color === winner ? 10 : 2
+                points: player.color === PlayerColors.WHITE ? whitePoints : blackPoints
             }))
             : gameSession.players
 
@@ -207,6 +211,8 @@ export class GameService {
                 currentPlayer: gameState?.currentPlayer,
                 moveHistory: gameState?.moveHistory,
                 capturedPieces: gameState?.capturedPieces,
+                whitePoints,
+                blackPoints,
                 lastMove: gameState?.lastMove,
                 gameOver: isGameOver,
                 winner: gameState?.winner,
@@ -278,6 +284,80 @@ export class GameService {
         await this.cacheService.delete(getGameKey(code))
     }
 
+    /**
+     * When the last Socket.IO client leaves the room, persist the online match if it had two players
+     * and Prisma does not already have both rows. If the game did not end with a board winner set,
+     * outcome uses the same rules as a normal finish: winner is the color with higher captured points;
+     * tied points are recorded as a draw.
+     */
+    async finalizeOnlineSessionWhenRoomEmpty(code: string): Promise<void> {
+        const gameSession = await this.getGameSession(code)
+
+        const existingCount = await this.prisma.game.count({ where: { code } })
+        if (existingCount >= 2) {
+            await this.cacheService.delete(getGameKey(code))
+            return
+        }
+
+        if (!gameSession) {
+            await this.cacheService.delete(getGameKey(code))
+            return
+        }
+
+        if (gameSession.players.length < 2) {
+            await this.cacheService.delete(getGameKey(code))
+            return
+        }
+
+        if (existingCount === 1) {
+            this.logger.warn(`Game ${code}: expected 0 or 2 DB rows, found 1 — skipping persist, clearing cache`)
+            await this.cacheService.delete(getGameKey(code))
+            return
+        }
+
+        const gs = gameSession.gameState
+        const finishedWithWinner = gs?.gameOver === true && gs?.winner !== null
+
+        if (finishedWithWinner) {
+            await this.saveFinishedGame(gameSession)
+        } else {
+            const whitePoints = gs?.whitePoints ?? 0
+            const blackPoints = gs?.blackPoints ?? 0
+            let winnerByPoints: typeof PlayerColors.WHITE | typeof PlayerColors.BLACK | null = null
+            if (whitePoints > blackPoints) {
+                winnerByPoints = PlayerColors.WHITE
+            } else if (blackPoints > whitePoints) {
+                winnerByPoints = PlayerColors.BLACK
+            }
+
+            const resolvedSession: GameSession = {
+                ...gameSession,
+                status: GameStatuses.FINISHED,
+                gameState: gs
+                    ? {
+                        ...gs,
+                        gameOver: true,
+                        winner: winnerByPoints
+                    }
+                    : {
+                        board: [],
+                        currentPlayer: PlayerColors.WHITE,
+                        moveHistory: [],
+                        capturedPieces: { white: [], black: [] },
+                        whitePoints: 0,
+                        blackPoints: 0,
+                        lastMove: null,
+                        gameOver: true,
+                        winner: winnerByPoints,
+                        nightMode: false
+                    }
+            }
+            await this.saveFinishedGame(resolvedSession)
+        }
+
+        await this.cacheService.delete(getGameKey(code))
+    }
+
     async finishGame(code: string): Promise<void> {
         const gameSession = await this.getGameSession(code)
 
@@ -302,6 +382,8 @@ export class GameService {
             const moves = gameState?.moveHistory?.length ?? 0
             const finishedAt = new Date()
             const timeInSeconds = Math.floor((finishedAt.getTime() - new Date(createdAt).getTime()) / 1000)
+            const whitePoints = gameState?.whitePoints ?? 0
+            const blackPoints = gameState?.blackPoints ?? 0
 
             for (const player of players) {
                 const status: GameStatus = winner === null
@@ -310,7 +392,8 @@ export class GameService {
                         ? GameStatus.WIN
                         : GameStatus.LOSS
 
-                const points = player.points ?? 0
+                const pointsFromState = player.color === PlayerColors.WHITE ? whitePoints : blackPoints
+                const points = pointsFromState > 0 ? pointsFromState : (player.points ?? 0)
 
                 await this.prisma.game.create({
                     data: {
