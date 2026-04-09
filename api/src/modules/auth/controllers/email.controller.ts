@@ -1,12 +1,13 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
 import { EmailAuthService } from '../services/email.service';
 import { RegisterEmailDto } from '../dto/register-email.dto';
 import { LoginEmailDto } from '../dto/login-email.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthResponse } from '../entities/auth-response.entity';
-import { UseGuards } from '@nestjs/common';
 import { JwtGuard } from 'src/shared/guards/jwt.guard';
 import { CurrentUser } from '@/shared/decorators/current-user.decorator';
+import { UpdateUsernameDto } from '../dto/update-username.dto';
+import { UpdatePasswordDto } from '../dto/update-password.dto';
 
 @ApiTags('Email Authentication')
 @Controller('auth/email')
@@ -56,5 +57,30 @@ export class EmailAuthController {
     })
     async getMe(@CurrentUser('uuid') uuid: string) {
         return this.authService.refreshToken(uuid);
+    }
+
+    @Patch('update-username')
+    @UseGuards(JwtGuard)
+    @ApiOperation({ summary: 'Update username for authenticated user' })
+    @ApiBody({ type: UpdateUsernameDto })
+    @ApiResponse({
+        status: 200,
+        description: 'Username updated successfully',
+        type: AuthResponse,
+    })
+    async updateUsername(@CurrentUser('uuid') uuid: string, @Body() dto: UpdateUsernameDto) {
+        return this.authService.updateUsername(uuid, dto);
+    }
+
+    @Patch('update-password')
+    @UseGuards(JwtGuard)
+    @ApiOperation({ summary: 'Update password for authenticated user' })
+    @ApiBody({ type: UpdatePasswordDto })
+    @ApiResponse({
+        status: 200,
+        description: 'Password updated successfully',
+    })
+    async updatePassword(@CurrentUser('uuid') uuid: string, @Body() dto: UpdatePasswordDto) {
+        return this.authService.updatePassword(uuid, dto);
     }
 }

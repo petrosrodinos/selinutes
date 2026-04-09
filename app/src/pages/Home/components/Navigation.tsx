@@ -10,6 +10,7 @@ export const Navigation = () => {
   const navigate = useNavigate();
   const username = useAuthStore((state) => state.username);
   const userId = useAuthStore((state) => state.userId);
+  const email = useAuthStore((state) => state.user?.email ?? null);
   const logout = useAuthStore((state) => state.logout);
   const [showSettings, setShowSettings] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -46,7 +47,13 @@ export const Navigation = () => {
         </div>
       </nav>
 
-      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} username={username} userId={userId} />
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        username={username}
+        email={email}
+        userId={userId}
+      />
 
       <ConfirmationDialog isOpen={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)} onConfirm={handleLogoutConfirm} title="Confirm Logout" message="Are you sure you want to sign out? Any ongoing games will be lost." confirmText="Sign Out" cancelText="Cancel" />
     </>

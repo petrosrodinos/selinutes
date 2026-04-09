@@ -4,6 +4,8 @@ export const ApiRoutes = {
             login: "/auth/email/login",
             register: "/auth/email/register",
             refresh_token: "/auth/email/refresh-token",
+            update_username: "/auth/email/update-username",
+            update_password: "/auth/email/update-password",
             admin_login_to_account: (account_uuid: string) => `/auth/email/${account_uuid}/admin-login`,
             forgot_password: "/auth/forgot-password",
             reset_password: "/auth/reset-password",
