@@ -2,8 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Login, Register, Home } from "./pages";
+import { Login, Register, Home, UsersOverview } from "./pages";
 import { AuthGuard } from "./components/AuthGuard";
+import { AdminGuard } from "./components/AdminGuard";
 import { useAuthStore } from "./store/authStore";
 import { Game } from "./pages/Game";
 import { LandingPage } from "./pages/Landing";
@@ -54,6 +55,14 @@ function App() {
               <AuthGuard>
                 <Game />
               </AuthGuard>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminGuard>
+                <UsersOverview />
+              </AdminGuard>
             }
           />
         </Routes>

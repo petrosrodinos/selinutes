@@ -21,6 +21,8 @@ export const ApiRoutes = {
         me: '/stats/me',
         byUser: (userUuid: string) => `/stats?user_uuid=${userUuid}`,
         leaderboard: (limit?: number) => `/stats/leaderboard${limit ? `?limit=${limit}` : ''}`,
+        adminUsersOverview: '/stats/admin/users-overview',
+        adminDeleteUser: (userUuid: string) => `/stats/admin/users/${userUuid}`,
     },
     games: {
         prefix: "/games",

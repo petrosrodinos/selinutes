@@ -1,6 +1,6 @@
-import { Controller, Get, Query, HttpCode, HttpStatus, UseGuards, ParseIntPipe, DefaultValuePipe } from '@nestjs/common'
+import { Controller, Get, Query, HttpCode, HttpStatus, UseGuards, ParseIntPipe, DefaultValuePipe, Delete, Param } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger'
-import { StatsService, LeaderboardEntry } from './stats.service'
+import { StatsService, LeaderboardEntry, AdminUserOverviewEntry } from './stats.service'
 import { JwtGuard } from '@/shared/guards/jwt.guard'
 import { RolesGuard } from '@/shared/guards/roles.guard'
 import { Roles } from '@/shared/decorators/roles.decorator'
@@ -43,5 +43,29 @@ export class StatsController {
         @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     ): Promise<LeaderboardEntry[]> {
         return this.statsService.getLeaderboard(limit)
+    }
+
+    @Get('admin/users-overview')
+    @Roles(AuthRoles.ADMIN)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Admin: get users overview with stats and games played' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Users overview retrieved successfully' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
+    getAdminUsersOverview(): Promise<AdminUserOverviewEntry[]> {
+        return this.statsService.getAdminUsersOverview()
+    }
+
+    @Delete('admin/users/:userUuid')
+    @Roles(AuthRoles.ADMIN)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Admin: delete user by UUID' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'User deleted successfully' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
+    deleteUserByUuid(
+        @CurrentUser('uuid') adminUuid: string,
+        @Param('userUuid') userUuid: string,
+    ): Promise<{ message: string }> {
+        return this.statsService.deleteUserByUuid(adminUuid, userUuid)
     }
 }
