@@ -53,7 +53,7 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         }
 
         if (roomSize === 0) {
-            await this.gameService.deleteGame(gameCode)
+            await this.gameService.finalizeOnlineSessionWhenRoomEmpty(gameCode)
         }
     }
 
@@ -182,7 +182,7 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         }
 
         if (roomSize === 0) {
-            await this.gameService.deleteGame(gameCode)
+            await this.gameService.finalizeOnlineSessionWhenRoomEmpty(gameCode)
         }
     }
 

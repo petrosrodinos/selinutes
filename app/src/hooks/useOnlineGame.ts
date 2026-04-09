@@ -10,8 +10,8 @@ import { SoundManager } from '../lib/soundManager'
 import { SoundEvents } from '../config/audio'
 import { getMoveSound, isValidSoundEvent } from '../utils/sound.utils'
 import type { GameSession } from '../features/game/interfaces'
-import type { Position, Piece } from '../pages/Game/types'
-import { PIECE_NAMES, PIECE_SYMBOLS } from '../pages/Game/constants'
+import type { Position, Piece, GameState } from '../pages/Game/types'
+import { PIECE_NAMES, PIECE_RULES, PIECE_SYMBOLS } from '../pages/Game/constants'
 import { useFinishGame } from '../features/game/hooks'
 
 interface MysteryBoxTriggeredPayload {
@@ -41,6 +41,34 @@ interface NecromancerFreezePayload {
     playerName: string
     target: Position
     freezeTurns: number
+}
+
+const getPointsFromCapturedPieces = (pieces: Piece[]): number => {
+    return pieces.reduce((total, piece) => {
+        const rules = PIECE_RULES[piece.type]
+        if (!rules) return total
+        const points = piece.isZombie && rules.zombiePoints ? rules.zombiePoints : rules.points
+        return total + points
+    }, 0)
+}
+
+const buildSyncGameState = (currentGameState: GameState) => {
+    const whitePoints = getPointsFromCapturedPieces(currentGameState.capturedPieces.black)
+    const blackPoints = getPointsFromCapturedPieces(currentGameState.capturedPieces.white)
+
+    return {
+        board: currentGameState.board,
+        currentPlayer: currentGameState.currentPlayer,
+        moveHistory: currentGameState.moveHistory,
+        capturedPieces: currentGameState.capturedPieces,
+        lastMove: currentGameState.lastMove,
+        gameOver: currentGameState.gameOver,
+        winner: currentGameState.winner,
+        narcs: currentGameState.narcs,
+        nightMode: currentGameState.nightMode,
+        whitePoints,
+        blackPoints
+    }
 }
 
 export const useOnlineGame = () => {
@@ -302,17 +330,7 @@ export const useOnlineGame = () => {
                 emit(SocketEvents.MYSTERY_BOX_COMPLETE, {
                     code: gameCode,
                     soundKey: SoundEvents.SWAP,
-                    gameState: {
-                        board: currentGameState.board,
-                        currentPlayer: currentGameState.currentPlayer,
-                        moveHistory: currentGameState.moveHistory,
-                        capturedPieces: currentGameState.capturedPieces,
-                        lastMove: currentGameState.lastMove,
-                        gameOver: currentGameState.gameOver,
-                        winner: currentGameState.winner,
-                        narcs: currentGameState.narcs,
-                        nightMode: currentGameState.nightMode
-                    }
+                    gameState: buildSyncGameState(currentGameState)
                 })
 
                 toast.success('🎉 Mystery Box action completed!', { autoClose: 2000 })
@@ -335,17 +353,7 @@ export const useOnlineGame = () => {
                     optionName: result.optionName,
                     diceRoll: result.diceRoll,
                     soundKey: SoundEvents.MYSTERY_BOX,
-                    gameState: {
-                        board: currentGameState.board,
-                        currentPlayer: currentGameState.currentPlayer,
-                        moveHistory: currentGameState.moveHistory,
-                        capturedPieces: currentGameState.capturedPieces,
-                        lastMove: currentGameState.lastMove,
-                        gameOver: currentGameState.gameOver,
-                        winner: currentGameState.winner,
-                        narcs: currentGameState.narcs,
-                        nightMode: currentGameState.nightMode
-                    }
+                    gameState: buildSyncGameState(currentGameState)
                 })
             }
 
@@ -380,17 +388,7 @@ export const useOnlineGame = () => {
         const soundKey = currentGameState.lastMove ? getMoveSound(currentGameState.lastMove) : undefined
         emit(SocketEvents.SYNC_GAME, {
             code: gameCode,
-            gameState: {
-                board: currentGameState.board,
-                currentPlayer: currentGameState.currentPlayer,
-                moveHistory: currentGameState.moveHistory,
-                capturedPieces: currentGameState.capturedPieces,
-                lastMove: currentGameState.lastMove,
-                gameOver: currentGameState.gameOver,
-                winner: currentGameState.winner,
-                narcs: currentGameState.narcs,
-                nightMode: currentGameState.nightMode
-            },
+            gameState: buildSyncGameState(currentGameState),
             soundKey
         })
 
@@ -415,17 +413,7 @@ export const useOnlineGame = () => {
         const soundKey = currentGameState.lastMove ? getMoveSound(currentGameState.lastMove) : undefined
         emit(SocketEvents.SYNC_GAME, {
             code: gameCode,
-            gameState: {
-                board: currentGameState.board,
-                currentPlayer: currentGameState.currentPlayer,
-                moveHistory: currentGameState.moveHistory,
-                capturedPieces: currentGameState.capturedPieces,
-                lastMove: currentGameState.lastMove,
-                gameOver: currentGameState.gameOver,
-                winner: currentGameState.winner,
-                narcs: currentGameState.narcs,
-                nightMode: currentGameState.nightMode
-            },
+            gameState: buildSyncGameState(currentGameState),
             soundKey
         })
     }, [gameCode, emit, getGameStateForSync])
