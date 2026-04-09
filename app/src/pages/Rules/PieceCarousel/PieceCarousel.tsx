@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight, LayoutGrid, Box } from "lucide-react";
 import { RULES_FIGURE_ORDER, RULES_FIGURE_SECTION_TITLES } from "../../Game/constants";
+import { PlayerColors, type PlayerColor } from "../../Game/types";
 import { FigureSymbol } from "../../../components/FigureSymbol";
 import { Piece3DShowcase } from "./Piece3DShowcase";
 
@@ -9,6 +10,7 @@ type ViewMode = "2d" | "3d";
 export const PieceCarousel = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>("2d");
+  const [figureVariant, setFigureVariant] = useState<PlayerColor>(PlayerColors.WHITE);
 
   const pieceType = RULES_FIGURE_ORDER[activeIndex];
   const total = RULES_FIGURE_ORDER.length;
@@ -29,15 +31,37 @@ export const PieceCarousel = () => {
     <section className="relative z-10 w-full rounded-2xl border border-stone-700/60 bg-stone-900/40 p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
         <h2 className="text-lg font-semibold text-stone-200">Figures</h2>
-        <div className="flex rounded-lg border border-stone-600/60 bg-stone-800/50 p-0.5">
-          <button type="button" onClick={() => setViewMode("2d")} className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === "2d" ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" : "text-stone-400 hover:text-stone-200"}`}>
-            <LayoutGrid className="w-4 h-4" />
-            2D
-          </button>
-          <button type="button" onClick={() => setViewMode("3d")} className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === "3d" ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" : "text-stone-400 hover:text-stone-200"}`}>
-            <Box className="w-4 h-4" />
-            3D
-          </button>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="flex rounded-lg border border-stone-600/60 bg-stone-800/50 p-0.5">
+            <button type="button" onClick={() => setViewMode("2d")} className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === "2d" ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" : "text-stone-400 hover:text-stone-200"}`}>
+              <LayoutGrid className="w-4 h-4" />
+              2D
+            </button>
+            <button type="button" onClick={() => setViewMode("3d")} className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === "3d" ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" : "text-stone-400 hover:text-stone-200"}`}>
+              <Box className="w-4 h-4" />
+              3D
+            </button>
+          </div>
+          {viewMode === "3d" ? (
+            <div className="flex rounded-lg border border-stone-600/60 bg-stone-800/50 p-0.5" role="group" aria-label="Figure variant">
+              <button
+                type="button"
+                onClick={() => setFigureVariant(PlayerColors.WHITE)}
+                className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors ${figureVariant === PlayerColors.WHITE ? "bg-stone-100 text-stone-900 border border-stone-200/80" : "text-stone-400 hover:text-stone-200"}`}
+                aria-pressed={figureVariant === PlayerColors.WHITE}
+              >
+                Light
+              </button>
+              <button
+                type="button"
+                onClick={() => setFigureVariant(PlayerColors.BLACK)}
+                className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors ${figureVariant === PlayerColors.BLACK ? "bg-stone-700 text-stone-100 border border-stone-500/60" : "text-stone-400 hover:text-stone-200"}`}
+                aria-pressed={figureVariant === PlayerColors.BLACK}
+              >
+                Dark
+              </button>
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -56,7 +80,7 @@ export const PieceCarousel = () => {
             </div>
           ) : (
             <div className="flex flex-col rounded-xl bg-stone-800/50 border border-stone-700/50 overflow-hidden">
-              <Piece3DShowcase pieceType={pieceType} />
+              <Piece3DShowcase pieceType={pieceType} playerColor={figureVariant} />
               <p className="text-center py-3 px-4 text-base sm:text-lg font-semibold text-amber-200/95 bg-stone-900/60 border-t border-stone-700/50">{RULES_FIGURE_SECTION_TITLES[pieceType]}</p>
             </div>
           )}

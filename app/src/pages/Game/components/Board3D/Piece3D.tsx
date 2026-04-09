@@ -34,6 +34,8 @@ interface Piece3DProps {
   isTargeted: boolean
   isSwapTarget: boolean
   onClick: () => void
+  /** Static rules-page preview: skip lerp / animation logic in useFrame */
+  rulesPreview?: boolean
 }
 
 const pieceGLBMap: Record<PieceType, { white: string; black: string }> = {
@@ -55,27 +57,48 @@ const GLBPiece = ({ url, rotationY, scale = 1.4 }: { url: string; rotationY: num
   return <primitive object={cloned} scale={scale} position-y={0.7} rotation-y={rotationY} />
 }
 
-export const Piece3D = ({ type, color, position, isSelected, isHint, isTargeted, isSwapTarget, onClick }: Piece3DProps) => {
+export const Piece3D = ({
+  type,
+  color,
+  position,
+  isSelected,
+  isHint,
+  isTargeted,
+  isSwapTarget,
+  onClick,
+  rulesPreview = false,
+}: Piece3DProps) => {
   const groupRef = useRef<Group>(null)
   const currentPosRef = useRef<THREE.Vector3 | null>(null)
   const targetPosRef = useRef<THREE.Vector3>(new THREE.Vector3(...position))
 
-  if (currentPosRef.current === null) {
+  if (!rulesPreview && currentPosRef.current === null) {
     currentPosRef.current = new THREE.Vector3(...position)
   }
 
   if (
-    targetPosRef.current.x !== position[0] ||
-    targetPosRef.current.y !== position[1] ||
-    targetPosRef.current.z !== position[2]
+    !rulesPreview &&
+    (targetPosRef.current.x !== position[0] ||
+      targetPosRef.current.y !== position[1] ||
+      targetPosRef.current.z !== position[2])
   ) {
     targetPosRef.current.set(...position)
   }
 
   useFrame((state, delta) => {
-    if (!groupRef.current || !currentPosRef.current) return
+    if (!groupRef.current) return
 
-    const lerpFactor = 1 - Math.pow(0.001, delta)
+    if (rulesPreview) {
+      const [x, y, z] = position
+      groupRef.current.position.set(x, y, z)
+      groupRef.current.rotation.y = 0
+      return
+    }
+
+    if (!currentPosRef.current) return
+
+    const dt = Math.min(Math.max(delta, 1e-6), 0.1)
+    const lerpFactor = 1 - Math.pow(0.001, dt)
     currentPosRef.current.lerp(targetPosRef.current, lerpFactor)
 
     groupRef.current.position.x = currentPosRef.current.x
@@ -104,9 +127,13 @@ export const Piece3D = ({ type, color, position, isSelected, isHint, isTargeted,
   const url = urls[color === PlayerColors.WHITE ? 'white' : 'black']
   const baseRotation = color === PlayerColors.WHITE ? Math.PI / 2 : -Math.PI / 2
   // Chariot model already faces Z axis — use 0/π instead of the ±π/2 used by other pieces
-  const rotationY = type === PieceTypes.CHARIOT
-    ? (color === PlayerColors.WHITE ? 0 : Math.PI)
-    : baseRotation
+  const boardFacingY =
+    type === PieceTypes.CHARIOT
+      ? (color === PlayerColors.WHITE ? 0 : Math.PI)
+      : baseRotation
+  // Rules preview: same frontal yaw for light and dark (black’s board yaw is −white’s, so +π on both used to flip only white)
+  const whiteBoardFacingY = type === PieceTypes.CHARIOT ? 0 : Math.PI / 2
+  const rotationY = rulesPreview ? whiteBoardFacingY + Math.PI : boardFacingY
   const pieceScale = type === PieceTypes.CHARIOT ? 1.2 : 1.4
 
   return (
