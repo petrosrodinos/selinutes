@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { type AxiosError } from 'axios'
 import { getAuthStoreState } from '../../store/authStore'
 import { environments } from '../environments';
 
@@ -18,5 +18,18 @@ axiosInstance.interceptors.request.use((config) => {
 
     return config;
 });
+
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    (error: AxiosError) => {
+        if (error.response?.status === 401) {
+            const { access_token, logout } = getAuthStoreState()
+            if (access_token) {
+                logout()
+            }
+        }
+        return Promise.reject(error)
+    }
+)
 
 export default axiosInstance
