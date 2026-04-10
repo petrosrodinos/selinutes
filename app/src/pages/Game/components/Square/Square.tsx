@@ -1,6 +1,7 @@
 import type { CellContent, Position, PlayerColor } from '../../types'
 import { isPiece, isObstacle, PlayerColors } from '../../types'
 import { OBSTACLE_SYMBOLS, OBSTACLE_NAMES } from '../../constants'
+import { getObstacle2DAssetUrl } from '../../utils/figureAssets.utils'
 
 interface SquareProps {
   cell: CellContent
@@ -36,6 +37,7 @@ export const Square = ({
   onClick
 }: SquareProps) => {
   const isLight = (position.row + position.col) % 2 === 0
+  const obstacleImageUrl = cell && isObstacle(cell) ? getObstacle2DAssetUrl(cell.type) : null
 
   const getSquareClasses = () => {
     const baseClasses = 'w-10 h-10 md:w-12 md:h-12 flex items-center justify-center cursor-pointer relative transition-all duration-200'
@@ -79,7 +81,11 @@ export const Square = ({
           className="text-2xl md:text-3xl select-none"
           title={OBSTACLE_NAMES[cell.type]}
         >
-          {OBSTACLE_SYMBOLS[cell.type]}
+          {obstacleImageUrl ? (
+            <img src={obstacleImageUrl} alt={OBSTACLE_NAMES[cell.type]} className="w-8 h-8 md:w-10 md:h-10 object-contain" draggable={false} />
+          ) : (
+            OBSTACLE_SYMBOLS[cell.type]
+          )}
         </span>
       )}
       {isValidMove && (!cell || !isPiece(cell)) && (

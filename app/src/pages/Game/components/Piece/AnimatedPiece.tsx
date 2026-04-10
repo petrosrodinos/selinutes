@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import type { Piece as PieceType, Position } from '../../types'
 import { PlayerColors } from '../../types'
 import { PIECE_SYMBOLS, PIECE_NAMES } from '../../constants'
+import { getPiece2DAssetUrl } from '../../utils/figureAssets.utils'
 
 interface AnimatedPieceProps {
   piece: PieceType
@@ -13,6 +14,7 @@ interface AnimatedPieceProps {
 export const AnimatedPiece = ({ piece, position, squareSize, onClick }: AnimatedPieceProps) => {
   const pieceName = PIECE_NAMES[piece.type]
   const displayName = piece.isZombie ? `${pieceName} (Zombie)` : pieceName
+  const imageUrl = getPiece2DAssetUrl(piece.type, piece.color)
 
   const x = position.col * squareSize
   const y = position.row * squareSize
@@ -50,7 +52,11 @@ export const AnimatedPiece = ({ piece, position, squareSize, onClick }: Animated
           filter: piece.color === PlayerColors.BLACK ? 'brightness(0.7) saturate(0.8)' : undefined
         }}
       >
-        {PIECE_SYMBOLS[piece.color][piece.type]}
+        {imageUrl ? (
+          <img src={imageUrl} alt={displayName} className="w-8 h-8 md:w-10 md:h-10 object-contain" draggable={false} />
+        ) : (
+          PIECE_SYMBOLS[piece.color][piece.type]
+        )}
       </span>
     </motion.div>
   )

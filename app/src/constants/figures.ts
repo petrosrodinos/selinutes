@@ -157,6 +157,26 @@ export const figuresConfig = {
       },
     }
   },
+  rock: {
+    default: {
+      twoD: {
+        variant_a: 'figures/Rock/default/2d/variant-A/figure.jpg',
+      },
+      threeD: {
+        variant_a: 'figures/Rock/default/3d/variant-A/mesh.glb',
+      },
+    }
+  },
+  mystery_box: {
+    default: {
+      twoD: {
+        variant_a: 'figures/MysteryBox/default/2d/variant-A/figure.jpg',
+      },
+      threeD: {
+        variant_a: 'figures/MysteryBox/default/3d/variant-A/mesh.glb',
+      },
+    }
+  },
 } as const;
 
 export type FigureName = keyof typeof figuresConfig;

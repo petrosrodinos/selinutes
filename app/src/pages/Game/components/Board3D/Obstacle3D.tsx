@@ -5,7 +5,7 @@ import type { Group } from 'three'
 import type { ObstacleType } from '../../types'
 import { ObstacleTypes } from '../../types'
 import { OBSTACLE_COLORS } from '../../constants'
-import { canyonGLB, caveGLB, lakeGLB, riverGLB, treeGLB } from './board3dGltfUrls'
+import { canyonGLB, caveGLB, lakeGLB, mysteryBoxGLB, riverGLB, rockGLB, treeGLB } from './board3dGltfUrls'
 
 export { OBSTACLE_GLB_URLS } from './board3dGltfUrls'
 
@@ -102,8 +102,8 @@ export const Obstacle3D = ({ type, position }: Obstacle3DProps) => {
       case ObstacleTypes.TREE:       return <GLBObstacle url={treeGLB} scale={1.4} />
       case ObstacleTypes.RIVER:      return <AnimatedRiver />
       case ObstacleTypes.LAKE:       return <AnimatedLake />
-      case ObstacleTypes.ROCK:       return <Rock color={color} />
-      case ObstacleTypes.MYSTERY_BOX: return <MysteryBox color={color} />
+      case ObstacleTypes.ROCK:       return rockGLB ? <GLBObstacle url={rockGLB} scale={0.9} /> : <Rock color={color} />
+      case ObstacleTypes.MYSTERY_BOX: return mysteryBoxGLB ? <GLBObstacle url={mysteryBoxGLB} scale={0.9} /> : <MysteryBox color={color} />
     }
   })()
 

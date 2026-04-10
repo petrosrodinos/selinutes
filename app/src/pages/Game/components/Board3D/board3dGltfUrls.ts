@@ -1,41 +1,49 @@
 import type { PieceType } from '../../types'
-import { PieceTypes } from '../../types'
+import { ObstacleTypes, PieceTypes, PlayerColors } from '../../types'
+import { getObstacle3DAssetUrl, getPiece3DAssetUrl } from '../../utils/figureAssets.utils'
 
-import bomberA from '../../../../assets/figures/Bomber/base/variant-A/mesh.glb'
-import bomberB from '../../../../assets/figures/Bomber/base/variant-B/mesh.glb'
-import chariotA from '../../../../assets/figures/Chariot/base/variant-A/mesh.glb'
-import chariotB from '../../../../assets/figures/Chariot/base/variant-B/mesh.glb'
-import duchessA from '../../../../assets/figures/Duchess/base/variant-A/mesh.glb'
-import duchessB from '../../../../assets/figures/Duchess/base/variant-B/mesh.glb'
-import hopliteA from '../../../../assets/figures/Hoplite/base/variant-A/mesh.glb'
-import hopliteB from '../../../../assets/figures/Hoplite/base/variant-B/mesh.glb'
-import monarchA from '../../../../assets/figures/Monarch/base/variant-A/mesh.glb'
-import monarchB from '../../../../assets/figures/Monarch/base/variant-B/mesh.glb'
-import necromancerA from '../../../../assets/figures/Necromancer/base/variant-A/mesh.glb'
-import necromancerB from '../../../../assets/figures/Necromancer/base/variant-B/mesh.glb'
-import paladinA from '../../../../assets/figures/Paladin/base/variant-A/mesh.glb'
-import paladinB from '../../../../assets/figures/Paladin/base/variant-B/mesh.glb'
-import ramTowerA from '../../../../assets/figures/Ram-Tower/base/variant-A/mesh.glb'
-import ramTowerB from '../../../../assets/figures/Ram-Tower/base/variant-B/mesh.glb'
-import warlockA from '../../../../assets/figures/Warlock/base/variant-A/mesh.glb'
-import warlockB from '../../../../assets/figures/Warlock/base/variant-B/mesh.glb'
-
-import canyonGLB from '../../../../assets/figures/Canyon/base/variant-A/mesh.glb'
-import caveGLB from '../../../../assets/figures/Cave/base/variant-A/mesh.glb'
-import lakeGLB from '../../../../assets/figures/Lake/base/variant-A/mesh.glb'
-import riverGLB from '../../../../assets/figures/River/base/variant-A/mesh.glb'
-import treeGLB from '../../../../assets/figures/Tree/base/variant-A/mesh.glb'
+const requireAssetUrl = (assetUrl: string | null, errorLabel: string): string => {
+  if (assetUrl) return assetUrl
+  throw new Error(`Missing figure asset: ${errorLabel}`)
+}
 
 export const pieceGLBMap: Record<PieceType, { white: string; black: string }> = {
-  [PieceTypes.BOMBER]:      { white: bomberA,      black: bomberB },
-  [PieceTypes.CHARIOT]:     { white: chariotA,     black: chariotB },
-  [PieceTypes.DUCHESS]:     { white: duchessA,     black: duchessB },
-  [PieceTypes.HOPLITE]:     { white: hopliteA,     black: hopliteB },
-  [PieceTypes.MONARCH]:     { white: monarchA,     black: monarchB },
-  [PieceTypes.NECROMANCER]: { white: necromancerA, black: necromancerB },
-  [PieceTypes.PALADIN]:     { white: paladinA,     black: paladinB },
-  [PieceTypes.RAM_TOWER]:   { white: ramTowerA,    black: ramTowerB },
-  [PieceTypes.WARLOCK]:     { white: warlockA,     black: warlockB },
+  [PieceTypes.BOMBER]: {
+    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.BOMBER, PlayerColors.WHITE), 'bomber variant_a 3d'),
+    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.BOMBER, PlayerColors.BLACK), 'bomber variant_b 3d'),
+  },
+  [PieceTypes.CHARIOT]: {
+    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.CHARIOT, PlayerColors.WHITE), 'chariot variant_a 3d'),
+    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.CHARIOT, PlayerColors.BLACK), 'chariot variant_b 3d'),
+  },
+  [PieceTypes.DUCHESS]: {
+    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.DUCHESS, PlayerColors.WHITE), 'duchess variant_a 3d'),
+    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.DUCHESS, PlayerColors.BLACK), 'duchess variant_b 3d'),
+  },
+  [PieceTypes.HOPLITE]: {
+    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.HOPLITE, PlayerColors.WHITE), 'hoplite variant_a 3d'),
+    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.HOPLITE, PlayerColors.BLACK), 'hoplite variant_b 3d'),
+  },
+  [PieceTypes.MONARCH]: {
+    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.MONARCH, PlayerColors.WHITE), 'monarch variant_a 3d'),
+    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.MONARCH, PlayerColors.BLACK), 'monarch variant_b 3d'),
+  },
+  [PieceTypes.NECROMANCER]: {
+    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.NECROMANCER, PlayerColors.WHITE), 'necromancer variant_a 3d'),
+    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.NECROMANCER, PlayerColors.BLACK), 'necromancer variant_b 3d'),
+  },
+  [PieceTypes.PALADIN]: {
+    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.PALADIN, PlayerColors.WHITE), 'paladin variant_a 3d'),
+    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.PALADIN, PlayerColors.BLACK), 'paladin variant_b 3d'),
+  },
+  [PieceTypes.RAM_TOWER]: {
+    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.RAM_TOWER, PlayerColors.WHITE), 'ram_tower variant_a 3d'),
+    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.RAM_TOWER, PlayerColors.BLACK), 'ram_tower variant_b 3d'),
+  },
+  [PieceTypes.WARLOCK]: {
+    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.WARLOCK, PlayerColors.WHITE), 'warlock variant_a 3d'),
+    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.WARLOCK, PlayerColors.BLACK), 'warlock variant_b 3d'),
+  },
 }
 
 export const PIECE_GLB_URLS: readonly string[] = Object.values(pieceGLBMap).flatMap((pair) => [
@@ -43,6 +51,22 @@ export const PIECE_GLB_URLS: readonly string[] = Object.values(pieceGLBMap).flat
   pair.black,
 ])
 
-export { canyonGLB, caveGLB, lakeGLB, riverGLB, treeGLB }
+const canyonGLB = requireAssetUrl(getObstacle3DAssetUrl(ObstacleTypes.CANYON), 'canyon variant_a 3d')
+const caveGLB = requireAssetUrl(getObstacle3DAssetUrl(ObstacleTypes.CAVE), 'cave variant_a 3d')
+const lakeGLB = requireAssetUrl(getObstacle3DAssetUrl(ObstacleTypes.LAKE), 'lake variant_a 3d')
+const riverGLB = requireAssetUrl(getObstacle3DAssetUrl(ObstacleTypes.RIVER), 'river variant_a 3d')
+const treeGLB = requireAssetUrl(getObstacle3DAssetUrl(ObstacleTypes.TREE), 'tree variant_a 3d')
+const rockGLB = getObstacle3DAssetUrl(ObstacleTypes.ROCK)
+const mysteryBoxGLB = getObstacle3DAssetUrl(ObstacleTypes.MYSTERY_BOX)
 
-export const OBSTACLE_GLB_URLS: readonly string[] = [canyonGLB, caveGLB, lakeGLB, riverGLB, treeGLB]
+export { canyonGLB, caveGLB, lakeGLB, riverGLB, treeGLB, rockGLB, mysteryBoxGLB }
+
+export const OBSTACLE_GLB_URLS: readonly string[] = [
+  canyonGLB,
+  caveGLB,
+  lakeGLB,
+  riverGLB,
+  treeGLB,
+  ...(rockGLB ? [rockGLB] : []),
+  ...(mysteryBoxGLB ? [mysteryBoxGLB] : []),
+]
