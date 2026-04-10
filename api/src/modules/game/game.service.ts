@@ -384,6 +384,12 @@ export class GameService {
             const timeInSeconds = Math.floor((finishedAt.getTime() - new Date(createdAt).getTime()) / 1000)
             const whitePoints = gameState?.whitePoints ?? 0
             const blackPoints = gameState?.blackPoints ?? 0
+            const totalPoints = whitePoints + blackPoints
+
+            if (totalPoints === 0) {
+                this.logger.log(`Skipping game ${code}: both players earned 0 points`)
+                return
+            }
 
             for (const player of players) {
                 const status: GameStatus = winner === null
