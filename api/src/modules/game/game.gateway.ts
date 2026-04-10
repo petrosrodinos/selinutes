@@ -53,7 +53,7 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         }
 
         if (roomSize === 0) {
-            await this.gameService.deleteGame(gameCode)
+            await this.gameService.finalizeOnlineSessionWhenRoomEmpty(gameCode)
         }
     }
 
@@ -109,7 +109,7 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         @MessageBody() payload: GetGameDto
     ): Promise<void> {
         try {
-            const gameSession = await this.gameService.getGame(payload)
+            const gameSession = await this.gameService.getLocalGame(payload)
 
             const room = this.server.sockets.adapter.rooms.get(gameSession.code)
             const roomSize = room?.size ?? 0
@@ -182,7 +182,7 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         }
 
         if (roomSize === 0) {
-            await this.gameService.deleteGame(gameCode)
+            await this.gameService.finalizeOnlineSessionWhenRoomEmpty(gameCode)
         }
     }
 

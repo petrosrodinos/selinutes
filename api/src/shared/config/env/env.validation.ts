@@ -7,7 +7,9 @@ const EnvSchema = z.object({
     API_URL: z.string().url().optional(),
     DATABASE_URL: z.string().url().optional(),
     JWT_SECRET: z.string().optional(),
+    JWT_EXPIRATION_TIME: z.string().default('30d'),
 });
+
 
 export function validateEnv(config: Record<string, unknown>) {
     const parsed = EnvSchema.safeParse(config);

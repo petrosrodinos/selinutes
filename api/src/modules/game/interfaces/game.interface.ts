@@ -15,6 +15,7 @@ export interface Player {
     name: string
     color: PlayerColor
     joinedAt: Date
+    points?: number
 }
 
 export interface GameBoardState {
@@ -22,6 +23,8 @@ export interface GameBoardState {
     currentPlayer: PlayerColor
     moveHistory: unknown[]
     capturedPieces: { white: unknown[]; black: unknown[] }
+    whitePoints?: number
+    blackPoints?: number
     lastMove: unknown | null
     gameOver: boolean
     winner: PlayerColor | null

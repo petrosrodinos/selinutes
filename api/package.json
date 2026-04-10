@@ -1,5 +1,5 @@
 {
-  "name": "nestjs-starter",
+  "name": "selinutes-api",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -7,6 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "seed:staging": "dotenv -e .env.staging -- ts-node -r tsconfig-paths/register prisma/seed.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "migrate:local": "dotenv -e .env.local -- npx prisma migrate dev --name new-migration && npx prisma generate",
     "migrate:dev": "dotenv -e .env.development -- npx prisma migrate dev --name init && npx prisma generate",

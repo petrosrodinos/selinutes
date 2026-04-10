@@ -52,7 +52,7 @@ model Game {
   id          Int        @id @default(autoincrement())
   uuid        String     @unique @default(uuid())
   user_uuid   String
-  code        String
+  code        String?
   board_size  String
   mode        GameMode
   status      GameStatus
