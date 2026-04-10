@@ -177,12 +177,12 @@ const GameScene = ({
 
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.25, 0]}>
         <planeGeometry args={[cols + 10, rows + 10]} />
-        <meshStandardMaterial color="#1a1a2e" />
+        <meshLambertMaterial color="#1a1a2e" />
       </mesh>
 
       <mesh position={[0, -0.1, 0]}>
         <boxGeometry args={[cols + 0.5, 0.2, rows + 0.5]} />
-        <meshStandardMaterial color="#4a3728" />
+        <meshLambertMaterial color="#4a3728" />
       </mesh>
 
       {board.map((row, rowIndex) =>
@@ -261,7 +261,7 @@ const GameScene = ({
             position={[x, 0.05, z]}
           >
             <sphereGeometry args={[0.08, 10, 10]} />
-            <meshStandardMaterial
+            <meshLambertMaterial
               color={narcNet.ownerColor === PlayerColors.WHITE ? '#f5deb3' : '#3d3d3d'}
               transparent
               opacity={0.6}

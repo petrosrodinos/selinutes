@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react'
+import { memo, useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import type { Group } from 'three'
@@ -62,12 +62,20 @@ export function preloadPieceGltfPair(type: PieceType): void {
   useGLTF.preload(black)
 }
 
-const GLBPiece = ({ url, rotationY, scale = 1.4 }: { url: string; rotationY: number; scale?: number }) => {
+const GLBPiece = memo(function GLBPiece({
+  url,
+  rotationY,
+  scale = 1.4,
+}: {
+  url: string
+  rotationY: number
+  scale?: number
+}) {
   const { scene } = useGLTF(url)
   const cloned = useMemo(() => scene.clone(true), [scene])
 
   return <primitive object={cloned} scale={scale} position-y={0.7} rotation-y={rotationY} />
-}
+})
 
 export const Piece3D = ({
   type,
@@ -108,6 +116,17 @@ export const Piece3D = ({
     }
 
     if (!currentPosRef.current) return
+
+    const hasOverlayMotion = isSelected || isHint || isSwapTarget || isTargeted
+
+    if (!hasOverlayMotion) {
+      const d2 = currentPosRef.current.distanceToSquared(targetPosRef.current)
+      if (d2 < 1e-10) {
+        groupRef.current.position.copy(targetPosRef.current)
+        groupRef.current.rotation.y = 0
+        return
+      }
+    }
 
     const dt = Math.min(Math.max(delta, 1e-6), 0.1)
     const lerpFactor = 1 - Math.pow(0.001, dt)

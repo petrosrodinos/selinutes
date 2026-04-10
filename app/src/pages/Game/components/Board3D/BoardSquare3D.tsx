@@ -61,7 +61,7 @@ onClick={(e) => {
         onPointerOut={() => setHovered(false)}
       >
         <boxGeometry args={[0.95, 0.15, 0.95]} />
-        <meshStandardMaterial color={getColor()} />
+        <meshLambertMaterial color={getColor()} />
       </mesh>
       
       {isValidMove && !isObstacle && (

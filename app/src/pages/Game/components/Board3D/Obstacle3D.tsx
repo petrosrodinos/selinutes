@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react'
+import { memo, useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import type { Group } from 'three'
@@ -19,12 +19,20 @@ interface Obstacle3DProps {
   position: [number, number, number]
 }
 
-const GLBObstacle = ({ url, scale = 1.4, positionY = 0.4 }: { url: string; scale?: number; positionY?: number }) => {
+const GLBObstacle = memo(function GLBObstacle({
+  url,
+  scale = 1.4,
+  positionY = 0.4,
+}: {
+  url: string
+  scale?: number
+  positionY?: number
+}) {
   const { scene } = useGLTF(url)
   const cloned = useMemo(() => scene.clone(true), [scene])
 
   return <primitive object={cloned} scale={scale} position-y={positionY} rotation-y={Math.PI / 2} />
-}
+})
 
 const AnimatedRiver = () => {
   const ref = useRef<Group>(null)
