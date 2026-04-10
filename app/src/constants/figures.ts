@@ -1,6 +1,10 @@
 export const figuresConfig = {
   bomber: {
     default: {
+      twoD: {
+        variant_a: 'figures/Bomber/default/2d/variant-A/figure.jpg',
+        variant_b: 'figures/Bomber/default/2d/variant-B/figure.jpg',
+      },
       threeD: {
         variant_a: 'figures/Bomber/default/3d/variant-A/mesh.glb',
         variant_b: 'figures/Bomber/default/3d/variant-B/mesh.glb',
@@ -9,6 +13,10 @@ export const figuresConfig = {
   },
   chariot: {
     default: {
+      twoD: {
+        variant_a: 'figures/Chariot/default/2d/variant-A/figure.jpg',
+        variant_b: 'figures/Chariot/default/2d/variant-B/figure.jpg',
+      },
       threeD: {
         variant_a: 'figures/Chariot/default/3d/variant-A/mesh.glb',
         variant_b: 'figures/Chariot/default/3d/variant-B/mesh.glb',
@@ -17,6 +25,10 @@ export const figuresConfig = {
   },
   duchess: {
     default: {
+      twoD: {
+        variant_a: 'figures/Duchess/default/2d/variant-A/figure.jpg',
+        variant_b: 'figures/Duchess/default/2d/variant-B/figure.jpg',
+      },
       threeD: {
         variant_a: 'figures/Duchess/default/3d/variant-A/mesh.glb',
         variant_b: 'figures/Duchess/default/3d/variant-B/mesh.glb',
@@ -25,6 +37,10 @@ export const figuresConfig = {
   },
   hoplite: {
     default: {
+      twoD: {
+        variant_a: 'figures/Hoplite/default/2d/variant-A/figure.jpg',
+        variant_b: 'figures/Hoplite/default/2d/variant-B/figure.jpg',
+      },
       threeD: {
         variant_a: 'figures/Hoplite/default/3d/variant-A/mesh.glb',
         variant_b: 'figures/Hoplite/default/3d/variant-B/mesh.glb',
@@ -33,6 +49,10 @@ export const figuresConfig = {
   },
   monarch: {
     default: {
+      twoD: {
+        variant_a: 'figures/Monarch/default/2d/variant-A/figure.png',
+        variant_b: 'figures/Monarch/default/2d/variant-B/figure.png',
+      },
       threeD: {
         variant_a: 'figures/Monarch/default/3d/variant-A/mesh.glb',
         variant_b: 'figures/Monarch/default/3d/variant-B/mesh.glb',
@@ -41,6 +61,10 @@ export const figuresConfig = {
   },
   necromancer: {
     default: {
+      twoD: {
+        variant_a: 'figures/Necromancer/default/2d/variant-A/figure.png',
+        variant_b: 'figures/Necromancer/default/2d/variant-B/figure.png',
+      },
       threeD: {
         variant_a: 'figures/Necromancer/default/3d/variant-A/mesh.glb',
         variant_b: 'figures/Necromancer/default/3d/variant-B/mesh.glb',
@@ -49,6 +73,10 @@ export const figuresConfig = {
   },
   paladin: {
     default: {
+      twoD: {
+        variant_a: 'figures/Paladin/default/2d/variant-A/figure.jpg',
+        variant_b: 'figures/Paladin/default/2d/variant-B/figure.jpg',
+      },
       threeD: {
         variant_a: 'figures/Paladin/default/3d/variant-A/mesh.glb',
         variant_b: 'figures/Paladin/default/3d/variant-B/mesh.glb',
@@ -57,6 +85,10 @@ export const figuresConfig = {
   },
   ram_tower: {
     default: {
+      twoD: {
+        variant_a: 'figures/Ram-Tower/default/2d/variant-A/figure.png',
+        variant_b: 'figures/Ram-Tower/default/2d/variant-B/figure.png',
+      },
       threeD: {
         variant_a: 'figures/Ram-Tower/default/3d/variant-A/mesh.glb',
         variant_b: 'figures/Ram-Tower/default/3d/variant-B/mesh.glb',
@@ -65,6 +97,10 @@ export const figuresConfig = {
   },
   warlock: {
     default: {
+      twoD: {
+        variant_a: 'figures/Warlock/default/2d/variant-A/figure.png',
+        variant_b: 'figures/Warlock/default/2d/variant-B/figure.png',
+      },
       threeD: {
         variant_a: 'figures/Warlock/default/3d/variant-A/mesh.glb',
         variant_b: 'figures/Warlock/default/3d/variant-B/mesh.glb',
@@ -73,6 +109,9 @@ export const figuresConfig = {
   },
   canyon: {
     default: {
+      twoD: {
+        variant_a: 'figures/Canyon/default/2d/variant-A/figure.png',
+      },
       threeD: {
         variant_a: 'figures/Canyon/default/3d/variant-A/mesh.glb',
       },
@@ -80,6 +119,9 @@ export const figuresConfig = {
   },
   cave: {
     default: {
+      twoD: {
+        variant_a: 'figures/Cave/default/2d/variant-A/figure.png',
+      },
       threeD: {
         variant_a: 'figures/Cave/default/3d/variant-A/mesh.glb',
       },
@@ -87,6 +129,9 @@ export const figuresConfig = {
   },
   river: {
     default: {
+      twoD: {
+        variant_a: 'figures/River/default/2d/variant-A/figure.png',
+      },
       threeD: {
         variant_a: 'figures/River/default/3d/variant-A/mesh.glb',
       },
@@ -94,6 +139,9 @@ export const figuresConfig = {
   },
   tree: {
     default: {
+      twoD: {
+        variant_a: 'figures/Tree/default/2d/variant-A/figure.png',
+      },
       threeD: {
         variant_a: 'figures/Tree/default/3d/variant-A/mesh.glb',
       },
@@ -101,6 +149,9 @@ export const figuresConfig = {
   },
   lake: {
     default: {
+      twoD: {
+        variant_a: 'figures/Lake/default/2d/variant-A/figure.png',
+      },
       threeD: {
         variant_a: 'figures/Lake/default/3d/variant-A/mesh.glb',
       },
