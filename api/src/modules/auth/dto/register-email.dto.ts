@@ -22,11 +22,11 @@ export class RegisterEmailDto {
     password: string;
 
     @ApiProperty({
-        description: 'User date of birth',
-        example: '1990-01-01'
+        description: 'User date of birth (ISO 8601 calendar date, e.g. YYYY-MM-DD)',
+        example: '1990-01-01',
     })
-    @IsDateString()
-    date_of_birth: Date;
+    @IsDateString({ strict: true })
+    date_of_birth: string;
 
     @ApiProperty({
         description: 'User username',
