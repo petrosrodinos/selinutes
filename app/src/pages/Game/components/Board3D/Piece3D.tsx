@@ -50,6 +50,18 @@ const pieceGLBMap: Record<PieceType, { white: string; black: string }> = {
   [PieceTypes.WARLOCK]:     { white: warlockA,     black: warlockB },
 }
 
+/** URLs for `useGLTF.preload` (board + rules). */
+export const PIECE_GLB_URLS: readonly string[] = Object.values(pieceGLBMap).flatMap((pair) => [
+  pair.white,
+  pair.black,
+])
+
+export function preloadPieceGltfPair(type: PieceType): void {
+  const { white, black } = pieceGLBMap[type]
+  useGLTF.preload(white)
+  useGLTF.preload(black)
+}
+
 const GLBPiece = ({ url, rotationY, scale = 1.4 }: { url: string; rotationY: number; scale?: number }) => {
   const { scene } = useGLTF(url)
   const cloned = useMemo(() => scene.clone(true), [scene])
@@ -147,25 +159,25 @@ export const Piece3D = ({
       <GLBPiece url={url} rotationY={rotationY} scale={pieceScale} />
       {isSelected && (
         <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.28, 0.38, 32]} />
+          <ringGeometry args={[0.28, 0.38, 16]} />
           <meshBasicMaterial color="#ffd700" transparent opacity={0.9} />
         </mesh>
       )}
       {isHint && !isSelected && (
         <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.28, 0.38, 32]} />
+          <ringGeometry args={[0.28, 0.38, 16]} />
           <meshBasicMaterial color="#00d4ff" transparent opacity={0.9} />
         </mesh>
       )}
       {isTargeted && !isSelected && (
         <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.3, 0.4, 32]} />
+          <ringGeometry args={[0.3, 0.4, 16]} />
           <meshBasicMaterial color="#ff4444" transparent opacity={0.9} />
         </mesh>
       )}
       {isSwapTarget && !isSelected && (
         <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.3, 0.4, 32]} />
+          <ringGeometry args={[0.3, 0.4, 16]} />
           <meshBasicMaterial color="#8b5cf6" transparent opacity={0.9} />
         </mesh>
       )}

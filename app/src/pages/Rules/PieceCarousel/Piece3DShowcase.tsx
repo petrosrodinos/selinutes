@@ -1,8 +1,8 @@
-import { Suspense, useCallback } from "react";
+import { Suspense, useCallback, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import type { PieceType, PlayerColor } from "../../Game/types";
-import { Piece3D } from "../../Game/components/Board3D/Piece3D";
+import { Piece3D, preloadPieceGltfPair } from "../../Game/components/Board3D/Piece3D";
 
 type Piece3DShowcaseProps = {
   pieceType: PieceType;
@@ -47,13 +47,17 @@ const Scene = ({ pieceType, playerColor, onPieceClick }: SceneProps) => (
 export const Piece3DShowcase = ({ pieceType, playerColor }: Piece3DShowcaseProps) => {
   const onPieceClick = useCallback(() => {}, []);
 
+  useEffect(() => {
+    preloadPieceGltfPair(pieceType);
+  }, [pieceType]);
+
   return (
     <div className="w-full h-[240px] rounded-xl overflow-hidden bg-[#1c1917] border border-stone-700/50 [&_canvas]:block">
       <Canvas
         key={`${pieceType}-${playerColor}`}
         camera={{ position: [0, 0.5, 2.15], fov: 45 }}
-        gl={{ antialias: true }}
-        dpr={[1, 1.5]}
+        gl={{ antialias: true, powerPreference: "high-performance" }}
+        dpr={[1, 1.25]}
         style={{ height: "100%", width: "100%", display: "block" }}
       >
         <color attach="background" args={["#1c1917"]} />

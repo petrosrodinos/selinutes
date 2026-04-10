@@ -12,6 +12,8 @@ import lakeGLB from '../../../../assets/figures/Lake/base/variant-A/mesh.glb'
 import riverGLB from '../../../../assets/figures/River/base/variant-A/mesh.glb'
 import treeGLB from '../../../../assets/figures/Tree/base/variant-A/mesh.glb'
 
+export const OBSTACLE_GLB_URLS: readonly string[] = [canyonGLB, caveGLB, lakeGLB, riverGLB, treeGLB]
+
 interface Obstacle3DProps {
   type: ObstacleType
   position: [number, number, number]

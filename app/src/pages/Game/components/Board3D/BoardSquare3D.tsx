@@ -66,42 +66,42 @@ onClick={(e) => {
       
       {isValidMove && !isObstacle && (
         <mesh position={[0, 0.1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <circleGeometry args={[0.15, 32]} />
+          <circleGeometry args={[0.15, 16]} />
           <meshBasicMaterial color="#22c55e" transparent opacity={0.8} />
         </mesh>
       )}
 
       {isValidAttack && !isObstacle && (
         <mesh position={[0, 0.1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.25, 0.35, 32]} />
+          <ringGeometry args={[0.25, 0.35, 16]} />
           <meshBasicMaterial color="#ef4444" transparent opacity={0.8} />
         </mesh>
       )}
 
       {isValidSwap && !isObstacle && (
         <mesh position={[0, 0.1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.25, 0.35, 32]} />
+          <ringGeometry args={[0.25, 0.35, 16]} />
           <meshBasicMaterial color="#8b5cf6" transparent opacity={0.8} />
         </mesh>
       )}
 
       {isMysteryBoxSelectedObstacle && (
         <mesh position={[0, 0.15, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.35, 0.45, 32]} />
+          <ringGeometry args={[0.35, 0.45, 16]} />
           <meshBasicMaterial color="#f97316" transparent opacity={0.9} />
         </mesh>
       )}
 
       {isMysteryBoxSelectedEmptyTile && (
         <mesh position={[0, 0.15, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.35, 0.45, 32]} />
+          <ringGeometry args={[0.35, 0.45, 16]} />
           <meshBasicMaterial color="#3b82f6" transparent opacity={0.9} />
         </mesh>
       )}
 
       {isMysteryBoxSelectedFigure && (
         <mesh position={[0, 0.15, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.35, 0.45, 32]} />
+          <ringGeometry args={[0.35, 0.45, 16]} />
           <meshBasicMaterial color="#a855f7" transparent opacity={0.9} />
         </mesh>
       )}

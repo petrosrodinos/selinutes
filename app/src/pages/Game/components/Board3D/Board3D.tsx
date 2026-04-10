@@ -1,11 +1,11 @@
-import { Suspense, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
+import { OrbitControls, useGLTF } from '@react-three/drei'
 import { isPiece, isObstacle, PlayerColors } from '../../types'
 import type { Board as BoardType, BoardSize, Position, Move, SwapTarget, MysteryBoxState } from '../../types'
-import { Piece3D } from './Piece3D'
+import { Piece3D, PIECE_GLB_URLS } from './Piece3D'
 import { BoardSquare3D } from './BoardSquare3D'
-import { Obstacle3D } from './Obstacle3D'
+import { Obstacle3D, OBSTACLE_GLB_URLS } from './Obstacle3D'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
 import { getValidMoves, getValidAttacks, getAllNarcNetPositions } from '../../utils'
@@ -260,7 +260,7 @@ const GameScene = ({
             key={`narc-net-${index}`}
             position={[x, 0.05, z]}
           >
-            <sphereGeometry args={[0.08, 16, 16]} />
+            <sphereGeometry args={[0.08, 10, 10]} />
             <meshStandardMaterial
               color={narcNet.ownerColor === PlayerColors.WHITE ? '#f5deb3' : '#3d3d3d'}
               transparent
@@ -306,12 +306,21 @@ export const Board3D = ({
   const cameraY = maxDim * 0.6
   const cameraZ = maxDim * 0.48
 
+  useEffect(() => {
+    for (const url of PIECE_GLB_URLS) {
+      useGLTF.preload(url)
+    }
+    for (const url of OBSTACLE_GLB_URLS) {
+      useGLTF.preload(url)
+    }
+  }, [])
+
   return (
     <div className="w-[680px] h-[680px] md:w-[800px] md:h-[800px] rounded-xl overflow-hidden shadow-2xl">
       <Canvas
         camera={{ position: [0, cameraY, cameraZ], fov: 45 }}
-        gl={{ antialias: true }}
-        dpr={[1, 1.5]}
+        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        dpr={[1, 1.25]}
       >
         <color attach="background" args={['#1f2937']} />
         <Suspense fallback={null}>
