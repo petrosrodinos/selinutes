@@ -2,8 +2,8 @@ export const figuresConfig = {
   bomber: {
     default: {
       twoD: {
-        variant_a: 'figures/Bomber/default/2d/variant-A/figure.jpg',
-        variant_b: 'figures/Bomber/default/2d/variant-B/figure.jpg',
+        variant_a: 'figures/Bomber/default/2d/variant-A/figure.png',
+        variant_b: 'figures/Bomber/default/2d/variant-B/figure.png',
       },
       threeD: {
         variant_a: 'figures/Bomber/default/3d/variant-A/mesh.glb',
@@ -14,8 +14,8 @@ export const figuresConfig = {
   chariot: {
     default: {
       twoD: {
-        variant_a: 'figures/Chariot/default/2d/variant-A/figure.jpg',
-        variant_b: 'figures/Chariot/default/2d/variant-B/figure.jpg',
+        variant_a: 'figures/Chariot/default/2d/variant-A/figure.png',
+        variant_b: 'figures/Chariot/default/2d/variant-B/figure.png',
       },
       threeD: {
         variant_a: 'figures/Chariot/default/3d/variant-A/mesh.glb',
@@ -26,8 +26,8 @@ export const figuresConfig = {
   duchess: {
     default: {
       twoD: {
-        variant_a: 'figures/Duchess/default/2d/variant-A/figure.jpg',
-        variant_b: 'figures/Duchess/default/2d/variant-B/figure.jpg',
+        variant_a: 'figures/Duchess/default/2d/variant-A/figure.png',
+        variant_b: 'figures/Duchess/default/2d/variant-B/figure.png',
       },
       threeD: {
         variant_a: 'figures/Duchess/default/3d/variant-A/mesh.glb',
@@ -38,8 +38,8 @@ export const figuresConfig = {
   hoplite: {
     default: {
       twoD: {
-        variant_a: 'figures/Hoplite/default/2d/variant-A/figure.jpg',
-        variant_b: 'figures/Hoplite/default/2d/variant-B/figure.jpg',
+        variant_a: 'figures/Hoplite/default/2d/variant-A/figure.png',
+        variant_b: 'figures/Hoplite/default/2d/variant-B/figure.png',
       },
       threeD: {
         variant_a: 'figures/Hoplite/default/3d/variant-A/mesh.glb',
@@ -74,8 +74,8 @@ export const figuresConfig = {
   paladin: {
     default: {
       twoD: {
-        variant_a: 'figures/Paladin/default/2d/variant-A/figure.jpg',
-        variant_b: 'figures/Paladin/default/2d/variant-B/figure.jpg',
+        variant_a: 'figures/Paladin/default/2d/variant-A/figure.png',
+        variant_b: 'figures/Paladin/default/2d/variant-B/figure.png',
       },
       threeD: {
         variant_a: 'figures/Paladin/default/3d/variant-A/mesh.glb',
@@ -160,7 +160,7 @@ export const figuresConfig = {
   rock: {
     default: {
       twoD: {
-        variant_a: 'figures/Rock/default/2d/variant-A/figure.jpg',
+        variant_a: 'figures/Rock/default/2d/variant-A/figure.png',
       },
       threeD: {
         variant_a: 'figures/Rock/default/3d/variant-A/mesh.glb',
@@ -170,7 +170,7 @@ export const figuresConfig = {
   mystery_box: {
     default: {
       twoD: {
-        variant_a: 'figures/MysteryBox/default/2d/variant-A/figure.jpg',
+        variant_a: 'figures/MysteryBox/default/2d/variant-A/figure.png',
       },
       threeD: {
         variant_a: 'figures/MysteryBox/default/3d/variant-A/mesh.glb',
