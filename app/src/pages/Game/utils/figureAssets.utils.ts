@@ -2,7 +2,7 @@ import { figuresConfig, type FigureName } from '../../../constants/figures'
 import { resolveFigureAssetUrl } from '../../../constants/figureAssetUrls'
 import { ObstacleTypes, PieceTypes, PlayerColors, type ObstacleType, type PieceType, type PlayerColor } from '../types'
 
-const PIECE_TO_FIGURE_NAME: Record<PieceType, FigureName> = {
+const PIECE_TO_FIGURE_NAME = {
   [PieceTypes.BOMBER]: 'bomber',
   [PieceTypes.CHARIOT]: 'chariot',
   [PieceTypes.DUCHESS]: 'duchess',
@@ -12,7 +12,9 @@ const PIECE_TO_FIGURE_NAME: Record<PieceType, FigureName> = {
   [PieceTypes.PALADIN]: 'paladin',
   [PieceTypes.RAM_TOWER]: 'ram_tower',
   [PieceTypes.WARLOCK]: 'warlock',
-}
+} as const satisfies Record<PieceType, FigureName>
+
+type PieceFigureName = typeof PIECE_TO_FIGURE_NAME[PieceType]
 
 const OBSTACLE_TO_FIGURE_NAME: Partial<Record<ObstacleType, FigureName>> = {
   [ObstacleTypes.CANYON]: 'canyon',
@@ -28,7 +30,7 @@ const getVariantKeyFromColor = (color: PlayerColor): 'variant_a' | 'variant_b' =
   color === PlayerColors.WHITE ? 'variant_a' : 'variant_b'
 
 export const getPiece2DAssetUrl = (pieceType: PieceType, color: PlayerColor): string | null => {
-  const figureName = PIECE_TO_FIGURE_NAME[pieceType]
+  const figureName: PieceFigureName = PIECE_TO_FIGURE_NAME[pieceType]
   const variantKey = getVariantKeyFromColor(color)
   const relativePath = figuresConfig[figureName].default.twoD[variantKey]
   if (!relativePath) return null
@@ -36,7 +38,7 @@ export const getPiece2DAssetUrl = (pieceType: PieceType, color: PlayerColor): st
 }
 
 export const getPiece3DAssetUrl = (pieceType: PieceType, color: PlayerColor): string | null => {
-  const figureName = PIECE_TO_FIGURE_NAME[pieceType]
+  const figureName: PieceFigureName = PIECE_TO_FIGURE_NAME[pieceType]
   const variantKey = getVariantKeyFromColor(color)
   const relativePath = figuresConfig[figureName].default.threeD[variantKey]
   if (!relativePath) return null
