@@ -1,5 +1,5 @@
 {
-  "name": "selinutes",
+  "name": "selinutes-app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,9 +7,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "figures:optimize": "node scripts/optimize-figures.mjs",
+    "figures:remove-bg": "node scripts/remove-figure-backgrounds.mjs",
+    "figures:resize": "node scripts/resize-figure-images.mjs"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@react-spring/three": "^10.0.3",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
@@ -19,14 +23,19 @@
     "lucide-react": "^0.563.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-hook-form": "^7.71.1",
     "react-router-dom": "^7.13.0",
     "react-toastify": "^11.0.5",
     "socket.io-client": "^4.8.3",
     "three": "^0.182.0",
+    "zod": "^4.3.6",
     "zustand": "^5.0.10"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@gltf-transform/core": "^4.3.0",
+    "@gltf-transform/extensions": "^4.3.0",
+    "@gltf-transform/functions": "^4.3.0",
     "@tailwindcss/vite": "^4.1.18",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
@@ -37,6 +46,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4.1.18",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",

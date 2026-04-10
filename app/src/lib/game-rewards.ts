@@ -1,0 +1,16 @@
+import { MAX_LEVEL } from "../constants/game";
+import { getPointsForLevel } from "./level";
+
+const getTotalPointsToReachLevel = (level: number): number => {
+    let total = 0;
+    for (let i = 1; i <= level; i++) total += getPointsForLevel(i);
+    return total;
+};
+
+export const getLevelFromPoints = (points: number): number => {
+    if (points <= 0) return 1;
+    for (let l = MAX_LEVEL; l >= 1; l--) {
+        if (points >= getTotalPointsToReachLevel(l)) return l;
+    }
+    return 1;
+};

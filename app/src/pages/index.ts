@@ -1,2 +1,4 @@
-export { Login } from './Login'
-export { Home } from './Home'
+export { Login } from "./Auth/Login";
+export { Register } from "./Auth/Register";
+export { Home } from "./Home";
+export { UsersOverview } from "./Admin";

@@ -1,6 +1,5 @@
-import axios from 'axios'
-// import { getAuthStoreState } from '../../store/authStore'
-// import { isTokenExpired } from '../../lib/token';
+import axios, { type AxiosError } from 'axios'
+import { getAuthStoreState } from '../../store/authStore'
 import { environments } from '../environments';
 
 const axiosInstance = axios.create({
@@ -11,19 +10,26 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use((config) => {
-    // const authState = getAuthStoreState();
+    const authState = getAuthStoreState();
 
-    // if (authState?.expires_in && isTokenExpired(authState.expires_in)) {
-    //     authState.logout();
-
-    //     return Promise.reject(new Error('Token expired'));
-    // }
-
-    // if (authState.access_token) {
-    //     config.headers.Authorization = `Bearer ${authState.access_token}`;
-    // }
+    if (authState.access_token) {
+        config.headers.Authorization = `Bearer ${authState.access_token}`;
+    }
 
     return config;
 });
+
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    (error: AxiosError) => {
+        if (error.response?.status === 401) {
+            const { access_token, logout } = getAuthStoreState()
+            if (access_token) {
+                logout()
+            }
+        }
+        return Promise.reject(error)
+    }
+)
 
 export default axiosInstance

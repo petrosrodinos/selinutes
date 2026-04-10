@@ -1,82 +1,49 @@
-import { useRef } from 'react'
+import { memo, useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { useGLTF } from '@react-three/drei'
 import type { Group } from 'three'
 import type { ObstacleType } from '../../types'
 import { ObstacleTypes } from '../../types'
 import { OBSTACLE_COLORS } from '../../constants'
+import { canyonGLB, caveGLB, lakeGLB, mysteryBoxGLB, riverGLB, rockGLB, treeGLB } from './board3dGltfUrls'
+
+export { OBSTACLE_GLB_URLS } from './board3dGltfUrls'
 
 interface Obstacle3DProps {
   type: ObstacleType
   position: [number, number, number]
 }
 
-const Cave = ({ color }: { color: string }) => (
-  <group>
-    <mesh position={[0, 0.2, 0]} castShadow>
-      <sphereGeometry args={[0.35, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
-      <meshStandardMaterial color={color} roughness={0.9} />
-    </mesh>
-    <mesh position={[0, 0.05, 0.15]} rotation={[0.3, 0, 0]}>
-      <circleGeometry args={[0.15, 16]} />
-      <meshStandardMaterial color="#000000" />
-    </mesh>
-  </group>
-)
+const GLBObstacle = memo(function GLBObstacle({
+  url,
+  scale = 1.4,
+  positionY = 0.4,
+}: {
+  url: string
+  scale?: number
+  positionY?: number
+}) {
+  const { scene } = useGLTF(url)
+  const cloned = useMemo(() => scene.clone(true), [scene])
 
-const Tree = ({ color }: { color: string }) => (
-  <group>
-    <mesh position={[0, 0.15, 0]} castShadow>
-      <cylinderGeometry args={[0.06, 0.08, 0.3, 8]} />
-      <meshStandardMaterial color="#5c4033" roughness={0.8} />
-    </mesh>
-    <mesh position={[0, 0.4, 0]} castShadow>
-      <coneGeometry args={[0.25, 0.4, 8]} />
-      <meshStandardMaterial color={color} />
-    </mesh>
-    <mesh position={[0, 0.65, 0]} castShadow>
-      <coneGeometry args={[0.18, 0.3, 8]} />
-      <meshStandardMaterial color={color} />
-    </mesh>
-  </group>
-)
+  return <primitive object={cloned} scale={scale} position-y={positionY} rotation-y={Math.PI / 2} />
+})
 
-const Rock = ({ color }: { color: string }) => (
-  <group>
-    <mesh position={[0, 0.15, 0]} castShadow>
-      <dodecahedronGeometry args={[0.25, 0]} />
-      <meshStandardMaterial color={color} roughness={0.9} flatShading />
-    </mesh>
-    <mesh position={[0.15, 0.08, 0.1]} castShadow>
-      <dodecahedronGeometry args={[0.12, 0]} />
-      <meshStandardMaterial color={color} roughness={0.9} flatShading />
-    </mesh>
-  </group>
-)
-
-const River = ({ color }: { color: string }) => {
+const AnimatedRiver = () => {
   const ref = useRef<Group>(null)
   useFrame((state) => {
     if (ref.current) {
-      ref.current.children.forEach((child, i) => {
-        child.position.y = 0.05 + Math.sin(state.clock.elapsedTime * 2 + i) * 0.02
-      })
+      ref.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.02
     }
   })
   return (
     <group ref={ref}>
-      <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[0.9, 0.9]} />
-        <meshStandardMaterial color={color} transparent opacity={0.8} />
-      </mesh>
-      <mesh position={[0.2, 0.08, 0.1]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.08, 16]} />
-        <meshStandardMaterial color="#ffffff" transparent opacity={0.5} />
-      </mesh>
+      <GLBObstacle url={riverGLB} scale={0.95} positionY={0.08} />
     </group>
   )
 }
 
-const Lake = ({ color }: { color: string }) => {
+const AnimatedLake = () => {
   const ref = useRef<Group>(null)
   useFrame((state) => {
     if (ref.current) {
@@ -85,31 +52,20 @@ const Lake = ({ color }: { color: string }) => {
   })
   return (
     <group ref={ref}>
-      <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.4, 32]} />
-        <meshStandardMaterial color={color} transparent opacity={0.9} />
-      </mesh>
-      <mesh position={[0, 0.06, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.3, 0.35, 32]} />
-        <meshStandardMaterial color="#ffffff" transparent opacity={0.3} />
-      </mesh>
+      <GLBObstacle url={lakeGLB} scale={0.95} positionY={0.08} />
     </group>
   )
 }
 
-const Canyon = ({ color }: { color: string }) => (
-  <group>
-    <mesh position={[-0.2, 0.1, 0]} castShadow>
-      <boxGeometry args={[0.15, 0.25, 0.8]} />
-      <meshStandardMaterial color={color} roughness={0.8} />
+const Rock = ({ color }: { color: string }) => (
+  <group position={[0, 0.08, 0]}>
+    <mesh position={[0, 0.08, 0]}>
+      <dodecahedronGeometry args={[0.28, 0]} />
+      <meshStandardMaterial color={color} roughness={0.9} flatShading />
     </mesh>
-    <mesh position={[0.2, 0.15, 0]} castShadow>
-      <boxGeometry args={[0.15, 0.35, 0.8]} />
-      <meshStandardMaterial color={color} roughness={0.8} />
-    </mesh>
-    <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[0.25, 0.8]} />
-      <meshStandardMaterial color="#1a1a1a" />
+    <mesh position={[0.16, 0.04, 0.1]}>
+      <dodecahedronGeometry args={[0.14, 0]} />
+      <meshStandardMaterial color={color} roughness={0.9} flatShading />
     </mesh>
   </group>
 )
@@ -124,7 +80,7 @@ const MysteryBox = ({ color }: { color: string }) => {
   })
   return (
     <group ref={ref} position={[0, 0.25, 0]}>
-      <mesh castShadow>
+      <mesh>
         <boxGeometry args={[0.3, 0.3, 0.3]} />
         <meshStandardMaterial color={color} metalness={0.5} roughness={0.3} />
       </mesh>
@@ -136,23 +92,20 @@ const MysteryBox = ({ color }: { color: string }) => {
   )
 }
 
-const obstacleComponents: Record<ObstacleType, React.FC<{ color: string }>> = {
-  [ObstacleTypes.CAVE]: Cave,
-  [ObstacleTypes.TREE]: Tree,
-  [ObstacleTypes.ROCK]: Rock,
-  [ObstacleTypes.RIVER]: River,
-  [ObstacleTypes.LAKE]: Lake,
-  [ObstacleTypes.CANYON]: Canyon,
-  [ObstacleTypes.MYSTERY_BOX]: MysteryBox
-}
-
 export const Obstacle3D = ({ type, position }: Obstacle3DProps) => {
-  const ObstacleComponent = obstacleComponents[type]
   const color = OBSTACLE_COLORS[type]
 
-  return (
-    <group position={position}>
-      <ObstacleComponent color={color} />
-    </group>
-  )
+  const content = (() => {
+    switch (type) {
+      case ObstacleTypes.CANYON:     return <GLBObstacle url={canyonGLB} scale={0.9} />
+      case ObstacleTypes.CAVE:       return <GLBObstacle url={caveGLB} scale={0.9} />
+      case ObstacleTypes.TREE:       return <GLBObstacle url={treeGLB} scale={1.4} />
+      case ObstacleTypes.RIVER:      return <AnimatedRiver />
+      case ObstacleTypes.LAKE:       return <AnimatedLake />
+      case ObstacleTypes.ROCK:       return rockGLB ? <GLBObstacle url={rockGLB} scale={0.9} /> : <Rock color={color} />
+      case ObstacleTypes.MYSTERY_BOX: return mysteryBoxGLB ? <GLBObstacle url={mysteryBoxGLB} scale={0.9} /> : <MysteryBox color={color} />
+    }
+  })()
+
+  return <group position={position}>{content}</group>
 }

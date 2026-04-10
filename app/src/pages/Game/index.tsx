@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { Loader2 } from "lucide-react";
 import { Board } from "./components/Board";
-import { Board3D } from "./components/Board3D";
+import { Board3DLoadFallback } from "./components/Board3D/Board3DLoadFallback";
 import { TopMenu } from "./components/TopMenu";
 import { GameSettingsModal } from "./components/GameSettingsModal";
 import { BottomMenu } from "./components/BottomMenu";
@@ -13,24 +13,45 @@ import { ZombieReviveModal } from "./components/ZombieReviveModal";
 import { Modal } from "../../components/Modal";
 import { useGameStore } from "../../store/gameStore";
 import { useUIStore } from "../../store/uiStore";
+import { useAuthStore } from "../../store/authStore";
 import { useGameMode, useOnlineGame, useSoundEffects } from "../../hooks";
 import { PlayerColors, MysteryBoxPhases, PieceTypes, ObstacleTypes, isObstacle, type Piece } from "./types";
-import { BOT_DELAY } from "./constants";
+import { BOT_DELAY, PIECE_RULES } from "./constants";
 import { PIECE_NAMES, PIECE_SYMBOLS } from "./constants";
 import { environments } from "../../config/environments";
 import { GameModes } from "../../constants";
 import { areRevivalGuardsInPlace, findPiecePosition, getZombieRevivePieces, getZombieReviveStatusMessage, getZombieReviveConfirmState, getZombieRevivePlacementTarget } from "./utils";
+import { useSaveOfflineGame } from "../../features/game/hooks";
+
+const Board3DLazy = lazy(() =>
+  import("./components/Board3D/Board3D").then((m) => ({ default: m.Board3D }))
+);
+
+const calculatePoints = (pieces: Piece[]): number =>
+  pieces.reduce((total, piece) => {
+    const rules = PIECE_RULES[piece.type];
+    if (!rules) return total;
+    return total + (piece.isZombie && rules.zombiePoints ? rules.zombiePoints : rules.points);
+  }, 0);
 
 export const Game = () => {
   const { mode } = useGameMode();
   const isOnline = mode === GameModes.ONLINE;
 
-  const { gameState, botEnabled, botDifficulty, botThinking, processBotMove, startGameTimer, mysteryBoxState: offlineMysteryBoxState, selectRevivePiece: offlineSelectRevivePiece, cancelMysteryBox: offlineCancelMysteryBox, selectSquare: offlineSelectSquare, reviveZombie: offlineReviveZombie } = useGameStore();
+  const { gameState, boardSizeKey, botEnabled, botDifficulty, botThinking, processBotMove, startGameTimer, mysteryBoxState: offlineMysteryBoxState, selectRevivePiece: offlineSelectRevivePiece, cancelMysteryBox: offlineCancelMysteryBox, selectSquare: offlineSelectSquare, reviveZombie: offlineReviveZombie } = useGameStore();
   const { is3D, isTopMenuOpen, isRightMenuOpen, closeTopMenu, closeRightMenu } = useUIStore();
+
+  useEffect(() => {
+    if (!is3D) return;
+    void import("./components/Board3D/board3dPreload").then((m) => m.preloadBoard3DGltfs());
+  }, [is3D]);
+  const userUuid = useAuthStore(state => state.user_uuid);
+  const { mutate: saveOfflineGameResult } = useSaveOfflineGame();
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isZombieReviveOpen, setIsZombieReviveOpen] = useState(false);
   const [selectedZombiePiece, setSelectedZombiePiece] = useState<Piece | null>(null);
+  const offlineGameSavedRef = useRef(false);
 
   const { gameSession, board: onlineBoard, boardSize: onlineBoardSize, selectedPosition: onlineSelectedPosition, validMoves: onlineValidMoves, validAttacks: onlineValidAttacks, validSwaps: onlineValidSwaps, lastMove: onlineLastMove, capturedPieces: onlineCapturedPieces, gameOver: onlineGameOver, winner: onlineWinner, mysteryBoxState: onlineMysteryBoxState, currentPlayer, isMyTurn, isLoading, error, handleSquareClick, selectRevivePiece: onlineSelectRevivePiece, cancelMysteryBox: onlineCancelMysteryBox, requestZombieRevive, notifyReviveStarted } = useOnlineGame();
 
@@ -58,6 +79,27 @@ export const Game = () => {
       setIsResultModalOpen(true);
     }
   }, [isOnline, onlineGameOver, gameState.gameOver]);
+
+  useEffect(() => {
+    if (isOnline) return;
+    if (!gameState.gameOver) return;
+    if (!userUuid) return;
+    if (offlineGameSavedRef.current) return;
+
+    offlineGameSavedRef.current = true;
+
+    const playerColor = PlayerColors.WHITE;
+    const points = calculatePoints(gameState.capturedPieces.black);
+
+    saveOfflineGameResult({
+      boardSizeKey,
+      mode: mode === GameModes.SINGLE ? 'SINGLE' : 'OFFLINE',
+      winner: gameState.winner,
+      playerColor,
+      moves: gameState.moveHistory.length,
+      points,
+    });
+  }, [isOnline, gameState.gameOver, gameState.winner, gameState.capturedPieces, gameState.moveHistory, userUuid, boardSizeKey, mode, saveOfflineGameResult]);
 
   const winner = isOnline ? onlineWinner : gameState.winner;
   const board = isOnline ? onlineBoard : gameState.board;
@@ -259,7 +301,21 @@ export const Game = () => {
             </div>
 
             {is3D ? (
-              <Board3D isOnline={isOnline} onlineBoard={onlineBoard} onlineBoardSize={onlineBoardSize} onlineSelectedPosition={onlineSelectedPosition} onlineValidMoves={onlineValidMoves} onlineValidAttacks={onlineValidAttacks} onlineValidSwaps={onlineValidSwaps} onlineLastMove={onlineLastMove} onlineMysteryBoxState={onlineMysteryBoxState} onSquareClick={onSquareClick} onMysteryBoxClick={playBoardClick} />
+              <Suspense fallback={<Board3DLoadFallback />}>
+                <Board3DLazy
+                  isOnline={isOnline}
+                  onlineBoard={onlineBoard}
+                  onlineBoardSize={onlineBoardSize}
+                  onlineSelectedPosition={onlineSelectedPosition}
+                  onlineValidMoves={onlineValidMoves}
+                  onlineValidAttacks={onlineValidAttacks}
+                  onlineValidSwaps={onlineValidSwaps}
+                  onlineLastMove={onlineLastMove}
+                  onlineMysteryBoxState={onlineMysteryBoxState}
+                  onSquareClick={onSquareClick}
+                  onMysteryBoxClick={playBoardClick}
+                />
+              </Suspense>
             ) : (
               <Board isOnline={isOnline} onlineBoard={onlineBoard} onlineBoardSize={onlineBoardSize} onlineSelectedPosition={onlineSelectedPosition} onlineValidMoves={onlineValidMoves} onlineValidAttacks={onlineValidAttacks} onlineValidSwaps={onlineValidSwaps} onlineLastMove={onlineLastMove} onlineMysteryBoxState={onlineMysteryBoxState} onSquareClick={onSquareClick} onMysteryBoxClick={playBoardClick} />
             )}

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find C:Users30697Desktopselinutesapisrc -name *user* -o -name *stat*)",
+      "Bash(find C:Users30697Desktopselinutesapisrc -path */database/* -o -path */entities/*)",
+      "Bash(find:*)",
+      "Bash(xargs ls:*)"
+    ]
+  }
+}
