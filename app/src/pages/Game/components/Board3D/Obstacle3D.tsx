@@ -5,14 +5,9 @@ import type { Group } from 'three'
 import type { ObstacleType } from '../../types'
 import { ObstacleTypes } from '../../types'
 import { OBSTACLE_COLORS } from '../../constants'
+import { canyonGLB, caveGLB, lakeGLB, riverGLB, treeGLB } from './board3dGltfUrls'
 
-import canyonGLB from '../../../../assets/figures/Canyon/base/variant-A/mesh.glb'
-import caveGLB from '../../../../assets/figures/Cave/base/variant-A/mesh.glb'
-import lakeGLB from '../../../../assets/figures/Lake/base/variant-A/mesh.glb'
-import riverGLB from '../../../../assets/figures/River/base/variant-A/mesh.glb'
-import treeGLB from '../../../../assets/figures/Tree/base/variant-A/mesh.glb'
-
-export const OBSTACLE_GLB_URLS: readonly string[] = [canyonGLB, caveGLB, lakeGLB, riverGLB, treeGLB]
+export { OBSTACLE_GLB_URLS } from './board3dGltfUrls'
 
 interface Obstacle3DProps {
   type: ObstacleType

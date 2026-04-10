@@ -1,14 +1,24 @@
-import { Suspense, useEffect, useMemo, useState } from 'react'
+import { Suspense, useCallback, useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, useGLTF } from '@react-three/drei'
-import { isPiece, isObstacle, PlayerColors } from '../../types'
-import type { Board as BoardType, BoardSize, Position, Move, SwapTarget, MysteryBoxState } from '../../types'
-import { Piece3D, PIECE_GLB_URLS } from './Piece3D'
+import { OrbitControls } from '@react-three/drei'
+import { isPiece, isObstacle, ObstacleTypes, PlayerColors } from '../../types'
+import type {
+  Board as BoardType,
+  BoardSize,
+  Move,
+  MysteryBoxState,
+  ObstacleType,
+  Position,
+  SwapTarget,
+} from '../../types'
+import { Piece3D } from './Piece3D'
 import { BoardSquare3D } from './BoardSquare3D'
-import { Obstacle3D, OBSTACLE_GLB_URLS } from './Obstacle3D'
+import { Obstacle3D } from './Obstacle3D'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
 import { getValidMoves, getValidAttacks, getAllNarcNetPositions } from '../../utils'
+import { Board3DLoadFallback } from './Board3DLoadFallback'
+import { GltfLoadingProgressBridge } from './GltfLoadingProgressBridge'
 
 interface GameSceneProps {
   isOnline?: boolean
@@ -23,6 +33,9 @@ interface GameSceneProps {
   onSquareClick?: (pos: Position) => void
   onMysteryBoxClick?: () => void
 }
+
+const obstacleUsesGltf = (type: ObstacleType): boolean =>
+  type !== ObstacleTypes.ROCK && type !== ObstacleTypes.MYSTERY_BOX
 
 const GameScene = ({
   isOnline = false,
@@ -215,39 +228,57 @@ const GameScene = ({
 
       {board.map((row, rowIndex) =>
         row.map((cell, colIndex) => {
-          if (!cell) return null
+          if (!cell || !isObstacle(cell) || obstacleUsesGltf(cell.type)) return null
           const x = colIndex - offsetX
           const z = rowIndex - offsetZ
-
-          if (isObstacle(cell)) {
-            return (
-              <Obstacle3D
-                key={`obstacle-${rowIndex}-${colIndex}`}
-                type={cell.type}
-                position={[x, 0.1, z]}
-              />
-            )
-          }
-
-          if (isPiece(cell)) {
-            return (
-              <Piece3D
-                key={cell.id}
-                type={cell.type}
-                color={cell.color}
-                position={[x, 0.1, z]}
-                isSelected={isSelected(rowIndex, colIndex) || (helpEnabled && helpPosition?.row === rowIndex && helpPosition?.col === colIndex)}
-                isHint={isHintPiece(rowIndex, colIndex)}
-                isTargeted={isValidAttack(rowIndex, colIndex) || isHelpAttack(rowIndex, colIndex)}
-                isSwapTarget={isValidSwap(rowIndex, colIndex)}
-                onClick={() => handleSquareClick(rowIndex, colIndex)}
-              />
-            )
-          }
-
-          return null
+          return (
+            <Obstacle3D
+              key={`obstacle-${rowIndex}-${colIndex}`}
+              type={cell.type}
+              position={[x, 0.1, z]}
+            />
+          )
         })
       )}
+
+      <Suspense fallback={null}>
+        {board.map((row, rowIndex) =>
+          row.map((cell, colIndex) => {
+            if (!cell) return null
+            const x = colIndex - offsetX
+            const z = rowIndex - offsetZ
+
+            if (isObstacle(cell)) {
+              if (!obstacleUsesGltf(cell.type)) return null
+              return (
+                <Obstacle3D
+                  key={`obstacle-gltf-${rowIndex}-${colIndex}`}
+                  type={cell.type}
+                  position={[x, 0.1, z]}
+                />
+              )
+            }
+
+            if (isPiece(cell)) {
+              return (
+                <Piece3D
+                  key={cell.id}
+                  type={cell.type}
+                  color={cell.color}
+                  position={[x, 0.1, z]}
+                  isSelected={isSelected(rowIndex, colIndex) || (helpEnabled && helpPosition?.row === rowIndex && helpPosition?.col === colIndex)}
+                  isHint={isHintPiece(rowIndex, colIndex)}
+                  isTargeted={isValidAttack(rowIndex, colIndex) || isHelpAttack(rowIndex, colIndex)}
+                  isSwapTarget={isValidSwap(rowIndex, colIndex)}
+                  onClick={() => handleSquareClick(rowIndex, colIndex)}
+                />
+              )
+            }
+
+            return null
+          })
+        )}
+      </Suspense>
 
       {narcNetPositions.map((narcNet, index) => {
         const x = narcNet.position.col - offsetX
@@ -306,39 +337,35 @@ export const Board3D = ({
   const cameraY = maxDim * 0.6
   const cameraZ = maxDim * 0.48
 
-  useEffect(() => {
-    for (const url of PIECE_GLB_URLS) {
-      useGLTF.preload(url)
-    }
-    for (const url of OBSTACLE_GLB_URLS) {
-      useGLTF.preload(url)
-    }
+  const [gltfAssetsLoading, setGltfAssetsLoading] = useState(true)
+  const handleGltfLoadingChange = useCallback((active: boolean) => {
+    setGltfAssetsLoading(active)
   }, [])
 
   return (
-    <div className="w-[680px] h-[680px] md:w-[800px] md:h-[800px] rounded-xl overflow-hidden shadow-2xl">
+    <div className="relative w-[680px] h-[680px] md:w-[800px] md:h-[800px] rounded-xl overflow-hidden shadow-2xl">
       <Canvas
         camera={{ position: [0, cameraY, cameraZ], fov: 45 }}
         gl={{ antialias: true, powerPreference: 'high-performance' }}
         dpr={[1, 1.25]}
       >
+        <GltfLoadingProgressBridge onLoadingChange={handleGltfLoadingChange} />
         <color attach="background" args={['#1f2937']} />
-        <Suspense fallback={null}>
-          <GameScene
-            isOnline={isOnline}
-            onlineBoard={onlineBoard}
-            onlineBoardSize={onlineBoardSize}
-            onlineSelectedPosition={onlineSelectedPosition}
-            onlineValidMoves={onlineValidMoves}
-            onlineValidAttacks={onlineValidAttacks}
-            onlineValidSwaps={onlineValidSwaps}
-            onlineLastMove={onlineLastMove}
-            onlineMysteryBoxState={onlineMysteryBoxState}
-            onSquareClick={onSquareClick}
-            onMysteryBoxClick={onMysteryBoxClick}
-          />
-        </Suspense>
+        <GameScene
+          isOnline={isOnline}
+          onlineBoard={onlineBoard}
+          onlineBoardSize={onlineBoardSize}
+          onlineSelectedPosition={onlineSelectedPosition}
+          onlineValidMoves={onlineValidMoves}
+          onlineValidAttacks={onlineValidAttacks}
+          onlineValidSwaps={onlineValidSwaps}
+          onlineLastMove={onlineLastMove}
+          onlineMysteryBoxState={onlineMysteryBoxState}
+          onSquareClick={onSquareClick}
+          onMysteryBoxClick={onMysteryBoxClick}
+        />
       </Canvas>
+      {gltfAssetsLoading ? <Board3DLoadFallback mode="overlay" /> : null}
     </div>
   )
 }

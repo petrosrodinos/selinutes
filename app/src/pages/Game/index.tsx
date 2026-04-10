@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { Loader2 } from "lucide-react";
 import { Board } from "./components/Board";
-import { Board3D } from "./components/Board3D";
+import { Board3DLoadFallback } from "./components/Board3D/Board3DLoadFallback";
 import { TopMenu } from "./components/TopMenu";
 import { GameSettingsModal } from "./components/GameSettingsModal";
 import { BottomMenu } from "./components/BottomMenu";
@@ -23,6 +23,10 @@ import { GameModes } from "../../constants";
 import { areRevivalGuardsInPlace, findPiecePosition, getZombieRevivePieces, getZombieReviveStatusMessage, getZombieReviveConfirmState, getZombieRevivePlacementTarget } from "./utils";
 import { useSaveOfflineGame } from "../../features/game/hooks";
 
+const Board3DLazy = lazy(() =>
+  import("./components/Board3D/Board3D").then((m) => ({ default: m.Board3D }))
+);
+
 const calculatePoints = (pieces: Piece[]): number =>
   pieces.reduce((total, piece) => {
     const rules = PIECE_RULES[piece.type];
@@ -36,6 +40,11 @@ export const Game = () => {
 
   const { gameState, boardSizeKey, botEnabled, botDifficulty, botThinking, processBotMove, startGameTimer, mysteryBoxState: offlineMysteryBoxState, selectRevivePiece: offlineSelectRevivePiece, cancelMysteryBox: offlineCancelMysteryBox, selectSquare: offlineSelectSquare, reviveZombie: offlineReviveZombie } = useGameStore();
   const { is3D, isTopMenuOpen, isRightMenuOpen, closeTopMenu, closeRightMenu } = useUIStore();
+
+  useEffect(() => {
+    if (!is3D) return;
+    void import("./components/Board3D/board3dPreload").then((m) => m.preloadBoard3DGltfs());
+  }, [is3D]);
   const userUuid = useAuthStore(state => state.user_uuid);
   const { mutate: saveOfflineGameResult } = useSaveOfflineGame();
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
@@ -292,7 +301,21 @@ export const Game = () => {
             </div>
 
             {is3D ? (
-              <Board3D isOnline={isOnline} onlineBoard={onlineBoard} onlineBoardSize={onlineBoardSize} onlineSelectedPosition={onlineSelectedPosition} onlineValidMoves={onlineValidMoves} onlineValidAttacks={onlineValidAttacks} onlineValidSwaps={onlineValidSwaps} onlineLastMove={onlineLastMove} onlineMysteryBoxState={onlineMysteryBoxState} onSquareClick={onSquareClick} onMysteryBoxClick={playBoardClick} />
+              <Suspense fallback={<Board3DLoadFallback />}>
+                <Board3DLazy
+                  isOnline={isOnline}
+                  onlineBoard={onlineBoard}
+                  onlineBoardSize={onlineBoardSize}
+                  onlineSelectedPosition={onlineSelectedPosition}
+                  onlineValidMoves={onlineValidMoves}
+                  onlineValidAttacks={onlineValidAttacks}
+                  onlineValidSwaps={onlineValidSwaps}
+                  onlineLastMove={onlineLastMove}
+                  onlineMysteryBoxState={onlineMysteryBoxState}
+                  onSquareClick={onSquareClick}
+                  onMysteryBoxClick={playBoardClick}
+                />
+              </Suspense>
             ) : (
               <Board isOnline={isOnline} onlineBoard={onlineBoard} onlineBoardSize={onlineBoardSize} onlineSelectedPosition={onlineSelectedPosition} onlineValidMoves={onlineValidMoves} onlineValidAttacks={onlineValidAttacks} onlineValidSwaps={onlineValidSwaps} onlineLastMove={onlineLastMove} onlineMysteryBoxState={onlineMysteryBoxState} onSquareClick={onSquareClick} onMysteryBoxClick={playBoardClick} />
             )}
