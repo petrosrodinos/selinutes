@@ -22,6 +22,8 @@ export const TopMenu = ({ onOpenSettings }: TopMenuProps) => {
   const { showBot, showDev, mode } = useGameMode();
 
   const isOnline = mode === GameModes.ONLINE;
+  const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === "development";
+  const showDevToggle = showDev && mode === GameModes.SINGLE && isDevelopment;
 
   const handleLeaveGame = () => {
     setIsLeaveModalOpen(true);
@@ -101,7 +103,7 @@ export const TopMenu = ({ onOpenSettings }: TopMenuProps) => {
           </span>
         )}
 
-        {showDev && (
+        {showDevToggle && (
           <div className="flex items-center gap-1.5 shrink-0">
             <span className="text-[11px] sm:text-xs font-medium text-orange-400 hidden sm:inline">Dev</span>
             <button onClick={toggleDevMode} className={`relative w-11 sm:w-12 h-6 rounded-full transition-colors duration-200 overflow-hidden ${devMode ? "bg-orange-600" : "bg-stone-600"}`} aria-label={devMode ? "Disable dev mode" : "Enable dev mode"}>
