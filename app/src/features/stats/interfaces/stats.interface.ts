@@ -28,6 +28,8 @@ export interface AdminUserOverviewEntry {
     email: string
     role: string
     games_played: number
+    online_games_played: number
+    non_online_games_played: number
     points: number
     level: number
     wins: number

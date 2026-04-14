@@ -20,6 +20,8 @@ export interface AdminUserOverviewEntry {
     email: string
     role: string
     games_played: number
+    online_games_played: number
+    non_online_games_played: number
     points: number
     level: number
     wins: number
@@ -92,23 +94,58 @@ export class StatsService {
         const users = await this.prisma.user.findMany({
             include: {
                 stats: true,
-                _count: {
-                    select: {
-                        games: true,
-                    },
-                },
             },
             orderBy: {
                 created_at: 'desc',
             },
         })
 
+        const userUuids = users.map((user) => user.uuid)
+
+        const [onlineGameGroups, nonOnlineGameCounts] = await Promise.all([
+            this.prisma.game.groupBy({
+                by: ['user_uuid', 'code'],
+                where: {
+                    user_uuid: { in: userUuids },
+                    mode: GameMode.ONLINE,
+                    code: { not: null },
+                },
+            }),
+            this.prisma.game.groupBy({
+                by: ['user_uuid'],
+                where: {
+                    user_uuid: { in: userUuids },
+                    mode: { in: [GameMode.OFFLINE, GameMode.SINGLE] },
+                },
+                _count: {
+                    _all: true,
+                },
+            }),
+        ])
+
+        const onlineGamesCountByUser = new Map<string, number>()
+        for (const group of onlineGameGroups) {
+            if (!group.code) {
+                continue
+            }
+            onlineGamesCountByUser.set(
+                group.user_uuid,
+                (onlineGamesCountByUser.get(group.user_uuid) ?? 0) + 1
+            )
+        }
+
+        const nonOnlineGamesCountByUser = new Map(
+            nonOnlineGameCounts.map((group) => [group.user_uuid, group._count._all])
+        )
+
         return users.map((user) => ({
+            online_games_played: onlineGamesCountByUser.get(user.uuid) ?? 0,
+            non_online_games_played: nonOnlineGamesCountByUser.get(user.uuid) ?? 0,
             user_uuid: user.uuid,
             username: user.username,
             email: user.email,
             role: user.role,
-            games_played: user._count.games,
+            games_played: (onlineGamesCountByUser.get(user.uuid) ?? 0) + (nonOnlineGamesCountByUser.get(user.uuid) ?? 0),
             points: user.stats?.points ?? 0,
             level: user.stats?.level ?? 0,
             wins: user.stats?.wins ?? 0,
