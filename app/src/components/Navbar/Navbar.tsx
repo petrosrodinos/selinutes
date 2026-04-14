@@ -2,21 +2,25 @@ import { useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { environments } from '../../config/environments'
+import { useAuthStore } from '../../store/authStore'
 
 type NavbarProps = {
   showBackButton?: boolean
+  showPrimaryAction?: boolean
 }
 
-export const Navbar = ({ showBackButton = false }: NavbarProps) => {
+export const Navbar = ({ showBackButton = false, showPrimaryAction = true }: NavbarProps) => {
   const navigate = useNavigate()
+  const user_uuid = useAuthStore((state) => state.user_uuid)
+  const isLoggedIn = Boolean(user_uuid)
 
   const handleBack = useCallback(() => {
     navigate(-1)
   }, [navigate])
 
-  const handleGetStarted = useCallback(() => {
-    navigate('/login')
-  }, [navigate])
+  const handlePrimaryAction = useCallback(() => {
+    navigate(isLoggedIn ? '/home' : '/login')
+  }, [isLoggedIn, navigate])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-stone-800 bg-stone-950">
@@ -46,13 +50,15 @@ export const Navbar = ({ showBackButton = false }: NavbarProps) => {
           >
             Rules
           </Link>
-          <button
-            type="button"
-            onClick={handleGetStarted}
-            className="rounded-lg border border-amber-500/30 bg-amber-500/15 px-5 py-2.5 text-sm font-medium text-amber-400 transition-colors hover:border-amber-500/50 hover:bg-amber-500/25"
-          >
-            Get started
-          </button>
+          {showPrimaryAction && (
+            <button
+              type="button"
+              onClick={handlePrimaryAction}
+              className="rounded-lg border border-amber-500/30 bg-amber-500/15 px-5 py-2.5 text-sm font-medium text-amber-400 transition-colors hover:border-amber-500/50 hover:bg-amber-500/25"
+            >
+              {isLoggedIn ? 'Home' : 'Get started'}
+            </button>
+          )}
         </nav>
       </div>
     </header>

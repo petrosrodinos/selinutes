@@ -9,6 +9,7 @@ import { AdminGuard } from "./components/AdminGuard";
 import { useAuthStore } from "./store/authStore";
 import { Game } from "./pages/Game";
 import { LandingPage } from "./pages/Landing";
+import { RulesPageSkeleton } from "./pages/Rules/RulesPageSkeleton";
 const RulesPage = lazy(() =>
   import("./pages/Rules").then((m) => ({ default: m.RulesPage }))
 );
@@ -31,11 +32,7 @@ function App() {
             path="/rules"
             element={
               <Suspense
-                fallback={
-                  <div className="min-h-screen bg-stone-950 text-stone-400 flex items-center justify-center text-sm">
-                    Loading…
-                  </div>
-                }
+                fallback={<RulesPageSkeleton />}
               >
                 <RulesPage />
               </Suspense>

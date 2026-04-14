@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { environments } from '../../config/environments'
 import { Navbar } from '../../components/Navbar'
+import { useAuthStore } from '../../store/authStore'
 
 const container = {
   hidden: { opacity: 0 },
@@ -30,10 +31,16 @@ const item = {
 
 export const LandingPage = () => {
   const navigate = useNavigate()
+  const user_uuid = useAuthStore((state) => state.user_uuid)
+  const isLoggedIn = Boolean(user_uuid)
 
   const handleGetStarted = useCallback(() => {
     navigate('/login')
   }, [navigate])
+
+  const handlePrimaryAction = useCallback(() => {
+    navigate(isLoggedIn ? '/home' : '/login')
+  }, [isLoggedIn, navigate])
 
   const handleRules = useCallback(() => {
     navigate('/rules')
@@ -224,10 +231,10 @@ export const LandingPage = () => {
             </p>
             <button
               type="button"
-              onClick={handleGetStarted}
+              onClick={handlePrimaryAction}
               className="px-8 py-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-900 font-semibold shadow-lg shadow-amber-900/30 transition-all duration-200"
             >
-              Get started
+              {isLoggedIn ? 'Home' : 'Get started'}
             </button>
           </div>
         </motion.section>
