@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { generateFiles, generateRanks } from '../../constants'
 import { Square } from '../Square'
@@ -65,6 +65,27 @@ export const Board = ({
 
     const files = generateFiles(boardSize.cols)
     const ranks = generateRanks(boardSize.rows)
+    const [viewportWidth, setViewportWidth] = useState(
+        typeof window !== 'undefined' ? window.innerWidth : 1280
+    )
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+
+        const handleResize = () => setViewportWidth(window.innerWidth)
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
+
+    const squareSize = useMemo(() => {
+        const horizontalPadding = viewportWidth < 640 ? 52 : 88
+        const availableWidth = Math.max(280, viewportWidth - horizontalPadding)
+        const sizeFromViewport = Math.floor(availableWidth / boardSize.cols)
+        return Math.max(28, Math.min(48, sizeFromViewport))
+    }, [viewportWidth, boardSize.cols])
+
+    const rankLabelWidth = Math.max(16, Math.round(squareSize * 0.45))
+    const fileLabelHeight = Math.max(16, Math.round(squareSize * 0.45))
 
     const isSelected = (row: number, col: number) => {
         if (!isOnline && devMode && devModeSelected) {
@@ -166,13 +187,14 @@ export const Board = ({
     }
 
     return (
-        <div className="flex flex-col items-center overflow-auto max-h-[80vh]">
+        <div className="flex flex-col items-center overflow-x-auto overflow-y-hidden max-w-full">
             <div className="flex">
-                <div className="w-5 md:w-6" />
+                <div style={{ width: rankLabelWidth }} />
                 {files.map(file => (
                     <div
                         key={file}
-                        className="w-10 h-5 md:w-12 md:h-6 flex items-center justify-center text-amber-200 font-mono text-xs"
+                        className="flex items-center justify-center text-amber-200 font-mono text-xs"
+                        style={{ width: squareSize, height: fileLabelHeight }}
                     >
                         {file}
                     </div>
@@ -184,7 +206,8 @@ export const Board = ({
                     {ranks.map(rank => (
                         <div
                             key={rank}
-                            className="w-5 h-10 md:w-6 md:h-12 flex items-center justify-center text-amber-200 font-mono text-xs"
+                            className="flex items-center justify-center text-amber-200 font-mono text-xs"
+                            style={{ width: rankLabelWidth, height: squareSize }}
                         >
                             {rank}
                         </div>
@@ -198,6 +221,7 @@ export const Board = ({
 <Square
                                                     key={`${rowIndex}-${colIndex}`}
                                                     cell={cell}
+                                                    squareSize={squareSize}
                                                     position={{ row: rowIndex, col: colIndex }}
                                                     isSelected={isSelected(rowIndex, colIndex) || (!isOnline && helpEnabled && helpPosition?.row === rowIndex && helpPosition?.col === colIndex)}
                                                     isValidMove={isValidMove(rowIndex, colIndex) || isHelpMove(rowIndex, colIndex) || isDevModeTarget(rowIndex, colIndex)}
@@ -219,7 +243,6 @@ export const Board = ({
                         {board.map((row, rowIndex) =>
                             row.map((c, colIndex) => {
                                 if (c && isPiece(c)) {
-                                    const squareSize = 48
                                     return (
                                         <AnimatedPiece
                                             key={c.id}
@@ -240,7 +263,8 @@ export const Board = ({
                     {ranks.map(rank => (
                         <div
                             key={rank}
-                            className="w-5 h-10 md:w-6 md:h-12 flex items-center justify-center text-amber-200 font-mono text-xs"
+                            className="flex items-center justify-center text-amber-200 font-mono text-xs"
+                            style={{ width: rankLabelWidth, height: squareSize }}
                         >
                             {rank}
                         </div>
@@ -249,11 +273,12 @@ export const Board = ({
             </div>
 
             <div className="flex">
-                <div className="w-5 md:w-6" />
+                <div style={{ width: rankLabelWidth }} />
                 {files.map(file => (
                     <div
                         key={file}
-                        className="w-10 h-5 md:w-12 md:h-6 flex items-center justify-center text-amber-200 font-mono text-xs"
+                        className="flex items-center justify-center text-amber-200 font-mono text-xs"
+                        style={{ width: squareSize, height: fileLabelHeight }}
                     >
                         {file}
                     </div>

@@ -1,8 +1,9 @@
 import type { Piece } from "../../types";
 import { PieceTypes, PlayerColors } from "../../types";
-import { PIECE_SYMBOLS, PIECE_RULES, PIECE_NAMES } from "../../constants";
+import { PIECE_RULES, PIECE_NAMES } from "../../constants";
 import { useGameStore } from "../../../../store/gameStore";
 import { getNecromancerKillTargets, getNecromancerFreezeTargets } from "../../utils";
+import { getPiece2DAssetUrl } from "../../utils/figureAssets.utils";
 import { POINTS_LABEL } from "../../../../constants/game";
 
 const PIECE_ORDER = [PieceTypes.MONARCH, PieceTypes.DUCHESS, PieceTypes.RAM_TOWER, PieceTypes.CHARIOT, PieceTypes.PALADIN, PieceTypes.NECROMANCER, PieceTypes.WARLOCK, PieceTypes.BOMBER, PieceTypes.HOPLITE] as const;
@@ -26,6 +27,26 @@ const getTotalPointsForPieces = (pieces: Piece[]) =>
     return total + (piece.isZombie && rules.zombiePoints ? rules.zombiePoints : rules.points);
   }, 0);
 
+const CapturedPieceIcon = ({ piece }: { piece: Piece }) => {
+  const imageUrl = getPiece2DAssetUrl(piece.type, piece.color);
+  if (imageUrl) {
+    return (
+      <img
+        src={imageUrl}
+        alt={PIECE_NAMES[piece.type]}
+        className={`w-6 h-6 object-contain ${piece.isZombie ? "opacity-60" : ""}`}
+        draggable={false}
+      />
+    );
+  }
+
+  return (
+    <span className={`text-lg ${piece.isZombie ? "opacity-60" : ""}`}>
+      {PIECE_NAMES[piece.type].charAt(0)}
+    </span>
+  );
+};
+
 export const CapturedPieces = ({ onOpenZombieRevive }: { onOpenZombieRevive?: () => void }) => {
   const { gameState } = useGameStore();
   return (
@@ -47,8 +68,8 @@ const CapturedPiecesContent = ({ capturedPieces, currentPlayer, onOpenZombieRevi
       </div>
       <button type="button" onClick={currentPlayer === PlayerColors.WHITE ? onOpenZombieRevive : undefined} className={`flex flex-wrap gap-0.5 min-h-[28px] w-full text-left ${currentPlayer === PlayerColors.WHITE && onOpenZombieRevive ? "hover:bg-stone-700/50 rounded-md p-1 -m-1" : ""}`}>
         {sortedCapturedPieces(capturedPieces.white).map((piece, i) => (
-          <span key={`w-${i}`} className="text-lg">
-            {PIECE_SYMBOLS[piece.color][piece.type]}
+          <span key={`w-${i}`} className="inline-flex items-center justify-center">
+            <CapturedPieceIcon piece={piece} />
           </span>
         ))}
       </button>
@@ -62,8 +83,8 @@ const CapturedPiecesContent = ({ capturedPieces, currentPlayer, onOpenZombieRevi
       </div>
       <button type="button" onClick={currentPlayer === PlayerColors.BLACK ? onOpenZombieRevive : undefined} className={`flex flex-wrap gap-0.5 min-h-[28px] w-full text-left ${currentPlayer === PlayerColors.BLACK && onOpenZombieRevive ? "hover:bg-stone-700/50 rounded-md p-1 -m-1" : ""}`}>
         {sortedCapturedPieces(capturedPieces.black).map((piece, i) => (
-          <span key={`b-${i}`} className="text-lg">
-            {PIECE_SYMBOLS[piece.color][piece.type]}
+          <span key={`b-${i}`} className="inline-flex items-center justify-center">
+            <CapturedPieceIcon piece={piece} />
           </span>
         ))}
       </button>

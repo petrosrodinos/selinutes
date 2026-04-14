@@ -39,15 +39,15 @@ export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) =
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Settings">
-      <div className="space-y-5">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 sm:space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
           <label className="text-sm font-medium text-stone-300">View mode</label>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ml-auto">
             <button
               onClick={toggle3D}
-              className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${is3D ? 'bg-violet-600' : 'bg-stone-600'}`}
+              className={`relative w-12 sm:w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${is3D ? 'bg-violet-600' : 'bg-stone-600'}`}
             >
-              <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${is3D ? 'translate-x-7' : 'translate-x-0'}`} />
+              <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${is3D ? 'translate-x-5 sm:translate-x-7' : 'translate-x-0'}`} />
             </button>
             <span className="text-xs text-stone-400 w-8">{is3D ? '3D' : '2D'}</span>
           </div>
@@ -55,7 +55,7 @@ export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) =
 
         {!isOnline && (
           <div>
-            <label className="text-sm font-medium text-stone-300 block mb-2">Board size</label>
+            <label className="text-sm font-medium text-stone-300 block mb-1.5 sm:mb-2">Board size</label>
             <select
               value={boardSizeKey}
               onChange={(e) => handleBoardSizeChange(e.target.value as BoardSizeKey)}
@@ -72,13 +72,13 @@ export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) =
 
         {!isOnline && showBot && (
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
               <label className="text-sm font-medium text-stone-300">Bot mode</label>
               <button
                 onClick={toggleBot}
-                className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${botEnabled ? 'bg-emerald-600' : 'bg-stone-600'}`}
+                className={`relative w-12 sm:w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ml-auto ${botEnabled ? 'bg-emerald-600' : 'bg-stone-600'}`}
               >
-                <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${botEnabled ? 'translate-x-7' : 'translate-x-0'}`} />
+                <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${botEnabled ? 'translate-x-5 sm:translate-x-7' : 'translate-x-0'}`} />
               </button>
             </div>
             {botEnabled && (
@@ -98,13 +98,13 @@ export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) =
           </div>
         )}
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
           <label className="text-sm font-medium text-stone-300">Sound</label>
           <button
             onClick={toggleSound}
-            className={`relative w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${soundEnabled ? 'bg-amber-600' : 'bg-stone-600'}`}
+            className={`relative w-12 sm:w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ml-auto ${soundEnabled ? 'bg-amber-600' : 'bg-stone-600'}`}
           >
-            <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${soundEnabled ? 'translate-x-7' : 'translate-x-0'}`} />
+            <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${soundEnabled ? 'translate-x-5 sm:translate-x-7' : 'translate-x-0'}`} />
           </button>
         </div>
 
@@ -126,7 +126,7 @@ export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) =
           </div>
         )}
 
-        <div className="pt-2">
+        <div className="pt-1 sm:pt-2">
           <button
             onClick={onClose}
             className="w-full py-2.5 bg-stone-700 hover:bg-stone-600 text-stone-200 rounded-lg transition-colors text-sm font-medium"

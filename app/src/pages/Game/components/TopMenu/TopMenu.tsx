@@ -90,28 +90,28 @@ export const TopMenu = ({ onOpenSettings }: TopMenuProps) => {
 
   return (
     <>
-      <div className="bg-stone-800/90 backdrop-blur-sm rounded-xl px-4 py-2.5 border border-stone-700 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-        <div className={`px-3 py-1.5 rounded-lg text-sm font-medium shrink-0 ${getStatusColor()}`}>{getStatusText()}</div>
+      <div className="bg-stone-800/90 backdrop-blur-sm rounded-xl px-2.5 sm:px-4 py-2 border border-stone-700 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+        <div className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium shrink-0 max-w-full text-center break-words ${getStatusColor()}`}>{getStatusText()}</div>
 
-        {nightMode && <div className="px-2.5 py-1 rounded-md text-xs font-semibold bg-violet-700/80 text-violet-100 border border-violet-500 shrink-0">Night</div>}
+        {nightMode && <div className="px-2 py-1 rounded-md text-[11px] sm:text-xs font-semibold bg-violet-700/80 text-violet-100 border border-violet-500 shrink-0">Night</div>}
 
         {!isOnline && showBot && botEnabled && (
-          <span className="text-xs text-stone-500 shrink-0" title="Bot difficulty">
+          <span className="text-[11px] sm:text-xs text-stone-500 shrink-0" title="Bot difficulty">
             Bot: {difficultyLabel}
           </span>
         )}
 
         {showDev && (
           <div className="flex items-center gap-1.5 shrink-0">
-            <span className="text-xs font-medium text-orange-400 hidden sm:inline">Dev</span>
-            <button onClick={toggleDevMode} className={`relative w-12 h-6 rounded-full transition-colors duration-200 overflow-hidden ${devMode ? "bg-orange-600" : "bg-stone-600"}`} aria-label={devMode ? "Disable dev mode" : "Enable dev mode"}>
-              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${devMode ? "translate-x-6" : "translate-x-0"}`} />
+            <span className="text-[11px] sm:text-xs font-medium text-orange-400 hidden sm:inline">Dev</span>
+            <button onClick={toggleDevMode} className={`relative w-11 sm:w-12 h-6 rounded-full transition-colors duration-200 overflow-hidden ${devMode ? "bg-orange-600" : "bg-stone-600"}`} aria-label={devMode ? "Disable dev mode" : "Enable dev mode"}>
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${devMode ? "translate-x-5 sm:translate-x-6" : "translate-x-0"}`} />
             </button>
           </div>
         )}
 
-        <button onClick={handleLeaveGame} className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white text-sm font-medium rounded-lg transition-colors shrink-0">
-          <LogOut className="w-4 h-4" />
+        <button onClick={handleLeaveGame} className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white text-xs sm:text-sm font-medium rounded-lg transition-colors shrink-0">
+          <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           <span>Leave</span>
         </button>
 
@@ -120,10 +120,10 @@ export const TopMenu = ({ onOpenSettings }: TopMenuProps) => {
             closeTopMenu();
             onOpenSettings?.();
           }}
-          className="p-2 rounded-lg text-stone-400 hover:text-amber-400 hover:bg-stone-700/80 transition-colors shrink-0"
+          className="p-1.5 sm:p-2 rounded-lg text-stone-400 hover:text-amber-400 hover:bg-stone-700/80 transition-colors shrink-0"
           aria-label="Open settings"
         >
-          <Settings className="w-5 h-5" />
+          <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       </div>
 

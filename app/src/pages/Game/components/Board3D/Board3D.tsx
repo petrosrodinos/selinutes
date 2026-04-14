@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { isPiece, isObstacle, ObstacleTypes, PlayerColors } from "../../types";
@@ -247,6 +247,23 @@ export const Board3D = ({ isOnline = false, onlineBoard, onlineBoardSize, online
   const maxDim = Math.max(boardSize.rows, boardSize.cols);
   const cameraY = maxDim * 0.95;
   const cameraZ = maxDim * 0.75;
+  const [viewportWidth, setViewportWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1280
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const canvasSize = useMemo(() => {
+    const horizontalPadding = viewportWidth < 640 ? 20 : 48;
+    const availableWidth = Math.max(280, viewportWidth - horizontalPadding);
+    return Math.max(280, Math.min(800, availableWidth));
+  }, [viewportWidth]);
 
   const [gltfAssetsLoading, setGltfAssetsLoading] = useState(true);
   const handleGltfLoadingChange = useCallback((active: boolean) => {
@@ -254,7 +271,10 @@ export const Board3D = ({ isOnline = false, onlineBoard, onlineBoardSize, online
   }, []);
 
   return (
-    <div className="relative w-[680px] h-[680px] md:w-[800px] md:h-[800px] rounded-xl overflow-hidden shadow-2xl">
+    <div
+      className="relative rounded-xl overflow-hidden shadow-2xl max-w-full"
+      style={{ width: canvasSize, height: canvasSize }}
+    >
       <Canvas camera={{ position: [0, cameraY, cameraZ], fov: 45 }} gl={{ antialias: true, powerPreference: "high-performance" }} dpr={[1, 1.25]}>
         <GltfLoadingProgressBridge onLoadingChange={handleGltfLoadingChange} />
         <color attach="background" args={["#1f2937"]} />

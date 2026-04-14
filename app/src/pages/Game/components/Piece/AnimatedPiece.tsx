@@ -45,15 +45,22 @@ export const AnimatedPiece = ({ piece, position, squareSize, onClick }: Animated
       onClick={onClick}
     >
       <span
-        className={`text-2xl md:text-3xl select-none drop-shadow-lg ${
+        className={`select-none drop-shadow-lg ${
           piece.color === PlayerColors.WHITE ? '' : 'grayscale-[30%]'
         } ${piece.isZombie ? 'opacity-60' : ''}`}
-        style={{ 
+        style={{
+          fontSize: Math.max(20, Math.round(squareSize * 0.66)),
           filter: piece.color === PlayerColors.BLACK ? 'brightness(0.7) saturate(0.8)' : undefined
         }}
       >
         {imageUrl ? (
-          <img src={imageUrl} alt={displayName} className="w-10 h-10 md:w-12 md:h-12 object-contain" draggable={false} />
+          <img
+            src={imageUrl}
+            alt={displayName}
+            className="object-contain"
+            style={{ width: Math.max(22, Math.round(squareSize * 0.88)), height: Math.max(22, Math.round(squareSize * 0.88)) }}
+            draggable={false}
+          />
         ) : (
           PIECE_SYMBOLS[piece.color][piece.type]
         )}

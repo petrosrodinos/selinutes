@@ -27,7 +27,7 @@ export const ZombieReviveModal = ({
   statusMessage
 }: ZombieReviveModalProps) => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="🧟 Necromancer Revival">
+    <Modal isOpen={isOpen} onClose={onClose} title="Necromancer Revival">
       <div className="space-y-4">
         <div className="text-stone-300 text-sm bg-violet-900/20 border border-violet-700/30 rounded-lg p-3">
           <p className="font-semibold text-violet-200 mb-2">Instructions</p>

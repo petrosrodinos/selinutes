@@ -24,24 +24,24 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="bg-stone-800 rounded-xl border border-stone-700 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-stone-800 rounded-xl border border-stone-700 w-full max-w-md max-h-[92vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-stone-800 border-b border-stone-700 px-4 py-3 flex items-center justify-between z-10">
-          <h2 className="text-lg font-semibold text-amber-200">{title}</h2>
+        <div className="sticky top-0 bg-stone-800 border-b border-stone-700 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between z-10">
+          <h2 className="text-base sm:text-lg font-semibold text-amber-200">{title}</h2>
           <button
             onClick={onClose}
-            className="text-stone-400 hover:text-white transition-colors text-2xl leading-none"
+            className="text-stone-400 hover:text-white transition-colors text-xl sm:text-2xl leading-none"
             aria-label="Close"
           >
             ×
           </button>
         </div>
-        <div className="p-4">
+        <div className="p-3 sm:p-4">
           {children}
         </div>
       </div>

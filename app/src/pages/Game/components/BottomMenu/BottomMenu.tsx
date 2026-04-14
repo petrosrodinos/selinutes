@@ -16,12 +16,12 @@ export const BottomMenu = () => {
 
   return (
     <>
-      <div className="bg-stone-800/80 backdrop-blur rounded-xl p-4 border border-stone-700 mt-4">
-        <div className="flex gap-3 justify-center">
+      <div className="bg-stone-800/80 backdrop-blur rounded-xl p-2.5 sm:p-4 border border-stone-700 mt-3 sm:mt-4 w-full">
+        <div className="flex flex-wrap gap-2 sm:gap-3 justify-center">
           <button
             onClick={showHint}
             disabled={!canHint()}
-            className={`flex items-center gap-2 py-2 px-6 font-medium rounded-lg transition-all duration-200 ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 px-3 sm:px-6 min-w-[110px] sm:min-w-0 text-sm sm:text-base font-medium rounded-lg transition-all duration-200 ${
               canHint()
                 ? 'bg-cyan-600 hover:bg-cyan-500 text-white'
                 : 'bg-stone-700 text-stone-500 cursor-not-allowed'
@@ -33,7 +33,7 @@ export const BottomMenu = () => {
           <button
             onClick={undoMove}
             disabled={!canUndo()}
-            className={`flex items-center gap-2 py-2 px-6 font-medium rounded-lg transition-all duration-200 ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 px-3 sm:px-6 min-w-[110px] sm:min-w-0 text-sm sm:text-base font-medium rounded-lg transition-all duration-200 ${
               canUndo()
                 ? 'bg-amber-600 hover:bg-amber-500 text-white'
                 : 'bg-stone-700 text-stone-500 cursor-not-allowed'
@@ -44,7 +44,7 @@ export const BottomMenu = () => {
           </button>
           <button
             onClick={handleNewGameClick}
-            className="flex items-center gap-2 py-2 px-6 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-rose-500/25"
+            className="flex items-center justify-center gap-1.5 sm:gap-2 py-2 px-3 sm:px-6 min-w-[110px] sm:min-w-0 text-sm sm:text-base bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-rose-500/25"
           >
             <RotateCcw className="w-4 h-4" />
             New Game

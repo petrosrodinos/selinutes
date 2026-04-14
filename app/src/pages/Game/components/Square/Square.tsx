@@ -5,6 +5,7 @@ import { getObstacle2DAssetUrl } from '../../utils/figureAssets.utils'
 
 interface SquareProps {
   cell: CellContent
+  squareSize: number
   position: Position
   isSelected: boolean
   isValidMove: boolean
@@ -22,6 +23,7 @@ interface SquareProps {
 
 export const Square = ({
   cell,
+  squareSize,
   position,
   isSelected,
   isValidMove,
@@ -40,7 +42,7 @@ export const Square = ({
   const obstacleImageUrl = cell && isObstacle(cell) ? getObstacle2DAssetUrl(cell.type) : null
 
   const getSquareClasses = () => {
-    const baseClasses = 'w-10 h-10 md:w-12 md:h-12 flex items-center justify-center cursor-pointer relative transition-all duration-200'
+    const baseClasses = 'flex items-center justify-center cursor-pointer relative transition-all duration-200'
     
     if (cell && isObstacle(cell)) {
       if (isMysteryBoxSelectedObstacle) {
@@ -75,21 +77,31 @@ export const Square = ({
   }
 
   return (
-    <div className={getSquareClasses()} onClick={onClick}>
+    <div className={getSquareClasses()} onClick={onClick} style={{ width: squareSize, height: squareSize }}>
       {cell && isObstacle(cell) && (
         <span 
-          className="text-2xl md:text-3xl select-none"
+          className="select-none"
+          style={{ fontSize: Math.max(20, Math.round(squareSize * 0.66)) }}
           title={OBSTACLE_NAMES[cell.type]}
         >
           {obstacleImageUrl ? (
-            <img src={obstacleImageUrl} alt={OBSTACLE_NAMES[cell.type]} className="w-8 h-8 md:w-10 md:h-10 object-contain" draggable={false} />
+            <img
+              src={obstacleImageUrl}
+              alt={OBSTACLE_NAMES[cell.type]}
+              className="object-contain"
+              style={{
+                width: Math.max(22, Math.round(squareSize * 0.82)),
+                height: Math.max(22, Math.round(squareSize * 0.82)),
+              }}
+              draggable={false}
+            />
           ) : (
             OBSTACLE_SYMBOLS[cell.type]
           )}
         </span>
       )}
       {isValidMove && (!cell || !isPiece(cell)) && (
-        <div className="absolute w-3 h-3 bg-stone-800/40 rounded-full" />
+        <div className="absolute bg-stone-800/40 rounded-full" style={{ width: Math.max(8, Math.round(squareSize * 0.26)), height: Math.max(8, Math.round(squareSize * 0.26)) }} />
       )}
       {isValidAttack && cell && isPiece(cell) && (
         <div className="absolute w-full h-full border-4 border-rose-500 rounded-sm animate-pulse" />

@@ -19,10 +19,10 @@ export const MysteryBoxReviveModal = ({
   selectedPieceId
 }: MysteryBoxReviveModalProps) => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="🎁 Revive Captured Enemy Piece">
+    <Modal isOpen={isOpen} onClose={onClose} title="Revive Captured Enemy Piece">
       <div className="space-y-4">
         <div className="text-stone-300 text-sm bg-amber-900/20 border border-amber-700/30 rounded-lg p-3">
-          <p className="font-semibold text-amber-200 mb-2">📖 Instructions:</p>
+          <p className="font-semibold text-amber-200 mb-2">Instructions:</p>
           <ul className="space-y-1 list-disc list-inside">
             <li>Select an <span className="text-amber-200 font-semibold">enemy piece</span> you have captured</li>
             <li>The piece will become <span className="text-green-400 font-semibold">yours</span> after revival</li>
