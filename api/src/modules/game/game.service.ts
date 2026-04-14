@@ -16,7 +16,7 @@ import {
     PlayerColors
 } from './constants/game.constants'
 import { generateGameCode, getGameKey } from './helpers/game.helper'
-import { GameMode, GameStatus } from 'generated/prisma'
+import { GameMode, GameStatus, Prisma } from 'generated/prisma'
 import { getLevelFromPoints } from './constants/game-rewards.constants'
 import { SaveOfflineGameDto } from './dto/save-offline-game.dto'
 import { GetGamesDto, GameSortBy, SortOrder } from './dto/get-games.dto'
@@ -253,31 +253,6 @@ export class GameService {
                 finished_at: new Date(),
             }
         })
-
-        const existingStats = await this.prisma.userStats.findUnique({ where: { user_uuid: userUuid } })
-        const newPoints = (existingStats?.points ?? 0) + dto.points
-        const newWins = (existingStats?.wins ?? 0) + (status === GameStatus.WIN ? 1 : 0)
-        const newLosses = (existingStats?.losses ?? 0) + (status === GameStatus.LOSS ? 1 : 0)
-        const newDraws = (existingStats?.draws ?? 0) + (status === GameStatus.DRAW ? 1 : 0)
-
-        await this.prisma.userStats.upsert({
-            where: { user_uuid: userUuid },
-            create: {
-                user_uuid: userUuid,
-                points: newPoints,
-                wins: newWins,
-                losses: newLosses,
-                draws: newDraws,
-                level: getLevelFromPoints(newPoints),
-            },
-            update: {
-                points: newPoints,
-                wins: newWins,
-                losses: newLosses,
-                draws: newDraws,
-                level: getLevelFromPoints(newPoints),
-            }
-        })
     }
 
     async deleteGame(code: string): Promise<void> {
@@ -374,81 +349,109 @@ export class GameService {
 
     private async saveFinishedGame(gameSession: GameSession): Promise<void> {
         try {
-            const existing = await this.prisma.game.findMany({ where: { code: gameSession.code } })
-            if (existing.length > 2) return
+            await this.prisma.$transaction(async (tx) => {
+                await this.lockOnlineGameCode(tx, gameSession.code)
 
-            const { code, boardSizeKey, players, createdAt, gameState } = gameSession
-            const winner = gameState?.winner ?? null
-            const moves = gameState?.moveHistory?.length ?? 0
-            const finishedAt = new Date()
-            const timeInSeconds = Math.floor((finishedAt.getTime() - new Date(createdAt).getTime()) / 1000)
-            const whitePoints = gameState?.whitePoints ?? 0
-            const blackPoints = gameState?.blackPoints ?? 0
-            const totalPoints = whitePoints + blackPoints
+                const { code, boardSizeKey, players, createdAt, gameState } = gameSession
+                const winner = gameState?.winner ?? null
+                const moves = gameState?.moveHistory?.length ?? 0
+                const finishedAt = new Date()
+                const timeInSeconds = Math.floor((finishedAt.getTime() - new Date(createdAt).getTime()) / 1000)
+                const whitePoints = gameState?.whitePoints ?? 0
+                const blackPoints = gameState?.blackPoints ?? 0
+                const totalPoints = whitePoints + blackPoints
 
-            if (totalPoints === 0) {
-                this.logger.log(`Skipping game ${code}: both players earned 0 points`)
-                return
-            }
+                if (totalPoints === 0) {
+                    this.logger.log(`Skipping game ${code}: both players earned 0 points`)
+                    return
+                }
 
-            for (const player of players) {
-                const status: GameStatus = winner === null
-                    ? GameStatus.DRAW
-                    : player.color === winner
-                        ? GameStatus.WIN
-                        : GameStatus.LOSS
-
-                const pointsFromState = player.color === PlayerColors.WHITE ? whitePoints : blackPoints
-                const points = pointsFromState > 0 ? pointsFromState : (player.points ?? 0)
-
-                await this.prisma.game.create({
-                    data: {
-                        user_uuid: player.id,
+                const playerIds = players.map((player) => player.id)
+                const existingPlayers = await tx.game.findMany({
+                    where: {
                         code,
-                        board_size: boardSizeKey,
                         mode: GameMode.ONLINE,
-                        status,
-                        time: timeInSeconds,
-                        moves,
-                        points,
-                        finished_at: finishedAt,
-                    }
-                })
-
-                const existingStats = await this.prisma.userStats.findUnique({
-                    where: { user_uuid: player.id }
-                })
-
-                const newPoints = (existingStats?.points ?? 0) + points
-                const newWins = (existingStats?.wins ?? 0) + (status === GameStatus.WIN ? 1 : 0)
-                const newLosses = (existingStats?.losses ?? 0) + (status === GameStatus.LOSS ? 1 : 0)
-                const newDraws = (existingStats?.draws ?? 0) + (status === GameStatus.DRAW ? 1 : 0)
-                const newLevel = getLevelFromPoints(newPoints)
-                const newRank = await this.calculateRank(player.id, newPoints)
-
-                await this.prisma.userStats.upsert({
-                    where: { user_uuid: player.id },
-                    create: {
-                        user_uuid: player.id,
-                        points: newPoints,
-                        wins: newWins,
-                        losses: newLosses,
-                        draws: newDraws,
-                        level: newLevel,
-                        rank: newRank,
+                        user_uuid: { in: playerIds }
                     },
-                    update: {
-                        points: newPoints,
-                        wins: newWins,
-                        losses: newLosses,
-                        draws: newDraws,
-                        level: newLevel,
-                        rank: newRank,
-                    }
+                    select: { user_uuid: true },
+                    distinct: ['user_uuid']
                 })
 
-                this.logger.log(`Saved game record for player ${player.id} (${status}, ${points} pts, rank #${newRank})`)
-            }
+                if (existingPlayers.length >= playerIds.length) {
+                    return
+                }
+
+                for (const player of players) {
+                    const playerRecordExists = await tx.game.findFirst({
+                        where: {
+                            code,
+                            mode: GameMode.ONLINE,
+                            user_uuid: player.id
+                        },
+                        select: { id: true }
+                    })
+                    if (playerRecordExists) {
+                        continue
+                    }
+
+                    const status: GameStatus = winner === null
+                        ? GameStatus.DRAW
+                        : player.color === winner
+                            ? GameStatus.WIN
+                            : GameStatus.LOSS
+
+                    const pointsFromState = player.color === PlayerColors.WHITE ? whitePoints : blackPoints
+                    const points = pointsFromState > 0 ? pointsFromState : (player.points ?? 0)
+
+                    await tx.game.create({
+                        data: {
+                            user_uuid: player.id,
+                            code,
+                            board_size: boardSizeKey,
+                            mode: GameMode.ONLINE,
+                            status,
+                            time: timeInSeconds,
+                            moves,
+                            points,
+                            finished_at: finishedAt,
+                        }
+                    })
+
+                    const existingStats = await tx.userStats.findUnique({
+                        where: { user_uuid: player.id }
+                    })
+
+                    const newPoints = (existingStats?.points ?? 0) + points
+                    const newWins = (existingStats?.wins ?? 0) + (status === GameStatus.WIN ? 1 : 0)
+                    const newLosses = (existingStats?.losses ?? 0) + (status === GameStatus.LOSS ? 1 : 0)
+                    const newDraws = (existingStats?.draws ?? 0) + (status === GameStatus.DRAW ? 1 : 0)
+                    const newLevel = getLevelFromPoints(newPoints)
+                    const newRank = await this.calculateRankWithTx(tx, player.id, newPoints)
+
+                    await tx.userStats.upsert({
+                        where: { user_uuid: player.id },
+                        create: {
+                            user_uuid: player.id,
+                            points: newPoints,
+                            wins: newWins,
+                            losses: newLosses,
+                            draws: newDraws,
+                            level: newLevel,
+                            rank: newRank,
+                        },
+                        update: {
+                            points: newPoints,
+                            wins: newWins,
+                            losses: newLosses,
+                            draws: newDraws,
+                            level: newLevel,
+                            rank: newRank,
+                        }
+                    })
+
+                    this.logger.log(`Saved game record for player ${player.id} (${status}, ${points} pts, rank #${newRank})`)
+                }
+            })
         } catch (error) {
             this.logger.error(`Failed to save finished game ${gameSession.code}: ${error.message}`)
         }
@@ -462,6 +465,20 @@ export class GameService {
             }
         })
         return usersAhead + 1
+    }
+
+    private async calculateRankWithTx(tx: Prisma.TransactionClient, userUuid: string, newPoints: number): Promise<number> {
+        const usersAhead = await tx.userStats.count({
+            where: {
+                points: { gt: newPoints },
+                user_uuid: { not: userUuid },
+            }
+        })
+        return usersAhead + 1
+    }
+
+    private async lockOnlineGameCode(tx: Prisma.TransactionClient, code: string): Promise<void> {
+        await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${`online-game-finish:${code}`}))`
     }
 
     private async getGameSession(code: string): Promise<GameSession | undefined> {
