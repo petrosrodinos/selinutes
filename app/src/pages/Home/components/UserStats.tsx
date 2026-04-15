@@ -25,8 +25,8 @@ export const UserStats = () => {
 
   return (
     <div className="bg-stone-800/60 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-stone-700/50">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-start gap-3 sm:items-center sm:gap-4">
           <button
             type="button"
             onClick={() => setLevelModalOpen(true)}
@@ -36,7 +36,7 @@ export const UserStats = () => {
               <span className="text-2xl font-black text-white drop-shadow-sm">{level}</span>
             </div>
           </button>
-          <div className="mb-5">
+          <div className="mb-0">
             <h2 className="text-2xl font-bold text-amber-400">{username}</h2>
             <div className="w-24 h-1.5 bg-stone-700 rounded-full overflow-hidden">
               <div className={`h-full rounded-full bg-gradient-to-r ${tier.gradient} transition-all duration-500`} style={{ width: `${progress * 100}%` }} />
@@ -52,8 +52,8 @@ export const UserStats = () => {
             </div>
           )}
         </div>
-        <div className="text-right">
-          <div className="flex items-center gap-2 justify-end mb-1">
+        <div className="text-left sm:text-right">
+          <div className="mb-1 flex items-center gap-2 justify-start sm:justify-end">
             <Trophy className="w-6 h-6 text-amber-400" />
             <span className="text-3xl font-bold text-amber-400">{points.toLocaleString()}</span>
           </div>

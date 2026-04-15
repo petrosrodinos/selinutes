@@ -1,4 +1,5 @@
 import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export type Board3DLoadFallbackMode = "card" | "overlay";
 
@@ -9,6 +10,17 @@ interface Board3DLoadFallbackProps {
 
 export const Board3DLoadFallback = ({ mode = "card" }: Board3DLoadFallbackProps) => {
   const overlay = mode === "overlay";
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const updateMobileViewport = () => setIsMobileViewport(window.innerWidth < 640);
+    updateMobileViewport();
+    window.addEventListener("resize", updateMobileViewport);
+
+    return () => window.removeEventListener("resize", updateMobileViewport);
+  }, []);
 
   return (
     <div className={overlay ? "pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center overflow-hidden rounded-xl border border-amber-500/25 bg-stone-950/70 shadow-inner backdrop-blur-sm" : "relative w-[680px] h-[680px] md:w-[800px] md:h-[800px] rounded-xl overflow-hidden shadow-2xl border border-stone-700/60 bg-[#1f2937]"} aria-busy="true" aria-live="polite" aria-label="Loading 3D board">
@@ -36,6 +48,11 @@ export const Board3DLoadFallback = ({ mode = "card" }: Board3DLoadFallbackProps)
         <div className="max-w-md text-center space-y-3">
           <h2 className="text-lg md:text-2xl font-semibold tracking-tight bg-gradient-to-r from-amber-200 via-amber-50 to-amber-200 bg-clip-text text-transparent">{overlay ? "Loading 3D models…" : "Preparing your 3D board"}</h2>
           <p className="text-stone-400 text-sm md:text-[0.9375rem] leading-relaxed">{overlay ? "Pieces and terrain are loading." : "Loading pieces, obstacles, and textures. On a slower connection this can take a little while — the board will appear as soon as everything is ready."}</p>
+          {isMobileViewport ? (
+            <p className="text-amber-200/90 text-xs md:text-sm leading-relaxed">
+              Mobile note: loading can take longer depending on your device performance and network speed.
+            </p>
+          ) : null}
         </div>
 
         <div className="flex items-center gap-2" aria-hidden>

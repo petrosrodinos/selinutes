@@ -10,9 +10,10 @@ interface GltfLoadingProgressBridgeProps {
  * Fires even when models were preloaded — use this to show a DOM overlay until work is done.
  */
 export const GltfLoadingProgressBridge = ({ onLoadingChange }: GltfLoadingProgressBridgeProps) => {
-  const { active } = useProgress()
+  const { active, loaded, total } = useProgress()
   useEffect(() => {
-    onLoadingChange(active)
-  }, [active, onLoadingChange])
+    const hasPendingAssets = total > 0 && loaded < total
+    onLoadingChange(active || hasPendingAssets)
+  }, [active, loaded, total, onLoadingChange])
   return null
 }

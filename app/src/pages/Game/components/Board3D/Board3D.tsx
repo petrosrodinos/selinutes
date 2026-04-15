@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { isPiece, isObstacle, ObstacleTypes, PlayerColors } from "../../types";
@@ -269,8 +269,35 @@ export const Board3D = ({ isOnline = false, onlineBoard, onlineBoardSize, online
   }, [viewportWidth]);
 
   const [gltfAssetsLoading, setGltfAssetsLoading] = useState(true);
-  const handleGltfLoadingChange = useCallback((active: boolean) => {
-    setGltfAssetsLoading(active);
+  const hideLoadingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (hideLoadingTimeoutRef.current) {
+        clearTimeout(hideLoadingTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleGltfLoadingChange = useCallback((loading: boolean) => {
+    if (loading) {
+      if (hideLoadingTimeoutRef.current) {
+        clearTimeout(hideLoadingTimeoutRef.current);
+        hideLoadingTimeoutRef.current = null;
+      }
+      setGltfAssetsLoading(true);
+      return;
+    }
+
+    if (hideLoadingTimeoutRef.current) {
+      clearTimeout(hideLoadingTimeoutRef.current);
+    }
+
+    // Avoid flashing partial scene content on slower devices.
+    hideLoadingTimeoutRef.current = setTimeout(() => {
+      setGltfAssetsLoading(false);
+      hideLoadingTimeoutRef.current = null;
+    }, 250);
   }, []);
 
   return (
