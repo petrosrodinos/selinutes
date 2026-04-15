@@ -8,6 +8,7 @@ import { BoardSquare3D } from "./BoardSquare3D";
 import { Obstacle3D } from "./Obstacle3D";
 import { useGameStore } from "../../../../store/gameStore";
 import { useUIStore } from "../../../../store/uiStore";
+import { useIsAdmin } from "../../../../hooks";
 import { getValidMoves, getValidAttacks, getAllNarcNetPositions } from "../../utils";
 import { Board3DLoadFallback } from "./Board3DLoadFallback";
 import { GltfLoadingProgressBridge } from "./GltfLoadingProgressBridge";
@@ -31,6 +32,8 @@ const obstacleUsesGltf = (type: ObstacleType): boolean => type !== ObstacleTypes
 const GameScene = ({ isOnline = false, onlineBoard, onlineBoardSize, onlineSelectedPosition, onlineValidMoves = [], onlineValidAttacks = [], onlineValidSwaps = [], onlineLastMove, onlineMysteryBoxState, onSquareClick, onMysteryBoxClick }: GameSceneProps) => {
   const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection } = useGameStore();
   const { helpEnabled, devMode } = useUIStore();
+  const isAdmin = useIsAdmin();
+  const effectiveDevMode = devMode && isAdmin;
 
   const mysteryBoxState = isOnline && onlineMysteryBoxState ? onlineMysteryBoxState : offlineMysteryBoxState;
 
@@ -61,14 +64,14 @@ const GameScene = ({ isOnline = false, onlineBoard, onlineBoardSize, onlineSelec
   }, [rows, cols]);
 
   const isSelected = (row: number, col: number) => {
-    if (!isOnline && devMode && devModeSelected) {
+    if (!isOnline && effectiveDevMode && devModeSelected) {
       return devModeSelected.row === row && devModeSelected.col === col;
     }
     return selectedPosition?.row === row && selectedPosition?.col === col;
   };
 
   const isDevModeTarget = (row: number, col: number) => {
-    if (isOnline || !devMode || !devModeSelected) return false;
+    if (isOnline || !effectiveDevMode || !devModeSelected) return false;
     const cell = board[row][col];
     return cell === null;
   };
@@ -115,7 +118,7 @@ const GameScene = ({ isOnline = false, onlineBoard, onlineBoardSize, onlineSelec
         return;
       }
 
-      if (!isOnline && devMode) {
+      if (!isOnline && effectiveDevMode) {
         devModeSelectSquare({ row, col });
         return;
       }

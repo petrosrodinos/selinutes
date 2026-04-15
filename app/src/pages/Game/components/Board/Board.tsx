@@ -5,6 +5,7 @@ import { Square } from '../Square'
 import { AnimatedPiece } from '../Piece/AnimatedPiece'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
+import { useIsAdmin } from '../../../../hooks'
 import { getValidMoves, getValidAttacks, getAllNarcNetPositions } from '../../utils'
 import { isPiece } from '../../types'
 import type { Board as BoardType, BoardSize, Position, Move, SwapTarget, MysteryBoxState } from '../../types'
@@ -41,6 +42,8 @@ export const Board = ({
 }: BoardProps) => {
     const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection } = useGameStore()
     const { helpEnabled, devMode } = useUIStore()
+    const isAdmin = useIsAdmin()
+    const effectiveDevMode = devMode && isAdmin
     
     const mysteryBoxState = isOnline && onlineMysteryBoxState ? onlineMysteryBoxState : offlineMysteryBoxState
 
@@ -105,14 +108,14 @@ export const Board = ({
     const fileLabelHeight = boardLabelInsetPx(squareSize)
 
     const isSelected = (row: number, col: number) => {
-        if (!isOnline && devMode && devModeSelected) {
+        if (!isOnline && effectiveDevMode && devModeSelected) {
             return devModeSelected.row === row && devModeSelected.col === col
         }
         return selectedPosition?.row === row && selectedPosition?.col === col
     }
 
     const isDevModeTarget = (row: number, col: number) => {
-        if (isOnline || !devMode || !devModeSelected) return false
+        if (isOnline || !effectiveDevMode || !devModeSelected) return false
         const cell = board[row][col]
         return cell === null
     }
@@ -176,7 +179,7 @@ export const Board = ({
                 return
             }
             
-            if (!isOnline && devMode) {
+            if (!isOnline && effectiveDevMode) {
                 devModeSelectSquare({ row, col })
                 return
             }
@@ -210,7 +213,7 @@ export const Board = ({
                 {files.map(file => (
                     <div
                         key={file}
-                        className="flex items-center justify-center text-amber-200 font-mono text-xs"
+                        className="flex items-center justify-center font-mono text-xs text-amber-100/95"
                         style={{ width: squareSize, height: fileLabelHeight }}
                     >
                         {file}
@@ -223,7 +226,7 @@ export const Board = ({
                     {ranks.map(rank => (
                         <div
                             key={rank}
-                            className="flex items-center justify-center text-amber-200 font-mono text-xs"
+                            className="flex items-center justify-center font-mono text-xs text-amber-100/95"
                             style={{ width: rankLabelWidth, height: squareSize }}
                         >
                             {rank}
@@ -280,7 +283,7 @@ export const Board = ({
                     {ranks.map(rank => (
                         <div
                             key={rank}
-                            className="flex items-center justify-center text-amber-200 font-mono text-xs"
+                            className="flex items-center justify-center font-mono text-xs text-amber-100/95"
                             style={{ width: rankLabelWidth, height: squareSize }}
                         >
                             {rank}
@@ -294,7 +297,7 @@ export const Board = ({
                 {files.map(file => (
                     <div
                         key={file}
-                        className="flex items-center justify-center text-amber-200 font-mono text-xs"
+                        className="flex items-center justify-center font-mono text-xs text-amber-100/95"
                         style={{ width: squareSize, height: fileLabelHeight }}
                     >
                         {file}

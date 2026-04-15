@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
 import { Modal } from '../../../../components/Modal'
 import type { BoardSizeKey } from '../../types'
@@ -12,6 +10,8 @@ import { GameModes } from '../../../../constants'
 interface GameSettingsModalProps {
   isOpen: boolean
   onClose: () => void
+  /** Opens the shared leave confirmation dialog (owned by Game). */
+  onRequestLeave: () => void
 }
 
 const BOARD_SIZE_LABELS: Record<BoardSizeKey, string> = {
@@ -20,16 +20,12 @@ const BOARD_SIZE_LABELS: Record<BoardSizeKey, string> = {
   [BoardSizeKeys.LARGE]: 'Large (12×20)'
 }
 
-export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) => {
-  const navigate = useNavigate()
-  const [isLeaveConfirmOpen, setIsLeaveConfirmOpen] = useState(false)
-
+export const GameSettingsModal = ({ isOpen, onClose, onRequestLeave }: GameSettingsModalProps) => {
   const {
     boardSizeKey,
     botEnabled,
     botDifficulty,
     resetGame,
-    reset: resetOnlineState,
     toggleBot,
     setDifficulty
   } = useGameStore()
@@ -39,52 +35,35 @@ export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) =
 
   const isOnline = mode === GameModes.ONLINE
 
-  const handleConfirmLeave = () => {
-    setIsLeaveConfirmOpen(false)
-    onClose()
-    if (isOnline) {
-      resetOnlineState()
-    } else {
-      resetGame()
-    }
-    navigate('/home')
-  }
-
   const handleBoardSizeChange = (sizeKey: BoardSizeKey) => {
     resetGame(sizeKey)
     onClose()
   }
 
-  useEffect(() => {
-    if (!isOpen) {
-      setIsLeaveConfirmOpen(false)
-    }
-  }, [isOpen])
-
   return (
-    <>
     <Modal isOpen={isOpen} onClose={onClose} title="Settings">
       <div className="space-y-4 sm:space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
           <label className="text-sm font-medium text-stone-300">View mode</label>
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="ml-auto flex items-center gap-2">
             <button
+              type="button"
               onClick={toggle3D}
-              className={`relative w-12 sm:w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ${is3D ? 'bg-violet-600' : 'bg-stone-600'}`}
+              className={`relative h-7 w-12 overflow-hidden rounded-full transition-colors duration-200 sm:h-7 sm:w-14 ${is3D ? 'bg-violet-600' : 'bg-stone-600'}`}
             >
-              <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${is3D ? 'translate-x-5 sm:translate-x-7' : 'translate-x-0'}`} />
+              <span className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform duration-200 ${is3D ? 'translate-x-5 sm:translate-x-7' : 'translate-x-0'}`} />
             </button>
-            <span className="text-xs text-stone-400 w-8">{is3D ? '3D' : '2D'}</span>
+            <span className="w-8 text-xs text-stone-400">{is3D ? '3D' : '2D'}</span>
           </div>
         </div>
 
         {!isOnline && (
           <div>
-            <label className="text-sm font-medium text-stone-300 block mb-1.5 sm:mb-2">Board size</label>
+            <label className="mb-1.5 block text-sm font-medium text-stone-300 sm:mb-2">Board size</label>
             <select
               value={boardSizeKey}
               onChange={(e) => handleBoardSizeChange(e.target.value as BoardSizeKey)}
-              className="w-full bg-stone-700 text-amber-100 text-sm rounded-lg px-3 py-2 border border-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
+              className="w-full cursor-pointer rounded-lg border border-stone-600 bg-stone-700 px-3 py-2 text-sm text-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
             >
               {(Object.keys(BOARD_SIZE_LABELS) as BoardSizeKey[]).map((key) => (
                 <option key={key} value={key}>
@@ -100,19 +79,20 @@ export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) =
             <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
               <label className="text-sm font-medium text-stone-300">Bot mode</label>
               <button
+                type="button"
                 onClick={toggleBot}
-                className={`relative w-12 sm:w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ml-auto ${botEnabled ? 'bg-emerald-600' : 'bg-stone-600'}`}
+                className={`relative ml-auto h-7 w-12 overflow-hidden rounded-full transition-colors duration-200 sm:w-14 ${botEnabled ? 'bg-emerald-600' : 'bg-stone-600'}`}
               >
-                <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${botEnabled ? 'translate-x-5 sm:translate-x-7' : 'translate-x-0'}`} />
+                <span className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform duration-200 ${botEnabled ? 'translate-x-5 sm:translate-x-7' : 'translate-x-0'}`} />
               </button>
             </div>
             {botEnabled && (
               <div>
-                <label className="text-xs text-stone-400 block mb-1">Difficulty</label>
+                <label className="mb-1 block text-xs text-stone-400">Difficulty</label>
                 <select
                   value={botDifficulty}
                   onChange={(e) => setDifficulty(e.target.value as typeof botDifficulty)}
-                  className="w-full bg-stone-700 text-amber-100 text-sm rounded-lg px-3 py-2 border border-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                  className="w-full cursor-pointer rounded-lg border border-stone-600 bg-stone-700 px-3 py-2 text-sm text-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
                   <option value={BotDifficulties.EASY}>Easy</option>
                   <option value={BotDifficulties.MEDIUM}>Medium</option>
@@ -126,16 +106,17 @@ export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) =
         <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
           <label className="text-sm font-medium text-stone-300">Sound</label>
           <button
+            type="button"
             onClick={toggleSound}
-            className={`relative w-12 sm:w-14 h-7 rounded-full transition-colors duration-200 overflow-hidden ml-auto ${soundEnabled ? 'bg-amber-600' : 'bg-stone-600'}`}
+            className={`relative ml-auto h-7 w-12 overflow-hidden rounded-full transition-colors duration-200 sm:w-14 ${soundEnabled ? 'bg-amber-600' : 'bg-stone-600'}`}
           >
-            <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${soundEnabled ? 'translate-x-5 sm:translate-x-7' : 'translate-x-0'}`} />
+            <span className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform duration-200 ${soundEnabled ? 'translate-x-5 sm:translate-x-7' : 'translate-x-0'}`} />
           </button>
         </div>
 
         {soundEnabled && (
           <div>
-            <div className="flex items-center justify-between mb-1">
+            <div className="mb-1 flex items-center justify-between">
               <label className="text-sm font-medium text-stone-300">Volume</label>
               <span className="text-xs text-stone-400">{Math.round(soundVolume * 100)}%</span>
             </div>
@@ -146,16 +127,16 @@ export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) =
               step={0.05}
               value={soundVolume}
               onChange={(e) => setSoundVolume(parseFloat(e.target.value))}
-              className="w-full h-2 bg-stone-600 rounded-lg appearance-none cursor-pointer accent-amber-500"
+              className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-stone-600 accent-amber-500"
             />
           </div>
         )}
 
-        <div className="border-t border-stone-700 pt-4 space-y-3">
+        <div className="space-y-3 border-t border-stone-700 pt-4">
           <button
             type="button"
-            onClick={() => setIsLeaveConfirmOpen(true)}
-            className="flex w-full touch-manipulation items-center justify-center gap-2 rounded-lg border border-rose-500/50 bg-rose-600/90 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-500"
+            onClick={onRequestLeave}
+            className="flex w-full touch-manipulation items-center justify-center gap-2 rounded-lg border border-rose-500/50 bg-rose-600/90 py-2.5 text-sm font-medium text-white transition hover:bg-rose-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/80"
           >
             <LogOut className="h-4 w-4 shrink-0" aria-hidden />
             Leave game
@@ -163,39 +144,12 @@ export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) =
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 bg-stone-700 hover:bg-stone-600 text-stone-200 rounded-lg transition-colors text-sm font-medium"
+            className="w-full rounded-lg bg-stone-700 py-2.5 text-sm font-medium text-stone-200 transition hover:bg-stone-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-500/80"
           >
             Done
           </button>
         </div>
       </div>
     </Modal>
-
-    <Modal isOpen={isLeaveConfirmOpen} onClose={() => setIsLeaveConfirmOpen(false)} title="Leave Game">
-      <div className="space-y-4">
-        <p className="text-stone-300">
-          {isOnline
-            ? 'Are you sure you want to leave this game? You will forfeit the match.'
-            : 'Are you sure you want to leave? Your current game progress will be lost.'}
-        </p>
-        <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => setIsLeaveConfirmOpen(false)}
-            className="rounded-lg bg-stone-700 px-4 py-2 text-stone-200 transition-colors hover:bg-stone-600"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleConfirmLeave}
-            className="rounded-lg bg-rose-600 px-4 py-2 text-white transition-colors hover:bg-rose-500"
-          >
-            Leave Game
-          </button>
-        </div>
-      </div>
-    </Modal>
-    </>
   )
 }

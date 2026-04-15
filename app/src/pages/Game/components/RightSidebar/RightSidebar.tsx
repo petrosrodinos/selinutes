@@ -93,40 +93,57 @@ export const CapturedPieces = ({ onOpenZombieRevive }: { onOpenZombieRevive?: ()
   );
 };
 
-const CapturedPiecesContent = ({ capturedPieces, currentPlayer, onOpenZombieRevive }: CapturedPiecesContentProps) => (
-  <div className="space-y-2">
-    <div>
-      <div className="flex items-center gap-1 mb-1">
-        <span className="text-xs text-stone-400">
-          White ({getTotalPointsForPieces(capturedPieces.white)}
-          {POINTS_LABEL}):
-        </span>
-      </div>
-      <button type="button" onClick={currentPlayer === PlayerColors.WHITE ? onOpenZombieRevive : undefined} className={`flex flex-wrap gap-0.5 min-h-[28px] w-full text-left ${currentPlayer === PlayerColors.WHITE && onOpenZombieRevive ? "hover:bg-stone-700/50 rounded-md p-1 -m-1" : ""}`}>
-        {sortedCapturedPieces(capturedPieces.white).map((piece, i) => (
-          <span key={`w-${i}`} className="inline-flex items-center justify-center">
-            <CapturedPieceIcon piece={piece} />
+const CapturedPiecesContent = ({ capturedPieces, currentPlayer, onOpenZombieRevive }: CapturedPiecesContentProps) => {
+  const wPts = getTotalPointsForPieces(capturedPieces.white);
+  const bPts = getTotalPointsForPieces(capturedPieces.black);
+  return (
+    <div className="space-y-3">
+      <section className="rounded-xl border border-stone-600/60 bg-stone-950/40 p-3 shadow-inner ring-1 ring-white/[0.04]">
+        <div className="mb-2 flex items-center gap-2 border-b border-stone-700/50 pb-2">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-stone-100 ring-2 ring-amber-200/40" aria-hidden />
+          <span className="text-xs font-semibold tracking-wide text-amber-100/95">White</span>
+          <span className="ml-auto tabular-nums text-[11px] font-medium text-stone-400">
+            {wPts}
+            {POINTS_LABEL}
           </span>
-        ))}
-      </button>
-    </div>
-    <div>
-      <div className="flex items-center gap-1 mb-1">
-        <span className="text-xs text-stone-400">
-          Black ({getTotalPointsForPieces(capturedPieces.black)}
-          {POINTS_LABEL}):
-        </span>
-      </div>
-      <button type="button" onClick={currentPlayer === PlayerColors.BLACK ? onOpenZombieRevive : undefined} className={`flex flex-wrap gap-0.5 min-h-[28px] w-full text-left ${currentPlayer === PlayerColors.BLACK && onOpenZombieRevive ? "hover:bg-stone-700/50 rounded-md p-1 -m-1" : ""}`}>
-        {sortedCapturedPieces(capturedPieces.black).map((piece, i) => (
-          <span key={`b-${i}`} className="inline-flex items-center justify-center">
-            <CapturedPieceIcon piece={piece} />
+        </div>
+        <button
+          type="button"
+          onClick={currentPlayer === PlayerColors.WHITE ? onOpenZombieRevive : undefined}
+          className={`flex min-h-[32px] w-full flex-wrap gap-1 text-left transition-colors ${currentPlayer === PlayerColors.WHITE && onOpenZombieRevive ? "rounded-lg hover:bg-stone-800/60" : ""}`}
+        >
+          {sortedCapturedPieces(capturedPieces.white).map((piece, i) => (
+            <span key={`w-${i}`} className="inline-flex items-center justify-center">
+              <CapturedPieceIcon piece={piece} />
+            </span>
+          ))}
+        </button>
+      </section>
+
+      <section className="rounded-xl border border-stone-600/60 bg-black/25 p-3 shadow-inner ring-1 ring-black/30">
+        <div className="mb-2 flex items-center gap-2 border-b border-stone-700/50 pb-2">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-stone-900 ring-2 ring-amber-900/50" aria-hidden />
+          <span className="text-xs font-semibold tracking-wide text-amber-100/95">Black</span>
+          <span className="ml-auto tabular-nums text-[11px] font-medium text-stone-400">
+            {bPts}
+            {POINTS_LABEL}
           </span>
-        ))}
-      </button>
+        </div>
+        <button
+          type="button"
+          onClick={currentPlayer === PlayerColors.BLACK ? onOpenZombieRevive : undefined}
+          className={`flex min-h-[32px] w-full flex-wrap gap-1 text-left transition-colors ${currentPlayer === PlayerColors.BLACK && onOpenZombieRevive ? "rounded-lg hover:bg-stone-800/60" : ""}`}
+        >
+          {sortedCapturedPieces(capturedPieces.black).map((piece, i) => (
+            <span key={`b-${i}`} className="inline-flex items-center justify-center">
+              <CapturedPieceIcon piece={piece} />
+            </span>
+          ))}
+        </button>
+      </section>
     </div>
-  </div>
-);
+  );
+};
 
 interface RightSidebarProps {
   onOpenZombieRevive?: () => void;
@@ -164,7 +181,7 @@ export const RightSidebar = ({ onOpenZombieRevive }: RightSidebarProps) => {
   const showNecromancerMenu = Boolean(selectedCell && "color" in selectedCell && selectedCell.type === PieceTypes.NECROMANCER);
 
   return (
-    <div className="bg-stone-800/80 backdrop-blur rounded-xl p-4 border border-stone-700 w-full lg:w-64">
+    <div className="w-full rounded-2xl border border-stone-700/80 bg-stone-900/45 p-4 shadow-lg shadow-black/20 backdrop-blur-md sm:p-5">
       {showAttackModeMenu && selectedCell && "color" in selectedCell && (
         <div className="mb-4 border border-stone-700 rounded-lg p-3 bg-stone-900/50">
           <h3 className="text-sm font-medium text-amber-200 mb-2">{PIECE_NAMES[selectedCell.type]} Attack Mode</h3>
@@ -196,8 +213,8 @@ export const RightSidebar = ({ onOpenZombieRevive }: RightSidebarProps) => {
           </div>
         </div>
       )}
-      <div className="mb-4 hidden lg:block">
-        <h3 className="text-sm font-medium text-amber-200 mb-2">Captured Pieces</h3>
+      <div className="mb-1 hidden lg:block">
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Captured</h3>
         <CapturedPiecesContent capturedPieces={capturedPieces} currentPlayer={reviveSectionColor} onOpenZombieRevive={onOpenZombieRevive} />
       </div>
     </div>

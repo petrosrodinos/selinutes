@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Loader2 } from "lucide-react";
 import { Board } from "./components/Board";
@@ -22,6 +23,7 @@ import { environments } from "../../config/environments";
 import { GameModes } from "../../constants";
 import { areRevivalGuardsInPlace, findPiecePosition, getZombieRevivePieces, getZombieReviveStatusMessage, getZombieReviveConfirmState, getZombieRevivePlacementTarget } from "./utils";
 import { useSaveOfflineGame } from "../../features/game/hooks";
+import { LeaveGameConfirmModal } from "./components/LeaveGameConfirmModal";
 
 const Board3DLazy = lazy(() =>
   import("./components/Board3D/Board3D").then((m) => ({ default: m.Board3D }))
@@ -35,10 +37,26 @@ const calculatePoints = (pieces: Piece[]): number =>
   }, 0);
 
 export const Game = () => {
+  const navigate = useNavigate();
   const { mode } = useGameMode();
   const isOnline = mode === GameModes.ONLINE;
 
-  const { gameState, boardSizeKey, botEnabled, botDifficulty, botThinking, processBotMove, startGameTimer, mysteryBoxState: offlineMysteryBoxState, selectRevivePiece: offlineSelectRevivePiece, cancelMysteryBox: offlineCancelMysteryBox, selectSquare: offlineSelectSquare, reviveZombie: offlineReviveZombie } = useGameStore();
+  const {
+    gameState,
+    boardSizeKey,
+    botEnabled,
+    botDifficulty,
+    botThinking,
+    processBotMove,
+    startGameTimer,
+    mysteryBoxState: offlineMysteryBoxState,
+    selectRevivePiece: offlineSelectRevivePiece,
+    cancelMysteryBox: offlineCancelMysteryBox,
+    selectSquare: offlineSelectSquare,
+    reviveZombie: offlineReviveZombie,
+    resetGame,
+    reset: resetOnlineState,
+  } = useGameStore();
   const { is3D, isTopMenuOpen, isRightMenuOpen, closeTopMenu, closeRightMenu } = useUIStore();
 
   useEffect(() => {
@@ -49,6 +67,7 @@ export const Game = () => {
   const { mutate: saveOfflineGameResult } = useSaveOfflineGame();
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
   const [isZombieReviveOpen, setIsZombieReviveOpen] = useState(false);
   const [selectedZombiePiece, setSelectedZombiePiece] = useState<Piece | null>(null);
   const offlineGameSavedRef = useRef(false);
@@ -234,6 +253,17 @@ export const Game = () => {
     confirmZombieRevive();
   };
 
+  const handleLeaveConfirm = () => {
+    setLeaveConfirmOpen(false);
+    setIsSettingsOpen(false);
+    if (isOnline) {
+      resetOnlineState();
+    } else {
+      resetGame();
+    }
+    navigate("/home");
+  };
+
   const onSquareClick = (pos: { row: number; col: number }) => {
     const hasSelection = isOnline ? onlineSelectedPosition !== null : gameState.selectedPosition !== null;
     const currentSwaps = isOnline ? onlineValidSwaps : gameState.validSwaps;
@@ -287,24 +317,44 @@ export const Game = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-emerald-950 p-2 sm:p-4">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="mb-2 text-center text-xl font-bold sm:mb-4 sm:text-3xl md:mb-6 md:text-4xl bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text text-transparent">{environments.APP_NAME}</h1>
+      <div className="mx-auto max-w-[1600px]">
+        <h1 className="mb-2 bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text pt-[max(0.25rem,env(safe-area-inset-top))] text-center text-xl font-bold text-transparent sm:mb-3 sm:text-2xl lg:hidden">
+          {environments.APP_NAME}
+        </h1>
 
-        <div className="flex flex-col items-start justify-center gap-2 lg:flex-row">
-          <div
-            className={`flex max-w-full flex-col items-center ${!isOnline ? "pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-0" : ""}`}
-          >
-            <div className="sticky top-0 z-30 mb-2 w-full max-w-2xl pt-[max(0.25rem,env(safe-area-inset-top,0px))] md:static md:mb-2 md:pt-0">
-              <TopMenu onOpenSettings={() => setIsSettingsOpen(true)} />
-            </div>
+        <header className="sticky top-0 z-40 mb-3 border-b border-stone-700/50 bg-stone-950/75 px-2 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.35)] backdrop-blur-md sm:mb-4 sm:rounded-xl sm:border sm:border-stone-700/60 sm:px-4">
+          <TopMenu
+            gameTitle={environments.APP_NAME}
+            onOpenSettings={() => setIsSettingsOpen(true)}
+            onRequestLeave={() => setLeaveConfirmOpen(true)}
+          />
+        </header>
 
-            <div className="w-full lg:hidden mb-2">
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_288px] lg:items-start lg:gap-8 xl:gap-10">
+          <div className={`flex min-w-0 flex-col items-stretch ${!isOnline ? "pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0" : ""}`}>
+            <div className="mb-3 w-full lg:hidden">
               <CapturedPieces onOpenZombieRevive={openZombieRevive} />
             </div>
 
-            {is3D ? (
-              <Suspense fallback={<Board3DLoadFallback />}>
-                <Board3DLazy
+            <div className="mx-auto flex w-fit max-w-full flex-col items-stretch gap-4 lg:min-h-[min(100vh-12rem,900px)] lg:justify-center">
+              {is3D ? (
+                <Suspense fallback={<Board3DLoadFallback />}>
+                  <Board3DLazy
+                    isOnline={isOnline}
+                    onlineBoard={onlineBoard}
+                    onlineBoardSize={onlineBoardSize}
+                    onlineSelectedPosition={onlineSelectedPosition}
+                    onlineValidMoves={onlineValidMoves}
+                    onlineValidAttacks={onlineValidAttacks}
+                    onlineValidSwaps={onlineValidSwaps}
+                    onlineLastMove={onlineLastMove}
+                    onlineMysteryBoxState={onlineMysteryBoxState}
+                    onSquareClick={onSquareClick}
+                    onMysteryBoxClick={playBoardClick}
+                  />
+                </Suspense>
+              ) : (
+                <Board
                   isOnline={isOnline}
                   onlineBoard={onlineBoard}
                   onlineBoardSize={onlineBoardSize}
@@ -317,29 +367,39 @@ export const Game = () => {
                   onSquareClick={onSquareClick}
                   onMysteryBoxClick={playBoardClick}
                 />
-              </Suspense>
-            ) : (
-              <Board isOnline={isOnline} onlineBoard={onlineBoard} onlineBoardSize={onlineBoardSize} onlineSelectedPosition={onlineSelectedPosition} onlineValidMoves={onlineValidMoves} onlineValidAttacks={onlineValidAttacks} onlineValidSwaps={onlineValidSwaps} onlineLastMove={onlineLastMove} onlineMysteryBoxState={onlineMysteryBoxState} onSquareClick={onSquareClick} onMysteryBoxClick={playBoardClick} />
-            )}
+              )}
 
-            {!isOnline && <BottomMenu />}
+              {!isOnline && <BottomMenu />}
+            </div>
           </div>
 
-          <div className="hidden lg:block flex-shrink-0 w-full lg:w-auto max-w-md mx-auto lg:mx-0">
+          <aside className="mt-6 hidden min-w-0 lg:sticky lg:top-24 lg:mt-0 lg:block lg:self-start">
             <RightSidebar onOpenZombieRevive={openZombieRevive} />
-          </div>
+          </aside>
         </div>
 
         <Modal isOpen={isTopMenuOpen} onClose={closeTopMenu} title={isOnline ? "Game Info" : "Game"}>
           <TopMenu
+            gameTitle={environments.APP_NAME}
             onOpenSettings={() => {
               closeTopMenu();
               setIsSettingsOpen(true);
             }}
+            onRequestLeave={() => {
+              closeTopMenu();
+              setLeaveConfirmOpen(true);
+            }}
           />
         </Modal>
 
-        <GameSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+        <GameSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} onRequestLeave={() => setLeaveConfirmOpen(true)} />
+
+        <LeaveGameConfirmModal
+          isOpen={leaveConfirmOpen}
+          onClose={() => setLeaveConfirmOpen(false)}
+          onConfirm={handleLeaveConfirm}
+          isOnline={isOnline}
+        />
 
         <Modal isOpen={isRightMenuOpen} onClose={closeRightMenu} title="Game Info">
           <RightSidebar onOpenZombieRevive={openZombieRevive} />
