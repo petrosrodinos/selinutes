@@ -42,26 +42,24 @@ export const PieceCarousel = () => {
               3D
             </button>
           </div>
-          {viewMode === "3d" ? (
-            <div className="flex rounded-lg border border-stone-600/60 bg-stone-800/50 p-0.5" role="group" aria-label="Figure variant">
-              <button
-                type="button"
-                onClick={() => setFigureVariant(PlayerColors.WHITE)}
-                className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors ${figureVariant === PlayerColors.WHITE ? "bg-stone-100 text-stone-900 border border-stone-200/80" : "text-stone-400 hover:text-stone-200"}`}
-                aria-pressed={figureVariant === PlayerColors.WHITE}
-              >
-                Light
-              </button>
-              <button
-                type="button"
-                onClick={() => setFigureVariant(PlayerColors.BLACK)}
-                className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors ${figureVariant === PlayerColors.BLACK ? "bg-stone-700 text-stone-100 border border-stone-500/60" : "text-stone-400 hover:text-stone-200"}`}
-                aria-pressed={figureVariant === PlayerColors.BLACK}
-              >
-                Dark
-              </button>
-            </div>
-          ) : null}
+          <div className="flex rounded-lg border border-stone-600/60 bg-stone-800/50 p-0.5" role="group" aria-label="Figure variant">
+            <button
+              type="button"
+              onClick={() => setFigureVariant(PlayerColors.WHITE)}
+              className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors ${figureVariant === PlayerColors.WHITE ? "bg-stone-100 text-stone-900 border border-stone-200/80" : "text-stone-400 hover:text-stone-200"}`}
+              aria-pressed={figureVariant === PlayerColors.WHITE}
+            >
+              Light
+            </button>
+            <button
+              type="button"
+              onClick={() => setFigureVariant(PlayerColors.BLACK)}
+              className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors ${figureVariant === PlayerColors.BLACK ? "bg-stone-700 text-stone-100 border border-stone-500/60" : "text-stone-400 hover:text-stone-200"}`}
+              aria-pressed={figureVariant === PlayerColors.BLACK}
+            >
+              Dark
+            </button>
+          </div>
         </div>
       </div>
 
@@ -74,7 +72,7 @@ export const PieceCarousel = () => {
           {viewMode === "2d" ? (
             <div className="flex flex-col items-center justify-center py-8 px-4 rounded-xl bg-stone-800/50 border border-stone-700/50">
               <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-stone-900/80 border border-stone-600/50 flex items-center justify-center mb-4">
-                <FigureSymbol pieceType={pieceType} size="lg" />
+                <FigureSymbol pieceType={pieceType} color={figureVariant} size="lg" />
               </div>
               <p className="text-base sm:text-lg font-semibold text-amber-200/95">{RULES_FIGURE_SECTION_TITLES[pieceType]}</p>
             </div>
