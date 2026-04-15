@@ -9,6 +9,9 @@ import { getValidMoves, getValidAttacks, getAllNarcNetPositions } from '../../ut
 import { isPiece } from '../../types'
 import type { Board as BoardType, BoardSize, Position, Move, SwapTarget, MysteryBoxState } from '../../types'
 
+/** Rank/file label width/height for a given square size (must stay in sync with layout). */
+const boardLabelInsetPx = (squareSize: number) => Math.max(16, Math.round(squareSize * 0.45))
+
 interface BoardProps {
     isOnline?: boolean
     onlineBoard?: BoardType
@@ -78,14 +81,28 @@ export const Board = ({
     }, [])
 
     const squareSize = useMemo(() => {
-        const horizontalPadding = viewportWidth < 640 ? 52 : 88
-        const availableWidth = Math.max(280, viewportWidth - horizontalPadding)
-        const sizeFromViewport = Math.floor(availableWidth / boardSize.cols)
-        return Math.max(28, Math.min(48, sizeFromViewport))
+        const isXs = viewportWidth < 390
+        // Game page horizontal padding (e.g. p-2) plus a little buffer for safe area / scrollbar
+        const pageHorizontalPadding = viewportWidth < 640 ? 20 : 40
+        const safeBuffer = isXs ? 6 : 0
+        const innerWidth = Math.max(0, viewportWidth - pageHorizontalPadding - safeBuffer)
+        const cols = boardSize.cols
+        const borderReserve = 4 // matches border-2 on the grid wrapper
+        const maxSq = 48
+
+        for (let sq = maxSq; sq >= 12; sq--) {
+            const rankW = boardLabelInsetPx(sq)
+            const totalWidth = cols * sq + 2 * rankW + borderReserve
+            if (totalWidth <= innerWidth) {
+                return sq
+            }
+        }
+
+        return 12
     }, [viewportWidth, boardSize.cols])
 
-    const rankLabelWidth = Math.max(16, Math.round(squareSize * 0.45))
-    const fileLabelHeight = Math.max(16, Math.round(squareSize * 0.45))
+    const rankLabelWidth = boardLabelInsetPx(squareSize)
+    const fileLabelHeight = boardLabelInsetPx(squareSize)
 
     const isSelected = (row: number, col: number) => {
         if (!isOnline && devMode && devModeSelected) {
