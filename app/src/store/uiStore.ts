@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { SoundManager } from '../lib/soundManager'
 
+const isMobileViewport = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+
 interface UIStore {
     is3D: boolean
     isTopMenuOpen: boolean
@@ -22,7 +24,7 @@ interface UIStore {
 }
 
 export const useUIStore = create<UIStore>((set) => ({
-    is3D: true,
+    is3D: !isMobileViewport,
     isTopMenuOpen: false,
     isRightMenuOpen: false,
     helpEnabled: true,
