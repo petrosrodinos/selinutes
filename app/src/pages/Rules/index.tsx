@@ -1,4 +1,5 @@
 import { Navbar } from "../../components/Navbar";
+import { PoweredByFooter } from "../../components/PoweredByFooter";
 import { FigureSymbol } from "../../components/FigureSymbol";
 import { PieceCarousel } from "./PieceCarousel";
 import { RULES_FIGURE_ORDER, RULES_FIGURE_SECTION_TITLES, FIGURE_RULES_BULLETS } from "../Game/constants";
@@ -357,6 +358,8 @@ export const RulesPage = () => {
           </ul>
         </section>
       </main>
+
+      <PoweredByFooter />
     </div>
   );
 };

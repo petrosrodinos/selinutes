@@ -1,3 +1,4 @@
+import { PoweredByFooter } from '../../components/PoweredByFooter.tsx'
 import { Navigation, UserStats, Leaderboard, RecentGames, PlayOptions } from './components'
 
 export const Home = () => {
@@ -20,6 +21,8 @@ export const Home = () => {
 
                 <RecentGames />
             </div>
+
+            <PoweredByFooter />
         </div>
     )
 }

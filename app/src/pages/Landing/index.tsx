@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { environments } from '../../config/environments'
 import { Navbar } from '../../components/Navbar'
+import { PoweredByFooter } from '../../components/PoweredByFooter.tsx'
 import { useAuthStore } from '../../store/authStore'
 
 const container = {
@@ -239,6 +240,8 @@ export const LandingPage = () => {
           </div>
         </motion.section>
       </main>
+
+      <PoweredByFooter />
     </div>
   )
 }
