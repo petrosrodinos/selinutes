@@ -29,25 +29,25 @@ export const Navigation = () => {
   return (
     <>
       <nav className="bg-stone-800/60 backdrop-blur-sm border-b border-stone-700/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="mx-auto max-w-7xl px-3 py-3 sm:px-4 sm:py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text text-transparent hover:opacity-90 transition-opacity">
+            <Link to="/" className="text-xl font-bold bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text text-transparent transition-opacity hover:opacity-90 sm:text-2xl">
               {environments.APP_NAME}
             </Link>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {isAdmin ? (
-                <Link to="/admin/users" className="p-2.5 bg-stone-700/60 hover:bg-stone-600/60 rounded-lg transition-all duration-200 border border-stone-600/50" aria-label="Admin users">
-                  <Shield className="w-5 h-5 text-amber-400" />
+                <Link to="/admin/users" className="rounded-lg border border-stone-600/50 bg-stone-700/60 p-2 transition-all duration-200 hover:bg-stone-600/60 sm:p-2.5" aria-label="Admin users">
+                  <Shield className="h-4 w-4 text-amber-400 sm:h-5 sm:w-5" />
                 </Link>
               ) : null}
-              <Link to="/rules" className="p-2.5 bg-stone-700/60 hover:bg-stone-600/60 rounded-lg transition-all duration-200 border border-stone-600/50" aria-label="Rules">
-                <BookOpen className="w-5 h-5 text-amber-400" />
+              <Link to="/rules" className="rounded-lg border border-stone-600/50 bg-stone-700/60 p-2 transition-all duration-200 hover:bg-stone-600/60 sm:p-2.5" aria-label="Rules">
+                <BookOpen className="h-4 w-4 text-amber-400 sm:h-5 sm:w-5" />
               </Link>
-              <button type="button" onClick={() => setShowSettings(true)} className="p-2.5 bg-stone-700/60 hover:bg-stone-600/60 rounded-lg transition-all duration-200 border border-stone-600/50">
-                <Settings className="w-5 h-5 text-amber-400" />
+              <button type="button" onClick={() => setShowSettings(true)} className="rounded-lg border border-stone-600/50 bg-stone-700/60 p-2 transition-all duration-200 hover:bg-stone-600/60 sm:p-2.5">
+                <Settings className="h-4 w-4 text-amber-400 sm:h-5 sm:w-5" />
               </button>
-              <button type="button" onClick={handleLogoutClick} className="p-2.5 bg-stone-700/60 hover:bg-stone-600/60 rounded-lg transition-all duration-200 border border-stone-600/50">
-                <LogOut className="w-5 h-5 text-stone-400" />
+              <button type="button" onClick={handleLogoutClick} className="rounded-lg border border-stone-600/50 bg-stone-700/60 p-2 transition-all duration-200 hover:bg-stone-600/60 sm:p-2.5" aria-label="Sign out">
+                <LogOut className="h-4 w-4 text-stone-400 sm:h-5 sm:w-5" />
               </button>
             </div>
           </div>

@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { LogOut } from 'lucide-react'
 import { Modal } from '../../../../components/Modal'
 import type { BoardSizeKey } from '../../types'
 import { BotDifficulties, BoardSizeKeys } from '../../types'
@@ -18,11 +21,15 @@ const BOARD_SIZE_LABELS: Record<BoardSizeKey, string> = {
 }
 
 export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) => {
+  const navigate = useNavigate()
+  const [isLeaveConfirmOpen, setIsLeaveConfirmOpen] = useState(false)
+
   const {
     boardSizeKey,
     botEnabled,
     botDifficulty,
     resetGame,
+    reset: resetOnlineState,
     toggleBot,
     setDifficulty
   } = useGameStore()
@@ -32,12 +39,30 @@ export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) =
 
   const isOnline = mode === GameModes.ONLINE
 
+  const handleConfirmLeave = () => {
+    setIsLeaveConfirmOpen(false)
+    onClose()
+    if (isOnline) {
+      resetOnlineState()
+    } else {
+      resetGame()
+    }
+    navigate('/home')
+  }
+
   const handleBoardSizeChange = (sizeKey: BoardSizeKey) => {
     resetGame(sizeKey)
     onClose()
   }
 
+  useEffect(() => {
+    if (!isOpen) {
+      setIsLeaveConfirmOpen(false)
+    }
+  }, [isOpen])
+
   return (
+    <>
     <Modal isOpen={isOpen} onClose={onClose} title="Settings">
       <div className="space-y-4 sm:space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
@@ -126,8 +151,17 @@ export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) =
           </div>
         )}
 
-        <div className="pt-1 sm:pt-2">
+        <div className="border-t border-stone-700 pt-4 space-y-3">
           <button
+            type="button"
+            onClick={() => setIsLeaveConfirmOpen(true)}
+            className="flex w-full touch-manipulation items-center justify-center gap-2 rounded-lg border border-rose-500/50 bg-rose-600/90 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-500"
+          >
+            <LogOut className="h-4 w-4 shrink-0" aria-hidden />
+            Leave game
+          </button>
+          <button
+            type="button"
             onClick={onClose}
             className="w-full py-2.5 bg-stone-700 hover:bg-stone-600 text-stone-200 rounded-lg transition-colors text-sm font-medium"
           >
@@ -136,5 +170,32 @@ export const GameSettingsModal = ({ isOpen, onClose }: GameSettingsModalProps) =
         </div>
       </div>
     </Modal>
+
+    <Modal isOpen={isLeaveConfirmOpen} onClose={() => setIsLeaveConfirmOpen(false)} title="Leave Game">
+      <div className="space-y-4">
+        <p className="text-stone-300">
+          {isOnline
+            ? 'Are you sure you want to leave this game? You will forfeit the match.'
+            : 'Are you sure you want to leave? Your current game progress will be lost.'}
+        </p>
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => setIsLeaveConfirmOpen(false)}
+            className="rounded-lg bg-stone-700 px-4 py-2 text-stone-200 transition-colors hover:bg-stone-600"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleConfirmLeave}
+            className="rounded-lg bg-rose-600 px-4 py-2 text-white transition-colors hover:bg-rose-500"
+          >
+            Leave Game
+          </button>
+        </div>
+      </div>
+    </Modal>
+    </>
   )
 }

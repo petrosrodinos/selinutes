@@ -288,11 +288,13 @@ export const Game = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-emerald-950 p-2 sm:p-4">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 sm:mb-6 bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text text-transparent">{environments.APP_NAME}</h1>
+        <h1 className="mb-2 text-center text-xl font-bold sm:mb-4 sm:text-3xl md:mb-6 md:text-4xl bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text text-transparent">{environments.APP_NAME}</h1>
 
-        <div className="flex flex-col lg:flex-row gap-2 items-start justify-center">
-          <div className="flex flex-col items-center max-w-full">
-            <div className="mb-2 w-full max-w-2xl">
+        <div className="flex flex-col items-start justify-center gap-2 lg:flex-row">
+          <div
+            className={`flex max-w-full flex-col items-center ${!isOnline ? "pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-0" : ""}`}
+          >
+            <div className="sticky top-0 z-30 mb-2 w-full max-w-2xl pt-[max(0.25rem,env(safe-area-inset-top,0px))] md:static md:mb-2 md:pt-0">
               <TopMenu onOpenSettings={() => setIsSettingsOpen(true)} />
             </div>
 

@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import type { Piece } from "../../types";
 import { PieceTypes, PlayerColors } from "../../types";
 import { PIECE_RULES, PIECE_NAMES } from "../../constants";
@@ -49,10 +51,44 @@ const CapturedPieceIcon = ({ piece }: { piece: Piece }) => {
 
 export const CapturedPieces = ({ onOpenZombieRevive }: { onOpenZombieRevive?: () => void }) => {
   const { gameState } = useGameStore();
+  const [isOpen, setIsOpen] = useState(false);
+  const { white, black } = gameState.capturedPieces;
+  const totalCount = white.length + black.length;
+  const wPts = getTotalPointsForPieces(white);
+  const bPts = getTotalPointsForPieces(black);
+
   return (
-    <div className="bg-stone-800/80 backdrop-blur rounded-xl p-4 border border-stone-700 w-full">
-      <h3 className="text-sm font-medium text-amber-200 mb-2">Captured Pieces</h3>
-      <CapturedPiecesContent capturedPieces={gameState.capturedPieces} currentPlayer={gameState.currentPlayer} onOpenZombieRevive={onOpenZombieRevive} />
+    <div className="w-full overflow-hidden rounded-xl border border-stone-700 bg-stone-800/80 backdrop-blur">
+      <button
+        type="button"
+        onClick={() => setIsOpen((o) => !o)}
+        aria-expanded={isOpen}
+        aria-controls="captured-pieces-panel"
+        id="captured-pieces-trigger"
+        className="flex w-full touch-manipulation items-center justify-between gap-2 px-3 py-2.5 text-left transition-colors hover:bg-stone-700/35"
+      >
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <h3 className="text-sm font-medium text-amber-200">Captured pieces</h3>
+            <span className="text-xs text-stone-500">
+              {totalCount} pcs · W {wPts}
+              {POINTS_LABEL} · B {bPts}
+              {POINTS_LABEL}
+            </span>
+          </div>
+        </div>
+        <ChevronDown className={`h-5 w-5 shrink-0 text-stone-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} aria-hidden />
+      </button>
+
+      <div
+        id="captured-pieces-panel"
+        role="region"
+        aria-labelledby="captured-pieces-trigger"
+        hidden={!isOpen}
+        className="border-t border-stone-700/80 px-3 pb-3 pt-2"
+      >
+        <CapturedPiecesContent capturedPieces={gameState.capturedPieces} currentPlayer={gameState.currentPlayer} onOpenZombieRevive={onOpenZombieRevive} />
+      </div>
     </div>
   );
 };
