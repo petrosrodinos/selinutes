@@ -701,6 +701,7 @@ const isAttackPathClear = (
 ): boolean => {
   const rowDir = to.row === from.row ? 0 : (to.row > from.row ? 1 : -1)
   const colDir = to.col === from.col ? 0 : (to.col > from.col ? 1 : -1)
+  const shootsThroughFriendly = PIECE_RULES[piece.type].shootsThroughFriendly ?? false
 
   let row = from.row + rowDir
   let col = from.col + colDir
@@ -710,7 +711,14 @@ const isAttackPathClear = (
 
     const cell = board[row][col]
     if (cell) {
-      if (isPiece(cell)) return false
+      if (isPiece(cell)) {
+        if (shootsThroughFriendly && cell.color === piece.color) {
+          row += rowDir
+          col += colDir
+          continue
+        }
+        return false
+      }
       if (isObstacle(cell) && !canPassObstacle(piece.type, cell.type)) return false
     }
 

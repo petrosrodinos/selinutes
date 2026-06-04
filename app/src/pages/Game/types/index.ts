@@ -62,6 +62,7 @@ export interface PieceRules {
   canPass: ObstacleType[]
   canJumpPieces?: boolean
   canChooseAttackMode: boolean
+  shootsThroughFriendly?: boolean
   maxRiverWidth?: number
   points: number
   zombiePoints?: number

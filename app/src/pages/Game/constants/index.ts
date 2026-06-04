@@ -79,6 +79,7 @@ export const PIECE_RULES: Record<string, PieceRules> = {
     attackRange: 9,
     canPass: [ObstacleTypes.RIVER, ObstacleTypes.MYSTERY_BOX],
     canChooseAttackMode: true,
+    shootsThroughFriendly: true,
     points: 27
   },
   [PieceTypes.NECROMANCER]: {
