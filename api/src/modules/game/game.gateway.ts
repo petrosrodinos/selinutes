@@ -232,6 +232,15 @@ export class GameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         client.to(payload.code).emit(SocketEvents.NECROMANCER_REVIVE_STARTED, { playerName: payload.playerName })
     }
 
+    @SubscribeMessage(SocketEvents.NECROMANCER_FREEZE)
+    handleNecromancerFreeze(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() payload: { code: string; playerName: string; target: unknown; freezeTurns: number }
+    ): void {
+        this.logger.log(`[NECROMANCER_FREEZE] ${payload.playerName} froze a piece in game ${payload.code}`)
+        client.to(payload.code).emit(SocketEvents.NECROMANCER_FREEZE, payload)
+    }
+
     private trackClientGame(clientId: string, gameCode: string): void {
         this.clientGameMap.set(clientId, gameCode)
     }

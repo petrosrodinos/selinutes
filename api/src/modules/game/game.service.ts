@@ -284,12 +284,6 @@ export class GameService {
             return
         }
 
-        if (existingCount === 1) {
-            this.logger.warn(`Game ${code}: expected 0 or 2 DB rows, found 1 — skipping persist, clearing cache`)
-            await this.cacheService.delete(getGameKey(code))
-            return
-        }
-
         const gs = gameSession.gameState
         const finishedWithWinner = gs?.gameOver === true && gs?.winner !== null
 
@@ -359,10 +353,9 @@ export class GameService {
                 const timeInSeconds = Math.floor((finishedAt.getTime() - new Date(createdAt).getTime()) / 1000)
                 const whitePoints = gameState?.whitePoints ?? 0
                 const blackPoints = gameState?.blackPoints ?? 0
-                const totalPoints = whitePoints + blackPoints
 
-                if (totalPoints === 0) {
-                    this.logger.log(`Skipping game ${code}: both players earned 0 points`)
+                if (players.length < 2) {
+                    this.logger.warn(`Game ${code}: session has ${players.length} player(s), skipping persist`)
                     return
                 }
 
@@ -478,7 +471,7 @@ export class GameService {
     }
 
     private async lockOnlineGameCode(tx: Prisma.TransactionClient, code: string): Promise<void> {
-        await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${`online-game-finish:${code}`}))`
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`online-game-finish:${code}`}))`
     }
 
     private async getGameSession(code: string): Promise<GameSession | undefined> {
