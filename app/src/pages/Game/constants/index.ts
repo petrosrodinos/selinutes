@@ -170,22 +170,24 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
     'Cannot pass through river, lake, or canyon.'
   ],
   [PieceTypes.RAM_TOWER]: [
-    'Moves cross-shaped any number of blocks (orthogonal).',
-    'Catapult attack: cross-shaped, up to 5 blocks radius.'
+    'Moves cross-shaped (orthogonal) any number of blocks.',
+    'Catapult attack: cross-shaped, up to 5 blocks away.',
+    'Can also move onto an enemy in its path to capture it directly.',
+    'Cannot pass through cave, river, lake, or canyon.'
   ],
   [PieceTypes.CHARIOT]: [
     'Moves in corner patterns: 2-1, 1-2, 2-2, 3-1, 1-3 steps.',
-    'Can pass over other figures on its path.',
-    'Units killed by Chariot cannot be revived until Chariot is destroyed.',
-    'Attacks: Gamma-shaped (L) up to 4 steps; trees can be shot over, all other obstacles block.',
-    'Can pass through rivers (up to 2 steps wide).',
-    'Cannot pass through lake, canyon, cave.'
+    'Can jump over other figures on its path.',
+    'Attacks: gamma-shaped (L) up to 4 steps; shoots over trees, all other obstacles block the shot.',
+    'Can pass through rivers and land beyond them.',
+    'Cannot pass through lake, canyon, or cave.'
   ],
   [PieceTypes.BOMBER]: [
     'Moves 1 or 2 steps in cross or X patterns.',
+    'Can jump over other figures on its path.',
     'Cannot attack or shoot directly.',
-    'When placed, triggers a net of explosives within 2 steps. Same-type figures ignited if a figure enters the range.',
-    'Can pass through river (1 step wide), cave, canyon.',
+    'After it moves, it lays a hidden net of explosives on nearby tiles (diagonals 1–2 away and orthogonals 2 away). Any enemy figure that steps onto a net tile is destroyed.',
+    'Can pass through river, cave, and canyon.',
     'Cannot pass through lake.'
   ],
   [PieceTypes.PALADIN]: [
@@ -209,16 +211,17 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
     'Cannot pass through river, lake, canyon.'
   ],
   [PieceTypes.DUCHESS]: [
-    'Moves in any direction.',
-    'Shoots up to 9 steps in any direction.',
+    'Moves in any direction, any number of steps.',
+    'Shoots up to 9 steps in any direction, even through friendly figures.',
     'Can pass through river.',
-    'Cannot pass through lake, canyon, cave.'
+    'Cannot pass through lake, canyon, cave, or tree.'
   ],
   [PieceTypes.NECROMANCER]: [
     'Moves 1 step in any direction.',
-    'Shoots 1 step in any direction.',
-    'Can revive Ram, Chariot, Bomber, Paladin if Monarch, Duchess, and Warlock are in original positions.',
-    'Revived figures cannot use long-range attacks. Bomber attacks normally as Zompie.',
+    'Melee attack: kills an adjacent enemy 1 step away in any direction.',
+    'Freeze-stun: stuns an enemy in a straight line up to 8 steps away; only trees block it. The range drops by 2 for every revival performed (minimum 2), and longer-distance freezes last more turns.',
+    'Can revive Ram, Chariot, Bomber, or Paladin if the Monarch, Duchess, and Warlock are in their starting positions and have not moved.',
+    'Revived figures attack at range 1 only; a revived Bomber can still attack as a Zombie.',
     'Can pass through lake and cave.',
     'Cannot pass through river or canyon.'
   ]

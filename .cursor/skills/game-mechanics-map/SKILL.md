@@ -1,6 +1,6 @@
 ---
 name: game-mechanics-map
-description: Reference map for all game mechanics in the Selinutes board game frontend and online multiplayer sync. Provides file locations for movement rules, attack validation, piece rule tables, board setup, zombie revival, Bomber narc/mine system, Warlock swaps, Mystery Box, bot AI, game state hook, online mode WebSocket sync, and per-figure unit tests. Use when modifying any game rule, piece behaviour, attack range, movement pattern, obstacle interaction, special ability, online multiplayer behaviour, or game-mechanics tests. Triggers on tasks involving piece mechanics, game rules, board logic, online mode, socket sync, figure tests, or anything inside app/src/pages/Game/.
+description: Reference map for all game mechanics in the Selinutes board game frontend and online multiplayer sync. Provides file locations for movement rules, attack validation, piece rule tables, board setup, zombie revival, Bomber narc/mine system, Warlock swaps, Mystery Box, bot AI, game state hook, online mode WebSocket sync, per-figure unit tests, game-rules documentation, and Rules page exports in app/src/pages/Game/constants/index.ts (RULES_FIGURE_ORDER, RULES_FIGURE_SECTION_TITLES, FIGURE_RULES_BULLETS). Use when modifying any game rule, piece behaviour, attack range, movement pattern, obstacle interaction, special ability, online multiplayer behaviour, game-mechanics tests, api/docs/game-rules.md, or Rules page copy. Triggers on tasks involving piece mechanics, game rules, board logic, online mode, socket sync, figure tests, rules documentation, or anything inside app/src/pages/Game/.
 ---
 
 # Game Mechanics Map
@@ -32,6 +32,21 @@ Read `app/GAME_MECHANICS_MAP.md` before changing game logic.
 | Per-figure unit tests | `app/src/pages/Game/utils/__tests__/figures/*.test.ts` |
 | Shared test board helpers | `app/src/pages/Game/utils/__tests__/helpers/boardFixtures.ts` |
 | Run game tests | `npm test` in `app/` (Vitest) |
+| Canonical rules documentation | `api/docs/game-rules.md` |
+| Rules page figure order | `app/src/pages/Game/constants/index.ts` → `RULES_FIGURE_ORDER` |
+| Rules page figure headings | `app/src/pages/Game/constants/index.ts` → `RULES_FIGURE_SECTION_TITLES` |
+| Rules page figure rule bullets | `app/src/pages/Game/constants/index.ts` → `FIGURE_RULES_BULLETS` |
+| Rules page (consumes above exports) | `app/src/pages/Rules/index.tsx`, `app/src/pages/Rules/PieceCarousel/PieceCarousel.tsx` |
+
+## Figure Change — Required Deliverables
+
+Any figure mechanics change is incomplete until **all five** are updated in the same task:
+
+1. **Code** — `app/src/pages/Game/constants/index.ts` → `PIECE_RULES` and/or `app/src/pages/Game/utils/`
+2. **Tests** — `app/src/pages/Game/utils/__tests__/figures/<figure>.test.ts`
+3. **Docs** — `api/docs/game-rules.md` (sections 3–5 for the affected figure)
+4. **Rules page exports** — `app/src/pages/Game/constants/index.ts` → `RULES_FIGURE_ORDER`, `RULES_FIGURE_SECTION_TITLES`, `FIGURE_RULES_BULLETS`
+5. **Rules page hardcoded copy** — `app/src/pages/Rules/index.tsx` when points, obstacle counts, or special rules change (section 3 points table must match `PIECE_RULES.points` / `zombiePoints`)
 
 ## Online Mode — Architecture
 
@@ -156,9 +171,72 @@ describe('Hoplite', () => {
 8. **Do not test UI or sockets** — figure tests target `utils/` only. Online sync is validated manually or via separate integration tests, not per-figure unit tests.
 9. **Run `npm test`** in `app/` — green tests must reflect the new mechanics, not the old ones.
 
+## Documentation — Agent Requirements
+
+**`api/docs/game-rules.md` must stay in sync with implemented figure mechanics.** Update it in the same task as code and tests — do not leave outdated player-facing rules.
+
+| Code change | Doc action required |
+|---|---|
+| Move or attack range/pattern change | Update section 4 bullet(s) for that figure in `api/docs/game-rules.md` |
+| Points or zombie points change | Update section 3 for that figure |
+| `canPass` obstacle change | Update pass/block lines in section 4; check section 5 if global (e.g. caves) |
+| New special ability (swap, narc, freeze, revive) | Update section 4 for the figure and section 5 if it affects special rules |
+| Removed behaviour | Delete or rewrite the matching bullets — do not leave stale rules |
+| Board/obstacle counts | Update section 1 |
+
+Name mapping in docs vs code:
+
+| Doc name | Code `PieceTypes` |
+|---|---|
+| Hoplite | `hoplite` |
+| Ram-Tower | `ramTower` |
+| Chariot | `chariot` |
+| Saboteur / Bomber | `bomber` |
+| Paladin | `paladin` |
+| Vezier / Warlock | `warlock` |
+| Monarch | `monarch` |
+| Duchess | `duchess` |
+| Druid / Necromancer | `necromancer` |
+
+### `app/src/pages/Game/constants/index.ts` — Rules page exports
+
+`app/src/pages/Rules/index.tsx` and `app/src/pages/Rules/PieceCarousel/PieceCarousel.tsx` import these from `app/src/pages/Game/constants/index.ts`:
+
+```typescript
+import { RULES_FIGURE_ORDER, RULES_FIGURE_SECTION_TITLES, FIGURE_RULES_BULLETS } from "../Game/constants";
+```
+
+**Update all affected exports in `app/src/pages/Game/constants/index.ts` when figure functionality changes** — same task as code and tests.
+
+| Export in `app/src/pages/Game/constants/index.ts` | Consumed by | When to update |
+|---|---|---|
+| `RULES_FIGURE_ORDER` | `Rules/index.tsx` section 4 numbering; `PieceCarousel.tsx` slide order | New/removed figure; reordering figures on the Rules page |
+| `RULES_FIGURE_SECTION_TITLES` | `Rules/index.tsx` section 4 headings; `PieceCarousel.tsx` labels | Rename or retitle a figure on the Rules page |
+| `FIGURE_RULES_BULLETS` | `Rules/index.tsx` section 4 bullet list | **Any** move, attack, obstacle, or ability change for that figure |
+
+| Code change | Action in `app/src/pages/Game/constants/index.ts` |
+|---|---|
+| Move/attack/obstacle/ability change | Rewrite `FIGURE_RULES_BULLETS[<pieceType>]` bullets to match new behaviour |
+| Figure renamed in docs | Update `RULES_FIGURE_SECTION_TITLES[<pieceType>]` |
+| New figure type added | Add entry to `RULES_FIGURE_ORDER`, `RULES_FIGURE_SECTION_TITLES`, `FIGURE_RULES_BULLETS`; add `PieceTypes` + `PIECE_RULES` first |
+| Figure removed | Remove from `RULES_FIGURE_ORDER`; delete keys from `RULES_FIGURE_SECTION_TITLES` and `FIGURE_RULES_BULLETS` |
+| Points / zombie points change | Update section 3 table in `app/src/pages/Rules/index.tsx` to match `PIECE_RULES.points` / `zombiePoints` |
+
+Do not edit rule bullets inline in `app/src/pages/Rules/index.tsx` section 4 — that section maps over `FIGURE_RULES_BULLETS`. Edit `FIGURE_RULES_BULLETS` in `app/src/pages/Game/constants/index.ts`.
+
+### Documentation checklist (run on every figure change)
+
+1. **Open `api/docs/game-rules.md`** — edit the affected figure in section 4 (and section 3 if points changed).
+2. **Rewrite outdated bullets** — ranges, movement descriptions, obstacle pass/block, and special abilities must match `PIECE_RULES` and `moveUtils` behaviour after your change.
+3. **Update section 5** when the change affects cross-figure rules (caves, explosions, revival, zombie mode).
+4. **Open `app/src/pages/Game/constants/index.ts`** — update `FIGURE_RULES_BULLETS[<pieceType>]`; update `RULES_FIGURE_SECTION_TITLES` / `RULES_FIGURE_ORDER` if the figure was renamed, added, or removed.
+5. **Open `app/src/pages/Rules/index.tsx`** — sync hardcoded points table (section 3) and special-rules copy (section 5) when those values change.
+6. **Keep all three in agreement** — `PIECE_RULES` ↔ `FIGURE_RULES_BULLETS` ↔ `api/docs/game-rules.md` must describe the same behaviour.
+7. **Do not document unimplemented behaviour** — docs and `FIGURE_RULES_BULLETS` describe what the code does, not aspirational rules.
+
 ## Invariants Every Agent Must Follow
 
-- **`PIECE_RULES`** in `constants/index.ts` is the single source of truth for every piece capability. Change the rule there first, never in logic directly.
+- **`PIECE_RULES`** in `app/src/pages/Game/constants/index.ts` is the single source of truth for every piece capability. Change the rule there first, never in logic directly.
 - **Board is immutable** — always `cloneBoard` before writing. All utils return new boards.
 - **`isAttackPathClear`** is the chokepoint for line-of-sight. To let a piece shoot through friendly pieces, add `shootsThroughFriendly: true` to its `PIECE_RULES` entry (and the matching field to `PieceRules` in `types/index.ts` if not already there).
 - **`getAdjustedAttackRange(piece, baseRange)`** — never read `attackRange` directly; call this wrapper to account for zombie and Necromancer modifiers.
@@ -168,3 +246,4 @@ describe('Hoplite', () => {
 - **No game rules inside components** — all logic goes in `utils/`, offline orchestration in `hooks/useGame.ts`, shared state in `gameStore.ts`, online sync in `useOnlineGame.ts`.
 - **Online = same rules, extra sync** — never duplicate rule logic for online. If offline works but online does not, the bug is in the sync/event path, not the utils.
 - **Tests must change with figure mechanics** — code and tests are one unit of work. Changing `PIECE_RULES`, `moveUtils`, or any figure util without updating the corresponding `__tests__/figures/*.test.ts` (and affected system util tests) is incomplete. Stale passing tests that assert removed behaviour are as bad as no tests.
+- **Docs and Rules page exports must change with figure mechanics** — update `api/docs/game-rules.md` and `app/src/pages/Game/constants/index.ts` (`FIGURE_RULES_BULLETS`, `RULES_FIGURE_SECTION_TITLES`, `RULES_FIGURE_ORDER`) whenever figure behaviour changes. Also sync `app/src/pages/Rules/index.tsx` when points or global special rules change. Outdated `FIGURE_RULES_BULLETS` or doc text are as bad as stale tests.

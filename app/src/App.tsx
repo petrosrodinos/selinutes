@@ -10,8 +10,12 @@ import { useAuthStore } from "./store/authStore";
 import { Game } from "./pages/Game";
 import { LandingPage } from "./pages/Landing";
 import { RulesPageSkeleton } from "./pages/Rules/RulesPageSkeleton";
+import { GameRulesPageSkeleton } from "./pages/GameRules/GameRulesPageSkeleton";
 const RulesPage = lazy(() =>
   import("./pages/Rules").then((m) => ({ default: m.RulesPage }))
+);
+const GameRulesPage = lazy(() =>
+  import("./pages/GameRules").then((m) => ({ default: m.GameRulesPage }))
 );
 
 const queryClient = new QueryClient();
@@ -35,6 +39,14 @@ function App() {
                 fallback={<RulesPageSkeleton />}
               >
                 <RulesPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/game-rules"
+            element={
+              <Suspense fallback={<GameRulesPageSkeleton />}>
+                <GameRulesPage />
               </Suspense>
             }
           />

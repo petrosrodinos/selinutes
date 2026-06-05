@@ -233,7 +233,7 @@ export const RulesPage = () => {
               <tbody className="text-stone-300 text-sm">
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Monarch</td>
-                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
@@ -261,7 +261,7 @@ export const RulesPage = () => {
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Paladin</td>
-                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">YES</td>
@@ -269,9 +269,9 @@ export const RulesPage = () => {
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Saboteur / Bomber</td>
                   <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4 text-stone-400">YES (1 block)</td>
+                  <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Necromancer / Druid</td>

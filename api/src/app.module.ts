@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from './shared/config/env/env.module';
 import { GameModule } from './modules/game/game.module';
 import { StatsModule } from './modules/stats/stats.module';
+import { DocsModule } from './modules/docs/docs.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { StatsModule } from './modules/stats/stats.module';
     GameModule,
     AuthModule,
     StatsModule,
+    DocsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

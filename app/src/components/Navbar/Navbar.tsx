@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { environments } from '../../config/environments'
 import { useAuthStore } from '../../store/authStore'
+import { useIsAdmin } from '../../hooks/useIsAdmin'
 
 type NavbarProps = {
   showBackButton?: boolean
@@ -13,6 +14,7 @@ export const Navbar = ({ showBackButton = false, showPrimaryAction = true }: Nav
   const navigate = useNavigate()
   const user_uuid = useAuthStore((state) => state.user_uuid)
   const isLoggedIn = Boolean(user_uuid)
+  const isAdmin = useIsAdmin()
 
   const handleBack = useCallback(() => {
     navigate(-1)
@@ -50,6 +52,14 @@ export const Navbar = ({ showBackButton = false, showPrimaryAction = true }: Nav
           >
             Rules
           </Link>
+          {isAdmin ? (
+            <Link
+              to="/game-rules"
+              className="text-sm font-medium text-stone-400 transition-colors hover:text-stone-200"
+            >
+              Docs
+            </Link>
+          ) : null}
           {showPrimaryAction && (
             <button
               type="button"

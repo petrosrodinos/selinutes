@@ -32,6 +32,10 @@ export const ApiRoutes = {
         adminDeleteUser: (userUuid: string) => `/stats/admin/users/${userUuid}`,
         adminDeleteGame: (sessionId: string) => `/stats/admin/games/${sessionId}`,
     },
+    docs: {
+        gameRules: '/docs/game-rules',
+        updateGameRules: '/docs/game-rules',
+    },
     games: {
         prefix: "/games",
         list: (params?: Record<string, string | number | undefined>) => {
