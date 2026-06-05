@@ -9,7 +9,7 @@ import { Obstacle3D } from "./Obstacle3D";
 import { useGameStore } from "../../../../store/gameStore";
 import { useUIStore } from "../../../../store/uiStore";
 import { useIsAdmin } from "../../../../hooks";
-import { getValidMoves, getValidAttacks, getAllNarcNetPositions } from "../../utils";
+import { getValidMoves, getValidAttacks, getAllNarcNetPositions, getDisplayedMoveTargets, getDisplayedAttackTargets } from "../../utils";
 import { Board3DLoadFallback } from "./Board3DLoadFallback";
 import { GltfLoadingProgressBridge } from "./GltfLoadingProgressBridge";
 
@@ -30,7 +30,7 @@ interface GameSceneProps {
 const obstacleUsesGltf = (type: ObstacleType): boolean => type !== ObstacleTypes.ROCK && type !== ObstacleTypes.MYSTERY_BOX;
 
 const GameScene = ({ isOnline = false, onlineBoard, onlineBoardSize, onlineSelectedPosition, onlineValidMoves = [], onlineValidAttacks = [], onlineValidSwaps = [], onlineLastMove, onlineMysteryBoxState, onSquareClick, onMysteryBoxClick }: GameSceneProps) => {
-  const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection } = useGameStore();
+  const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection, attackMode } = useGameStore();
   const { helpEnabled, devMode } = useUIStore();
   const isAdmin = useIsAdmin();
   const effectiveDevMode = devMode && isAdmin;
@@ -45,6 +45,16 @@ const GameScene = ({ isOnline = false, onlineBoard, onlineBoardSize, onlineSelec
   const validSwaps = isOnline ? onlineValidSwaps : gameState.validSwaps;
   const lastMove = isOnline ? onlineLastMove : gameState.lastMove;
   const currentHintMove = isOnline ? null : hintMove;
+  const selectedCell = selectedPosition ? board[selectedPosition.row]?.[selectedPosition.col] : null;
+  const selectedPiece = selectedCell && isPiece(selectedCell) ? selectedCell : null;
+  const displayedValidMoves = useMemo(
+    () => getDisplayedMoveTargets(board, validMoves, selectedPiece),
+    [board, validMoves, selectedPiece]
+  );
+  const displayedValidAttacks = useMemo(
+    () => getDisplayedAttackTargets(board, validMoves, validAttacks, selectedPiece, attackMode),
+    [board, validMoves, validAttacks, selectedPiece, attackMode]
+  );
 
   const narcNetPositions = useMemo(() => {
     if (!board || board.length === 0) return [];
@@ -76,9 +86,9 @@ const GameScene = ({ isOnline = false, onlineBoard, onlineBoardSize, onlineSelec
     return cell === null;
   };
 
-  const isValidMove = (row: number, col: number) => validMoves.some((m) => m.row === row && m.col === col);
+  const isValidMove = (row: number, col: number) => displayedValidMoves.some((m) => m.row === row && m.col === col);
 
-  const isValidAttack = (row: number, col: number) => validAttacks.some((a) => a.row === row && a.col === col);
+  const isValidAttack = (row: number, col: number) => displayedValidAttacks.some((a) => a.row === row && a.col === col);
 
   const isValidSwap = (row: number, col: number) => validSwaps.some((s) => s.position.row === row && s.position.col === col);
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import type { Piece } from "../../types";
 import { PieceTypes, PlayerColors } from "../../types";
@@ -150,7 +150,7 @@ interface RightSidebarProps {
 }
 
 export const RightSidebar = ({ onOpenZombieRevive }: RightSidebarProps) => {
-  const { gameState, selectedPosition, validAttacks, attackMode, necromancerActionMode, setAttackMode, setNecromancerActionMode } = useGameStore();
+  const { gameState, selectedPosition, validMoves, validAttacks, attackMode, necromancerActionMode, setAttackMode, setNecromancerActionMode } = useGameStore();
 
   const capturedPieces = gameState.capturedPieces;
   // const moveHistory = isOnline && onlineMoveHistory
@@ -173,12 +173,29 @@ export const RightSidebar = ({ onOpenZombieRevive }: RightSidebarProps) => {
 
   const reviveSectionColor = gameState.currentPlayer;
   const currentSelectedPosition = gameState.selectedPosition ?? selectedPosition;
+  const currentValidMoves = gameState.selectedPosition ? gameState.validMoves : validMoves;
   const currentValidAttacks = gameState.selectedPosition ? gameState.validAttacks : validAttacks;
   const selectedCell = currentSelectedPosition ? gameState.board[currentSelectedPosition.row]?.[currentSelectedPosition.col] : null;
-  const showAttackModeMenu = Boolean(selectedCell && "color" in selectedCell && selectedCell.type !== PieceTypes.NECROMANCER && PIECE_RULES[selectedCell.type].canChooseAttackMode && currentValidAttacks.length > 0);
+  const showAttackModeMenu = Boolean(
+    selectedCell &&
+    "color" in selectedCell &&
+    selectedCell.type !== PieceTypes.NECROMANCER &&
+    PIECE_RULES[selectedCell.type].canChooseAttackMode &&
+    (currentValidMoves.length > 0 || currentValidAttacks.length > 0)
+  );
   const necromancerKillTargets = selectedCell && "color" in selectedCell && selectedCell.type === PieceTypes.NECROMANCER && currentSelectedPosition ? getNecromancerKillTargets(gameState.board, currentSelectedPosition, gameState.boardSize) : [];
   const necromancerFreezeTargets = selectedCell && "color" in selectedCell && selectedCell.type === PieceTypes.NECROMANCER && currentSelectedPosition ? getNecromancerFreezeTargets(gameState.board, currentSelectedPosition, gameState.boardSize) : [];
   const showNecromancerMenu = Boolean(selectedCell && "color" in selectedCell && selectedCell.type === PieceTypes.NECROMANCER);
+  const isRamTower = Boolean(selectedCell && "color" in selectedCell && selectedCell.type === PieceTypes.RAM_TOWER);
+  const hasRangedTargetsWithinFive = currentValidAttacks.length > 0;
+  const isRangedAttackDisabled =
+    Boolean(selectedCell && "color" in selectedCell && selectedCell.isZombie) ||
+    (isRamTower && !hasRangedTargetsWithinFive);
+
+  useEffect(() => {
+    if (!isRamTower || !isRangedAttackDisabled || attackMode !== "ranged") return;
+    setAttackMode("capture");
+  }, [isRamTower, isRangedAttackDisabled, attackMode, setAttackMode]);
 
   return (
     <div className="w-full rounded-2xl border border-stone-700/80 bg-stone-900/45 p-4 shadow-lg shadow-black/20 backdrop-blur-md sm:p-5">
@@ -186,7 +203,7 @@ export const RightSidebar = ({ onOpenZombieRevive }: RightSidebarProps) => {
         <div className="mb-4 border border-stone-700 rounded-lg p-3 bg-stone-900/50">
           <h3 className="text-sm font-medium text-amber-200 mb-2">{PIECE_NAMES[selectedCell.type]} Attack Mode</h3>
           <div className="grid gap-2">
-            {selectedCell.isZombie ? (
+            {isRangedAttackDisabled ? (
               <div className="group relative">
                 <button
                   type="button"
@@ -196,7 +213,9 @@ export const RightSidebar = ({ onOpenZombieRevive }: RightSidebarProps) => {
                   Range attack (kill without moving)
                 </button>
                 <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 hidden w-56 -translate-x-1/2 rounded-md border border-amber-900/60 bg-stone-950 px-2.5 py-2 text-center text-[11px] leading-snug text-amber-200/80 shadow-xl group-hover:block">
-                  Zombie pieces cannot use ranged attacks — they must move to kill
+                  {selectedCell.isZombie
+                    ? "Zombie pieces cannot use ranged attacks — they must move to kill"
+                    : "No enemies within 5 squares — use capture and move for distant targets"}
                 </div>
               </div>
             ) : (

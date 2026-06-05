@@ -1,4 +1,4 @@
-import type { Board, Piece, Position, Move, PlayerColor, PieceType, BoardSize, ObstacleType, Narc } from '../types'
+import type { Board, Piece, Position, Move, PlayerColor, PieceType, BoardSize, ObstacleType, Narc, CellContent } from '../types'
 import { isPiece, isObstacle, PlayerColors, PieceTypes, ObstacleTypes, MovePatterns } from '../types'
 import { isInBounds, cloneBoard, getObstacleType, findAllCaves } from './boardUtils'
 import { PIECE_RULES } from '../constants'
@@ -178,7 +178,7 @@ const getCrossMoves = (board: Board, pos: Position, piece: Piece, boardSize: Boa
 
       if (cell) {
         if (isPiece(cell)) {
-          if (piece.isZombie && cell.color !== piece.color) {
+          if (cell.color !== piece.color && (piece.isZombie || piece.type === PieceTypes.RAM_TOWER)) {
             moves.push({ row, col })
           }
           break
@@ -646,7 +646,7 @@ const isChariotGammaPathClear = (board: Board, from: Position, to: Position, boa
 
 const getRamTowerValidAttacks = (board: Board, pos: Position, boardSize: BoardSize, cell: Piece): Position[] => {
   const attacks: Position[] = []
-  const attackRange = getAdjustedAttackRange(cell, 5)
+  const attackRange = getAdjustedAttackRange(cell, PIECE_RULES[cell.type].attackRange)
 
   for (let row = 0; row < boardSize.rows; row++) {
     for (let col = 0; col < boardSize.cols; col++) {
@@ -841,6 +841,65 @@ export const getValidAttacks = (board: Board, pos: Position, boardSize: BoardSiz
 
 export const getValidMoves = (board: Board, pos: Position, boardSize: BoardSize): Position[] => {
   return getPieceMoves(board, pos, boardSize)
+}
+
+export const getDisplayedMoveTargets = (
+  board: Board,
+  validMoves: Position[],
+  selectedPiece: Piece | null
+): Position[] => {
+  if (!selectedPiece || !PIECE_RULES[selectedPiece.type].canChooseAttackMode) {
+    return validMoves
+  }
+
+  return validMoves.filter(move => {
+    const cell = board[move.row]?.[move.col]
+    return !cell || !isPiece(cell) || cell.color === selectedPiece.color
+  })
+}
+
+export const getDisplayedAttackTargets = (
+  board: Board,
+  validMoves: Position[],
+  validAttacks: Position[],
+  selectedPiece: Piece | null,
+  attackMode: 'ranged' | 'capture'
+): Position[] => {
+  if (!selectedPiece || !PIECE_RULES[selectedPiece.type].canChooseAttackMode) {
+    return validAttacks
+  }
+
+  if (attackMode === 'capture') {
+    return validMoves.filter(move => {
+      const cell = board[move.row]?.[move.col]
+      return cell && isPiece(cell) && cell.color !== selectedPiece.color
+    })
+  }
+
+  return validAttacks
+}
+
+export const resolveAttackModeAction = (
+  selectedPiece: Piece,
+  targetCell: CellContent,
+  isValidMoveTarget: boolean,
+  isValidAttackTarget: boolean,
+  attackMode: 'ranged' | 'capture'
+): { allowed: boolean; shouldUseRangedAttack: boolean; shouldUseMoveCapture: boolean } => {
+  const canChooseAttackMode = PIECE_RULES[selectedPiece.type].canChooseAttackMode
+  const isEnemyTarget = Boolean(targetCell && isPiece(targetCell) && targetCell.color !== selectedPiece.color)
+  const isEnemyMoveCaptureTarget = isValidMoveTarget && isEnemyTarget
+
+  if (canChooseAttackMode && isEnemyTarget && attackMode === 'ranged' && !isValidAttackTarget) {
+    return { allowed: false, shouldUseRangedAttack: false, shouldUseMoveCapture: false }
+  }
+
+  const shouldUseRangedAttack = isValidAttackTarget && (!canChooseAttackMode || attackMode === 'ranged')
+  const shouldUseMoveCapture = canChooseAttackMode &&
+    attackMode === 'capture' &&
+    (isValidAttackTarget || isEnemyMoveCaptureTarget)
+
+  return { allowed: true, shouldUseRangedAttack, shouldUseMoveCapture }
 }
 
 export const isValidMove = (

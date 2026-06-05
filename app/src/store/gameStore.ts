@@ -8,6 +8,7 @@ import {
     createInitialBoard,
     getValidMoves,
     getValidAttacks,
+    resolveAttackModeAction,
     makeMove,
     hasLegalMoves,
     isMonarchCaptured,
@@ -59,8 +60,10 @@ type AttackMode = 'ranged' | 'capture'
 type NecromancerActionMode = 'move' | 'kill' | 'freeze'
 
 const getDefaultAttackMode = (cell: CellContent): AttackMode => {
-    if (cell && isPiece(cell) && cell.isZombie && PIECE_RULES[cell.type].canChooseAttackMode) {
-        return 'capture'
+    if (cell && isPiece(cell) && PIECE_RULES[cell.type].canChooseAttackMode) {
+        if (cell.isZombie || cell.type === PieceTypes.RAM_TOWER) {
+            return 'capture'
+        }
     }
     return 'ranged'
 }
@@ -430,19 +433,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         return false
                     }
 
-                    const canChooseAttackMode = PIECE_RULES[selectedCell.type].canChooseAttackMode
-                    const shouldUseRangedAttack = selectedCell.type === PieceTypes.NECROMANCER
-                        ? (necromancerActionMode === 'kill' && isCloseKillTarget)
-                        : (isValidAttackTarget && (!canChooseAttackMode || attackMode === 'ranged'))
-                    const shouldUseMoveCapture = selectedCell.type === PieceTypes.NECROMANCER
-                        ? isNecromancerMoveCapture
-                        : (isValidAttackTarget && canChooseAttackMode && attackMode === 'capture')
+                    const attackAction = selectedCell.type === PieceTypes.NECROMANCER
+                        ? {
+                            allowed: true,
+                            shouldUseRangedAttack: necromancerActionMode === 'kill' && isCloseKillTarget,
+                            shouldUseMoveCapture: isNecromancerMoveCapture
+                          }
+                        : resolveAttackModeAction(
+                            selectedCell,
+                            targetCell,
+                            isValidMoveTarget,
+                            isValidAttackTarget,
+                            attackMode
+                          )
+                    if (!attackAction.allowed) return false
                     const { newBoard, move, newNarcs } = makeMove(
                         board,
                         selectedPosition,
                         pos,
                         boardSize,
-                        shouldUseRangedAttack && !shouldUseMoveCapture,
+                        attackAction.shouldUseRangedAttack && !attackAction.shouldUseMoveCapture,
                         gameState.narcs
                     )
                     const boardAfterTurn = decrementFrozenTurnsForPlayer(newBoard, gameState.currentPlayer)
@@ -724,19 +734,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     return false
                 }
 
-                const canChooseAttackMode = PIECE_RULES[selectedCell.type].canChooseAttackMode
-                const shouldUseRangedAttack = selectedCell.type === PieceTypes.NECROMANCER
-                    ? (necromancerActionMode === 'kill' && isCloseKillTarget)
-                    : (isValidAttackTarget && (!canChooseAttackMode || attackMode === 'ranged'))
-                const shouldUseMoveCapture = selectedCell.type === PieceTypes.NECROMANCER
-                    ? isNecromancerMoveCapture
-                    : (isValidAttackTarget && canChooseAttackMode && attackMode === 'capture')
+                const attackAction = selectedCell.type === PieceTypes.NECROMANCER
+                    ? {
+                        allowed: true,
+                        shouldUseRangedAttack: necromancerActionMode === 'kill' && isCloseKillTarget,
+                        shouldUseMoveCapture: isNecromancerMoveCapture
+                      }
+                    : resolveAttackModeAction(
+                        selectedCell,
+                        targetCell,
+                        isValidMoveTarget,
+                        isValidAttackTarget,
+                        attackMode
+                    )
+                if (!attackAction.allowed) return false
                 const { newBoard, move, newNarcs } = makeMove(
                     gameState.board,
                     gameState.selectedPosition,
                     pos,
                     gameState.boardSize,
-                    shouldUseRangedAttack && !shouldUseMoveCapture,
+                    attackAction.shouldUseRangedAttack && !attackAction.shouldUseMoveCapture,
                     gameState.narcs
                 )
                 const boardAfterTurn = decrementFrozenTurnsForPlayer(newBoard, gameState.currentPlayer)

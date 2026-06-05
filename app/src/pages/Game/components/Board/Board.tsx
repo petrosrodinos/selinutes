@@ -6,7 +6,7 @@ import { AnimatedPiece } from '../Piece/AnimatedPiece'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
 import { useIsAdmin } from '../../../../hooks'
-import { getValidMoves, getValidAttacks, getAllNarcNetPositions } from '../../utils'
+import { getValidMoves, getValidAttacks, getAllNarcNetPositions, getDisplayedMoveTargets, getDisplayedAttackTargets } from '../../utils'
 import { isPiece } from '../../types'
 import type { Board as BoardType, BoardSize, Position, Move, SwapTarget, MysteryBoxState } from '../../types'
 
@@ -40,7 +40,7 @@ export const Board = ({
     onSquareClick,
     onMysteryBoxClick
 }: BoardProps) => {
-    const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection } = useGameStore()
+    const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection, attackMode } = useGameStore()
     const { helpEnabled, devMode } = useUIStore()
     const isAdmin = useIsAdmin()
     const effectiveDevMode = devMode && isAdmin
@@ -55,6 +55,16 @@ export const Board = ({
     const validSwaps = isOnline ? onlineValidSwaps : gameState.validSwaps
     const lastMove = isOnline ? onlineLastMove : gameState.lastMove
     const currentHintMove = isOnline ? null : hintMove
+    const selectedCell = selectedPosition ? board[selectedPosition.row]?.[selectedPosition.col] : null
+    const selectedPiece = selectedCell && isPiece(selectedCell) ? selectedCell : null
+    const displayedValidMoves = useMemo(
+        () => getDisplayedMoveTargets(board, validMoves, selectedPiece),
+        [board, validMoves, selectedPiece]
+    )
+    const displayedValidAttacks = useMemo(
+        () => getDisplayedAttackTargets(board, validMoves, validAttacks, selectedPiece, attackMode),
+        [board, validMoves, validAttacks, selectedPiece, attackMode]
+    )
 
     const narcNetPositions = useMemo(() => {
         if (!board || board.length === 0) return []
@@ -121,10 +131,10 @@ export const Board = ({
     }
 
     const isValidMove = (row: number, col: number) =>
-        validMoves.some(m => m.row === row && m.col === col)
+        displayedValidMoves.some(m => m.row === row && m.col === col)
 
     const isValidAttack = (row: number, col: number) =>
-        validAttacks.some(a => a.row === row && a.col === col)
+        displayedValidAttacks.some(a => a.row === row && a.col === col)
 
     const isValidSwap = (row: number, col: number) =>
         validSwaps.some(s => s.position.row === row && s.position.col === col)
