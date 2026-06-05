@@ -58,6 +58,13 @@ interface NecromancerFreezeResult {
 type AttackMode = 'ranged' | 'capture'
 type NecromancerActionMode = 'move' | 'kill' | 'freeze'
 
+const getDefaultAttackMode = (cell: CellContent): AttackMode => {
+    if (cell && isPiece(cell) && cell.isZombie && PIECE_RULES[cell.type].canChooseAttackMode) {
+        return 'capture'
+    }
+    return 'ranged'
+}
+
 interface GameStore {
     gameState: GameState
     boardSizeKey: BoardSizeKey
@@ -501,7 +508,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         validMoves: moves,
                         validAttacks: attacks,
                         validSwaps: swaps,
-                        attackMode: 'ranged',
+                        attackMode: getDefaultAttackMode(cell),
                         necromancerActionMode: 'move'
                     })
                     return false
@@ -526,7 +533,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     validMoves: moves,
                     validAttacks: attacks,
                     validSwaps: swaps,
-                    attackMode: 'ranged',
+                    attackMode: getDefaultAttackMode(cell),
                     necromancerActionMode: 'move'
                 })
             }
@@ -803,7 +810,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         validAttacks: attacks,
                         validSwaps: swaps
                     },
-                    attackMode: 'ranged',
+                    attackMode: getDefaultAttackMode(cell),
                     necromancerActionMode: 'move'
                 })
                 return false
@@ -837,7 +844,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     validAttacks: attacks,
                     validSwaps: swaps
                 },
-                attackMode: 'ranged',
+                attackMode: getDefaultAttackMode(cell),
                 necromancerActionMode: 'move'
             })
         }
@@ -1458,7 +1465,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
             validSwaps: [],
             mysteryBoxState: getInitialMysteryBoxState(),
             attackMode: 'ranged',
-            necromancerActionMode: 'move'
+            necromancerActionMode: 'move',
+            botEnabled: false,
+            botThinking: false,
         })
     },
     reviveZombie: (payload) => {

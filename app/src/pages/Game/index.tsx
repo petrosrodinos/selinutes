@@ -220,14 +220,16 @@ export const Game = () => {
   const executeRevive = (target: { row: number; col: number }) => {
     if (!selectedZombiePiece || !necromancerPosition) return false;
     if (isOnline) {
-      requestZombieRevive({
+      const success = requestZombieRevive({
         necromancerPosition,
         revivePiece: selectedZombiePiece,
         target,
       });
-      playRevive();
-      closeZombieRevive();
-      return true;
+      if (success) {
+        playRevive();
+        closeZombieRevive();
+      }
+      return success;
     }
     const success = offlineReviveZombie({
       necromancerPosition,

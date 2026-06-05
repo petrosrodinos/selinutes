@@ -398,17 +398,17 @@ export const useOnlineGame = () => {
         }
     }, [gameCode, selectSquare, getGameStateForSync, emit, handleMysteryBoxSelection, getCurrentPlayer, saveFinishedGame])
 
-    const requestZombieRevive = useCallback((payload: ZombieRevivePayload) => {
-        if (!gameCode) return
+    const requestZombieRevive = useCallback((payload: ZombieRevivePayload): boolean => {
+        if (!gameCode) return false
         const revived = useGameStore.getState().reviveZombie({
             necromancerPosition: payload.necromancerPosition,
             revivePiece: payload.revivePiece,
             target: payload.target
         })
-        if (!revived) return
+        if (!revived) return false
 
         const currentGameState = getGameStateForSync()
-        if (!currentGameState) return
+        if (!currentGameState) return false
 
         const soundKey = currentGameState.lastMove ? getMoveSound(currentGameState.lastMove) : undefined
         emit(SocketEvents.SYNC_GAME, {
@@ -416,6 +416,7 @@ export const useOnlineGame = () => {
             gameState: buildSyncGameState(currentGameState),
             soundKey
         })
+        return true
     }, [gameCode, emit, getGameStateForSync])
 
     const notifyReviveStarted = useCallback(() => {

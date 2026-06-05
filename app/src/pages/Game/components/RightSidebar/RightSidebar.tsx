@@ -186,9 +186,24 @@ export const RightSidebar = ({ onOpenZombieRevive }: RightSidebarProps) => {
         <div className="mb-4 border border-stone-700 rounded-lg p-3 bg-stone-900/50">
           <h3 className="text-sm font-medium text-amber-200 mb-2">{PIECE_NAMES[selectedCell.type]} Attack Mode</h3>
           <div className="grid gap-2">
-            <button type="button" onClick={() => setAttackMode("ranged")} className={`text-xs rounded-md px-2 py-2 border transition-colors ${attackMode === "ranged" ? "bg-rose-700 border-rose-500 text-rose-100" : "bg-stone-800 border-stone-600 text-stone-200 hover:bg-stone-700"}`}>
-              Range attack (kill without moving)
-            </button>
+            {selectedCell.isZombie ? (
+              <div className="group relative">
+                <button
+                  type="button"
+                  disabled
+                  className="w-full cursor-not-allowed text-xs rounded-md px-2 py-2 border border-stone-700 bg-stone-800/40 text-stone-500 line-through"
+                >
+                  Range attack (kill without moving)
+                </button>
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 hidden w-56 -translate-x-1/2 rounded-md border border-amber-900/60 bg-stone-950 px-2.5 py-2 text-center text-[11px] leading-snug text-amber-200/80 shadow-xl group-hover:block">
+                  Zombie pieces cannot use ranged attacks — they must move to kill
+                </div>
+              </div>
+            ) : (
+              <button type="button" onClick={() => setAttackMode("ranged")} className={`text-xs rounded-md px-2 py-2 border transition-colors ${attackMode === "ranged" ? "bg-rose-700 border-rose-500 text-rose-100" : "bg-stone-800 border-stone-600 text-stone-200 hover:bg-stone-700"}`}>
+                Range attack (kill without moving)
+              </button>
+            )}
             <button type="button" onClick={() => setAttackMode("capture")} className={`text-xs rounded-md px-2 py-2 border transition-colors ${attackMode === "capture" ? "bg-emerald-700 border-emerald-500 text-emerald-100" : "bg-stone-800 border-stone-600 text-stone-200 hover:bg-stone-700"}`}>
               Capture and move to target
             </button>

@@ -128,7 +128,12 @@ const getHopliteMoves = (board: Board, pos: Position, piece: Piece, boardSize: B
 
     const targetCell = board[newRow][pos.col]
     if (targetCell) {
-      if (isPiece(targetCell)) break
+      if (isPiece(targetCell)) {
+        if (piece.isZombie && targetCell.color !== piece.color) {
+          moves.push({ row: newRow, col: pos.col })
+        }
+        break
+      }
       if (isObstacle(targetCell)) {
         if (canPassObstacle(piece.type, targetCell.type)) {
           if (canStopOnObstacle(targetCell.type)) {
@@ -172,7 +177,12 @@ const getCrossMoves = (board: Board, pos: Position, piece: Piece, boardSize: Boa
       const cell = board[row][col]
 
       if (cell) {
-        if (isPiece(cell)) break
+        if (isPiece(cell)) {
+          if (piece.isZombie && cell.color !== piece.color) {
+            moves.push({ row, col })
+          }
+          break
+        }
         if (isObstacle(cell)) {
           if (canPassObstacle(piece.type, cell.type)) {
             if (cell.type === ObstacleTypes.RIVER) {
@@ -229,7 +239,12 @@ const getSidewaysMoves = (board: Board, pos: Position, piece: Piece, boardSize: 
       const cell = board[row][col]
 
       if (cell) {
-        if (isPiece(cell)) break
+        if (isPiece(cell)) {
+          if (piece.isZombie && cell.color !== piece.color) {
+            moves.push({ row, col })
+          }
+          break
+        }
         if (isObstacle(cell)) {
           if (canPassObstacle(piece.type, cell.type)) {
             if (cell.type === ObstacleTypes.RIVER) {
@@ -286,7 +301,12 @@ const getDiagonalMoves = (board: Board, pos: Position, piece: Piece, boardSize: 
       const cell = board[row][col]
 
       if (cell) {
-        if (isPiece(cell)) break
+        if (isPiece(cell)) {
+          if (piece.isZombie && cell.color !== piece.color) {
+            moves.push({ row, col })
+          }
+          break
+        }
         if (isObstacle(cell)) {
           if (canPassObstacle(piece.type, cell.type)) {
             if (cell.type === ObstacleTypes.RIVER) {
@@ -349,7 +369,12 @@ const getAnyDirectionMoves = (board: Board, pos: Position, piece: Piece, boardSi
       const cell = board[row][col]
 
       if (cell) {
-        if (isPiece(cell)) break
+        if (isPiece(cell)) {
+          if (piece.isZombie && cell.color !== piece.color) {
+            moves.push({ row, col })
+          }
+          break
+        }
         if (isObstacle(cell)) {
           if (canPassObstacle(piece.type, cell.type)) {
             if (cell.type === ObstacleTypes.RIVER) {
@@ -410,7 +435,12 @@ const getPatternMoves = (board: Board, pos: Position, piece: Piece, boardSize: B
       if (!isPathClear(board, pos, { row: newRow, col: newCol }, piece, boardSize)) continue
 
       const targetCell = board[newRow][newCol]
-      if (targetCell && isPiece(targetCell)) continue
+      if (targetCell && isPiece(targetCell)) {
+        if (piece.isZombie && targetCell.color !== piece.color) {
+          moves.push({ row: newRow, col: newCol })
+        }
+        continue
+      }
 
       moves.push({ row: newRow, col: newCol })
     }
@@ -939,6 +969,9 @@ export const makeMove = (
       standingOnObstacle: destinationObstacle
     }
     newBoard[from.row][from.col] = sourceObstacle ? { type: sourceObstacle } : null
+    if (captured && captured.type === PieceTypes.BOMBER) {
+      newNarcs = removeNarcsForBomber(newNarcs, captured.id)
+    }
   }
 
   if (piece.type === PieceTypes.BOMBER && !piece.isZombie && !isAttack) {
