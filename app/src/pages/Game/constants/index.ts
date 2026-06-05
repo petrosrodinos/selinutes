@@ -165,7 +165,7 @@ export const RULES_FIGURE_SECTION_TITLES: Record<PieceType, string> = {
 export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   [PieceTypes.HOPLITE]: [
     'Moves 3 steps forward on the first move; afterwards, moves 2 steps.',
-    'Can attack 1 step to front, left, right, and front diagonals (left/right).',
+    'Can attack 1 step on front diagonals (left/right) only.',
     'Can pass through caves.',
     'Cannot pass through river, lake, or canyon.'
   ],

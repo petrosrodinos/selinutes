@@ -778,10 +778,7 @@ export const getValidAttacks = (board: Board, pos: Position, boardSize: BoardSiz
     const forwardDirection = cell.color === PlayerColors.WHITE ? -1 : 1
     const directions = [
       [forwardDirection, -1],
-      [forwardDirection, 0],
-      [forwardDirection, 1],
-      [0, -1],
-      [0, 1]
+      [forwardDirection, 1]
     ]
     for (const [rowOff, colOff] of directions) {
       const row = pos.row + rowOff
