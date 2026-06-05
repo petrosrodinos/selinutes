@@ -1,5 +1,13 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { getMyStats, getStatsByUser, getLeaderboard, getAdminUsersOverview, deleteAdminUser } from '../services/stats.service'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+    getMyStats,
+    getStatsByUser,
+    getLeaderboard,
+    getAdminUsersOverview,
+    getAdminGamesOverview,
+    deleteAdminUser,
+    deleteAdminGame,
+} from '../services/stats.service'
 import { toast } from 'react-toastify'
 
 export const useMyStats = () => {
@@ -31,11 +39,36 @@ export const useAdminUsersOverview = () => {
     })
 }
 
+export const useAdminGamesOverview = (params?: { page?: number; limit?: number }) => {
+    return useQuery({
+        queryKey: ['stats', 'admin-games-overview', params?.page, params?.limit],
+        queryFn: () => getAdminGamesOverview(params),
+    })
+}
+
 export const useDeleteAdminUser = () => {
     return useMutation({
         mutationFn: deleteAdminUser,
         onSuccess: () => {
             toast.success('User deleted successfully')
+        },
+        onError: (error: Error) => {
+            toast.error(error.message)
+        },
+    })
+}
+
+export const useDeleteAdminGame = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: deleteAdminGame,
+        onSuccess: async () => {
+            toast.success('Game deleted successfully')
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ['stats', 'admin-games-overview'] }),
+                queryClient.invalidateQueries({ queryKey: ['stats', 'admin-users-overview'] }),
+            ])
         },
         onError: (error: Error) => {
             toast.error(error.message)

@@ -22,7 +22,15 @@ export const ApiRoutes = {
         byUser: (userUuid: string) => `/stats?user_uuid=${userUuid}`,
         leaderboard: (limit?: number) => `/stats/leaderboard${limit ? `?limit=${limit}` : ''}`,
         adminUsersOverview: '/stats/admin/users-overview',
+        adminGamesOverview: (page?: number, limit?: number) => {
+            const params = new URLSearchParams()
+            if (page !== undefined) params.set('page', String(page))
+            if (limit !== undefined) params.set('limit', String(limit))
+            const query = params.toString()
+            return `/stats/admin/games-overview${query ? `?${query}` : ''}`
+        },
         adminDeleteUser: (userUuid: string) => `/stats/admin/users/${userUuid}`,
+        adminDeleteGame: (sessionId: string) => `/stats/admin/games/${sessionId}`,
     },
     games: {
         prefix: "/games",

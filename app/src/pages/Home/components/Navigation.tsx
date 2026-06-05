@@ -36,7 +36,7 @@ export const Navigation = () => {
             </Link>
             <div className="flex items-center gap-1.5 sm:gap-2">
               {isAdmin ? (
-                <Link to="/admin/users" className="rounded-lg border border-stone-600/50 bg-stone-700/60 p-2 transition-all duration-200 hover:bg-stone-600/60 sm:p-2.5" aria-label="Admin users">
+                <Link to="/admin" className="rounded-lg border border-stone-600/50 bg-stone-700/60 p-2 transition-all duration-200 hover:bg-stone-600/60 sm:p-2.5" aria-label="Admin dashboard">
                   <Shield className="h-4 w-4 text-amber-400 sm:h-5 sm:w-5" />
                 </Link>
               ) : null}

@@ -1,6 +1,7 @@
 import { Controller, Get, Query, HttpCode, HttpStatus, UseGuards, ParseIntPipe, DefaultValuePipe, Delete, Param } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger'
-import { StatsService, LeaderboardEntry, AdminUserOverviewEntry } from './stats.service'
+import { StatsService, LeaderboardEntry, AdminUserOverviewEntry, AdminGameSessionEntry } from './stats.service'
+import { GetAdminGamesDto } from './dto/get-admin-games.dto'
 import { JwtGuard } from '@/shared/guards/jwt.guard'
 import { RolesGuard } from '@/shared/guards/roles.guard'
 import { Roles } from '@/shared/decorators/roles.decorator'
@@ -53,6 +54,31 @@ export class StatsController {
     @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
     getAdminUsersOverview(): Promise<AdminUserOverviewEntry[]> {
         return this.statsService.getAdminUsersOverview()
+    }
+
+    @Get('admin/games-overview')
+    @Roles(AuthRoles.ADMIN)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Admin: get all games grouped by session code' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Games overview retrieved successfully' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
+    getAdminGamesOverview(
+        @Query() dto: GetAdminGamesDto,
+    ): Promise<{ data: AdminGameSessionEntry[]; total: number; page: number; limit: number }> {
+        return this.statsService.getAdminGamesOverview(dto)
+    }
+
+    @Delete('admin/games/:sessionId')
+    @Roles(AuthRoles.ADMIN)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Admin: delete a game session by code or UUID' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Game session deleted successfully' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Game session not found' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
+    deleteAdminGameSession(
+        @Param('sessionId') sessionId: string,
+    ): Promise<{ message: string }> {
+        return this.statsService.deleteAdminGameSession(sessionId)
     }
 
     @Delete('admin/users/:userUuid')

@@ -1,7 +1,11 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '@/core/databases/prisma/prisma.service'
-import { GameMode, UserStats } from 'generated/prisma'
+import { GameMode, GameStatus, Prisma, UserStats } from 'generated/prisma'
 import { getLevelFromPoints } from '../game/constants/game-rewards.constants'
+import { groupGamesBySession, AdminGameSessionEntry } from './helpers/admin-games.helper'
+import { GetAdminGamesDto } from './dto/get-admin-games.dto'
+
+export type { AdminGameSessionEntry, AdminGamePlayerEntry } from './helpers/admin-games.helper'
 
 export interface LeaderboardEntry {
     rank: number
@@ -155,6 +159,104 @@ export class StatsService {
             created_at: user.created_at,
             updated_at: user.updated_at,
         }))
+    }
+
+    async getAdminGamesOverview(dto: GetAdminGamesDto): Promise<{
+        data: AdminGameSessionEntry[]
+        total: number
+        page: number
+        limit: number
+    }> {
+        const { page = 1, limit = 20 } = dto
+
+        const games = await this.prisma.game.findMany({
+            include: {
+                user: {
+                    select: {
+                        uuid: true,
+                        username: true,
+                    },
+                },
+            },
+            orderBy: { finished_at: 'desc' },
+        })
+
+        const grouped = groupGamesBySession(games)
+        const total = grouped.length
+        const skip = (page - 1) * limit
+
+        return {
+            data: grouped.slice(skip, skip + limit),
+            total,
+            page,
+            limit,
+        }
+    }
+
+    async deleteAdminGameSession(sessionId: string): Promise<{ message: string }> {
+        const gamesByCode = await this.prisma.game.findMany({
+            where: { code: sessionId },
+        })
+
+        const games = gamesByCode.length > 0
+            ? gamesByCode
+            : await this.prisma.game.findMany({
+                where: { uuid: sessionId },
+            })
+
+        if (games.length === 0) {
+            throw new NotFoundException('Game session not found')
+        }
+
+        await this.prisma.$transaction(async (tx) => {
+            for (const game of games) {
+                const existingStats = await tx.userStats.findUnique({
+                    where: { user_uuid: game.user_uuid },
+                })
+
+                if (existingStats) {
+                    const newPoints = Math.max(0, existingStats.points - game.points)
+                    const newWins = Math.max(0, existingStats.wins - (game.status === GameStatus.WIN ? 1 : 0))
+                    const newLosses = Math.max(0, existingStats.losses - (game.status === GameStatus.LOSS ? 1 : 0))
+                    const newDraws = Math.max(0, existingStats.draws - (game.status === GameStatus.DRAW ? 1 : 0))
+                    const newLevel = getLevelFromPoints(newPoints)
+                    const newRank = await this.calculateRankWithTx(tx, game.user_uuid, newPoints)
+
+                    await tx.userStats.update({
+                        where: { user_uuid: game.user_uuid },
+                        data: {
+                            points: newPoints,
+                            wins: newWins,
+                            losses: newLosses,
+                            draws: newDraws,
+                            level: newLevel,
+                            rank: newRank,
+                        },
+                    })
+                }
+
+                await tx.game.delete({
+                    where: { id: game.id },
+                })
+            }
+        })
+
+        return { message: 'Game session deleted successfully' }
+    }
+
+    private async calculateRankWithTx(
+        tx: Prisma.TransactionClient,
+        userUuid: string,
+        newPoints: number,
+    ): Promise<number> {
+        const usersAhead = await tx.userStats.count({
+            where: {
+                points: { gt: newPoints },
+                user_uuid: { not: userUuid },
+            },
+        })
+
+        return usersAhead + 1
     }
 
     async deleteUserByUuid(adminUuid: string, userUuid: string): Promise<{ message: string }> {

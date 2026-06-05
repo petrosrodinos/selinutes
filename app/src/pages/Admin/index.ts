@@ -1,1 +1,1 @@
-export { UsersOverview } from './UsersOverview'
+export { AdminPage } from './AdminPage'

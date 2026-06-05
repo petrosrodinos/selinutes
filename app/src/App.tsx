@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Login, Register, Home, UsersOverview } from "./pages";
+import { Login, Register, Home, AdminPage } from "./pages";
 import { AuthGuard } from "./components/AuthGuard";
 import { AdminGuard } from "./components/AdminGuard";
 import { useAuthStore } from "./store/authStore";
@@ -71,13 +71,14 @@ function App() {
             }
           />
           <Route
-            path="/admin/users"
+            path="/admin"
             element={
               <AdminGuard>
-                <UsersOverview />
+                <AdminPage />
               </AdminGuard>
             }
           />
+          <Route path="/admin/users" element={<Navigate to="/admin" replace />} />
         </Routes>
       </BrowserRouter>
       <ToastContainer position="top-right" theme="dark" />

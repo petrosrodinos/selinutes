@@ -22,6 +22,33 @@ export interface LeaderboardEntry {
     draws: number
 }
 
+export interface AdminGamePlayerEntry {
+    user_uuid: string
+    username: string
+    status: string
+    points: number
+    moves: number
+    time: number | null
+    game_uuid: string
+}
+
+export interface AdminGameSessionEntry {
+    id: string
+    code: string | null
+    board_size: string
+    mode: 'SINGLE' | 'OFFLINE' | 'ONLINE'
+    players: AdminGamePlayerEntry[]
+    created_at: string
+    finished_at: string | null
+}
+
+export interface AdminGamesOverviewResponse {
+    data: AdminGameSessionEntry[]
+    total: number
+    page: number
+    limit: number
+}
+
 export interface AdminUserOverviewEntry {
     user_uuid: string
     username: string
