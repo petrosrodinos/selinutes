@@ -436,7 +436,10 @@ const getPatternMoves = (board: Board, pos: Position, piece: Piece, boardSize: B
 
       const targetCell = board[newRow][newCol]
       if (targetCell && isPiece(targetCell)) {
-        if (piece.isZombie && targetCell.color !== piece.color) {
+        if (
+          targetCell.color !== piece.color &&
+          (piece.isZombie || piece.type === PieceTypes.CHARIOT)
+        ) {
           moves.push({ row: newRow, col: newCol })
         }
         continue
@@ -562,19 +565,18 @@ export const getNecromancerFreezeTargets = (board: Board, pos: Position, boardSi
   return targets
 }
 
-const CHARIOT_GAMMA_OFFSETS: [number, number][] = [
-  [3, 1], [3, -1], [-3, 1], [-3, -1],
-  [1, 3], [1, -3], [-1, 3], [-1, -3]
-]
+const getChariotAttackRange = (piece: Piece): number =>
+  getAdjustedAttackRange(piece, PIECE_RULES[PieceTypes.CHARIOT].attackRange)
 
-const isChariotGammaAttack = (from: Position, to: Position): boolean => {
-  const dr = to.row - from.row
-  const dc = to.col - from.col
-  return CHARIOT_GAMMA_OFFSETS.some(([or, oc]) => dr === or && dc === oc)
+const isChariotGammaAttack = (from: Position, to: Position, maxLongLeg: number): boolean => {
+  const absDr = Math.abs(to.row - from.row)
+  const absDc = Math.abs(to.col - from.col)
+  if (absDr < 1 || absDc < 1) return false
+  if (Math.min(absDr, absDc) !== 1) return false
+  return Math.max(absDr, absDc) <= maxLongLeg
 }
 
-const isChariotGammaPathOptionClear = (
-  board: Board,
+const getChariotGammaPathOptionCells = (
   from: Position,
   firstRowDir: number,
   firstColDir: number,
@@ -583,7 +585,7 @@ const isChariotGammaPathOptionClear = (
   secondColDir: number,
   secondSteps: number,
   boardSize: BoardSize
-): boolean => {
+): Position[] | null => {
   let row = from.row
   let col = from.col
   const traversed: Position[] = []
@@ -591,57 +593,150 @@ const isChariotGammaPathOptionClear = (
   for (let i = 0; i < firstSteps; i++) {
     row += firstRowDir
     col += firstColDir
-    if (!isInBounds(row, col, boardSize)) return false
+    if (!isInBounds(row, col, boardSize)) return null
     traversed.push({ row, col })
   }
 
   for (let i = 0; i < secondSteps; i++) {
     row += secondRowDir
     col += secondColDir
-    if (!isInBounds(row, col, boardSize)) return false
+    if (!isInBounds(row, col, boardSize)) return null
     traversed.push({ row, col })
   }
 
-  for (let i = 0; i < traversed.length - 1; i++) {
-    const cell = board[traversed[i].row][traversed[i].col]
+  return traversed.slice(0, -1)
+}
+
+const isChariotGammaPathOptionClear = (
+  board: Board,
+  from: Position,
+  piece: Piece,
+  firstRowDir: number,
+  firstColDir: number,
+  firstSteps: number,
+  secondRowDir: number,
+  secondColDir: number,
+  secondSteps: number,
+  boardSize: BoardSize
+): boolean => {
+  const intermediateCells = getChariotGammaPathOptionCells(
+    from,
+    firstRowDir,
+    firstColDir,
+    firstSteps,
+    secondRowDir,
+    secondColDir,
+    secondSteps,
+    boardSize
+  )
+  if (!intermediateCells) return false
+
+  for (const cellPos of intermediateCells) {
+    const cell = board[cellPos.row][cellPos.col]
     if (!cell) continue
-    if (isPiece(cell)) return false
-    if (isObstacle(cell) && cell.type !== ObstacleTypes.TREE) return false
+    if (isPiece(cell)) {
+      if (cell.color === piece.color) continue
+      return false
+    }
   }
 
   return true
 }
 
-const isChariotGammaPathClear = (board: Board, from: Position, to: Position, boardSize: BoardSize): boolean => {
+const getChariotGammaPathOptions = (from: Position, to: Position) => {
   const dr = to.row - from.row
   const dc = to.col - from.col
   const absDr = Math.abs(dr)
   const absDc = Math.abs(dc)
-
-  if ((absDr !== 3 && absDr !== 4 && absDr !== 1) || (absDc !== 3 && absDc !== 4 && absDc !== 1)) {
-    return false
-  }
-  if (absDr !== 1 && absDc !== 1) {
-    return false
-  }
-  if (Math.max(absDr, absDc) > 4) {
-    return false
-  }
-
   const rowSign = Math.sign(dr)
   const colSign = Math.sign(dc)
 
   if (absDr > absDc) {
-    return (
-      isChariotGammaPathOptionClear(board, from, rowSign, 0, absDr, 0, colSign, absDc, boardSize) ||
-      isChariotGammaPathOptionClear(board, from, 0, colSign, absDc, rowSign, 0, absDr, boardSize)
-    )
+    return [
+      { firstRowDir: rowSign, firstColDir: 0, firstSteps: absDr, secondRowDir: 0, secondColDir: colSign, secondSteps: absDc },
+      { firstRowDir: 0, firstColDir: colSign, firstSteps: absDc, secondRowDir: rowSign, secondColDir: 0, secondSteps: absDr }
+    ]
   }
 
-  return (
-    isChariotGammaPathOptionClear(board, from, 0, colSign, absDc, rowSign, 0, absDr, boardSize) ||
-    isChariotGammaPathOptionClear(board, from, rowSign, 0, absDr, 0, colSign, absDc, boardSize)
+  return [
+    { firstRowDir: 0, firstColDir: colSign, firstSteps: absDc, secondRowDir: rowSign, secondColDir: 0, secondSteps: absDr },
+    { firstRowDir: rowSign, firstColDir: 0, firstSteps: absDr, secondRowDir: 0, secondColDir: colSign, secondSteps: absDc }
+  ]
+}
+
+const isChariotGammaPathClear = (
+  board: Board,
+  from: Position,
+  to: Position,
+  piece: Piece,
+  boardSize: BoardSize
+): boolean => {
+  const maxLongLeg = getChariotAttackRange(piece)
+  if (!isChariotGammaAttack(from, to, maxLongLeg)) {
+    return false
+  }
+
+  return getChariotGammaPathOptions(from, to).some(option =>
+    isChariotGammaPathOptionClear(
+      board,
+      from,
+      piece,
+      option.firstRowDir,
+      option.firstColDir,
+      option.firstSteps,
+      option.secondRowDir,
+      option.secondColDir,
+      option.secondSteps,
+      boardSize
+    )
   )
+}
+
+const chariotGammaPathHasFriendlyOrObstacle = (
+  board: Board,
+  from: Position,
+  to: Position,
+  piece: Piece,
+  boardSize: BoardSize
+): boolean => {
+  const maxLongLeg = getChariotAttackRange(piece)
+  if (!isChariotGammaAttack(from, to, maxLongLeg)) return false
+
+  return getChariotGammaPathOptions(from, to).some(option => {
+    if (!isChariotGammaPathOptionClear(
+      board,
+      from,
+      piece,
+      option.firstRowDir,
+      option.firstColDir,
+      option.firstSteps,
+      option.secondRowDir,
+      option.secondColDir,
+      option.secondSteps,
+      boardSize
+    )) {
+      return false
+    }
+
+    const intermediateCells = getChariotGammaPathOptionCells(
+      from,
+      option.firstRowDir,
+      option.firstColDir,
+      option.firstSteps,
+      option.secondRowDir,
+      option.secondColDir,
+      option.secondSteps,
+      boardSize
+    )
+    if (!intermediateCells) return false
+
+    return intermediateCells.some(cellPos => {
+      const cell = board[cellPos.row][cellPos.col]
+      if (!cell) return false
+      if (isObstacle(cell)) return true
+      return isPiece(cell) && cell.color === piece.color
+    })
+  })
 }
 
 const getRamTowerValidAttacks = (board: Board, pos: Position, boardSize: BoardSize, cell: Piece): Position[] => {
@@ -700,7 +795,7 @@ const getPaladinValidAttacks = (board: Board, pos: Position, boardSize: BoardSiz
 
 const getChariotValidAttacks = (board: Board, pos: Position, boardSize: BoardSize, cell: Piece): Position[] => {
   const attacks: Position[] = []
-  const attackRange = getAdjustedAttackRange(cell, 4)
+  const attackRange = getChariotAttackRange(cell)
 
   for (let row = 0; row < boardSize.rows; row++) {
     for (let col = 0; col < boardSize.cols; col++) {
@@ -711,15 +806,35 @@ const getChariotValidAttacks = (board: Board, pos: Position, boardSize: BoardSiz
       if (targetCell.color === cell.color) continue
 
       const target = { row, col }
-      const isGamma = isChariotGammaAttack(pos, target)
-      const inRange = Math.max(Math.abs(row - pos.row), Math.abs(col - pos.col)) <= attackRange
+      const isGamma = isChariotGammaAttack(pos, target, attackRange)
 
-      if (isGamma && inRange && isChariotGammaPathClear(board, pos, target, boardSize)) {
+      if (isGamma && isChariotGammaPathClear(board, pos, target, cell, boardSize)) {
         attacks.push(target)
       }
     }
   }
   return attacks
+}
+
+export const isChariotValidCaptureMoveTarget = (
+  board: Board,
+  from: Position,
+  target: Position,
+  piece: Piece,
+  boardSize: BoardSize
+): boolean => {
+  const targetCell = board[target.row]?.[target.col]
+  if (!targetCell || !isPiece(targetCell) || targetCell.color === piece.color) return false
+
+  const canLandOnEnemy = getPieceMoves(board, from, boardSize).some(
+    move => move.row === target.row && move.col === target.col
+  )
+  if (!canLandOnEnemy) return false
+
+  const maxLongLeg = getChariotAttackRange(piece)
+  if (!isChariotGammaAttack(from, target, maxLongLeg)) return true
+
+  return !chariotGammaPathHasFriendlyOrObstacle(board, from, target, piece, boardSize)
 }
 
 const isAttackPathClear = (
@@ -863,17 +978,30 @@ export const getDisplayedAttackTargets = (
   validMoves: Position[],
   validAttacks: Position[],
   selectedPiece: Piece | null,
-  attackMode: 'ranged' | 'capture'
+  selectedPosition: Position | null,
+  attackMode: 'ranged' | 'capture',
+  boardSize: BoardSize
 ): Position[] => {
   if (!selectedPiece || !PIECE_RULES[selectedPiece.type].canChooseAttackMode) {
     return validAttacks
   }
 
   if (attackMode === 'capture') {
-    return validMoves.filter(move => {
+    const enemyMoveTargets = validMoves.filter(move => {
       const cell = board[move.row]?.[move.col]
       return cell && isPiece(cell) && cell.color !== selectedPiece.color
     })
+
+    if (
+      selectedPiece.type === PieceTypes.CHARIOT &&
+      selectedPosition
+    ) {
+      return enemyMoveTargets.filter(target =>
+        isChariotValidCaptureMoveTarget(board, selectedPosition, target, selectedPiece, boardSize)
+      )
+    }
+
+    return enemyMoveTargets
   }
 
   return validAttacks
@@ -884,20 +1012,41 @@ export const resolveAttackModeAction = (
   targetCell: CellContent,
   isValidMoveTarget: boolean,
   isValidAttackTarget: boolean,
-  attackMode: 'ranged' | 'capture'
+  attackMode: 'ranged' | 'capture',
+  options?: {
+    board: Board
+    from: Position
+    to: Position
+    boardSize: BoardSize
+  }
 ): { allowed: boolean; shouldUseRangedAttack: boolean; shouldUseMoveCapture: boolean } => {
   const canChooseAttackMode = PIECE_RULES[selectedPiece.type].canChooseAttackMode
   const isEnemyTarget = Boolean(targetCell && isPiece(targetCell) && targetCell.color !== selectedPiece.color)
   const isEnemyMoveCaptureTarget = isValidMoveTarget && isEnemyTarget
+  const isChariotCaptureTarget = selectedPiece.type === PieceTypes.CHARIOT &&
+    options &&
+    isChariotValidCaptureMoveTarget(options.board, options.from, options.to, selectedPiece, options.boardSize)
 
   if (canChooseAttackMode && isEnemyTarget && attackMode === 'ranged' && !isValidAttackTarget) {
+    return { allowed: false, shouldUseRangedAttack: false, shouldUseMoveCapture: false }
+  }
+
+  if (
+    canChooseAttackMode &&
+    selectedPiece.type === PieceTypes.CHARIOT &&
+    attackMode === 'capture' &&
+    isEnemyTarget &&
+    !isChariotCaptureTarget
+  ) {
     return { allowed: false, shouldUseRangedAttack: false, shouldUseMoveCapture: false }
   }
 
   const shouldUseRangedAttack = isValidAttackTarget && (!canChooseAttackMode || attackMode === 'ranged')
   const shouldUseMoveCapture = canChooseAttackMode &&
     attackMode === 'capture' &&
-    (isValidAttackTarget || isEnemyMoveCaptureTarget)
+    (selectedPiece.type === PieceTypes.CHARIOT
+      ? isChariotCaptureTarget
+      : (isValidAttackTarget || isEnemyMoveCaptureTarget))
 
   return { allowed: true, shouldUseRangedAttack, shouldUseMoveCapture }
 }

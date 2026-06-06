@@ -62,8 +62,8 @@ export const Board = ({
         [board, validMoves, selectedPiece]
     )
     const displayedValidAttacks = useMemo(
-        () => getDisplayedAttackTargets(board, validMoves, validAttacks, selectedPiece, attackMode),
-        [board, validMoves, validAttacks, selectedPiece, attackMode]
+        () => getDisplayedAttackTargets(board, validMoves, validAttacks, selectedPiece, selectedPosition, attackMode, boardSize),
+        [board, validMoves, validAttacks, selectedPiece, selectedPosition, attackMode, boardSize]
     )
 
     const narcNetPositions = useMemo(() => {

@@ -444,7 +444,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                             targetCell,
                             isValidMoveTarget,
                             isValidAttackTarget,
-                            attackMode
+                            attackMode,
+                            { board, from: selectedPosition, to: pos, boardSize }
                           )
                     if (!attackAction.allowed) return false
                     const { newBoard, move, newNarcs } = makeMove(
@@ -745,7 +746,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         targetCell,
                         isValidMoveTarget,
                         isValidAttackTarget,
-                        attackMode
+                        attackMode,
+                        {
+                            board: gameState.board,
+                            from: gameState.selectedPosition,
+                            to: pos,
+                            boardSize: gameState.boardSize
+                        }
                     )
                 if (!attackAction.allowed) return false
                 const { newBoard, move, newNarcs } = makeMove(
