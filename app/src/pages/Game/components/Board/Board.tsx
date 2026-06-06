@@ -49,7 +49,7 @@ export const Board = ({
 
     const board = isOnline && onlineBoard ? onlineBoard : gameState.board
     const boardSize = isOnline && onlineBoardSize ? onlineBoardSize : gameState.boardSize
-    const selectedPosition = isOnline ? onlineSelectedPosition : gameState.selectedPosition
+    const selectedPosition = (isOnline ? onlineSelectedPosition : gameState.selectedPosition) ?? null
     const validMoves = isOnline ? onlineValidMoves : gameState.validMoves
     const validAttacks = isOnline ? onlineValidAttacks : gameState.validAttacks
     const validSwaps = isOnline ? onlineValidSwaps : gameState.validSwaps

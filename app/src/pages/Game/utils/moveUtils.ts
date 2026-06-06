@@ -1045,11 +1045,11 @@ export const resolveAttackModeAction = (
   }
 
   const shouldUseRangedAttack = isValidAttackTarget && (!canChooseAttackMode || attackMode === 'ranged')
-  const shouldUseMoveCapture = canChooseAttackMode &&
+  const shouldUseMoveCapture = Boolean(canChooseAttackMode &&
     attackMode === 'capture' &&
     (selectedPiece.type === PieceTypes.CHARIOT
       ? isChariotCaptureTarget
-      : (isValidAttackTarget || isEnemyMoveCaptureTarget))
+      : (isValidAttackTarget || isEnemyMoveCaptureTarget)))
 
   return { allowed: true, shouldUseRangedAttack, shouldUseMoveCapture }
 }
