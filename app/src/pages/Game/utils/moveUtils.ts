@@ -742,23 +742,27 @@ const chariotGammaPathHasFriendlyOrObstacle = (
 const getRamTowerValidAttacks = (board: Board, pos: Position, boardSize: BoardSize, cell: Piece): Position[] => {
   const attacks: Position[] = []
   const attackRange = getAdjustedAttackRange(cell, PIECE_RULES[cell.type].attackRange)
+  const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]
 
-  for (let row = 0; row < boardSize.rows; row++) {
-    for (let col = 0; col < boardSize.cols; col++) {
-      if (row === pos.row && col === pos.col) continue
+  for (const [rowDir, colDir] of directions) {
+    for (let step = 1; step <= attackRange; step++) {
+      const row = pos.row + rowDir * step
+      const col = pos.col + colDir * step
+      if (!isInBounds(row, col, boardSize)) break
 
       const targetCell = board[row][col]
-      if (!targetCell || !isPiece(targetCell)) continue
+      if (!targetCell) continue
+      if (isObstacle(targetCell)) {
+        if (!canPassObstacle(cell.type, targetCell.type)) break
+        continue
+      }
       if (targetCell.color === cell.color) continue
 
-      const dr = row - pos.row
-      const dc = col - pos.col
-      if (dr !== 0 && dc !== 0) continue
+      const target = { row, col }
+      if (!isAttackPathClear(board, pos, target, cell, boardSize)) break
 
-      const dist = Math.abs(dr) + Math.abs(dc)
-      if (dist > attackRange) continue
-
-      attacks.push({ row, col })
+      attacks.push(target)
+      break
     }
   }
   return attacks
@@ -781,7 +785,7 @@ const getPaladinValidAttacks = (board: Board, pos: Position, boardSize: BoardSiz
         if (!canPassObstacle(cell.type, targetCell.type)) break
         continue
       }
-      if (targetCell.color === cell.color) break
+      if (targetCell.color === cell.color) continue
 
       const target = { row, col }
       if (!isAttackPathClear(board, pos, target, cell, boardSize)) break
@@ -846,7 +850,6 @@ const isAttackPathClear = (
 ): boolean => {
   const rowDir = to.row === from.row ? 0 : (to.row > from.row ? 1 : -1)
   const colDir = to.col === from.col ? 0 : (to.col > from.col ? 1 : -1)
-  const shootsThroughFriendly = PIECE_RULES[piece.type].shootsThroughFriendly ?? false
 
   let row = from.row + rowDir
   let col = from.col + colDir
@@ -857,7 +860,7 @@ const isAttackPathClear = (
     const cell = board[row][col]
     if (cell) {
       if (isPiece(cell)) {
-        if (shootsThroughFriendly && cell.color === piece.color) {
+        if (cell.color === piece.color) {
           row += rowDir
           col += colDir
           continue

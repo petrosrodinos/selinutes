@@ -79,7 +79,6 @@ export const PIECE_RULES: Record<string, PieceRules> = {
     attackRange: 9,
     canPass: [ObstacleTypes.RIVER, ObstacleTypes.MYSTERY_BOX],
     canChooseAttackMode: true,
-    shootsThroughFriendly: true,
     points: 27
   },
   [PieceTypes.NECROMANCER]: {
@@ -171,7 +170,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   ],
   [PieceTypes.RAM_TOWER]: [
     'Moves cross-shaped (orthogonal) any number of blocks.',
-    'Catapult attack: cross-shaped, up to 5 blocks away.',
+    'Catapult attack: cross-shaped, up to 5 blocks away; shoots through friendly figures and captures only the first enemy in each line.',
     'Can also move onto an enemy in its path to capture it directly.',
     'Cannot pass through cave, river, lake, or canyon.'
   ],
@@ -192,7 +191,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   ],
   [PieceTypes.PALADIN]: [
     'Moves diagonal as many steps as possible.',
-    'Shoots up to 3 steps (diagonal).',
+    'Shoots up to 3 steps (diagonal); shoots through friendly figures and captures only the first enemy in each line.',
     'Can pass through river (1 step wide), cave, canyon.',
     'Cannot pass through lake.'
   ],
@@ -212,7 +211,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   ],
   [PieceTypes.DUCHESS]: [
     'Moves in any direction, any number of steps.',
-    'Shoots up to 9 steps in any direction, even through friendly figures.',
+    'Shoots up to 9 steps in any direction; shoots through friendly figures and captures only the first enemy in each line.',
     'Can pass through river.',
     'Cannot pass through lake, canyon, cave, or tree.'
   ],

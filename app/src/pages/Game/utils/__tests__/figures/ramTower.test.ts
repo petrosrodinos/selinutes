@@ -99,6 +99,31 @@ describe('Ram Tower', () => {
     expect(attacks).not.toContainEqual(pos(6, 8))
   })
 
+  it('shoots through a friendly piece to hit the first enemy', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.RAM_TOWER, color: 'white' })
+    placePiece(board, pos(6, 7), { type: PieceTypes.HOPLITE, color: 'white' })
+    placePiece(board, pos(6, 9), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const attacks = getValidAttacks(board, start, DEFAULT_SIZE)
+
+    expect(attacks).toContainEqual(pos(6, 9))
+  })
+
+  it('stops at the first enemy in the path', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.RAM_TOWER, color: 'white' })
+    placePiece(board, pos(6, 7), { type: PieceTypes.HOPLITE, color: 'black' })
+    placePiece(board, pos(6, 9), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const attacks = getValidAttacks(board, start, DEFAULT_SIZE)
+
+    expect(attacks).toContainEqual(pos(6, 7))
+    expect(attacks).not.toContainEqual(pos(6, 9))
+  })
+
   it('zombie ram tower attack range is clamped to 1', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)

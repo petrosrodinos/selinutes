@@ -114,7 +114,7 @@ describe('Paladin', () => {
     expect(attacks).not.toContainEqual(pos(6, 8))
   })
 
-  it('attack is blocked by a friendly piece in the path', () => {
+  it('shoots through a friendly piece to hit the first enemy', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
     placePiece(board, start, { type: PieceTypes.PALADIN, color: 'white' })
@@ -123,6 +123,19 @@ describe('Paladin', () => {
 
     const attacks = getValidAttacks(board, start, DEFAULT_SIZE)
 
+    expect(attacks).toContainEqual(pos(3, 2))
+  })
+
+  it('stops at the first enemy in the path', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.PALADIN, color: 'white' })
+    placePiece(board, pos(4, 3), { type: PieceTypes.HOPLITE, color: 'black' })
+    placePiece(board, pos(3, 2), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const attacks = getValidAttacks(board, start, DEFAULT_SIZE)
+
+    expect(attacks).toContainEqual(pos(4, 3))
     expect(attacks).not.toContainEqual(pos(3, 2))
   })
 

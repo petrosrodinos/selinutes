@@ -44,9 +44,10 @@ square. This applies to Hoplite, Ram-Tower, Chariot, Paladin, Warlock, Monarch, 
 and the Necromancer's melee kill.
 - **Move-capture (Ram-Tower and Zombies only):** The **Ram-Tower** — and any revived
 **Zombie** figure — captures by **moving onto** the enemy's square along its normal path.
-- **Line of sight:** Ranged attacks need a clear path. Enemy figures, friendly figures, and
-most obstacles block the shot. Exceptions are noted per figure (e.g. Chariot shoots over
-trees, Duchess shoots through friendly figures).
+- **Line of sight:** Ranged attacks shoot through **friendly figures** but can capture only
+the **first enemy** in each attack line. Further enemies behind that target are out of
+range. Obstacles block based on each figure's pass rules (e.g. Chariot shoots over trees
+on its gamma path).
 - **Frozen figures cannot act:** A frozen figure can neither move nor attack until the
 freeze wears off (see Necromancer freeze).
 
@@ -159,7 +160,8 @@ or rock.
 ### 6.2 Ram-Tower — 20 pts
 
 - **Move:** Cross / orthogonal (up, down, left, right) any number of tiles, until blocked.
-- **Attack (Catapult):** Ranged cross-shaped attack up to **5 tiles** away.
+- **Attack (Catapult):** Ranged cross-shaped attack up to **5 tiles** away. Shoots through
+friendly figures; only the **first enemy** in each line can be captured.
 - **Move-capture:** Unusually, the Ram-Tower can also **move onto an enemy in its path** to
 capture it directly.
 - **Terrain:** Cannot pass any terrain (cave, river, lake, canyon, tree, rock).
@@ -191,7 +193,8 @@ its net.
 ### 6.5 Paladin — 15 pts (Zombie 12)
 
 - **Move:** Diagonal, any number of tiles, until blocked.
-- **Attack:** Ranged diagonal attack up to **3 tiles**.
+- **Attack:** Ranged diagonal attack up to **3 tiles**. Shoots through friendly figures;
+only the **first enemy** in each diagonal line can be captured.
 - **Terrain:** Can pass cave, river (max **1 tile wide**), and canyon. Cannot pass lake.
 
 ### 6.6 Warlock (Vezier) — 11 pts
@@ -214,8 +217,8 @@ its net.
 ### 6.8 Duchess — 27 pts
 
 - **Move:** Any direction, any number of tiles, until blocked.
-- **Attack:** Ranged, up to **9 tiles** in any direction — and it can **shoot through
-friendly figures** to hit an enemy behind them.
+- **Attack:** Ranged, up to **9 tiles** in any direction. Shoots through friendly figures;
+only the **first enemy** in each line can be captured.
 - **Terrain:** Can pass river. Cannot pass lake, canyon, cave, or tree.
 
 ### 6.9 Necromancer (Druid) — 13 pts
@@ -317,8 +320,9 @@ and Duchess to all be on the same horizontal line, plus an eligible captured fig
 (Ram-Tower, Chariot, Bomber, or Paladin).
 - **"Why is my Necromancer's freeze so short-ranged now?"** — Each revival it performs
 reduces its freeze range by 2 (minimum 2 tiles).
-- **"Can the Duchess shoot past my own pieces?"** — Yes, the Duchess shoots through friendly
-figures (up to 9 tiles), but trees still block her.
+- **"Can ranged figures shoot past my own pieces?"** — Yes. All ranged attacks shoot through
+friendly figures but can capture only the **first enemy** in each line. Obstacle blocking
+still depends on the figure (e.g. trees block the Duchess).
 - **"My figure entered a cave and reappeared elsewhere."** — Caves are teleporters. Hoplites
 and Bombers emerge next to another cave on the board.
 - **"What is night mode?"** — A visual state that appears while Zombie (revived) figures are
