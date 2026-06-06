@@ -1,7 +1,8 @@
 import { Modal } from '../../../../components/Modal/Modal'
 import { Piece } from '../Piece/Piece'
-import type { Piece as PieceType, Position } from '../../types'
+import type { Board, BoardSize, Piece as PieceType, PlayerColor, Position } from '../../types'
 import { PIECE_NAMES } from '../../constants'
+import { areRevivalGuardsInPlace, ZOMBIE_REVIVE_ALIGNMENT_HINT } from '../../utils'
 
 interface ZombieReviveModalProps {
   isOpen: boolean
@@ -12,6 +13,9 @@ interface ZombieReviveModalProps {
   selectedTarget: Position | null
   onConfirm: () => void
   canConfirm: boolean
+  board: Board
+  boardSize: BoardSize
+  revivePlayerColor: PlayerColor
   statusMessage: string | null
 }
 
@@ -24,8 +28,13 @@ export const ZombieReviveModal = ({
   selectedTarget,
   onConfirm,
   canConfirm,
+  board,
+  boardSize,
+  revivePlayerColor,
   statusMessage
 }: ZombieReviveModalProps) => {
+  const guardsAligned = areRevivalGuardsInPlace(board, boardSize, revivePlayerColor)
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Necromancer Revival">
       <div className="space-y-4">
@@ -34,6 +43,14 @@ export const ZombieReviveModal = ({
           <p className="text-violet-100">
             Pick one of your captured pieces to revive as a Zombie (only Ram-Tower, Chariot, Bomber, or Paladin), then confirm. It will be placed on its original tile, or the nearest empty tile if occupied.
           </p>
+        </div>
+
+        <div className="text-sm bg-amber-900/20 border border-amber-700/30 rounded-lg p-3">
+          <p className="font-semibold text-amber-200 mb-2">Requirement</p>
+          <p className="text-amber-100">{ZOMBIE_REVIVE_ALIGNMENT_HINT}</p>
+          {!guardsAligned && (
+            <p className="text-amber-200/90 mt-2">Revival is unavailable until this is met.</p>
+          )}
         </div>
 
         {statusMessage && (
@@ -51,14 +68,17 @@ export const ZombieReviveModal = ({
             {pieces.map((piece, index) => (
               <button
                 key={`${piece.id}-${index}`}
-                onClick={() => onSelectPiece(piece)}
+                onClick={() => guardsAligned && onSelectPiece(piece)}
+                disabled={!guardsAligned}
                 className={`
                   flex flex-col items-center justify-center 
                   p-4 rounded-lg border-2 transition-all duration-200
                   ${
-                    selectedPieceId === piece.id
-                      ? 'border-violet-500 bg-violet-900/30 ring-2 ring-violet-500 scale-105'
-                      : 'border-stone-600 bg-stone-700/50 hover:border-amber-500 hover:bg-stone-700 hover:scale-105'
+                    !guardsAligned
+                      ? 'border-stone-700 bg-stone-800/40 opacity-50 cursor-not-allowed'
+                      : selectedPieceId === piece.id
+                        ? 'border-violet-500 bg-violet-900/30 ring-2 ring-violet-500 scale-105'
+                        : 'border-stone-600 bg-stone-700/50 hover:border-amber-500 hover:bg-stone-700 hover:scale-105'
                   }
                 `}
                 title={PIECE_NAMES[piece.type]}

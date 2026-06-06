@@ -220,7 +220,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
     'Moves 1 step in any direction.',
     'Melee attack: kills an adjacent enemy 1 step away in any direction.',
     'Freeze-stun: stuns an enemy in a straight line up to 8 steps away; only trees block it. The range drops by 2 for every revival performed (minimum 2), and longer-distance freezes last more turns.',
-    'Can revive Ram, Chariot, Bomber, or Paladin if the Monarch, Duchess, and Warlock are in their starting positions and have not moved.',
+    'Can revive Ram, Chariot, Bomber, or Paladin when the Necromancer, Monarch, and Duchess are on the same horizontal line.',
     'Revived figures attack at range 1 only; a revived Bomber can still attack as a Zombie.',
     'Can pass through lake and cave.',
     'Cannot pass through river or canyon.'

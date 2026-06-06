@@ -241,7 +241,7 @@ Do not edit rule bullets inline in `app/src/pages/Rules/index.tsx` section 4 —
 - **`isAttackPathClear`** is the chokepoint for line-of-sight. To let a piece shoot through friendly pieces, add `shootsThroughFriendly: true` to its `PIECE_RULES` entry (and the matching field to `PieceRules` in `types/index.ts` if not already there).
 - **`getAdjustedAttackRange(piece, baseRange)`** — never read `attackRange` directly; call this wrapper to account for zombie and Necromancer modifiers.
 - **Narc net** is checked inside `makeMove`; no separate call needed.
-- **Revival** requires `areRevivalGuardsInPlace` to return `true` (WARLOCK, MONARCH, DUCHESS on starting squares, `hasMoved === false`).
+- **Revival** requires `areRevivalGuardsInPlace` to return `true` (NECROMANCER, MONARCH, DUCHESS on the same row).
 - **Night mode** is derived (`getNightModeFromBoard`) — never stored as state directly.
 - **No game rules inside components** — all logic goes in `utils/`, offline orchestration in `hooks/useGame.ts`, shared state in `gameStore.ts`, online sync in `useOnlineGame.ts`.
 - **Online = same rules, extra sync** — never duplicate rule logic for online. If offline works but online does not, the bug is in the sync/event path, not the utils.

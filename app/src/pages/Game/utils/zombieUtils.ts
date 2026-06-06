@@ -2,6 +2,9 @@ import type { Board, BoardSize, Piece, PieceType, PlayerColor, Position } from '
 import { isPiece, PieceTypes, PlayerColors } from '../types'
 import { cloneBoard, getBackRowForBoardSize } from './boardUtils'
 
+export const ZOMBIE_REVIVE_ALIGNMENT_HINT =
+  'Necromancer, Monarch, and Duchess must be on the same horizontal line.'
+
 const ZOMBIE_ELIGIBLE_TYPES: PieceType[] = [
   PieceTypes.RAM_TOWER,
   PieceTypes.CHARIOT,
@@ -60,17 +63,12 @@ export const getStartingPositionForPieceType = (
   return { row, col }
 }
 
-export const areRevivalGuardsInPlace = (board: Board, boardSize: BoardSize, color: PlayerColor): boolean => {
-  const required = [PieceTypes.WARLOCK, PieceTypes.MONARCH, PieceTypes.DUCHESS]
-  for (const type of required) {
-    const pos = getStartingPositionForPieceType(boardSize, type, color)
-    if (!pos) return false
-    const cell = board[pos.row][pos.col]
-    if (!cell || !isPiece(cell)) return false
-    if (cell.type !== type || cell.color !== color) return false
-    if (cell.hasMoved) return false
-  }
-  return true
+export const areRevivalGuardsInPlace = (board: Board, _boardSize: BoardSize, color: PlayerColor): boolean => {
+  const necromancerPos = findPiecePosition(board, PieceTypes.NECROMANCER, color)
+  const monarchPos = findPiecePosition(board, PieceTypes.MONARCH, color)
+  const duchessPos = findPiecePosition(board, PieceTypes.DUCHESS, color)
+  if (!necromancerPos || !monarchPos || !duchessPos) return false
+  return necromancerPos.row === monarchPos.row && necromancerPos.row === duchessPos.row
 }
 
 export const findPiecePosition = (board: Board, pieceType: PieceType, color: PlayerColor): Position | null => {
@@ -172,24 +170,28 @@ export const getZombieReviveOpenState = (params: {
 }
 
 export const getZombieReviveConfirmState = (params: {
+  board: Board
+  boardSize: BoardSize
+  revivePlayerColor: PlayerColor
   necromancerPosition: Position | null
   selectedZombiePiece: Piece | null
   reviveTarget: Position | null
-  guardsInPlace: boolean
   isOnline: boolean
   isMyTurn: boolean
 }): boolean => {
   const {
+    board,
+    boardSize,
+    revivePlayerColor,
     necromancerPosition,
     selectedZombiePiece,
     reviveTarget,
-    guardsInPlace,
     isOnline,
     isMyTurn
   } = params
 
   if (!necromancerPosition || !selectedZombiePiece || !reviveTarget) return false
-  if (!guardsInPlace) return false
+  if (!areRevivalGuardsInPlace(board, boardSize, revivePlayerColor)) return false
   if (isOnline && !isMyTurn) return false
   return true
 }
@@ -198,7 +200,6 @@ export const getZombieReviveStatusMessage = (params: {
   isOnline: boolean
   isMyTurn: boolean
   necromancerPosition: Position | null
-  guardsInPlace: boolean
   revivableCount: number
   selectedZombiePiece: Piece | null
   reviveTarget: Position | null
@@ -207,7 +208,6 @@ export const getZombieReviveStatusMessage = (params: {
     isOnline,
     isMyTurn,
     necromancerPosition,
-    guardsInPlace,
     revivableCount,
     selectedZombiePiece,
     reviveTarget
@@ -215,7 +215,6 @@ export const getZombieReviveStatusMessage = (params: {
 
   if (isOnline && !isMyTurn) return 'Wait for your turn to revive a Zombie.'
   if (!necromancerPosition) return 'Your Necromancer must be on the board.'
-  if (!guardsInPlace) return 'Warlock, Monarch, and Duchess must be in their starting positions and must not have moved.'
   if (revivableCount === 0) return 'No eligible captured pieces available.'
   if (selectedZombiePiece && !reviveTarget) return 'No empty tiles available to place the Zombie.'
   return null

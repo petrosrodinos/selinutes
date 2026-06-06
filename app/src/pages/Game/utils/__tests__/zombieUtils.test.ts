@@ -9,7 +9,8 @@ import {
   getNightModeFromBoard,
   getZombieReviveOpenState,
   getZombieReviveConfirmState,
-  getZombieReviveStatusMessage
+  getZombieReviveStatusMessage,
+  ZOMBIE_REVIVE_ALIGNMENT_HINT
 } from '../zombieUtils'
 import { createInitialBoard } from '../boardUtils'
 import { PieceTypes, isPiece } from '../../types'
@@ -56,22 +57,43 @@ describe('getAdjustedAttackRange', () => {
 })
 
 describe('areRevivalGuardsInPlace', () => {
-  it('is true when guards are home and unmoved', () => {
+  it('is true when necromancer, monarch, and duchess share a row', () => {
     const board = createInitialBoard(DEFAULT_SIZE)
 
     expect(areRevivalGuardsInPlace(board, DEFAULT_SIZE, 'white')).toBe(true)
   })
 
-  it('is false when a guard has moved', () => {
-    const board = createInitialBoard(DEFAULT_SIZE)
-    const warlockPos = getStartingPositionForPieceType(DEFAULT_SIZE, PieceTypes.WARLOCK, 'white')!
-    const warlock = board[warlockPos.row][warlockPos.col]
-    if (warlock && isPiece(warlock)) warlock.hasMoved = true
+  it('is true when all three are on the same row away from their starts', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(6, 2), { type: PieceTypes.NECROMANCER, color: 'white' })
+    placePiece(board, pos(6, 5), { type: PieceTypes.MONARCH, color: 'white' })
+    placePiece(board, pos(6, 8), { type: PieceTypes.DUCHESS, color: 'white' })
+
+    expect(areRevivalGuardsInPlace(board, DEFAULT_SIZE, 'white')).toBe(true)
+  })
+
+  it('is false when the three are not on the same row', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(6, 2), { type: PieceTypes.NECROMANCER, color: 'white' })
+    placePiece(board, pos(6, 5), { type: PieceTypes.MONARCH, color: 'white' })
+    placePiece(board, pos(7, 8), { type: PieceTypes.DUCHESS, color: 'white' })
 
     expect(areRevivalGuardsInPlace(board, DEFAULT_SIZE, 'white')).toBe(false)
   })
 
-  it('is false when a guard is missing', () => {
+  it('is false after the necromancer leaves the monarch and duchess row', () => {
+    const board = createInitialBoard(DEFAULT_SIZE)
+    const necroPos = getStartingPositionForPieceType(DEFAULT_SIZE, PieceTypes.NECROMANCER, 'white')!
+    const necro = board[necroPos.row][necroPos.col]
+    board[necroPos.row][necroPos.col] = null
+    if (necro && isPiece(necro)) {
+      placePiece(board, { row: necroPos.row - 1, col: necroPos.col }, necro)
+    }
+
+    expect(areRevivalGuardsInPlace(board, DEFAULT_SIZE, 'white')).toBe(false)
+  })
+
+  it('is false when a required piece is missing', () => {
     const board = createInitialBoard(DEFAULT_SIZE)
     const monarchPos = getStartingPositionForPieceType(DEFAULT_SIZE, PieceTypes.MONARCH, 'white')!
     board[monarchPos.row][monarchPos.col] = null
@@ -156,17 +178,31 @@ describe('zombie revive UI guards', () => {
   })
 
   const baseConfirm = {
+    board: createInitialBoard(DEFAULT_SIZE),
+    boardSize: DEFAULT_SIZE,
+    revivePlayerColor: 'white' as const,
     necromancerPosition: pos(9, 5),
     selectedZombiePiece: makePiece({}),
     reviveTarget: pos(5, 5),
-    guardsInPlace: true,
     isOnline: false,
     isMyTurn: true
   }
 
   it('confirm state requires a selection, target and guards', () => {
     expect(getZombieReviveConfirmState(baseConfirm)).toBe(true)
-    expect(getZombieReviveConfirmState({ ...baseConfirm, guardsInPlace: false })).toBe(false)
+    expect(getZombieReviveConfirmState({
+      ...baseConfirm,
+      board: (() => {
+        const board = createInitialBoard(DEFAULT_SIZE)
+        const necroPos = getStartingPositionForPieceType(DEFAULT_SIZE, PieceTypes.NECROMANCER, 'white')!
+        const necro = board[necroPos.row][necroPos.col]
+        board[necroPos.row][necroPos.col] = null
+        if (necro && isPiece(necro)) {
+          placePiece(board, { row: necroPos.row - 1, col: necroPos.col }, necro)
+        }
+        return board
+      })()
+    })).toBe(false)
     expect(getZombieReviveConfirmState({ ...baseConfirm, reviveTarget: null })).toBe(false)
     expect(getZombieReviveConfirmState({ ...baseConfirm, isOnline: true, isMyTurn: false })).toBe(false)
   })
@@ -177,7 +213,6 @@ describe('zombie revive UI guards', () => {
         isOnline: true,
         isMyTurn: false,
         necromancerPosition: pos(9, 5),
-        guardsInPlace: true,
         revivableCount: 1,
         selectedZombiePiece: null,
         reviveTarget: null
@@ -189,11 +224,25 @@ describe('zombie revive UI guards', () => {
         isOnline: false,
         isMyTurn: true,
         necromancerPosition: pos(9, 5),
-        guardsInPlace: true,
         revivableCount: 1,
         selectedZombiePiece: null,
         reviveTarget: null
       })
     ).toBeNull()
+
+    expect(
+      getZombieReviveStatusMessage({
+        isOnline: false,
+        isMyTurn: true,
+        necromancerPosition: pos(9, 5),
+        revivableCount: 0,
+        selectedZombiePiece: null,
+        reviveTarget: null
+      })
+    ).toBe('No eligible captured pieces available.')
+
+    expect(ZOMBIE_REVIVE_ALIGNMENT_HINT).toBe(
+      'Necromancer, Monarch, and Duchess must be on the same horizontal line.'
+    )
   })
 })

@@ -52,6 +52,7 @@ export {
   getNightModeFromBoard,
   getAdjustedAttackRange,
   areRevivalGuardsInPlace,
+  ZOMBIE_REVIVE_ALIGNMENT_HINT,
   findPiecePosition,
   reviveZombiePiece,
   getStartingPositionForPieceType,

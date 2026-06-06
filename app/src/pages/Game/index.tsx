@@ -21,7 +21,7 @@ import { BOT_DELAY, PIECE_RULES } from "./constants";
 import { PIECE_NAMES, PIECE_SYMBOLS } from "./constants";
 import { environments } from "../../config/environments";
 import { GameModes } from "../../constants";
-import { areRevivalGuardsInPlace, findPiecePosition, getZombieRevivePieces, getZombieReviveStatusMessage, getZombieReviveConfirmState, getZombieRevivePlacementTarget } from "./utils";
+import { areRevivalGuardsInPlace, findPiecePosition, getZombieRevivePieces, getZombieReviveStatusMessage, getZombieReviveConfirmState, getZombieRevivePlacementTarget, ZOMBIE_REVIVE_ALIGNMENT_HINT } from "./utils";
 import { useSaveOfflineGame } from "../../features/game/hooks";
 import { LeaveGameConfirmModal } from "./components/LeaveGameConfirmModal";
 
@@ -123,7 +123,6 @@ export const Game = () => {
   const winner = isOnline ? onlineWinner : gameState.winner;
   const board = isOnline ? onlineBoard : gameState.board;
   const boardSize = isOnline ? onlineBoardSize : gameState.boardSize;
-  const currentPlayerColor = gameState.currentPlayer;
   const capturedPieces = isOnline ? onlineCapturedPieces : gameState.capturedPieces;
   const lastMove = isOnline ? onlineLastMove : gameState.lastMove;
 
@@ -171,41 +170,40 @@ export const Game = () => {
     }
   }, [mysteryBoxState.phase, mysteryBoxState.isActive, playRevive]);
 
+  const revivePlayerColor = gameState.currentPlayer;
   const revivableZombiePieces = useMemo(() => {
-    return getZombieRevivePieces(capturedPieces, currentPlayerColor);
-  }, [capturedPieces, currentPlayerColor]);
+    return getZombieRevivePieces(capturedPieces, revivePlayerColor);
+  }, [capturedPieces, revivePlayerColor]);
   const necromancerPosition = useMemo(() => {
-    return findPiecePosition(board, PieceTypes.NECROMANCER, currentPlayerColor);
-  }, [board, currentPlayerColor]);
-  const guardsInPlace = useMemo(() => {
-    return areRevivalGuardsInPlace(board, boardSize, currentPlayerColor);
-  }, [board, boardSize, currentPlayerColor]);
+    return findPiecePosition(board, PieceTypes.NECROMANCER, revivePlayerColor);
+  }, [board, revivePlayerColor]);
   const reviveTarget = useMemo(() => {
     if (!selectedZombiePiece) return null;
-    return getZombieRevivePlacementTarget(board, boardSize, selectedZombiePiece, currentPlayerColor);
-  }, [board, boardSize, selectedZombiePiece, currentPlayerColor]);
+    return getZombieRevivePlacementTarget(board, boardSize, selectedZombiePiece, revivePlayerColor);
+  }, [board, boardSize, selectedZombiePiece, revivePlayerColor]);
   const canConfirmZombieRevive = useMemo(() => {
     return getZombieReviveConfirmState({
+      board,
+      boardSize,
+      revivePlayerColor,
       necromancerPosition,
       selectedZombiePiece,
       reviveTarget,
-      guardsInPlace,
       isOnline,
       isMyTurn,
     });
-  }, [necromancerPosition, selectedZombiePiece, reviveTarget, guardsInPlace, isOnline, isMyTurn]);
+  }, [board, boardSize, revivePlayerColor, necromancerPosition, selectedZombiePiece, reviveTarget, isOnline, isMyTurn]);
 
   const zombieReviveStatusMessage = useMemo(() => {
     return getZombieReviveStatusMessage({
       isOnline,
       isMyTurn,
       necromancerPosition,
-      guardsInPlace,
       revivableCount: revivableZombiePieces.length,
       selectedZombiePiece,
       reviveTarget,
     });
-  }, [isOnline, isMyTurn, necromancerPosition, guardsInPlace, revivableZombiePieces.length, selectedZombiePiece, reviveTarget]);
+  }, [isOnline, isMyTurn, necromancerPosition, revivableZombiePieces.length, selectedZombiePiece, reviveTarget]);
 
   const openZombieRevive = () => {
     setSelectedZombiePiece(null);
@@ -218,10 +216,23 @@ export const Game = () => {
   };
 
   const executeRevive = (target: { row: number; col: number }) => {
-    if (!selectedZombiePiece || !necromancerPosition) return false;
+    if (!selectedZombiePiece) return false;
+
+    const { gameState: latestState } = useGameStore.getState();
+    const latestBoard = latestState.board;
+    const latestBoardSize = latestState.boardSize;
+    const latestRevivePlayerColor = latestState.currentPlayer;
+    const latestNecromancerPosition = findPiecePosition(latestBoard, PieceTypes.NECROMANCER, latestRevivePlayerColor);
+
+    if (!latestNecromancerPosition) return false;
+    if (!areRevivalGuardsInPlace(latestBoard, latestBoardSize, latestRevivePlayerColor)) {
+      toast.error(ZOMBIE_REVIVE_ALIGNMENT_HINT, { autoClose: 3000 });
+      return false;
+    }
+
     if (isOnline) {
       const success = requestZombieRevive({
-        necromancerPosition,
+        necromancerPosition: latestNecromancerPosition,
         revivePiece: selectedZombiePiece,
         target,
       });
@@ -232,7 +243,7 @@ export const Game = () => {
       return success;
     }
     const success = offlineReviveZombie({
-      necromancerPosition,
+      necromancerPosition: latestNecromancerPosition,
       revivePiece: selectedZombiePiece,
       target,
     });
@@ -411,7 +422,20 @@ export const Game = () => {
 
         <MysteryBoxReviveModal isOpen={mysteryBoxState.isActive && mysteryBoxState.phase === MysteryBoxPhases.WAITING_REVIVE_FIGURE} onClose={cancelMysteryBox} pieces={mysteryBoxState.revivablePieces} onSelectPiece={selectRevivePiece} selectedPieceId={mysteryBoxState.selectedRevivePiece?.id || null} />
 
-        <ZombieReviveModal isOpen={isZombieReviveOpen} onClose={closeZombieRevive} pieces={revivableZombiePieces} onSelectPiece={setSelectedZombiePiece} selectedPieceId={selectedZombiePiece?.id || null} selectedTarget={reviveTarget} onConfirm={handleReviveZombieClick} canConfirm={canConfirmZombieRevive} statusMessage={zombieReviveStatusMessage} />
+        <ZombieReviveModal
+          isOpen={isZombieReviveOpen}
+          onClose={closeZombieRevive}
+          pieces={revivableZombiePieces}
+          onSelectPiece={setSelectedZombiePiece}
+          selectedPieceId={selectedZombiePiece?.id || null}
+          selectedTarget={reviveTarget}
+          onConfirm={handleReviveZombieClick}
+          canConfirm={canConfirmZombieRevive}
+          board={board}
+          boardSize={boardSize}
+          revivePlayerColor={revivePlayerColor}
+          statusMessage={zombieReviveStatusMessage}
+        />
       </div>
     </div>
   );

@@ -198,7 +198,7 @@ export const LandingPage = () => {
           <div className="grid sm:grid-cols-3 gap-6">
             {[
               { icon: Zap, title: 'Caves', desc: 'Enter any cave and exit from any other. Instant repositioning.' },
-              { icon: Sparkles, title: 'Revival', desc: 'Necromancer can revive fallen units when Monarch, Duchess, and Warlock are in place.' },
+              { icon: Sparkles, title: 'Revival', desc: 'Necromancer can revive fallen units when the Necromancer, Monarch, and Duchess share a row.' },
               { icon: Swords, title: 'Zompie mode', desc: 'Revived units return with reduced strength. Tactics still win.' },
             ].map(({ icon: Icon, title, desc }, i) => (
               <motion.div

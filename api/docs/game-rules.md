@@ -239,9 +239,9 @@ The Necromancer can bring back fallen figures as Zombies.
 
 - **Eligible figures:** Only **Ram-Tower, Chariot, Bomber, and Paladin** can be revived, and
 only from the pieces the reviving player has lost.
-- **Revival guards (requirement):** Revival is allowed **only while the player's Warlock,
-Monarch, and Duchess are all still on their original starting squares and have never
-moved.** If any of the three has moved or been lost, revival is locked.
+- **Revival guards (requirement):** Revival is allowed **only while the player's Necromancer,
+Monarch, and Duchess are all on the board on the same horizontal line (same row).** If any of
+the three is missing or on a different row, revival is locked.
 - **Placement:** The revived figure appears on its own original starting square if that tile
 is empty; otherwise on the nearest empty tile.
 - **Zombie attack penalty:** Revived figures attack at **range 1 only**. A revived Bomber
@@ -283,8 +283,8 @@ a net tile (diagonals 1-2 away, orthogonals 2 away).
 - **Necromancer freeze:** Straight-line stun up to 8 tiles, blocked only by trees, weakened
 by 2 per revival.
 - **Revival / Zombie mode:** Ram-Tower, Chariot, Bomber, or Paladin can return as Zombies
-while the Warlock, Monarch, and Duchess remain on their starting squares unmoved; Zombies
-attack at range 1 and are worth fewer points.
+while the Necromancer, Monarch, and Duchess share the same row; Zombies attack at range 1
+and are worth fewer points.
 - **Mystery Box:** Figure Swap, Hoplite Sacrifice & Revive, or Obstacle Swap.
 
 ---
@@ -312,9 +312,9 @@ figures capture by moving onto the enemy.
 - **"Why did my figure die just by moving there?"** — It stepped onto an enemy Bomber's
 explosive-net tile. Net tiles sit on the diagonals 1-2 away and the orthogonal tiles 2
 away from an enemy Bomber.
-- **"Why can't my Necromancer revive anyone?"** — Revival requires your Warlock, Monarch,
-and Duchess to all be on their original starting squares and to have never moved, plus an
-eligible captured figure (Ram-Tower, Chariot, Bomber, or Paladin).
+- **"Why can't my Necromancer revive anyone?"** — Revival requires your Necromancer, Monarch,
+and Duchess to all be on the same horizontal line, plus an eligible captured figure
+(Ram-Tower, Chariot, Bomber, or Paladin).
 - **"Why is my Necromancer's freeze so short-ranged now?"** — Each revival it performs
 reduces its freeze range by 2 (minimum 2 tiles).
 - **"Can the Duchess shoot past my own pieces?"** — Yes, the Duchess shoots through friendly

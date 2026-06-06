@@ -36,7 +36,8 @@ import {
     filterZombieRevivablePieces,
     getNightModeFromBoard,
     areRevivalGuardsInPlace,
-    reviveZombiePiece
+    reviveZombiePiece,
+    ZOMBIE_REVIVE_ALIGNMENT_HINT
 } from '../pages/Game/utils'
 
 interface HistoryEntry {
@@ -1504,7 +1505,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const boardSize = gameState.boardSize
         const currentPlayer = gameState.currentPlayer
 
-        if (!areRevivalGuardsInPlace(board, boardSize, currentPlayer)) return false
+        if (!areRevivalGuardsInPlace(board, boardSize, currentPlayer)) {
+            toast.error(ZOMBIE_REVIVE_ALIGNMENT_HINT, { autoClose: 3000 })
+            return false
+        }
 
         const targetCell = board[target.row][target.col]
         if (targetCell !== null) return false

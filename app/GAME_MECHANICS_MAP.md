@@ -116,7 +116,7 @@ Other constants here:
 | Function | Purpose |
 |---|---|
 | `isZombieEligibleType(pieceType)` | `true` for RAM_TOWER, CHARIOT, BOMBER, PALADIN. |
-| `areRevivalGuardsInPlace(board, boardSize, color)` | All three guards (WARLOCK, MONARCH, DUCHESS) must be on their starting squares and `hasMoved === false`. Gate for any revival. |
+| `areRevivalGuardsInPlace(board, boardSize, color)` | Necromancer, Monarch, and Duchess must all be on the board on the same row. Gate for any revival. |
 | `getAdjustedAttackRange(piece, baseRange)` | Zombie pieces get `min(range, 1)`. Zombie BOMBER gets `1`. Necromancer loses 2 range per revival (`reviveCount`). |
 | `reviveZombiePiece(board, necromancerPos, revivePiece, target, currentPlayer)` | Places zombie piece, increments `reviveCount` on Necromancer. |
 | `getZombieRevivePlacementTarget` | Finds placement cell — prefers original start position, otherwise nearest empty cell. |
