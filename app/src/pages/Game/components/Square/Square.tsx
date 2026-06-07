@@ -12,6 +12,7 @@ interface SquareProps {
   isValidAttack: boolean
   isValidSwap: boolean
   isPreviousMoveFrom: boolean
+  isLastKillSquare: boolean
   isHint: boolean
   isHintAttack: boolean
   hasNarc?: PlayerColor | null
@@ -30,6 +31,7 @@ export const Square = ({
   isValidAttack,
   isValidSwap,
   isPreviousMoveFrom,
+  isLastKillSquare,
   isHint,
   isHintAttack,
   hasNarc = null,
@@ -65,6 +67,8 @@ export const Square = ({
       colorClasses = isLight ? 'bg-rose-300' : 'bg-rose-600'
     } else if (isHint) {
       colorClasses = isLight ? 'bg-cyan-300' : 'bg-cyan-600'
+    } else if (isLastKillSquare) {
+      colorClasses = isLight ? 'bg-rose-300/90' : 'bg-rose-950/75'
     } else if (isPreviousMoveFrom) {
       colorClasses = isLight ? 'bg-sky-200/90' : 'bg-sky-800/70'
     } else if (isValidSwap) {
@@ -108,6 +112,9 @@ export const Square = ({
       )}
       {isValidSwap && cell && isPiece(cell) && (
         <div className="absolute w-full h-full border-4 border-violet-500 rounded-sm animate-pulse" />
+      )}
+      {isLastKillSquare && (
+        <div className="absolute inset-0 ring-2 ring-rose-500/90 ring-inset" />
       )}
       {isPreviousMoveFrom && (
         <div className="absolute inset-0 ring-2 ring-sky-400/80 ring-inset" />

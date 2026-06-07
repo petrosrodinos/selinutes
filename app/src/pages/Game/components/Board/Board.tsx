@@ -8,7 +8,7 @@ import { useUIStore } from '../../../../store/uiStore'
 import { useIsAdmin } from '../../../../hooks'
 import { getValidMoves, getValidAttacks, getAllNarcNetPositions, getDisplayedMoveTargets, getDisplayedAttackTargets } from '../../utils'
 import { isPiece } from '../../types'
-import type { Board as BoardType, BoardSize, Position, Move, SwapTarget, MysteryBoxState, PlayerColor } from '../../types'
+import type { Board as BoardType, BoardSize, Position, Move, SwapTarget, MysteryBoxState } from '../../types'
 
 /** Rank/file label width/height for a given square size (must stay in sync with layout). */
 const boardLabelInsetPx = (squareSize: number) => Math.max(16, Math.round(squareSize * 0.45))
@@ -22,7 +22,6 @@ interface BoardProps {
     onlineValidAttacks?: Position[]
     onlineValidSwaps?: SwapTarget[]
     onlineLastMove?: Move | null
-    onlineViewerColor?: PlayerColor
     onlineMysteryBoxState?: MysteryBoxState
     onSquareClick?: (pos: Position) => void
     onMysteryBoxClick?: () => void
@@ -37,7 +36,6 @@ export const Board = ({
     onlineValidAttacks = [],
     onlineValidSwaps = [],
     onlineLastMove,
-    onlineViewerColor,
     onlineMysteryBoxState,
     onSquareClick,
     onMysteryBoxClick
@@ -55,7 +53,7 @@ export const Board = ({
     const validMoves = isOnline ? onlineValidMoves : gameState.validMoves
     const validAttacks = isOnline ? onlineValidAttacks : gameState.validAttacks
     const validSwaps = isOnline ? onlineValidSwaps : gameState.validSwaps
-    const lastMove = isOnline ? onlineLastMove : gameState.lastMove
+    const lastMove = gameState.lastMove ?? onlineLastMove ?? null
     const currentHintMove = isOnline ? null : hintMove
     const selectedCell = selectedPosition ? board[selectedPosition.row]?.[selectedPosition.col] : null
     const selectedPiece = selectedCell && isPiece(selectedCell) ? selectedCell : null
@@ -141,14 +139,16 @@ export const Board = ({
     const isValidSwap = (row: number, col: number) =>
         validSwaps.some(s => s.position.row === row && s.position.col === col)
 
-    const isPreviousMoveFromSquare = (row: number, col: number) => {
-        if (lastMove == null) return false
-        if (lastMove.from.row !== row || lastMove.from.col !== col) return false
-        if (isOnline && onlineViewerColor) {
-            return lastMove.piece.color === onlineViewerColor
-        }
-        return true
-    }
+    const isPreviousMoveFromSquare = (row: number, col: number) =>
+        lastMove != null &&
+        lastMove.from.row === row &&
+        lastMove.from.col === col
+
+    const isLastKillSquare = (row: number, col: number) =>
+        lastMove != null &&
+        lastMove.captured != null &&
+        lastMove.to.row === row &&
+        lastMove.to.col === col
 
     const isHint = (row: number, col: number) =>
         currentHintMove !== null && !currentHintMove.isAttack &&
@@ -264,6 +264,7 @@ export const Board = ({
                                                     isValidAttack={isValidAttack(rowIndex, colIndex) || isHelpAttack(rowIndex, colIndex)}
                                                     isValidSwap={isValidSwap(rowIndex, colIndex)}
                                                     isPreviousMoveFrom={isPreviousMoveFromSquare(rowIndex, colIndex)}
+                                                    isLastKillSquare={isLastKillSquare(rowIndex, colIndex)}
                                                     isHint={isHint(rowIndex, colIndex)}
                                                     isHintAttack={isHintAttack(rowIndex, colIndex)}
                                                     hasNarc={getNarcOwner(rowIndex, colIndex)}

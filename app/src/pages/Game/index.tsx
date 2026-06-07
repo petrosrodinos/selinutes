@@ -364,7 +364,6 @@ export const Game = () => {
                     onlineValidAttacks={onlineValidAttacks}
                     onlineValidSwaps={onlineValidSwaps}
                     onlineLastMove={onlineLastMove}
-                    onlineViewerColor={currentPlayer?.color}
                     onlineMysteryBoxState={onlineMysteryBoxState}
                     onSquareClick={onSquareClick}
                     onMysteryBoxClick={playBoardClick}
@@ -380,7 +379,6 @@ export const Game = () => {
                   onlineValidAttacks={onlineValidAttacks}
                   onlineValidSwaps={onlineValidSwaps}
                   onlineLastMove={onlineLastMove}
-                  onlineViewerColor={currentPlayer?.color}
                   onlineMysteryBoxState={onlineMysteryBoxState}
                   onSquareClick={onSquareClick}
                   onMysteryBoxClick={playBoardClick}
