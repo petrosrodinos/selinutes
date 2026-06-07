@@ -224,7 +224,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
 
           <p className="text-stone-400 mb-4">Pass through terrain (passing over a Mystery Box does not trigger it; any figure may land on one to trigger it):</p>
           <div className="overflow-x-auto rounded-xl border border-stone-700/60 bg-stone-900/50 mb-10">
-            <table className="w-full min-w-[600px] border-collapse">
+            <table className="w-full min-w-[720px] border-collapse">
               <thead>
                 <tr className="border-b border-stone-700/60">
                   <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Figure</th>
@@ -232,6 +232,8 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">River</th>
                   <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Lake</th>
                   <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Canyon</th>
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Tree</th>
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Rock</th>
                   <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Mystery Box</th>
                 </tr>
               </thead>
@@ -242,7 +244,9 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Duchess</td>
@@ -250,10 +254,14 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Ram-Tower</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
@@ -266,31 +274,39 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Paladin</td>
-                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Saboteur / Bomber</td>
                   <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES (1 block only)</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Necromancer / Druid</td>
-                  <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Warlock / Vezier</td>
@@ -298,7 +314,9 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
                 </tr>
                 <tr className="hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Legionnaire / Hoplite</td>
@@ -306,7 +324,9 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">NO</td>
                 </tr>
               </tbody>
             </table>
@@ -318,12 +338,12 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
               <thead>
                 <tr className="border-b border-stone-700/60">
                   <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Figure</th>
-                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over Rock</th>
-                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over Tree</th>
                   <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over Cave</th>
                   <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over River</th>
                   <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over Lake</th>
                   <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over Canyon</th>
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over Tree</th>
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over Rock</th>
                   <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over Mystery Box</th>
                 </tr>
               </thead>
@@ -331,51 +351,51 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Paladin</td>
                   <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Chariot</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Ram-Tower</td>
                   <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Duchess</td>
                   <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Necromancer / Druid (Stun/Freeze)</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">YES</td>
                 </tr>
               </tbody>

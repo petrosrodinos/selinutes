@@ -96,19 +96,19 @@ Chariot/Bomber over obstacles), but they still cannot **land** on terrain marked
 
 | Figure                | Cave           | River            | Lake | Canyon | Tree | Rock | Mystery Box |
 | --------------------- | -------------- | ---------------- | ---- | ------ | ---- | ---- | ----------- |
-| Hoplite (Legionnaire) | YES (teleport) | NO               | NO   | NO     | NO   | NO   | YES         |
+| Monarch               | NO             | NO               | NO   | NO     | NO   | NO   | NO          |
+| Duchess               | NO             | YES              | NO   | NO     | NO   | NO   | NO          |
 | Ram-Tower             | NO             | NO               | NO   | NO     | NO   | NO   | NO          |
-| Chariot               | NO             | YES              | NO   | NO     | NO   | NO   | YES         |
-| Bomber (Saboteur)     | YES (teleport) | YES              | NO   | YES    | NO   | NO   | YES         |
-| Paladin               | YES            | YES (max 1 wide) | NO   | YES    | NO   | NO   | YES         |
-| Warlock (Vezier)      | YES            | NO               | YES  | NO     | NO   | NO   | YES         |
-| Monarch               | NO             | NO               | NO   | NO     | NO   | NO   | YES         |
-| Duchess               | NO             | YES              | NO   | NO     | NO   | NO   | YES         |
-| Necromancer (Druid)   | NO             | NO               | YES  | NO     | NO   | NO   | YES         |
+| Chariot               | NO             | YES              | NO   | NO     | NO   | NO   | NO          |
+| Paladin               | NO             | YES (max 1 wide) | NO   | YES    | NO   | NO   | NO          |
+| Bomber (Saboteur)     | YES (teleport) | YES (1 block)    | NO   | NO     | NO   | NO   | NO          |
+| Necromancer (Druid)   | YES            | NO               | YES  | NO     | NO   | NO   | NO          |
+| Warlock (Vezier)      | YES            | NO               | YES  | NO     | NO   | NO   | NO          |
+| Hoplite (Legionnaire) | YES (teleport) | NO               | NO   | NO     | NO   | NO   | NO          |
 
 
 > **Cave teleport detail:** Only the **Hoplite** and **Bomber** actually teleport between
-> caves when they move onto one. Other cave-capable figures (Paladin, Warlock) can pass over
+> caves when they move onto one. Other cave-capable figures (Necromancer, Warlock) can pass over
 > or rest on a cave tile but do not teleport.
 
 ### 3.4 Range attack line-of-sight matrix
@@ -118,13 +118,13 @@ obstacle type on the path to the target. This is separate from movement pass-thr
 (Section 3.3).
 
 
-| Figure                            | Over Rock | Over Tree | Over Cave | Over River | Over Lake | Over Canyon | Over Mystery Box |
-| --------------------------------- | --------- | --------- | --------- | ---------- | --------- | ----------- | ---------------- |
-| Paladin                           | YES       | NO        | YES       | YES        | YES       | YES         | YES              |
-| Chariot                           | NO        | YES       | YES       | YES        | YES       | YES         | YES              |
-| Ram-Tower                         | YES       | NO        | YES       | YES        | YES       | YES         | YES              |
-| Duchess                           | YES       | NO        | YES       | YES        | YES       | YES         | YES              |
-| Necromancer (Druid) (Stun/Freeze) | NO        | YES       | YES       | YES        | YES       | YES         | YES              |
+| Figure                            | Over Cave | Over River | Over Lake | Over Canyon | Over Tree | Over Rock | Over Mystery Box |
+| --------------------------------- | --------- | ---------- | --------- | ----------- | --------- | --------- | ---------------- |
+| Paladin                           | YES       | YES        | YES       | YES         | NO        | YES       | YES              |
+| Chariot                           | YES       | YES        | YES       | YES         | YES       | NO        | YES              |
+| Ram-Tower                         | YES       | YES        | YES       | YES         | NO        | YES       | YES              |
+| Duchess                           | YES       | YES        | YES       | YES         | NO        | YES       | YES              |
+| Necromancer (Druid) (Stun/Freeze) | YES       | YES        | YES       | YES         | YES       | NO        | YES              |
 
 
 The Chariot uses this matrix on its gamma attack path. All other listed figures use it on
