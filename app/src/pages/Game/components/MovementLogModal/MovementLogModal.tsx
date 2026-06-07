@@ -13,6 +13,7 @@ interface MovementLogModalProps {
 export const MovementLogModal = ({ isOpen, onClose }: MovementLogModalProps) => {
   const moveHistory = useGameStore((state) => state.gameState.moveHistory)
   const boardSize = useGameStore((state) => state.gameState.boardSize)
+  const reversedMoves = [...moveHistory].reverse()
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Movement log" size="xl">
@@ -20,7 +21,7 @@ export const MovementLogModal = ({ isOpen, onClose }: MovementLogModalProps) => 
         <p className="py-8 text-center text-sm text-stone-400">No moves yet</p>
       ) : (
         <ol className="max-h-[min(70vh,32rem)] space-y-2 overflow-y-auto pr-1">
-          {moveHistory.toReversed().map((move, index) => {
+          {reversedMoves.map((move, index) => {
             const moveNumber = moveHistory.length - index
             const isWhite = move.piece.color === PlayerColors.WHITE
             return (

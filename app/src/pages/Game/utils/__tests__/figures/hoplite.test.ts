@@ -227,7 +227,7 @@ describe('Hoplite', () => {
   it('hides diagonal enemy squares from move highlights when attack mode is available', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
-    const hoplite = { type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true }
+    const hoplite = { type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true, id: 'hoplite-1' }
     const leftDiagonal = pos(5, 4)
     const rightDiagonal = pos(5, 6)
     placePiece(board, start, hoplite)
@@ -244,7 +244,7 @@ describe('Hoplite', () => {
   it('shows diagonal enemies in capture mode and ranged attacks in ranged mode', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
-    const hoplite = { type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true }
+    const hoplite = { type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true, id: 'hoplite-1' }
     const leftDiagonal = pos(5, 4)
     const rightDiagonal = pos(5, 6)
     placePiece(board, start, hoplite)
@@ -279,8 +279,8 @@ describe('Hoplite', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
     const target = pos(5, 4)
-    const hoplite = { type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true }
-    const enemy = { type: PieceTypes.HOPLITE, color: 'black' as const }
+    const hoplite = { type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true, id: 'hoplite-1' }
+    const enemy = { type: PieceTypes.HOPLITE, color: 'black' as const, id: 'hoplite-enemy' }
     placePiece(board, start, hoplite)
     placePiece(board, target, enemy)
 
@@ -313,8 +313,8 @@ describe('Hoplite', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
     const target = pos(5, 4)
-    const hoplite = { type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true }
-    const enemy = { type: PieceTypes.HOPLITE, color: 'black' as const }
+    const hoplite = { type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true, id: 'hoplite-1' }
+    const enemy = { type: PieceTypes.HOPLITE, color: 'black' as const, id: 'hoplite-enemy' }
     placePiece(board, start, hoplite)
     placePiece(board, target, enemy)
 

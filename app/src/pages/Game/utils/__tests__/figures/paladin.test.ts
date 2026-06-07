@@ -170,7 +170,7 @@ describe('Paladin', () => {
   it('highlights distant enemies for capture mode', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
-    const paladin = { type: PieceTypes.PALADIN, color: 'white' as const }
+    const paladin = { type: PieceTypes.PALADIN, color: 'white' as const, id: 'paladin-1' }
     placePiece(board, start, paladin)
     placePiece(board, pos(2, 1), { type: PieceTypes.HOPLITE, color: 'black' })
 
@@ -194,9 +194,9 @@ describe('Paladin', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
     const target = pos(2, 1)
-    const paladin = { type: PieceTypes.PALADIN, color: 'white' as const }
+    const paladin = { type: PieceTypes.PALADIN, color: 'white' as const, id: 'paladin-1' }
     placePiece(board, start, paladin)
-    const enemy = { type: PieceTypes.HOPLITE, color: 'black' as const }
+    const enemy = { type: PieceTypes.HOPLITE, color: 'black' as const, id: 'hoplite-enemy' }
     placePiece(board, target, enemy)
 
     const validMoves = getValidMoves(board, start, DEFAULT_SIZE)
