@@ -41,18 +41,8 @@ describe('Monarch', () => {
     expectExcludesPositions(moves, [pos(4, 5), pos(6, 7), pos(8, 7)])
   })
 
-  it('can stop on a cave', () => {
-    const board = createEmptyBoard()
-    const start = pos(6, 5)
-    placePiece(board, start, { type: PieceTypes.MONARCH, color: 'white' })
-    placeObstacle(board, pos(5, 5), ObstacleTypes.CAVE)
-
-    const moves = getValidMoves(board, start, DEFAULT_SIZE)
-
-    expect(moves).toContainEqual(pos(5, 5))
-  })
-
   it.each([
+    ObstacleTypes.CAVE,
     ObstacleTypes.RIVER,
     ObstacleTypes.LAKE,
     ObstacleTypes.CANYON,

@@ -42,9 +42,9 @@ Single source of truth for every type and constant union used in game logic.
 | `bomber` | Pattern `[[1,0],[0,1],[1,1],[2,0],[0,2],[2,2]]` | `0` | CAVE, RIVER, CANYON, MYSTERY_BOX | `canJumpPieces` |
 | `paladin` | DIAGONAL | `3` | CAVE, RIVER, CANYON, MYSTERY_BOX | `canChooseAttackMode`, `maxRiverWidth: 1` |
 | `warlock` | Pattern `[[2,0],[0,2],[2,2]]` | `1` | CAVE, LAKE, MYSTERY_BOX | `canJumpPieces` |
-| `monarch` | ANY (1 step) | `1` | CAVE, MYSTERY_BOX | `canChooseAttackMode` |
+| `monarch` | ANY (1 step) | `1` | MYSTERY_BOX | `canChooseAttackMode` |
 | `duchess` | ANY (unlimited) | `9` | RIVER, MYSTERY_BOX | `canChooseAttackMode`, **`shootsThroughFriendly: true`** |
-| `necromancer` | Pattern `[[1,0],[0,1],[1,1]]` | `1` | CAVE, LAKE, MYSTERY_BOX | — |
+| `necromancer` | Pattern `[[1,0],[0,1],[1,1]]` | `1` | LAKE, MYSTERY_BOX | — |
 
 Other constants here:
 - `PIECE_SYMBOLS`, `PIECE_NAMES`, `OBSTACLE_NAMES`, `OBSTACLE_COUNTS` (per board size)

@@ -102,14 +102,14 @@ Chariot/Bomber over obstacles), but they still cannot **land** on terrain marked
 | Bomber (Saboteur)     | YES (teleport) | YES              | NO   | YES    | NO   | NO   | YES         |
 | Paladin               | YES            | YES (max 1 wide) | NO   | YES    | NO   | NO   | YES         |
 | Warlock (Vezier)      | YES            | NO               | YES  | NO     | NO   | NO   | YES         |
-| Monarch               | YES            | NO               | NO   | NO     | NO   | NO   | YES         |
+| Monarch               | NO             | NO               | NO   | NO     | NO   | NO   | YES         |
 | Duchess               | NO             | YES              | NO   | NO     | NO   | NO   | YES         |
-| Necromancer (Druid)   | YES            | NO               | YES  | NO     | NO   | NO   | YES         |
+| Necromancer (Druid)   | NO             | NO               | YES  | NO     | NO   | NO   | YES         |
 
 
 > **Cave teleport detail:** Only the **Hoplite** and **Bomber** actually teleport between
-> caves when they move onto one. Other cave-capable figures (Paladin, Warlock, Monarch,
-> Necromancer) can pass over or rest on a cave tile but do not teleport.
+> caves when they move onto one. Other cave-capable figures (Paladin, Warlock) can pass over
+> or rest on a cave tile but do not teleport.
 
 ### 3.4 Range attack line-of-sight matrix
 
@@ -248,7 +248,7 @@ it directly (any distance, not limited to the 3-tile ranged attack).
 
 - **Move:** One tile in any direction.
 - **Attack:** Removes an adjacent enemy (1 tile, any direction).
-- **Terrain:** Can pass cave only. Cannot pass river, lake, or canyon.
+- **Terrain:** Cannot pass cave, river, lake, or canyon.
 - **Critical:** Losing the Monarch loses the game. Protect it.
 
 ### 6.8 Duchess — 27 pts
@@ -277,7 +277,7 @@ freeze range by 2, which also lowers duration (6 → 3 turns, 4 → 2, 2 → 1).
 (1 tile) cannot be frozen — use melee kill instead. A figure that is already frozen cannot
 be frozen again.
 - **Revive (special action):** See Section 6.10.
-- **Terrain:** Can pass lake and cave. Cannot pass river or canyon.
+- **Terrain:** Can pass lake only. Cannot pass cave, river, or canyon.
 
 ### 6.10 Revival and Zombie ("Night") mode
 

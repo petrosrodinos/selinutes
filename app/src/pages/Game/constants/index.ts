@@ -96,7 +96,7 @@ export const PIECE_RULES: Record<string, PieceRules> = {
   [PieceTypes.MONARCH]: {
     move: MovePatterns.ANY,
     attackRange: 1,
-    canPass: [ObstacleTypes.CAVE, ObstacleTypes.MYSTERY_BOX],
+    canPass: [ObstacleTypes.MYSTERY_BOX],
     canChooseAttackMode: true,
     points: 210
   },
@@ -119,7 +119,7 @@ export const PIECE_RULES: Record<string, PieceRules> = {
     move: [[1, 0], [0, 1], [1, 1]],
     attackRange: 1,
     freezeRange: 8,
-    canPass: [ObstacleTypes.CAVE, ObstacleTypes.LAKE, ObstacleTypes.MYSTERY_BOX],
+    canPass: [ObstacleTypes.LAKE, ObstacleTypes.MYSTERY_BOX],
     freezeCanPass: [
       ObstacleTypes.TREE,
       ObstacleTypes.CAVE,
@@ -254,8 +254,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   [PieceTypes.MONARCH]: [
     'Moves in any direction, 1 step at a time.',
     'Shoots 1 step in any direction.',
-    'Can pass through cave.',
-    'Cannot pass through river, lake, canyon.'
+    'Cannot pass through cave, river, lake, or canyon.'
   ],
   [PieceTypes.DUCHESS]: [
     'Moves in any direction, any number of steps.',
@@ -270,8 +269,8 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
     'Freeze-stun: stuns an enemy in a straight line up to 8 steps away; rock blocks it, but tree, cave, river, lake, canyon, and mystery box do not. Stunned figures cannot move or capture-and-move, but can still use their normal ranged attacks. Freeze duration is always half the Necromancer\'s maximum freeze range (4 turns at full power). Each revival permanently reduces maximum freeze range by 2, which also lowers freeze duration (e.g. after one revival: range 6, duration 3 turns). After 4 revivals the Necromancer can no longer freeze.',
     'Can revive Ram, Chariot, Bomber, or Paladin when the Necromancer, Monarch, and Duchess are on the same horizontal line.',
     'Revived figures attack at range 1 only; a revived Bomber can still attack as a Zombie.',
-    'Can pass through lake and cave.',
-    'Cannot pass through river or canyon.'
+    'Can pass through lake.',
+    'Cannot pass through cave, river, or canyon.'
   ]
 } as const
 

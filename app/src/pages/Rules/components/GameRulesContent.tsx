@@ -238,7 +238,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
               <tbody className="text-stone-300 text-sm">
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Monarch</td>
-                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
@@ -286,7 +286,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Necromancer / Druid</td>
-                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
