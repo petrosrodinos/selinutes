@@ -350,6 +350,12 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
             <li className="flex gap-2">
               <span className="text-amber-500/80 mt-0.5">•</span>
               <span>
+                <strong className="text-stone-300">Hoplite promotion:</strong> A Hoplite that reaches the opponent&apos;s back rank becomes a Duchess (only 3 promotions allowed in the entire game).
+              </span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-amber-500/80 mt-0.5">•</span>
+              <span>
                 <strong className="text-stone-300">Revival:</strong> Necromancer revives select units when the Necromancer, Monarch, and Duchess share a row; revived units may have limited abilities.
               </span>
             </li>

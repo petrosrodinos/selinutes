@@ -155,6 +155,10 @@ The lowest possible value on the board is a revived Bomber at **9** points.
 move after that. It cannot move backward or sideways.
 - **Attack:** Captures **one tile diagonally forward** (front-left or front-right). It
 cannot capture the tile straight ahead.
+- **Promotion:** When a Hoplite reaches the opponent's **back rank** (their first row), it
+is promoted to a **Duchess**. Only **3** Hoplites may promote in the **entire game**
+(both players combined), for a maximum of **5** Duchesses on the board if none have been
+captured (2 starting + 3 promoted).
 - **Terrain:** Can pass through caves (teleporting). Cannot pass river, lake, canyon, tree,
 or rock.
 
@@ -286,6 +290,8 @@ tile (Hoplite and Bomber teleport; other cave-capable figures simply pass/rest).
 - **Bomber explosions:** A Bomber's explosive net destroys any enemy figure that steps onto
 a net tile (diagonals 1-2 away, orthogonals 2 away).
 - **Warlock swaps:** Reposition the Monarch with the Warlock or with a friendly Hoplite.
+- **Hoplite promotion:** A Hoplite that reaches the opponent's back rank becomes a Duchess
+(only 3 promotions allowed in the entire game).
 - **Necromancer freeze:** Straight-line stun up to 8 tiles, blocked only by trees; range
 drops by 2 per revival (to 0 after four). Duration = distance ÷ 2 turns. Stunned figures
 cannot move or capture-and-move but can still use normal ranged attacks.

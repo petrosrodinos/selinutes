@@ -84,7 +84,9 @@ export const useGame = (initialBoardSizeKey: BoardSizeKey = BoardSizeKeys.SMALL)
                 botMove.from,
                 botMove.to,
                 gameState.boardSize,
-                botMove.isAttack || false
+                botMove.isAttack || false,
+                [],
+                gameState.capturedPieces
             )
 
             const nextPlayer = PlayerColors.WHITE
@@ -146,7 +148,9 @@ export const useGame = (initialBoardSizeKey: BoardSizeKey = BoardSizeKeys.SMALL)
                         prev.selectedPosition,
                         pos,
                         prev.boardSize,
-                        isValidAttackTarget
+                        isValidAttackTarget,
+                        [],
+                        prev.capturedPieces
                     )
 
                     const nextPlayer = prev.currentPlayer === PlayerColors.WHITE ? PlayerColors.BLACK : PlayerColors.WHITE

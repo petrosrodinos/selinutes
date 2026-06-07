@@ -39,6 +39,14 @@ export {
   checkNarcNetTrigger,
   getAllNarcNetPositions
 } from './narcUtils'
+export {
+  HOPLITE_PROMOTION_MAX,
+  getEnemyBackRow,
+  isOnEnemyBackRow,
+  countHoplitePromotions,
+  canPromoteHoplite,
+  promoteHopliteToDuchess
+} from './hoplitePromotionUtils'
 export type { NarcNetPosition } from './narcUtils'
 export {
   isValidSwap,

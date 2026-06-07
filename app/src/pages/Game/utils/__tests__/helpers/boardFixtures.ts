@@ -24,6 +24,7 @@ export interface PlacePieceOptions {
   color: PlayerColor
   hasMoved?: boolean
   isZombie?: boolean
+  promotedFromHoplite?: boolean
   reviveCount?: number
   frozenTurns?: number
   standingOnObstacle?: ObstacleType
@@ -37,6 +38,7 @@ export const placePiece = (board: Board, position: Position, options: PlacePiece
     color: options.color,
     hasMoved: options.hasMoved ?? false,
     isZombie: options.isZombie,
+    promotedFromHoplite: options.promotedFromHoplite,
     reviveCount: options.reviveCount,
     frozenTurns: options.frozenTurns,
     standingOnObstacle: options.standingOnObstacle

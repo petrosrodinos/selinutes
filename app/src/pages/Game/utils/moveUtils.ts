@@ -3,6 +3,7 @@ import { isPiece, isObstacle, PlayerColors, PieceTypes, ObstacleTypes, MovePatte
 import { isInBounds, cloneBoard, getObstacleType, findAllCaves } from './boardUtils'
 import { PIECE_RULES } from '../constants'
 import { createNarcsForBomber, checkNarcNetTrigger, removeNarcsForBomber } from './narcUtils'
+import { canPromoteHoplite, promoteHopliteToDuchess } from './hoplitePromotionUtils'
 import { getAdjustedAttackRange } from './zombieUtils'
 
 const canPassObstacle = (pieceType: PieceType, obstacleType: ObstacleType): boolean => {
@@ -1122,7 +1123,8 @@ export const makeMove = (
   to: Position,
   boardSize: BoardSize,
   isAttack: boolean = false,
-  narcs: Narc[] = []
+  narcs: Narc[] = [],
+  capturedPieces: { white: Piece[]; black: Piece[] } = { white: [], black: [] }
 ): { newBoard: Board; move: Move; newNarcs: Narc[] } => {
   const newBoard = cloneBoard(board)
   const cell = newBoard[from.row][from.col]
@@ -1167,7 +1169,7 @@ export const makeMove = (
     return { newBoard, move, newNarcs }
   }
 
-  const move: Move = {
+  let move: Move = {
     from,
     to: finalPosition,
     piece: { ...piece },
@@ -1184,11 +1186,18 @@ export const makeMove = (
     const destinationCell = newBoard[finalPosition.row][finalPosition.col]
     const destinationObstacle =
       destinationCell && isObstacle(destinationCell) ? destinationCell.type : undefined
-    newBoard[finalPosition.row][finalPosition.col] = {
+    let movedPiece: Piece = {
       ...piece,
       hasMoved: true,
       standingOnObstacle: destinationObstacle
     }
+
+    if (canPromoteHoplite(piece, finalPosition, boardSize, board, capturedPieces)) {
+      movedPiece = promoteHopliteToDuchess(movedPiece)
+      move.promotedTo = movedPiece.type
+    }
+
+    newBoard[finalPosition.row][finalPosition.col] = movedPiece
     newBoard[from.row][from.col] = sourceObstacle ? { type: sourceObstacle } : null
     if (captured && captured.type === PieceTypes.BOMBER) {
       newNarcs = removeNarcsForBomber(newNarcs, captured.id)

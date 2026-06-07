@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getValidMoves, getValidAttacks } from '../../moveUtils'
+import { getValidMoves, getValidAttacks, makeMove } from '../../moveUtils'
 import { PieceTypes, ObstacleTypes } from '../../../types'
 import type { PlayerColor } from '../../../types'
 import {
@@ -148,5 +148,55 @@ describe('Hoplite', () => {
     const moves = getValidMoves(board, start, DEFAULT_SIZE)
 
     expect(moves).toContainEqual(pos(5, 5))
+  })
+
+  it('promotes to duchess when white hoplite reaches row 0', () => {
+    const board = createEmptyBoard()
+    const start = pos(1, 5)
+    placePiece(board, start, { type: PieceTypes.HOPLITE, color: 'white', hasMoved: true, id: 'hoplite-1' })
+
+    const { newBoard, move } = makeMove(board, start, pos(0, 5), DEFAULT_SIZE)
+
+    const promoted = newBoard[0][5]
+    expect(move.promotedTo).toBe(PieceTypes.DUCHESS)
+    expect(promoted && 'type' in promoted && promoted.type).toBe(PieceTypes.DUCHESS)
+    expect(promoted && 'promotedFromHoplite' in promoted && promoted.promotedFromHoplite).toBe(true)
+    expect(promoted && 'id' in promoted && promoted.id).toBe('hoplite-1')
+  })
+
+  it('promotes to duchess when black hoplite reaches the last row', () => {
+    const board = createEmptyBoard()
+    const start = pos(10, 5)
+    placePiece(board, start, { type: PieceTypes.HOPLITE, color: 'black', hasMoved: true })
+
+    const { newBoard, move } = makeMove(board, start, pos(11, 5), DEFAULT_SIZE)
+
+    expect(move.promotedTo).toBe(PieceTypes.DUCHESS)
+    expect(newBoard[11][5] && 'type' in newBoard[11][5]! && newBoard[11][5]!.type).toBe(PieceTypes.DUCHESS)
+  })
+
+  it('does not promote after 3 hoplites have already been promoted in the game', () => {
+    const board = createEmptyBoard()
+    const start = pos(1, 5)
+    placePiece(board, start, { type: PieceTypes.HOPLITE, color: 'white', hasMoved: true })
+    placePiece(board, pos(0, 0), { type: PieceTypes.DUCHESS, color: 'white', promotedFromHoplite: true })
+    placePiece(board, pos(0, 1), { type: PieceTypes.DUCHESS, color: 'white', promotedFromHoplite: true })
+    placePiece(board, pos(0, 2), { type: PieceTypes.DUCHESS, color: 'white', promotedFromHoplite: true })
+
+    const { newBoard, move } = makeMove(board, start, pos(0, 5), DEFAULT_SIZE, false, [], { white: [], black: [] })
+
+    expect(move.promotedTo).toBeUndefined()
+    expect(newBoard[0][5] && 'type' in newBoard[0][5]! && newBoard[0][5]!.type).toBe(PieceTypes.HOPLITE)
+  })
+
+  it('does not promote zombie hoplites on the enemy back row', () => {
+    const board = createEmptyBoard()
+    const start = pos(1, 5)
+    placePiece(board, start, { type: PieceTypes.HOPLITE, color: 'white', hasMoved: true, isZombie: true })
+
+    const { newBoard, move } = makeMove(board, start, pos(0, 5), DEFAULT_SIZE)
+
+    expect(move.promotedTo).toBeUndefined()
+    expect(newBoard[0][5] && 'type' in newBoard[0][5]! && newBoard[0][5]!.type).toBe(PieceTypes.HOPLITE)
   })
 })

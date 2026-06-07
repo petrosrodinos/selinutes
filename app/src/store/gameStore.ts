@@ -332,7 +332,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                             pos,
                             boardSize,
                             false,
-                            gameState.narcs
+                            gameState.narcs,
+                            gameState.capturedPieces
                         )
 
                         const newCaptured = { ...gameState.capturedPieces }
@@ -475,7 +476,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         pos,
                         boardSize,
                         attackAction.shouldUseRangedAttack && !attackAction.shouldUseMoveCapture,
-                        gameState.narcs
+                        gameState.narcs,
+                        gameState.capturedPieces
                     )
                     const boardAfterTurn = decrementFrozenTurnsForPlayer(newBoard, gameState.currentPlayer)
 
@@ -647,7 +649,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         pos,
                         gameState.boardSize,
                         false,
-                        gameState.narcs
+                        gameState.narcs,
+                        gameState.capturedPieces
                     )
 
                     const newCaptured = { ...gameState.capturedPieces }
@@ -782,7 +785,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     pos,
                     gameState.boardSize,
                     attackAction.shouldUseRangedAttack && !attackAction.shouldUseMoveCapture,
-                    gameState.narcs
+                    gameState.narcs,
+                    gameState.capturedPieces
                 )
                 const boardAfterTurn = decrementFrozenTurnsForPlayer(newBoard, gameState.currentPlayer)
 
@@ -1040,7 +1044,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
             botMove.to,
             gameState.boardSize,
             botMove.isAttack || false,
-            gameState.narcs
+            gameState.narcs,
+            gameState.capturedPieces
         )
         const boardAfterTurn = decrementFrozenTurnsForPlayer(newBoard, gameState.currentPlayer)
 

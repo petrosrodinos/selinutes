@@ -74,6 +74,7 @@ export interface Piece {
   color: PlayerColor
   hasMoved?: boolean
   isZombie?: boolean
+  promotedFromHoplite?: boolean
   reviveCount?: number
   frozenTurns?: number
   standingOnObstacle?: ObstacleType
@@ -117,6 +118,7 @@ export interface Move {
   isFreeze?: boolean
   freezeTurns?: number
   terminatedByNarc?: boolean
+  promotedTo?: PieceType
 }
 
 export interface SwapTarget {
