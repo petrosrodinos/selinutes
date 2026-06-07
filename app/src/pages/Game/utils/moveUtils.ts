@@ -1,6 +1,6 @@
 import type { Board, Piece, Position, Move, PlayerColor, PieceType, BoardSize, ObstacleType, Narc, CellContent } from '../types'
 import { isPiece, isObstacle, PlayerColors, PieceTypes, ObstacleTypes, MovePatterns } from '../types'
-import { isInBounds, cloneBoard, getObstacleType, findAllCaves } from './boardUtils'
+import { isInBounds, cloneBoard, findAllCaves } from './boardUtils'
 import { PIECE_RULES } from '../constants'
 import { createNarcsForBomber, checkNarcNetTrigger, removeNarcsForBomber } from './narcUtils'
 import { canPromoteHoplite, promoteHopliteToDuchess } from './hoplitePromotionUtils'

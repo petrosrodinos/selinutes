@@ -35,3 +35,5 @@ export const BOARD_SIZES: Record<BoardSizeKey, BoardSize> = {
 export const GAME_TTL = 1000 * 60 * 60 * 2
 
 export const GAME_KEY_PREFIX = 'game:'
+
+export const MAX_GAME_CODE_GENERATION_ATTEMPTS = 10

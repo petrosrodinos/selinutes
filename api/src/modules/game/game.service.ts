@@ -13,7 +13,8 @@ import {
     BoardSizeKeys,
     BoardSizeKey,
     GameStatuses,
-    PlayerColors
+    PlayerColors,
+    MAX_GAME_CODE_GENERATION_ATTEMPTS
 } from './constants/game.constants'
 import { generateGameCode, getGameKey } from './helpers/game.helper'
 import { GameMode, GameStatus, Prisma } from 'generated/prisma'
@@ -91,7 +92,7 @@ export class GameService {
     }
 
     async createGame(dto: CreateGameDto): Promise<GameSession> {
-        const code = generateGameCode()
+        const code = await this.generateUniqueGameCode()
         const boardSizeKey: BoardSizeKey = dto?.boardSizeKey || BoardSizeKeys.SMALL
 
         const gameState = {
@@ -476,5 +477,17 @@ export class GameService {
 
     private async getGameSession(code: string): Promise<GameSession | undefined> {
         return this.cacheService.get<GameSession>(getGameKey(code))
+    }
+
+    private async generateUniqueGameCode(): Promise<string> {
+        for (let attempt = 0; attempt < MAX_GAME_CODE_GENERATION_ATTEMPTS; attempt++) {
+            const code = generateGameCode()
+            const existing = await this.getGameSession(code)
+            if (!existing) {
+                return code
+            }
+        }
+
+        throw new BadRequestException('Unable to generate a unique game code')
     }
 }
