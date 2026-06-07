@@ -4,7 +4,12 @@ import {
   decrementFrozenTurnsForPlayer,
   hasLegalMoves,
   findMonarch,
-  isMonarchCaptured
+  isMonarchCaptured,
+  getValidMoves,
+  getValidAttacks,
+  getDisplayedAttackTargets,
+  resolveAttackModeAction,
+  canUseCaptureAttackMode
 } from '../moveUtils'
 import { PieceTypes, ObstacleTypes, isPiece } from '../../types'
 import type { Narc } from '../../types'
@@ -154,6 +159,63 @@ describe('monarch detection', () => {
     expect(isMonarchCaptured(board, 'white')).toBe(false)
     expect(findMonarch(board, 'black')).toBeNull()
     expect(isMonarchCaptured(board, 'black')).toBe(true)
+  })
+})
+
+describe('frozen capture attack mode', () => {
+  it('canUseCaptureAttackMode is false for frozen figures with dual attack modes', () => {
+    const frozenRam = { type: PieceTypes.RAM_TOWER, color: 'white' as const, frozenTurns: 1 }
+    const activeRam = { type: PieceTypes.RAM_TOWER, color: 'white' as const }
+
+    expect(canUseCaptureAttackMode(frozenRam)).toBe(false)
+    expect(canUseCaptureAttackMode(activeRam)).toBe(true)
+  })
+
+  it('getDisplayedAttackTargets ignores capture mode for frozen ram tower', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const rangedTarget = pos(6, 8)
+    const captureTarget = pos(4, 5)
+    const ram = { type: PieceTypes.RAM_TOWER, color: 'white' as const, frozenTurns: 1 }
+    placePiece(board, start, ram)
+    placePiece(board, rangedTarget, { type: PieceTypes.HOPLITE, color: 'black' })
+    placePiece(board, captureTarget, { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+    const attacks = getValidAttacks(board, start, DEFAULT_SIZE)
+    const displayed = getDisplayedAttackTargets(
+      board,
+      moves,
+      attacks,
+      ram,
+      start,
+      'capture',
+      DEFAULT_SIZE
+    )
+
+    expect(displayed).toEqual(attacks)
+    expect(displayed).toContainEqual(rangedTarget)
+  })
+
+  it('resolveAttackModeAction rejects move capture for frozen figures', () => {
+    const board = createEmptyBoard()
+    const from = pos(6, 5)
+    const to = pos(4, 5)
+    const ram = { type: PieceTypes.RAM_TOWER, color: 'white' as const, frozenTurns: 1 }
+    placePiece(board, from, ram)
+    placePiece(board, to, { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const result = resolveAttackModeAction(
+      ram,
+      board[to.row][to.col]!,
+      true,
+      false,
+      'capture',
+      { board, from, to, boardSize: DEFAULT_SIZE }
+    )
+
+    expect(result.shouldUseMoveCapture).toBe(false)
+    expect(result.shouldUseRangedAttack).toBe(false)
   })
 })
 

@@ -48,8 +48,9 @@ and the Necromancer's melee kill.
 the **first enemy** in each attack line. Further enemies behind that target are out of
 range. Obstacles block based on each figure's pass rules (e.g. Chariot shoots over trees
 on its gamma path).
-- **Frozen figures cannot act:** A frozen figure can neither move nor attack until the
-freeze wears off (see Necromancer freeze).
+- **Frozen figures cannot move:** A frozen figure cannot move, swap, capture-and-move, or use
+special actions until the freeze wears off, but it **can still use its normal ranged attacks**
+(see Necromancer freeze).
 
 ---
 
@@ -230,7 +231,8 @@ The Necromancer is a support/control figure with three distinct actions.
 - **Freeze-stun (special action):** Stuns an enemy figure in a **straight line** (orthogonal
 or diagonal) up to **8 tiles** away. Only **trees** block the freeze; other obstacles and
 figures do not. The maximum freeze range **drops by 2 for each revival the Necromancer has
-performed** (minimum range 2). A frozen figure cannot move or attack; **longer-distance
+performed** (minimum range 2). A frozen figure **cannot move** or capture-and-move, but
+**can still attack** using its normal range and attack rules; **longer-distance
 freezes last more turns** (roughly half the distance used, rounded down, minimum 1 turn).
 A figure that is already frozen cannot be frozen again.
 - **Revive (special action):** See Section 6.10.
@@ -284,7 +286,8 @@ tile (Hoplite and Bomber teleport; other cave-capable figures simply pass/rest).
 a net tile (diagonals 1-2 away, orthogonals 2 away).
 - **Warlock swaps:** Reposition the Monarch with the Warlock or with a friendly Hoplite.
 - **Necromancer freeze:** Straight-line stun up to 8 tiles, blocked only by trees, weakened
-by 2 per revival.
+by 2 per revival. Stunned figures cannot move or capture-and-move but can still use normal
+ranged attacks.
 - **Revival / Zombie mode:** Ram-Tower, Chariot, Bomber, or Paladin can return as Zombies
 while the Necromancer, Monarch, and Duchess share the same row; Zombies attack at range 1
 and are worth fewer points.

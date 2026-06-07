@@ -16,6 +16,7 @@ export {
   getDisplayedMoveTargets,
   getDisplayedAttackTargets,
   resolveAttackModeAction,
+  canUseCaptureAttackMode,
   isChariotValidCaptureMoveTarget,
   getNecromancerKillTargets,
   getNecromancerFreezeTargets,

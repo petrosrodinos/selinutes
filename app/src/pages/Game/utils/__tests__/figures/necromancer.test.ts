@@ -147,22 +147,24 @@ describe('Necromancer', () => {
     expect(isPiece(target) && target.frozenTurns).toBe(2)
   })
 
-  it('a frozen piece has no moves or attacks', () => {
+  it('a frozen piece cannot move but can still range attack', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
     placePiece(board, start, { type: PieceTypes.RAM_TOWER, color: 'white', frozenTurns: 1 })
     placePiece(board, pos(6, 7), { type: PieceTypes.HOPLITE, color: 'black' })
 
     expect(getValidMoves(board, start, DEFAULT_SIZE)).toHaveLength(0)
-    expect(getValidAttacks(board, start, DEFAULT_SIZE)).toHaveLength(0)
+    expect(getValidAttacks(board, start, DEFAULT_SIZE)).toContainEqual({ row: 6, col: 7 })
   })
 
-  it('a frozen necromancer cannot freeze', () => {
+  it('a frozen necromancer can melee kill but cannot freeze', () => {
     const board = createEmptyBoard()
     const start = pos(9, 5)
     placePiece(board, start, { type: PieceTypes.NECROMANCER, color: 'white', frozenTurns: 1 })
-    placePiece(board, pos(5, 5), { type: PieceTypes.HOPLITE, color: 'black' })
+    placePiece(board, pos(8, 5), { type: PieceTypes.HOPLITE, color: 'black' })
+    placePiece(board, pos(1, 5), { type: PieceTypes.HOPLITE, color: 'black' })
 
+    expect(getNecromancerKillTargets(board, start, DEFAULT_SIZE)).toContainEqual({ row: 8, col: 5 })
     expect(getNecromancerFreezeTargets(board, start, DEFAULT_SIZE)).toHaveLength(0)
   })
 })

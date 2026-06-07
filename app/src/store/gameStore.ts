@@ -9,6 +9,7 @@ import {
     getValidMoves,
     getValidAttacks,
     resolveAttackModeAction,
+    canUseCaptureAttackMode,
     makeMove,
     hasLegalMoves,
     isMonarchCaptured,
@@ -61,6 +62,9 @@ type AttackMode = 'ranged' | 'capture'
 type NecromancerActionMode = 'move' | 'kill' | 'freeze'
 
 const getDefaultAttackMode = (cell: CellContent): AttackMode => {
+    if (cell && isPiece(cell) && (cell.frozenTurns ?? 0) > 0) {
+        return 'ranged'
+    }
     if (cell && isPiece(cell) && PIECE_RULES[cell.type].canChooseAttackMode) {
         if (cell.isZombie || cell.type === PieceTypes.RAM_TOWER) {
             return 'capture'
@@ -189,6 +193,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
     isLoading: false,
     error: null,
     setAttackMode: (mode: AttackMode) => {
+        if (mode === 'capture') {
+            const { gameState, selectedPosition } = get()
+            const piecePos = gameState.selectedPosition ?? selectedPosition
+            if (piecePos) {
+                const cell = gameState.board[piecePos.row]?.[piecePos.col]
+                if (cell && isPiece(cell) && !canUseCaptureAttackMode(cell)) {
+                    return
+                }
+            }
+        }
         set({ attackMode: mode })
     },
     setNecromancerActionMode: (mode: NecromancerActionMode) => {
@@ -212,9 +226,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
             if (!selectedCell || !isPiece(selectedCell)) {
                 return { moves: [], attacks: [], swaps: [] as SwapTarget[] }
             }
-            const moves = getValidMoves(board, piecePos, boardSize)
+            const isFrozen = (selectedCell.frozenTurns ?? 0) > 0
+            const moves = isFrozen ? [] : getValidMoves(board, piecePos, boardSize)
             const attacks = getValidAttacks(board, piecePos, boardSize)
-            const swaps: SwapTarget[] = selectedCell.type === PieceTypes.WARLOCK
+            const swaps: SwapTarget[] = !isFrozen && selectedCell.type === PieceTypes.WARLOCK
                 ? getValidSwapTargets(board, piecePos).map(s => ({
                     position: s.position,
                     swapType: s.swapType
@@ -224,11 +239,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 return { moves, attacks, swaps }
             }
             const closeTargets = getNecromancerKillTargets(board, piecePos, boardSize)
-            const freezeTargets = getNecromancerFreezeTargets(board, piecePos, boardSize)
+            const freezeTargets = isFrozen ? [] : getNecromancerFreezeTargets(board, piecePos, boardSize)
             const mergedAttacks = [...closeTargets, ...freezeTargets].filter((target, index, arr) =>
                 index === arr.findIndex(item => item.row === target.row && item.col === target.col)
             )
             return { moves, attacks: mergedAttacks, swaps }
+        }
+
+        const canSelectPiece = (board: GameState['board'], boardSize: GameState['boardSize'], piecePos: Position, piece: Piece) => {
+            if ((piece.frozenTurns ?? 0) <= 0) return true
+            return getSelectionData(board, boardSize, piecePos).attacks.length > 0
         }
 
         if (isOnline) {
@@ -513,7 +533,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         })
                         return false
                     }
-                    if ((cell.frozenTurns ?? 0) > 0) return false
+                    if (!canSelectPiece(board, boardSize, pos, cell)) return false
                     const { moves, attacks, swaps } = getSelectionData(board, boardSize, pos)
                     set({
                         selectedPosition: pos,
@@ -538,7 +558,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             }
 
             if (cell && isPiece(cell) && cell.color === myPlayer.color) {
-                if ((cell.frozenTurns ?? 0) > 0) return false
+                if (!canSelectPiece(board, boardSize, pos, cell)) return false
                 const { moves, attacks, swaps } = getSelectionData(board, boardSize, pos)
                 set({
                     selectedPosition: pos,
@@ -822,8 +842,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     })
                     return false
                 }
-                if ((cell.frozenTurns ?? 0) > 0) {
-                    toast.warning('❄️ This piece is frozen and cannot act.', { autoClose: 2500 })
+                if (!canSelectPiece(gameState.board, gameState.boardSize, pos, cell)) {
+                    toast.warning('❄️ This piece is frozen and cannot move.', { autoClose: 2500 })
                     return false
                 }
                 const { moves, attacks, swaps } = getSelectionData(gameState.board, gameState.boardSize, pos)
@@ -856,8 +876,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
 
         if (cell && isPiece(cell) && cell.color === gameState.currentPlayer) {
-            if ((cell.frozenTurns ?? 0) > 0) {
-                toast.warning('❄️ This piece is frozen and cannot act.', { autoClose: 2500 })
+            if (!canSelectPiece(gameState.board, gameState.boardSize, pos, cell)) {
+                toast.warning('❄️ This piece is frozen and cannot move.', { autoClose: 2500 })
                 return false
             }
             const { moves, attacks, swaps } = getSelectionData(gameState.board, gameState.boardSize, pos)

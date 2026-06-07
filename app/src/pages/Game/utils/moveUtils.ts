@@ -492,6 +492,11 @@ const isPieceFrozen = (piece: Piece): boolean => {
   return (piece.frozenTurns ?? 0) > 0
 }
 
+export const canUseCaptureAttackMode = (piece: Piece): boolean => {
+  if (isPieceFrozen(piece)) return false
+  return Boolean(PIECE_RULES[piece.type].canChooseAttackMode)
+}
+
 const getNecromancerFreezeRange = (piece: Piece): number => {
   const reviveCount = piece.reviveCount ?? 0
   return Math.max(2, 8 - reviveCount * 2)
@@ -499,7 +504,7 @@ const getNecromancerFreezeRange = (piece: Piece): number => {
 
 export const getNecromancerKillTargets = (board: Board, pos: Position, boardSize: BoardSize): Position[] => {
   const cell = board[pos.row][pos.col]
-  if (!cell || !isPiece(cell) || cell.type !== PieceTypes.NECROMANCER || isPieceFrozen(cell)) return []
+  if (!cell || !isPiece(cell) || cell.type !== PieceTypes.NECROMANCER) return []
 
   const targets: Position[] = []
   for (let rowOff = -1; rowOff <= 1; rowOff++) {
@@ -880,7 +885,6 @@ const isAttackPathClear = (
 export const getValidAttacks = (board: Board, pos: Position, boardSize: BoardSize): Position[] => {
   const cell = board[pos.row][pos.col]
   if (!cell || !isPiece(cell)) return []
-  if (isPieceFrozen(cell)) return []
 
   const rules = PIECE_RULES[cell.type]
   const attackRange = getAdjustedAttackRange(cell, rules.attackRange)
@@ -985,7 +989,7 @@ export const getDisplayedAttackTargets = (
   attackMode: 'ranged' | 'capture',
   boardSize: BoardSize
 ): Position[] => {
-  if (!selectedPiece || !PIECE_RULES[selectedPiece.type].canChooseAttackMode) {
+  if (!selectedPiece || !canUseCaptureAttackMode(selectedPiece)) {
     return validAttacks
   }
 
@@ -1024,6 +1028,7 @@ export const resolveAttackModeAction = (
   }
 ): { allowed: boolean; shouldUseRangedAttack: boolean; shouldUseMoveCapture: boolean } => {
   const canChooseAttackMode = PIECE_RULES[selectedPiece.type].canChooseAttackMode
+  const canMoveCapture = canUseCaptureAttackMode(selectedPiece)
   const isEnemyTarget = Boolean(targetCell && isPiece(targetCell) && targetCell.color !== selectedPiece.color)
   const isEnemyMoveCaptureTarget = isValidMoveTarget && isEnemyTarget
   const isChariotCaptureTarget = selectedPiece.type === PieceTypes.CHARIOT &&
@@ -1045,7 +1050,7 @@ export const resolveAttackModeAction = (
   }
 
   const shouldUseRangedAttack = isValidAttackTarget && (!canChooseAttackMode || attackMode === 'ranged')
-  const shouldUseMoveCapture = Boolean(canChooseAttackMode &&
+  const shouldUseMoveCapture = Boolean(canMoveCapture &&
     attackMode === 'capture' &&
     (selectedPiece.type === PieceTypes.CHARIOT
       ? isChariotCaptureTarget
