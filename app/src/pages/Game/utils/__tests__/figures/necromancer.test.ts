@@ -47,18 +47,7 @@ describe('Necromancer', () => {
     expectExcludesPositions(moves, [pos(4, 5), pos(6, 7), pos(8, 7)])
   })
 
-  it('can land on a passable lake', () => {
-    const board = createEmptyBoard()
-    const start = pos(6, 5)
-    placePiece(board, start, { type: PieceTypes.NECROMANCER, color: 'white' })
-    placeObstacle(board, pos(5, 5), ObstacleTypes.LAKE)
-
-    const moves = getValidMoves(board, start, DEFAULT_SIZE)
-
-    expect(moves).toContainEqual(pos(5, 5))
-  })
-
-  it.each([ObstacleTypes.CAVE, ObstacleTypes.RIVER, ObstacleTypes.CANYON])('is blocked by %s', (obstacle) => {
+  it.each([ObstacleTypes.CAVE, ObstacleTypes.RIVER, ObstacleTypes.CANYON, ObstacleTypes.LAKE])('is blocked by %s', (obstacle) => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
     placePiece(board, start, { type: PieceTypes.NECROMANCER, color: 'white' })

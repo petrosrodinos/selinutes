@@ -302,7 +302,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4 font-medium text-stone-200">Necromancer / Druid</td>
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>

@@ -102,7 +102,7 @@ Chariot/Bomber over obstacles), but they still cannot **land** on terrain marked
 | Chariot               | NO             | YES              | NO   | NO     | NO   | NO   | YES         |
 | Paladin               | NO             | YES (max 1 wide) | NO   | YES    | NO   | NO   | YES         |
 | Bomber (Saboteur)     | YES (teleport) | YES (1 block)    | NO   | NO     | NO   | NO   | YES         |
-| Necromancer (Druid)   | YES            | NO               | YES  | NO     | NO   | NO   | YES         |
+| Necromancer (Druid)   | YES            | NO               | NO   | NO     | NO   | NO   | YES         |
 | Warlock (Vezier)      | YES            | NO               | YES  | NO     | NO   | NO   | YES         |
 | Hoplite (Legionnaire) | YES (teleport) | NO               | NO   | NO     | NO   | NO   | YES         |
 
@@ -277,7 +277,7 @@ freeze range by 2, which also lowers duration (6 → 3 turns, 4 → 2, 2 → 1).
 (1 tile) cannot be frozen — use melee kill instead. A figure that is already frozen cannot
 be frozen again.
 - **Revive (special action):** See Section 6.10.
-- **Terrain:** Can pass lake only. Cannot pass cave, river, or canyon.
+- **Terrain:** Cannot pass cave, river, lake, or canyon.
 
 ### 6.10 Revival and Zombie ("Night") mode
 
