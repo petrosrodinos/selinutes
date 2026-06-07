@@ -231,9 +231,10 @@ The Necromancer is a support/control figure with three distinct actions.
 - **Freeze-stun (special action):** Stuns an enemy figure in a **straight line** (orthogonal
 or diagonal) up to **8 tiles** away. Only **trees** block the freeze; other obstacles and
 figures do not. The maximum freeze range **drops by 2 for each revival the Necromancer has
-performed** (minimum range 2). A frozen figure **cannot move** or capture-and-move, but
-**can still attack** using its normal range and attack rules; **longer-distance
-freezes last more turns** (roughly half the distance used, rounded down, minimum 1 turn).
+performed** (8 → 6 → 4 → 2 → 0; at **0** the Necromancer can no longer freeze). A frozen
+figure **cannot move** or capture-and-move, but **can still attack** using its normal range
+and attack rules. **Freeze duration = distance used ÷ 2** (rounded down): 8 tiles = 4 turns,
+6 = 3, 4 = 2, 2 = 1. Adjacent targets (1 tile) cannot be frozen — use melee kill instead.
 A figure that is already frozen cannot be frozen again.
 - **Revive (special action):** See Section 6.10.
 - **Terrain:** Can pass lake and cave. Cannot pass river or canyon.
@@ -253,7 +254,7 @@ is empty; otherwise on the nearest empty tile.
 becomes able to attack at range 1 (it gains a melee attack as a Zombie, which it never had
 while alive).
 - **Necromancer cost:** Each revival permanently **reduces the Necromancer's freeze range by
-2** (down to the minimum of 2).
+2** (down to **0** after four revivals, disabling freeze entirely).
 - **Night mode:** While any Zombie is on the board the game is in "night mode" (a visual
 state). It carries no extra rule beyond the presence of Zombies.
 
@@ -285,9 +286,9 @@ tile (Hoplite and Bomber teleport; other cave-capable figures simply pass/rest).
 - **Bomber explosions:** A Bomber's explosive net destroys any enemy figure that steps onto
 a net tile (diagonals 1-2 away, orthogonals 2 away).
 - **Warlock swaps:** Reposition the Monarch with the Warlock or with a friendly Hoplite.
-- **Necromancer freeze:** Straight-line stun up to 8 tiles, blocked only by trees, weakened
-by 2 per revival. Stunned figures cannot move or capture-and-move but can still use normal
-ranged attacks.
+- **Necromancer freeze:** Straight-line stun up to 8 tiles, blocked only by trees; range
+drops by 2 per revival (to 0 after four). Duration = distance ÷ 2 turns. Stunned figures
+cannot move or capture-and-move but can still use normal ranged attacks.
 - **Revival / Zombie mode:** Ram-Tower, Chariot, Bomber, or Paladin can return as Zombies
 while the Necromancer, Monarch, and Duchess share the same row; Zombies attack at range 1
 and are worth fewer points.
@@ -322,7 +323,8 @@ away from an enemy Bomber.
 and Duchess to all be on the same horizontal line, plus an eligible captured figure
 (Ram-Tower, Chariot, Bomber, or Paladin).
 - **"Why is my Necromancer's freeze so short-ranged now?"** — Each revival it performs
-reduces its freeze range by 2 (minimum 2 tiles).
+reduces its maximum freeze range by 2 (8 → 6 → 4 → 2 → 0). After four revivals it cannot
+freeze at all.
 - **"Can ranged figures shoot past my own pieces?"** — Yes. All ranged attacks shoot through
 friendly figures but can capture only the **first enemy** in each line. Obstacle blocking
 still depends on the figure (e.g. trees block the Duchess).

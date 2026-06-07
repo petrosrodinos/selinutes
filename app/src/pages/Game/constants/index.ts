@@ -84,6 +84,7 @@ export const PIECE_RULES: Record<string, PieceRules> = {
   [PieceTypes.NECROMANCER]: {
     move: [[1, 0], [0, 1], [1, 1]],
     attackRange: 1,
+    freezeRange: 8,
     canPass: [ObstacleTypes.CAVE, ObstacleTypes.LAKE, ObstacleTypes.MYSTERY_BOX],
     canChooseAttackMode: false,
     points: 13
@@ -218,7 +219,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   [PieceTypes.NECROMANCER]: [
     'Moves 1 step in any direction.',
     'Melee attack: kills an adjacent enemy 1 step away in any direction.',
-    'Freeze-stun: stuns an enemy in a straight line up to 8 steps away; only trees block it. Stunned figures cannot move or capture-and-move, but can still use their normal ranged attacks. The range drops by 2 for every revival performed (minimum 2), and longer-distance freezes last more turns.',
+    'Freeze-stun: stuns an enemy in a straight line up to 8 steps away; only trees block it. Stunned figures cannot move or capture-and-move, but can still use their normal ranged attacks. Freeze duration equals half the distance used (e.g. 8 steps away = 4 turns, 6 = 3, 4 = 2, 2 = 1). Maximum freeze range drops by 2 for every revival performed; after 4 revivals the Necromancer can no longer freeze.',
     'Can revive Ram, Chariot, Bomber, or Paladin when the Necromancer, Monarch, and Duchess are on the same horizontal line.',
     'Revived figures attack at range 1 only; a revived Bomber can still attack as a Zombie.',
     'Can pass through lake and cave.',

@@ -497,10 +497,14 @@ export const canUseCaptureAttackMode = (piece: Piece): boolean => {
   return Boolean(PIECE_RULES[piece.type].canChooseAttackMode)
 }
 
-const getNecromancerFreezeRange = (piece: Piece): number => {
-  const reviveCount = piece.reviveCount ?? 0
-  return Math.max(2, 8 - reviveCount * 2)
-}
+const getNecromancerBaseFreezeRange = (): number =>
+  PIECE_RULES[PieceTypes.NECROMANCER].freezeRange ?? 8
+
+const getNecromancerFreezeRange = (piece: Piece): number =>
+  getAdjustedAttackRange(piece, getNecromancerBaseFreezeRange())
+
+const getNecromancerFreezeDuration = (distance: number): number =>
+  Math.floor(distance / 2)
 
 export const getNecromancerKillTargets = (board: Board, pos: Position, boardSize: BoardSize): Position[] => {
   const cell = board[pos.row][pos.col]
@@ -552,6 +556,8 @@ export const getNecromancerFreezeTargets = (board: Board, pos: Position, boardSi
   if (!cell || !isPiece(cell) || cell.type !== PieceTypes.NECROMANCER || isPieceFrozen(cell)) return []
 
   const freezeRange = getNecromancerFreezeRange(cell)
+  if (freezeRange <= 0) return []
+
   const targets: Position[] = []
 
   for (let row = 0; row < boardSize.rows; row++) {
@@ -561,6 +567,8 @@ export const getNecromancerFreezeTargets = (board: Board, pos: Position, boardSi
       if (!targetCell || !isPiece(targetCell)) continue
       if (targetCell.color === cell.color) continue
       if ((targetCell.frozenTurns ?? 0) > 0) continue
+      const distance = Math.max(Math.abs(row - pos.row), Math.abs(col - pos.col))
+      if (getNecromancerFreezeDuration(distance) < 1) continue
       if (!isInAttackRange(pos, { row, col }, freezeRange)) continue
       if (!isFreezePathClear(board, pos, { row, col }, boardSize)) continue
       targets.push({ row, col })
@@ -1233,7 +1241,10 @@ export const applyNecromancerFreeze = (
   }
 
   const usedRange = Math.max(Math.abs(to.row - from.row), Math.abs(to.col - from.col))
-  const freezeTurns = Math.max(1, Math.floor(usedRange / 2))
+  const freezeTurns = getNecromancerFreezeDuration(usedRange)
+  if (freezeTurns < 1) {
+    throw new Error('Target is too close for freeze')
+  }
   const updatedTarget: Piece = { ...targetCell, frozenTurns: freezeTurns }
   newBoard[to.row][to.col] = updatedTarget
 

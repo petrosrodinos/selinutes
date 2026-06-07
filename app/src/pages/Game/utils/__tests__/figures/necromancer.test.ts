@@ -132,10 +132,31 @@ describe('Necromancer', () => {
     expect(targets).not.toContainEqual(pos(6, 5))
   })
 
-  it('applyNecromancerFreeze sets frozenTurns scaled by distance', () => {
+  it('cannot freeze after four revivals', () => {
     const board = createEmptyBoard()
-    const from = pos(9, 5)
-    const to = pos(5, 5)
+    const start = pos(9, 5)
+    placePiece(board, start, { type: PieceTypes.NECROMANCER, color: 'white', reviveCount: 4 })
+    placePiece(board, pos(8, 5), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    expect(getNecromancerFreezeTargets(board, start, DEFAULT_SIZE)).toHaveLength(0)
+  })
+
+  it('does not freeze adjacent enemies', () => {
+    const board = createEmptyBoard()
+    const start = pos(9, 5)
+    placePiece(board, start, { type: PieceTypes.NECROMANCER, color: 'white' })
+    placePiece(board, pos(8, 5), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    expect(getNecromancerFreezeTargets(board, start, DEFAULT_SIZE)).not.toContainEqual(pos(8, 5))
+  })
+
+  it.each([
+    { from: pos(9, 5), to: pos(1, 5), expectedTurns: 4 },
+    { from: pos(9, 5), to: pos(3, 5), expectedTurns: 3 },
+    { from: pos(9, 5), to: pos(5, 5), expectedTurns: 2 },
+    { from: pos(9, 5), to: pos(7, 5), expectedTurns: 1 }
+  ])('applyNecromancerFreeze sets frozenTurns to distance divided by 2 ($expectedTurns turns)', ({ from, to, expectedTurns }) => {
+    const board = createEmptyBoard()
     placePiece(board, from, { type: PieceTypes.NECROMANCER, color: 'white' })
     placePiece(board, to, { type: PieceTypes.HOPLITE, color: 'black' })
 
@@ -143,8 +164,8 @@ describe('Necromancer', () => {
     const target = newBoard[to.row][to.col]
 
     expect(move.isFreeze).toBe(true)
-    expect(move.freezeTurns).toBe(2)
-    expect(isPiece(target) && target.frozenTurns).toBe(2)
+    expect(move.freezeTurns).toBe(expectedTurns)
+    expect(isPiece(target) && target.frozenTurns).toBe(expectedTurns)
   })
 
   it('a frozen piece cannot move but can still range attack', () => {
