@@ -1,4 +1,4 @@
-import type { BoardSize, Move, Position } from '../types'
+import type { BoardSize, GameLogEntry, Move, Position } from '../types'
 import { generateFiles, PIECE_NAMES } from '../constants'
 
 export const formatBoardSquare = (position: Position, boardSize: BoardSize): string => {
@@ -25,4 +25,12 @@ export const formatMoveDescription = (move: Move, boardSize: BoardSize): string 
   const pieceLabel = PIECE_NAMES[move.piece.type]
   const action = formatMoveAction(move)
   return `${pieceLabel} · ${from} → ${to} · ${action}`
+}
+
+export const buildGameLogs = (moveHistory: Move[], boardSize: BoardSize): GameLogEntry[] => {
+  return moveHistory.map((move, index) => ({
+    turn: index + 1,
+    player: move.piece.color,
+    description: formatMoveDescription(move, boardSize),
+  }))
 }

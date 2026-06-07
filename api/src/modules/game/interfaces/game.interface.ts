@@ -18,10 +18,17 @@ export interface Player {
     points?: number
 }
 
+export interface GameLogEntry {
+    turn: number
+    player: PlayerColor
+    description: string
+}
+
 export interface GameBoardState {
     board: unknown[][]
     currentPlayer: PlayerColor
     moveHistory: unknown[]
+    gameLogs?: GameLogEntry[]
     capturedPieces: { white: unknown[]; black: unknown[] }
     whitePoints?: number
     blackPoints?: number
@@ -29,6 +36,7 @@ export interface GameBoardState {
     gameOver: boolean
     winner: PlayerColor | null
     nightMode?: boolean
+    narcs?: unknown[]
 }
 
 export interface GameSession {

@@ -3546,6 +3546,7 @@ export namespace Prisma {
     time: number
     moves: number
     points: number
+    logs: number
     created_at: number
     finished_at: number
     _all: number
@@ -3607,6 +3608,7 @@ export namespace Prisma {
     time?: true
     moves?: true
     points?: true
+    logs?: true
     created_at?: true
     finished_at?: true
     _all?: true
@@ -3709,6 +3711,7 @@ export namespace Prisma {
     time: number | null
     moves: number
     points: number
+    logs: JsonValue | null
     created_at: Date
     finished_at: Date | null
     _count: GameCountAggregateOutputType | null
@@ -3743,6 +3746,7 @@ export namespace Prisma {
     time?: boolean
     moves?: boolean
     points?: boolean
+    logs?: boolean
     created_at?: boolean
     finished_at?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -3759,6 +3763,7 @@ export namespace Prisma {
     time?: boolean
     moves?: boolean
     points?: boolean
+    logs?: boolean
     created_at?: boolean
     finished_at?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -3775,6 +3780,7 @@ export namespace Prisma {
     time?: boolean
     moves?: boolean
     points?: boolean
+    logs?: boolean
     created_at?: boolean
     finished_at?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -3791,11 +3797,12 @@ export namespace Prisma {
     time?: boolean
     moves?: boolean
     points?: boolean
+    logs?: boolean
     created_at?: boolean
     finished_at?: boolean
   }
 
-  export type GameOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "user_uuid" | "code" | "board_size" | "mode" | "status" | "time" | "moves" | "points" | "created_at" | "finished_at", ExtArgs["result"]["game"]>
+  export type GameOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "user_uuid" | "code" | "board_size" | "mode" | "status" | "time" | "moves" | "points" | "logs" | "created_at" | "finished_at", ExtArgs["result"]["game"]>
   export type GameInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -3822,6 +3829,7 @@ export namespace Prisma {
       time: number | null
       moves: number
       points: number
+      logs: Prisma.JsonValue | null
       created_at: Date
       finished_at: Date | null
     }, ExtArgs["result"]["game"]>
@@ -4258,6 +4266,7 @@ export namespace Prisma {
     readonly time: FieldRef<"Game", 'Int'>
     readonly moves: FieldRef<"Game", 'Int'>
     readonly points: FieldRef<"Game", 'Int'>
+    readonly logs: FieldRef<"Game", 'Json'>
     readonly created_at: FieldRef<"Game", 'DateTime'>
     readonly finished_at: FieldRef<"Game", 'DateTime'>
   }
@@ -4730,6 +4739,7 @@ export namespace Prisma {
     time: 'time',
     moves: 'moves',
     points: 'points',
+    logs: 'logs',
     created_at: 'created_at',
     finished_at: 'finished_at'
   };
@@ -4743,6 +4753,14 @@ export namespace Prisma {
   };
 
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
   export const QueryMode: {
@@ -4759,6 +4777,15 @@ export namespace Prisma {
   };
 
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
   /**
@@ -4847,6 +4874,20 @@ export namespace Prisma {
    * Reference to a field of type 'GameStatus[]'
    */
   export type ListEnumGameStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GameStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -5043,6 +5084,7 @@ export namespace Prisma {
     time?: IntNullableFilter<"Game"> | number | null
     moves?: IntFilter<"Game"> | number
     points?: IntFilter<"Game"> | number
+    logs?: JsonNullableFilter<"Game">
     created_at?: DateTimeFilter<"Game"> | Date | string
     finished_at?: DateTimeNullableFilter<"Game"> | Date | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -5059,6 +5101,7 @@ export namespace Prisma {
     time?: SortOrderInput | SortOrder
     moves?: SortOrder
     points?: SortOrder
+    logs?: SortOrderInput | SortOrder
     created_at?: SortOrder
     finished_at?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
@@ -5078,6 +5121,7 @@ export namespace Prisma {
     time?: IntNullableFilter<"Game"> | number | null
     moves?: IntFilter<"Game"> | number
     points?: IntFilter<"Game"> | number
+    logs?: JsonNullableFilter<"Game">
     created_at?: DateTimeFilter<"Game"> | Date | string
     finished_at?: DateTimeNullableFilter<"Game"> | Date | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -5094,6 +5138,7 @@ export namespace Prisma {
     time?: SortOrderInput | SortOrder
     moves?: SortOrder
     points?: SortOrder
+    logs?: SortOrderInput | SortOrder
     created_at?: SortOrder
     finished_at?: SortOrderInput | SortOrder
     _count?: GameCountOrderByAggregateInput
@@ -5117,6 +5162,7 @@ export namespace Prisma {
     time?: IntNullableWithAggregatesFilter<"Game"> | number | null
     moves?: IntWithAggregatesFilter<"Game"> | number
     points?: IntWithAggregatesFilter<"Game"> | number
+    logs?: JsonNullableWithAggregatesFilter<"Game">
     created_at?: DateTimeWithAggregatesFilter<"Game"> | Date | string
     finished_at?: DateTimeNullableWithAggregatesFilter<"Game"> | Date | string | null
   }
@@ -5306,6 +5352,7 @@ export namespace Prisma {
     time?: number | null
     moves?: number
     points?: number
+    logs?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     finished_at?: Date | string | null
     user: UserCreateNestedOneWithoutGamesInput
@@ -5322,6 +5369,7 @@ export namespace Prisma {
     time?: number | null
     moves?: number
     points?: number
+    logs?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     finished_at?: Date | string | null
   }
@@ -5335,6 +5383,7 @@ export namespace Prisma {
     time?: NullableIntFieldUpdateOperationsInput | number | null
     moves?: IntFieldUpdateOperationsInput | number
     points?: IntFieldUpdateOperationsInput | number
+    logs?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     finished_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     user?: UserUpdateOneRequiredWithoutGamesNestedInput
@@ -5351,6 +5400,7 @@ export namespace Prisma {
     time?: NullableIntFieldUpdateOperationsInput | number | null
     moves?: IntFieldUpdateOperationsInput | number
     points?: IntFieldUpdateOperationsInput | number
+    logs?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     finished_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -5366,6 +5416,7 @@ export namespace Prisma {
     time?: number | null
     moves?: number
     points?: number
+    logs?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     finished_at?: Date | string | null
   }
@@ -5379,6 +5430,7 @@ export namespace Prisma {
     time?: NullableIntFieldUpdateOperationsInput | number | null
     moves?: IntFieldUpdateOperationsInput | number
     points?: IntFieldUpdateOperationsInput | number
+    logs?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     finished_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -5394,6 +5446,7 @@ export namespace Prisma {
     time?: NullableIntFieldUpdateOperationsInput | number | null
     moves?: IntFieldUpdateOperationsInput | number
     points?: IntFieldUpdateOperationsInput | number
+    logs?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     finished_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -5692,6 +5745,29 @@ export namespace Prisma {
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type GameCountOrderByAggregateInput = {
     id?: SortOrder
@@ -5704,6 +5780,7 @@ export namespace Prisma {
     time?: SortOrder
     moves?: SortOrder
     points?: SortOrder
+    logs?: SortOrder
     created_at?: SortOrder
     finished_at?: SortOrder
   }
@@ -5804,6 +5881,32 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type UserStatsCreateNestedOneWithoutUserInput = {
@@ -6190,6 +6293,29 @@ export namespace Prisma {
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type UserStatsCreateWithoutUserInput = {
     rank?: number
@@ -6228,6 +6354,7 @@ export namespace Prisma {
     time?: number | null
     moves?: number
     points?: number
+    logs?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     finished_at?: Date | string | null
   }
@@ -6242,6 +6369,7 @@ export namespace Prisma {
     time?: number | null
     moves?: number
     points?: number
+    logs?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     finished_at?: Date | string | null
   }
@@ -6320,6 +6448,7 @@ export namespace Prisma {
     time?: IntNullableFilter<"Game"> | number | null
     moves?: IntFilter<"Game"> | number
     points?: IntFilter<"Game"> | number
+    logs?: JsonNullableFilter<"Game">
     created_at?: DateTimeFilter<"Game"> | Date | string
     finished_at?: DateTimeNullableFilter<"Game"> | Date | string | null
   }
@@ -6466,6 +6595,7 @@ export namespace Prisma {
     time?: number | null
     moves?: number
     points?: number
+    logs?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     finished_at?: Date | string | null
   }
@@ -6479,6 +6609,7 @@ export namespace Prisma {
     time?: NullableIntFieldUpdateOperationsInput | number | null
     moves?: IntFieldUpdateOperationsInput | number
     points?: IntFieldUpdateOperationsInput | number
+    logs?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     finished_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -6493,6 +6624,7 @@ export namespace Prisma {
     time?: NullableIntFieldUpdateOperationsInput | number | null
     moves?: IntFieldUpdateOperationsInput | number
     points?: IntFieldUpdateOperationsInput | number
+    logs?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     finished_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -6507,6 +6639,7 @@ export namespace Prisma {
     time?: NullableIntFieldUpdateOperationsInput | number | null
     moves?: IntFieldUpdateOperationsInput | number
     points?: IntFieldUpdateOperationsInput | number
+    logs?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     finished_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }

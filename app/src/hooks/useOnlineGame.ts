@@ -12,6 +12,7 @@ import { getMoveSound, isValidSoundEvent } from '../utils/sound.utils'
 import type { GameSession } from '../features/game/interfaces'
 import type { Position, Piece, GameState } from '../pages/Game/types'
 import { PIECE_NAMES, PIECE_RULES, PIECE_SYMBOLS } from '../pages/Game/constants'
+import { buildGameLogs } from '../pages/Game/utils/moveFormat.utils'
 import { useFinishGame } from '../features/game/hooks'
 
 interface MysteryBoxTriggeredPayload {
@@ -60,6 +61,7 @@ const buildSyncGameState = (currentGameState: GameState) => {
         board: currentGameState.board,
         currentPlayer: currentGameState.currentPlayer,
         moveHistory: currentGameState.moveHistory,
+        gameLogs: buildGameLogs(currentGameState.moveHistory, currentGameState.boardSize),
         capturedPieces: currentGameState.capturedPieces,
         lastMove: currentGameState.lastMove,
         gameOver: currentGameState.gameOver,

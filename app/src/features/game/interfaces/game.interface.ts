@@ -1,4 +1,4 @@
-import type { Board, Piece, Move, PlayerColor, Narc } from '../../../pages/Game/types'
+import type { Board, Piece, Move, PlayerColor, Narc, GameLogEntry } from '../../../pages/Game/types'
 
 export const PlayerColors = {
     WHITE: 'white',
@@ -46,6 +46,7 @@ export interface GameBoardState {
     board: Board
     currentPlayer: PlayerColor
     moveHistory: Move[]
+    gameLogs?: GameLogEntry[]
     capturedPieces: { white: Piece[]; black: Piece[] }
     whitePoints?: number
     blackPoints?: number
@@ -130,6 +131,7 @@ export interface GameRecord {
     time: number | null
     moves: number
     points: number
+    logs: GameLogEntry[] | null
     created_at: string
     finished_at: string | null
     opponent?: OpponentRecord | null

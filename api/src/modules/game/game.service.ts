@@ -211,13 +211,15 @@ export class GameService {
                 board: gameState?.board,
                 currentPlayer: gameState?.currentPlayer,
                 moveHistory: gameState?.moveHistory,
+                gameLogs: gameState?.gameLogs,
                 capturedPieces: gameState?.capturedPieces,
                 whitePoints,
                 blackPoints,
                 lastMove: gameState?.lastMove,
                 gameOver: isGameOver,
                 winner: gameState?.winner,
-                nightMode: gameState?.nightMode ?? false
+                nightMode: gameState?.nightMode ?? false,
+                narcs: gameState?.narcs
             },
             status: isGameOver ? GameStatuses.FINISHED : gameSession.status
         }
@@ -350,6 +352,7 @@ export class GameService {
                 const { code, boardSizeKey, players, createdAt, gameState } = gameSession
                 const winner = gameState?.winner ?? null
                 const moves = gameState?.moveHistory?.length ?? 0
+                const logs = gameState?.gameLogs?.length ? gameState.gameLogs : undefined
                 const finishedAt = new Date()
                 const timeInSeconds = Math.floor((finishedAt.getTime() - new Date(createdAt).getTime()) / 1000)
                 const whitePoints = gameState?.whitePoints ?? 0
@@ -407,6 +410,7 @@ export class GameService {
                             time: timeInSeconds,
                             moves,
                             points,
+                            logs: logs ? (logs as unknown as Prisma.InputJsonValue) : undefined,
                             finished_at: finishedAt,
                         }
                     })

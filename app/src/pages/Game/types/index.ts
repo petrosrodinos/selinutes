@@ -126,6 +126,12 @@ export interface Move {
   promotedTo?: PieceType
 }
 
+export interface GameLogEntry {
+  turn: number
+  player: PlayerColor
+  description: string
+}
+
 export interface SwapTarget {
   position: Position
   swapType: 'warlock-monarch' | 'hoplite-monarch'

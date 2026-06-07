@@ -59,6 +59,7 @@ model Game {
   time       Int?
   moves      Int      @default(0)
   points     Int      @default(0)
+  logs       Json?
   created_at  DateTime  @default(now())
   finished_at DateTime?
   user        User      @relation(fields: [user_uuid], references: [uuid], onDelete: Cascade)
