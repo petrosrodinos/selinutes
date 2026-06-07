@@ -7,6 +7,7 @@ import { useGameStore } from "../../../../store/gameStore";
 import { getNecromancerKillTargets, getNecromancerFreezeTargets } from "../../utils";
 import { getPiece2DAssetUrl } from "../../utils/figureAssets.utils";
 import { POINTS_LABEL } from "../../../../constants/game";
+import { MovementLogButton } from "../MovementLogModal";
 
 const PIECE_ORDER = [PieceTypes.MONARCH, PieceTypes.DUCHESS, PieceTypes.RAM_TOWER, PieceTypes.CHARIOT, PieceTypes.PALADIN, PieceTypes.NECROMANCER, PieceTypes.WARLOCK, PieceTypes.BOMBER, PieceTypes.HOPLITE] as const;
 
@@ -59,26 +60,29 @@ export const CapturedPieces = ({ onOpenZombieRevive }: { onOpenZombieRevive?: ()
 
   return (
     <div className="w-full overflow-hidden rounded-xl border border-stone-700 bg-stone-800/80 backdrop-blur">
-      <button
-        type="button"
-        onClick={() => setIsOpen((o) => !o)}
-        aria-expanded={isOpen}
-        aria-controls="captured-pieces-panel"
-        id="captured-pieces-trigger"
-        className="flex w-full touch-manipulation items-center justify-between gap-2 px-3 py-2.5 text-left transition-colors hover:bg-stone-700/35"
-      >
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <h3 className="text-sm font-medium text-amber-200">Captured pieces</h3>
-            <span className="text-xs text-stone-500">
-              {totalCount} pcs · W {wPts}
-              {POINTS_LABEL} · B {bPts}
-              {POINTS_LABEL}
-            </span>
+      <div className="flex items-center gap-2 px-3 py-2.5">
+        <button
+          type="button"
+          onClick={() => setIsOpen((o) => !o)}
+          aria-expanded={isOpen}
+          aria-controls="captured-pieces-panel"
+          id="captured-pieces-trigger"
+          className="flex min-w-0 flex-1 touch-manipulation items-center justify-between gap-2 text-left transition-colors hover:opacity-90"
+        >
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <h3 className="text-sm font-medium text-amber-200">Captured pieces</h3>
+              <span className="text-xs text-stone-500">
+                {totalCount} pcs · W {wPts}
+                {POINTS_LABEL} · B {bPts}
+                {POINTS_LABEL}
+              </span>
+            </div>
           </div>
-        </div>
-        <ChevronDown className={`h-5 w-5 shrink-0 text-stone-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} aria-hidden />
-      </button>
+          <ChevronDown className={`h-5 w-5 shrink-0 text-stone-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} aria-hidden />
+        </button>
+        <MovementLogButton />
+      </div>
 
       <div
         id="captured-pieces-panel"
@@ -248,7 +252,10 @@ export const RightSidebar = ({ onOpenZombieRevive }: RightSidebarProps) => {
         </div>
       )}
       <div className="mb-1 hidden lg:block">
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Captured</h3>
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Captured</h3>
+          <MovementLogButton />
+        </div>
         <CapturedPiecesContent capturedPieces={capturedPieces} currentPlayer={reviveSectionColor} onOpenZombieRevive={onOpenZombieRevive} />
       </div>
     </div>
