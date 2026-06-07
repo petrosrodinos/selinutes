@@ -222,7 +222,7 @@ tiles — the **diagonals 1 and 2 tiles away** and the **orthogonal tiles 2 away
 enemy figure that moves onto a net tile is destroyed** (the moving figure dies). The net
 belongs to the Bomber's owner and never harms its own side. Capturing the Bomber clears
 its net.
-- **Terrain:** Can pass river and cave (teleporting). Cannot pass lake or canyon.
+- **Terrain:** Can pass river and cave (teleporting). Cannot pass lake, canyon, tree, or rock.
 
 ### 6.5 Paladin — 15 pts (Zombie 12)
 

@@ -233,7 +233,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
     'Cannot attack or shoot directly.',
     'After it moves, it lays a hidden net of explosives on nearby tiles (diagonals 1–2 away and orthogonals 2 away). Any enemy figure that steps onto a net tile is destroyed.',
     'Can pass through river and cave.',
-    'Cannot pass through lake or canyon.'
+    'Cannot pass through lake, canyon, tree, or rock.'
   ],
   [PieceTypes.PALADIN]: [
     'Moves diagonal as many steps as possible.',

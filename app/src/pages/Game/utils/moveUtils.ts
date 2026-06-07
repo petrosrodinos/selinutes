@@ -87,9 +87,49 @@ const isPathClear = (
   const maxRiver = getMaxRiverWidth(piece.type)
 
   if (rules.canJumpPieces) {
-    const targetObstacle = getObstacleType(board, to.row, to.col)
-    if (targetObstacle && !canLandOnObstacle(piece.type, targetObstacle)) {
-      return false
+    const dRow = to.row - from.row
+    const dCol = to.col - from.col
+    const isStraightPath =
+      dRow === 0 || dCol === 0 || Math.abs(dRow) === Math.abs(dCol)
+
+    if (isStraightPath) {
+      const rowDir = dRow === 0 ? 0 : (dRow > 0 ? 1 : -1)
+      const colDir = dCol === 0 ? 0 : (dCol > 0 ? 1 : -1)
+
+      let row = from.row + rowDir
+      let col = from.col + colDir
+      let riverRun = 0
+
+      while (row !== to.row || col !== to.col) {
+        if (!isInBounds(row, col, boardSize)) return false
+
+        const cell = board[row][col]
+        if (cell) {
+          if (isObstacle(cell)) {
+            if (cell.type === ObstacleTypes.MYSTERY_BOX) {
+              if (!canPassObstacle(piece.type, ObstacleTypes.MYSTERY_BOX)) return false
+            } else if (!canPassObstacle(piece.type, cell.type)) {
+              return false
+            }
+            if (cell.type === ObstacleTypes.RIVER) {
+              if (riverRun >= maxRiver) return false
+              riverRun++
+            } else {
+              riverRun = 0
+            }
+          }
+        } else {
+          riverRun = 0
+        }
+
+        row += rowDir
+        col += colDir
+      }
+    }
+
+    const targetCell = board[to.row][to.col]
+    if (targetCell && isObstacle(targetCell)) {
+      if (!canLandOnObstacle(piece.type, targetCell.type)) return false
     }
     return true
   }

@@ -77,6 +77,33 @@ describe('Bomber', () => {
     expect(moves).not.toContainEqual(pos(6, 7))
   })
 
+  it.each([
+    ObstacleTypes.LAKE,
+    ObstacleTypes.CANYON,
+    ObstacleTypes.TREE,
+    ObstacleTypes.ROCK
+  ])('cannot jump over %s on its path', (obstacle) => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.BOMBER, color: 'white' })
+    placeObstacle(board, pos(6, 6), obstacle)
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+
+    expect(moves).not.toContainEqual(pos(6, 7))
+  })
+
+  it('still jumps over pieces on its path', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.BOMBER, color: 'white' })
+    placePiece(board, pos(6, 6), { type: PieceTypes.HOPLITE, color: 'white' })
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+
+    expect(moves).toContainEqual(pos(6, 7))
+  })
+
   it.each(BOTH_COLORS)('has no direct attacks (attackRange 0) (%s)', (color: PlayerColor) => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
