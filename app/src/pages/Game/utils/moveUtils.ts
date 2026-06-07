@@ -561,8 +561,8 @@ const getNecromancerBaseFreezeRange = (): number =>
 const getNecromancerFreezeRange = (piece: Piece): number =>
   getAdjustedAttackRange(piece, getNecromancerBaseFreezeRange())
 
-const getNecromancerFreezeDuration = (distance: number): number =>
-  Math.floor(distance / 2)
+const getNecromancerFreezeDuration = (piece: Piece): number =>
+  Math.floor(getNecromancerFreezeRange(piece) / 2)
 
 export const getNecromancerKillTargets = (board: Board, pos: Position, boardSize: BoardSize): Position[] => {
   const cell = board[pos.row][pos.col]
@@ -626,7 +626,8 @@ export const getNecromancerFreezeTargets = (board: Board, pos: Position, boardSi
       if (targetCell.color === cell.color) continue
       if ((targetCell.frozenTurns ?? 0) > 0) continue
       const distance = Math.max(Math.abs(row - pos.row), Math.abs(col - pos.col))
-      if (getNecromancerFreezeDuration(distance) < 1) continue
+      if (distance < 2) continue
+      if (getNecromancerFreezeDuration(cell) < 1) continue
       if (!isInAttackRange(pos, { row, col }, freezeRange)) continue
       if (!isFreezePathClear(board, pos, { row, col }, boardSize)) continue
       targets.push({ row, col })
@@ -1333,10 +1334,9 @@ export const applyNecromancerFreeze = (
     throw new Error('Target is outside freeze range or line of sight')
   }
 
-  const usedRange = Math.max(Math.abs(to.row - from.row), Math.abs(to.col - from.col))
-  const freezeTurns = getNecromancerFreezeDuration(usedRange)
+  const freezeTurns = getNecromancerFreezeDuration(casterCell)
   if (freezeTurns < 1) {
-    throw new Error('Target is too close for freeze')
+    throw new Error('Necromancer cannot freeze')
   }
   const updatedTarget: Piece = { ...targetCell, frozenTurns: freezeTurns }
   newBoard[to.row][to.col] = updatedTarget

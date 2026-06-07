@@ -271,9 +271,11 @@ and canyon do not (see Section 3.4). Figures do not block the freeze. The maximu
 range **drops by 2 for each revival the Necromancer has performed** (8 → 6 → 4 → 2 → 0; at
 **0** the Necromancer can no longer freeze). A frozen figure **cannot move** or
 capture-and-move, but **can still attack** using its normal range and attack rules. **Freeze
-duration = distance used ÷ 2** (rounded down): 8 tiles = 4 turns, 6 = 3, 4 = 2, 2 = 1.
-Adjacent targets (1 tile) cannot be frozen — use melee kill instead. A figure that is
-already frozen cannot be frozen again.
+duration = maximum freeze range ÷ 2** (rounded down): at full power (range 8) every freeze
+lasts **4 turns** regardless of how far away the target is. Each revival reduces maximum
+freeze range by 2, which also lowers duration (6 → 3 turns, 4 → 2, 2 → 1). Adjacent targets
+(1 tile) cannot be frozen — use melee kill instead. A figure that is already frozen cannot
+be frozen again.
 - **Revive (special action):** See Section 6.10.
 - **Terrain:** Can pass lake and cave. Cannot pass river or canyon.
 
@@ -291,8 +293,9 @@ is empty; otherwise on the nearest empty tile.
 - **Zombie attack penalty:** Revived figures attack at **range 1 only**. A revived Bomber
 becomes able to attack at range 1 (it gains a melee attack as a Zombie, which it never had
 while alive).
-- **Necromancer cost:** Each revival permanently **reduces the Necromancer's freeze range by
-2** (down to **0** after four revivals, disabling freeze entirely).
+- **Necromancer cost:** Each revival permanently **reduces the Necromancer's maximum freeze
+range by 2** (8 → 6 → 4 → 2 → 0) and **lowers freeze duration by 1 turn** (4 → 3 → 2 → 1).
+After four revivals freeze is disabled entirely.
 - **Night mode:** While any Zombie is on the board the game is in "night mode" (a visual
 state). It carries no extra rule beyond the presence of Zombies.
 
@@ -327,9 +330,9 @@ a net tile (diagonals 1-2 away, orthogonals 2 away).
 - **Hoplite promotion:** A Hoplite that reaches the opponent's back rank becomes a Duchess
 (only 3 promotions allowed in the entire game).
 - **Necromancer freeze:** Straight-line stun up to 8 tiles; rock blocks it, but tree, cave,
-river, lake, and canyon do not; range drops by 2 per revival (to 0 after four). Duration =
-distance ÷ 2 turns. Stunned figures cannot move or capture-and-move but can still use normal
-ranged attacks.
+river, lake, and canyon do not; maximum range and duration both drop with each revival (range
+8 / duration 4 at start → 0 after four revivals). Stunned figures cannot move or
+capture-and-move but can still use normal ranged attacks.
 - **Revival / Zombie mode:** Ram-Tower, Chariot, Bomber, or Paladin can return as Zombies
 while the Necromancer, Monarch, and Duchess share the same row; Zombies attack at range 1
 and are worth fewer points.
@@ -364,9 +367,9 @@ away from an enemy Bomber.
 - **"Why can't my Necromancer revive anyone?"** — Revival requires your Necromancer, Monarch,
 and Duchess to all be on the same horizontal line, plus an eligible captured figure
 (Ram-Tower, Chariot, Bomber, or Paladin).
-- **"Why is my Necromancer's freeze so short-ranged now?"** — Each revival it performs
-reduces its maximum freeze range by 2 (8 → 6 → 4 → 2 → 0). After four revivals it cannot
-freeze at all.
+- **"Why is my Necromancer's freeze weaker now?"** — Each revival it performs reduces its
+maximum freeze range by 2 (8 → 6 → 4 → 2 → 0) and shortens freeze duration by 1 turn (4 → 3
+→ 2 → 1). After four revivals it cannot freeze at all.
 - **"Can ranged figures shoot past my own pieces?"** — Yes. All ranged attacks shoot through
 friendly figures but can capture only the **first enemy** in each line. Obstacle blocking
 still depends on the figure (e.g. trees block the Duchess).

@@ -169,13 +169,14 @@ describe('Necromancer', () => {
   })
 
   it.each([
-    { from: pos(9, 5), to: pos(1, 5), expectedTurns: 4 },
-    { from: pos(9, 5), to: pos(3, 5), expectedTurns: 3 },
-    { from: pos(9, 5), to: pos(5, 5), expectedTurns: 2 },
-    { from: pos(9, 5), to: pos(7, 5), expectedTurns: 1 }
-  ])('applyNecromancerFreeze sets frozenTurns to distance divided by 2 ($expectedTurns turns)', ({ from, to, expectedTurns }) => {
+    { reviveCount: 0, to: pos(1, 5), expectedTurns: 4 },
+    { reviveCount: 1, to: pos(3, 5), expectedTurns: 3 },
+    { reviveCount: 2, to: pos(5, 5), expectedTurns: 2 },
+    { reviveCount: 3, to: pos(7, 5), expectedTurns: 1 }
+  ])('applyNecromancerFreeze sets frozenTurns from max freeze range divided by 2 ($expectedTurns turns after $reviveCount revivals)', ({ reviveCount, to, expectedTurns }) => {
+    const from = pos(9, 5)
     const board = createEmptyBoard()
-    placePiece(board, from, { type: PieceTypes.NECROMANCER, color: 'white' })
+    placePiece(board, from, { type: PieceTypes.NECROMANCER, color: 'white', reviveCount })
     placePiece(board, to, { type: PieceTypes.HOPLITE, color: 'black' })
 
     const { newBoard, move } = applyNecromancerFreeze(board, from, to, DEFAULT_SIZE)
@@ -184,6 +185,20 @@ describe('Necromancer', () => {
     expect(move.isFreeze).toBe(true)
     expect(move.freezeTurns).toBe(expectedTurns)
     expect(isPiece(target) && target.frozenTurns).toBe(expectedTurns)
+  })
+
+  it('freeze duration is the same regardless of target distance', () => {
+    const from = pos(9, 5)
+    const board = createEmptyBoard()
+    placePiece(board, from, { type: PieceTypes.NECROMANCER, color: 'white', reviveCount: 0 })
+    placePiece(board, pos(1, 5), { type: PieceTypes.HOPLITE, color: 'black' })
+    placePiece(board, pos(7, 5), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const farFreeze = applyNecromancerFreeze(board, from, pos(1, 5), DEFAULT_SIZE)
+    const nearFreeze = applyNecromancerFreeze(board, from, pos(7, 5), DEFAULT_SIZE)
+
+    expect(farFreeze.move.freezeTurns).toBe(4)
+    expect(nearFreeze.move.freezeTurns).toBe(4)
   })
 
   it('a frozen piece cannot move but can still range attack', () => {
