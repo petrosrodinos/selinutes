@@ -1,4 +1,5 @@
 import { LogOut, Settings } from "lucide-react";
+import { RulesNavIcon } from "../../../../components/RulesNavIcon";
 import { PlayerColors } from "../../types";
 import { useGameStore } from "../../../../store/gameStore";
 import { useUIStore } from "../../../../store/uiStore";
@@ -7,9 +8,8 @@ import { GameModes } from "../../../../constants";
 
 interface TopMenuProps {
   onOpenSettings?: () => void;
-  /** Opens shared leave confirmation (desktop header). */
+  onOpenRules?: () => void;
   onRequestLeave?: () => void;
-  /** Shown centered on large screens in the header. */
   gameTitle?: string;
 }
 
@@ -19,7 +19,7 @@ const tapButtonBase =
 const iconGhost =
   "rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-800/90 hover:text-amber-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60";
 
-export const TopMenu = ({ onOpenSettings, onRequestLeave, gameTitle }: TopMenuProps) => {
+export const TopMenu = ({ onOpenSettings, onOpenRules, onRequestLeave, gameTitle }: TopMenuProps) => {
   const { gameState, botEnabled, botDifficulty, gameSession, getCurrentTurnPlayer, isMyTurn } = useGameStore();
 
   const { devMode, toggleDevMode, closeTopMenu } = useUIStore();
@@ -80,6 +80,11 @@ export const TopMenu = ({ onOpenSettings, onRequestLeave, gameTitle }: TopMenuPr
     onOpenSettings?.();
   };
 
+  const openRules = () => {
+    closeTopMenu();
+    onOpenRules?.();
+  };
+
   return (
     <>
       {/* Mobile & tablet — compact strip */}
@@ -101,6 +106,10 @@ export const TopMenu = ({ onOpenSettings, onRequestLeave, gameTitle }: TopMenuPr
                 </div>
               )}
             </div>
+
+            {onOpenRules ? (
+              <RulesNavIcon onClick={openRules} variant="ghost" compact />
+            ) : null}
 
             <button type="button" onClick={openSettings} className={`${tapButtonBase} h-9 min-w-9 text-amber-300/95 hover:bg-stone-800/90`} aria-label="Open settings">
               <Settings className="h-4 w-4" strokeWidth={2.25} />
@@ -157,6 +166,10 @@ export const TopMenu = ({ onOpenSettings, onRequestLeave, gameTitle }: TopMenuPr
               </button>
             </div>
           )}
+
+          {onOpenRules ? (
+            <RulesNavIcon onClick={openRules} variant="ghost" />
+          ) : null}
 
           <button type="button" onClick={openSettings} className={iconGhost} aria-label="Open settings">
             <Settings className="h-5 w-5" strokeWidth={2} />

@@ -1,14 +1,22 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
+type ModalSize = 'md' | 'xl'
+
 interface ModalProps {
   isOpen: boolean
   onClose: () => void
   title: string
   children: React.ReactNode
+  size?: ModalSize
 }
 
-export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+const modalSizeClasses: Record<ModalSize, string> = {
+  md: 'max-w-md',
+  xl: 'max-w-4xl',
+}
+
+export const Modal = ({ isOpen, onClose, title, children, size = 'md' }: ModalProps) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -28,7 +36,7 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
       onClick={onClose}
     >
       <div
-        className="bg-stone-800 rounded-xl border border-stone-700 w-full max-w-md max-h-[92vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl"
+        className={`bg-stone-800 rounded-xl border border-stone-700 w-full ${modalSizeClasses[size]} max-h-[92vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 bg-stone-800 border-b border-stone-700 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between z-10">

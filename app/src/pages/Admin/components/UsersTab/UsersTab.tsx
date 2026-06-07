@@ -2,6 +2,22 @@ import { useState } from 'react'
 import { useAdminUsersOverview, useDeleteAdminUser } from '../../../../features/stats/hooks/use-stats'
 import { ConfirmationDialog } from '../../../../components/ConfirmationDialog'
 
+const formatDate = (dateStr: string): string => {
+    return new Date(dateStr).toLocaleString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    })
+}
+
+const ROLE_BADGE_STYLES: Record<string, string> = {
+    SUPER_ADMIN: 'bg-violet-500/15 text-violet-300',
+    ADMIN: 'bg-amber-500/15 text-amber-300',
+    USER: 'bg-stone-500/15 text-stone-400',
+}
+
 export const UsersTab = () => {
     const { data: users, isLoading, isError, refetch } = useAdminUsersOverview()
     const deleteUserMutation = useDeleteAdminUser()
@@ -36,12 +52,12 @@ export const UsersTab = () => {
         <>
             <div className="overflow-hidden rounded-xl border border-stone-700 bg-stone-800/70">
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-[1120px]">
+                    <table className="w-full min-w-[1000px]">
                         <thead className="bg-stone-900/60">
                             <tr className="text-left text-xs uppercase tracking-wider text-stone-400">
                                 <th className="px-4 py-3">Username</th>
                                 <th className="px-4 py-3">Email</th>
-                                <th className="px-4 py-3">Role</th>
+                                <th className="px-4 py-3">Created At</th>
                                 <th className="px-4 py-3">Games Played</th>
                                 <th className="px-4 py-3">Points</th>
                                 <th className="px-4 py-3">Level</th>
@@ -49,16 +65,25 @@ export const UsersTab = () => {
                                 <th className="px-4 py-3">W</th>
                                 <th className="px-4 py-3">L</th>
                                 <th className="px-4 py-3">D</th>
-                                <th className="px-4 py-3">User UUID</th>
                                 <th className="px-4 py-3">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {usersList.map((user) => (
                                 <tr key={user.user_uuid} className="border-t border-stone-700/60 text-sm">
-                                    <td className="px-4 py-3 font-medium text-amber-300">{user.username}</td>
+                                    <td className="px-4 py-3">
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-medium text-amber-300">{user.username}</span>
+                                                <span className={`rounded-md px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${ROLE_BADGE_STYLES[user.role] ?? 'bg-stone-500/15 text-stone-400'}`}>
+                                                    {user.role}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs text-stone-500">{user.user_uuid}</p>
+                                        </div>
+                                    </td>
                                     <td className="px-4 py-3 text-stone-300">{user.email}</td>
-                                    <td className="px-4 py-3 text-stone-300">{user.role}</td>
+                                    <td className="px-4 py-3 text-stone-400">{formatDate(user.created_at)}</td>
                                     <td className="px-4 py-3 text-stone-200">{user.games_played}</td>
                                     <td className="px-4 py-3 text-stone-200">{user.points}</td>
                                     <td className="px-4 py-3 text-stone-200">{user.level}</td>
@@ -66,7 +91,6 @@ export const UsersTab = () => {
                                     <td className="px-4 py-3 text-emerald-300">{user.wins}</td>
                                     <td className="px-4 py-3 text-red-300">{user.losses}</td>
                                     <td className="px-4 py-3 text-amber-200">{user.draws}</td>
-                                    <td className="px-4 py-3 text-xs text-stone-500">{user.user_uuid}</td>
                                     <td className="px-4 py-3">
                                         <button
                                             type="button"

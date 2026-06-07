@@ -12,6 +12,7 @@ import { GameResultModal } from "./components/GameResultModal";
 import { MysteryBoxReviveModal } from "./components/MysteryBoxReviveModal";
 import { ZombieReviveModal } from "./components/ZombieReviveModal";
 import { Modal } from "../../components/Modal";
+import { RulesModal } from "../../components/RulesModal";
 import { useGameStore } from "../../store/gameStore";
 import { useUIStore } from "../../store/uiStore";
 import { useAuthStore } from "../../store/authStore";
@@ -67,6 +68,7 @@ export const Game = () => {
   const { mutate: saveOfflineGameResult } = useSaveOfflineGame();
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isRulesOpen, setIsRulesOpen] = useState(false);
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
   const [isZombieReviveOpen, setIsZombieReviveOpen] = useState(false);
   const [selectedZombiePiece, setSelectedZombiePiece] = useState<Piece | null>(null);
@@ -339,6 +341,7 @@ export const Game = () => {
           <TopMenu
             gameTitle={environments.APP_NAME}
             onOpenSettings={() => setIsSettingsOpen(true)}
+            onOpenRules={() => setIsRulesOpen(true)}
             onRequestLeave={() => setLeaveConfirmOpen(true)}
           />
         </header>
@@ -398,6 +401,10 @@ export const Game = () => {
               closeTopMenu();
               setIsSettingsOpen(true);
             }}
+            onOpenRules={() => {
+              closeTopMenu();
+              setIsRulesOpen(true);
+            }}
             onRequestLeave={() => {
               closeTopMenu();
               setLeaveConfirmOpen(true);
@@ -406,6 +413,8 @@ export const Game = () => {
         </Modal>
 
         <GameSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} onRequestLeave={() => setLeaveConfirmOpen(true)} />
+
+        <RulesModal isOpen={isRulesOpen} onClose={() => setIsRulesOpen(false)} />
 
         <LeaveGameConfirmModal
           isOpen={leaveConfirmOpen}
