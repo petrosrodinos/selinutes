@@ -39,8 +39,8 @@ Single source of truth for every type and constant union used in game logic.
 | `hoplite` | `[3,2]` (first/subsequent) | `1` | CAVE, MYSTERY_BOX | `canChooseAttackMode` |
 | `ramTower` | CROSS | `5` | MYSTERY_BOX | `canChooseAttackMode` |
 | `chariot` | Pattern `[[2,1],[1,2],[2,2],[3,1],[1,3]]` | `4` | RIVER, MYSTERY_BOX | `canJumpPieces`, `canChooseAttackMode` |
-| `bomber` | Pattern `[[1,0],[0,1],[1,1],[2,0],[0,2],[2,2]]` | `0` | CAVE, RIVER, CANYON, MYSTERY_BOX | `canJumpPieces` |
-| `paladin` | DIAGONAL | `3` | CAVE, RIVER, CANYON, MYSTERY_BOX | `canChooseAttackMode`, `maxRiverWidth: 1` |
+| `bomber` | Pattern `[[1,0],[0,1],[1,1],[2,0],[0,2],[2,2]]` | `0` | CAVE, RIVER, MYSTERY_BOX | `canJumpPieces` |
+| `paladin` | DIAGONAL | `3` | CAVE, RIVER, CANYON, MYSTERY_BOX | `canChooseAttackMode`, `maxRiverWidth: 1` (only figure that passes canyon) |
 | `warlock` | Pattern `[[2,0],[0,2],[2,2]]` | `1` | CAVE, LAKE, MYSTERY_BOX | `canJumpPieces` |
 | `monarch` | ANY (1 step) | `1` | MYSTERY_BOX | `canChooseAttackMode` |
 | `duchess` | ANY (unlimited) | `9` | RIVER, MYSTERY_BOX | `canChooseAttackMode`, **`shootsThroughFriendly: true`** |

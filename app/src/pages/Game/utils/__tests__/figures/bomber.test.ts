@@ -41,7 +41,7 @@ describe('Bomber', () => {
     expectExcludesPositions(moves, [pos(6, 8), pos(3, 5), pos(7, 3)])
   })
 
-  it.each([ObstacleTypes.CAVE, ObstacleTypes.RIVER, ObstacleTypes.CANYON])(
+  it.each([ObstacleTypes.CAVE, ObstacleTypes.RIVER])(
     'can land on passable %s',
     (obstacle) => {
       const board = createEmptyBoard()
@@ -54,6 +54,17 @@ describe('Bomber', () => {
       expect(moves).toContainEqual(pos(6, 7))
     }
   )
+
+  it('is blocked by canyon', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.BOMBER, color: 'white' })
+    placeObstacle(board, pos(6, 7), ObstacleTypes.CANYON)
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+
+    expect(moves).not.toContainEqual(pos(6, 7))
+  })
 
   it('is blocked by lake target', () => {
     const board = createEmptyBoard()

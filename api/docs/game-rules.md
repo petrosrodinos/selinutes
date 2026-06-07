@@ -80,31 +80,31 @@ can shoot or freeze over trees on the attack path.
 - **Rock** — Solid. No figure can move through or stop on a rock.
 - **River** — Passable by some figures. Linear obstacle, can be several tiles wide.
 - **Lake** — A clustered body of water. Passable only by a few figures.
-- **Canyon** — Linear obstacle. Passable by some figures.
+- **Canyon** — Linear obstacle. Only the **Paladin** can pass through canyons.
 - **Mystery Box** — A special interactive tile. The figure that lands on it triggers a
 Mystery Box effect (see Section 7). Any figure can land on a Mystery Box.
 
 ### 3.3 Terrain pass-through matrix
 
 "YES" means the figure can move **through** that terrain without stopping. Trees and Rocks block
-every figure. A figure that can pass any terrain in this table can also pass over a Mystery Box
-to land on a square beyond it — passing over does **not** trigger the box (see Section 7).
-Any figure may **land** on a Mystery Box tile to trigger its effect.
+every figure. **Every figure** can pass over a Mystery Box tile to reach a square beyond it —
+passing over does **not** trigger the box (see Section 7). Any figure may **land** on a Mystery
+Box tile to trigger its effect.
 The Chariot, Bomber, and Warlock can **jump over** intervening figures (and the
 Chariot/Bomber over obstacles), but they still cannot **land** on terrain marked "NO".
 
 
 | Figure                | Cave           | River            | Lake | Canyon | Tree | Rock | Mystery Box |
 | --------------------- | -------------- | ---------------- | ---- | ------ | ---- | ---- | ----------- |
-| Monarch               | NO             | NO               | NO   | NO     | NO   | NO   | NO          |
-| Duchess               | NO             | YES              | NO   | NO     | NO   | NO   | NO          |
-| Ram-Tower             | NO             | NO               | NO   | NO     | NO   | NO   | NO          |
-| Chariot               | NO             | YES              | NO   | NO     | NO   | NO   | NO          |
-| Paladin               | NO             | YES (max 1 wide) | NO   | YES    | NO   | NO   | NO          |
-| Bomber (Saboteur)     | YES (teleport) | YES (1 block)    | NO   | NO     | NO   | NO   | NO          |
-| Necromancer (Druid)   | YES            | NO               | YES  | NO     | NO   | NO   | NO          |
-| Warlock (Vezier)      | YES            | NO               | YES  | NO     | NO   | NO   | NO          |
-| Hoplite (Legionnaire) | YES (teleport) | NO               | NO   | NO     | NO   | NO   | NO          |
+| Monarch               | NO             | NO               | NO   | NO     | NO   | NO   | YES         |
+| Duchess               | NO             | YES              | NO   | NO     | NO   | NO   | YES         |
+| Ram-Tower             | NO             | NO               | NO   | NO     | NO   | NO   | YES         |
+| Chariot               | NO             | YES              | NO   | NO     | NO   | NO   | YES         |
+| Paladin               | NO             | YES (max 1 wide) | NO   | YES    | NO   | NO   | YES         |
+| Bomber (Saboteur)     | YES (teleport) | YES (1 block)    | NO   | NO     | NO   | NO   | YES         |
+| Necromancer (Druid)   | YES            | NO               | YES  | NO     | NO   | NO   | YES         |
+| Warlock (Vezier)      | YES            | NO               | YES  | NO     | NO   | NO   | YES         |
+| Hoplite (Legionnaire) | YES (teleport) | NO               | NO   | NO     | NO   | NO   | YES         |
 
 
 > **Cave teleport detail:** Only the **Hoplite** and **Bomber** actually teleport between
@@ -120,10 +120,10 @@ obstacle type on the path to the target. This is separate from movement pass-thr
 
 | Figure                            | Over Cave | Over River | Over Lake | Over Canyon | Over Tree | Over Rock | Over Mystery Box |
 | --------------------------------- | --------- | ---------- | --------- | ----------- | --------- | --------- | ---------------- |
-| Paladin                           | YES       | YES        | YES       | YES         | NO        | YES       | YES              |
-| Chariot                           | YES       | YES        | YES       | YES         | YES       | NO        | YES              |
-| Ram-Tower                         | YES       | YES        | YES       | YES         | NO        | YES       | YES              |
 | Duchess                           | YES       | YES        | YES       | YES         | NO        | YES       | YES              |
+| Ram-Tower                         | YES       | YES        | YES       | YES         | NO        | YES       | YES              |
+| Chariot                           | YES       | YES        | YES       | YES         | YES       | NO        | YES              |
+| Paladin                           | YES       | YES        | YES       | YES         | NO        | YES       | YES              |
 | Necromancer (Druid) (Stun/Freeze) | YES       | YES        | YES       | YES         | YES       | NO        | YES              |
 
 
@@ -222,7 +222,7 @@ tiles — the **diagonals 1 and 2 tiles away** and the **orthogonal tiles 2 away
 enemy figure that moves onto a net tile is destroyed** (the moving figure dies). The net
 belongs to the Bomber's owner and never harms its own side. Capturing the Bomber clears
 its net.
-- **Terrain:** Can pass river, cave (teleporting), and canyon. Cannot pass lake.
+- **Terrain:** Can pass river and cave (teleporting). Cannot pass lake or canyon.
 
 ### 6.5 Paladin — 15 pts (Zombie 12)
 
@@ -232,7 +232,7 @@ only the **first enemy** in each diagonal line can be captured. Range attacks pa
 rock, cave, river, lake, and canyon; **trees block the shot** (see Section 3.4).
 - **Move-capture:** Can also **move onto an enemy** along a clear diagonal path to capture
 it directly (any distance, not limited to the 3-tile ranged attack).
-- **Terrain:** Can pass cave, river (max **1 tile wide**), and canyon. Cannot pass lake.
+- **Terrain:** Can pass cave, river (max **1 tile wide**), and canyon — the **only** figure that can pass canyon. Cannot pass lake.
 
 ### 6.6 Warlock (Vezier) — 11 pts
 

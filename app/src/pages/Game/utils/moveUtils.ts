@@ -7,6 +7,7 @@ import { canPromoteHoplite, promoteHopliteToDuchess } from './hoplitePromotionUt
 import { getAdjustedAttackRange } from './zombieUtils'
 
 const canPassObstacle = (pieceType: PieceType, obstacleType: ObstacleType): boolean => {
+  if (obstacleType === ObstacleTypes.MYSTERY_BOX) return true
   const rules = PIECE_RULES[pieceType]
   return rules.canPass.includes(obstacleType)
 }

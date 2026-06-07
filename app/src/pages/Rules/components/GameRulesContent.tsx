@@ -246,7 +246,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Duchess</td>
@@ -256,7 +256,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Ram-Tower</td>
@@ -266,7 +266,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Chariot</td>
@@ -276,7 +276,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Paladin</td>
@@ -286,7 +286,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Saboteur / Bomber</td>
@@ -296,7 +296,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Necromancer / Druid</td>
@@ -306,7 +306,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Warlock / Vezier</td>
@@ -316,7 +316,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Legionnaire / Hoplite</td>
@@ -326,7 +326,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
                   <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
                 </tr>
               </tbody>
             </table>
@@ -349,7 +349,17 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
               </thead>
               <tbody className="text-stone-300 text-sm">
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-stone-200">Paladin</td>
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Duchess</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                </tr>
+                <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Ram-Tower</td>
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">YES</td>
@@ -369,17 +379,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4">YES</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-stone-200">Ram-Tower</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">NO</td>
-                  <td className="py-3.5 px-4">YES</td>
-                  <td className="py-3.5 px-4">YES</td>
-                </tr>
-                <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-stone-200">Duchess</td>
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Paladin</td>
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">YES</td>
                   <td className="py-3.5 px-4">YES</td>

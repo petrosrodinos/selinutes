@@ -62,7 +62,7 @@ export const PIECE_RULES: Record<string, PieceRules> = {
   [PieceTypes.BOMBER]: {
     move: [[1, 0], [0, 1], [1, 1], [2, 0], [0, 2], [2, 2]],
     attackRange: 0,
-    canPass: [ObstacleTypes.CAVE, ObstacleTypes.RIVER, ObstacleTypes.CANYON, ObstacleTypes.MYSTERY_BOX],
+    canPass: [ObstacleTypes.CAVE, ObstacleTypes.RIVER, ObstacleTypes.MYSTERY_BOX],
     canJumpPieces: true,
     canChooseAttackMode: false,
     points: 12,
@@ -232,15 +232,15 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
     'Can jump over other figures on its path.',
     'Cannot attack or shoot directly.',
     'After it moves, it lays a hidden net of explosives on nearby tiles (diagonals 1–2 away and orthogonals 2 away). Any enemy figure that steps onto a net tile is destroyed.',
-    'Can pass through river, cave, and canyon.',
-    'Cannot pass through lake.'
+    'Can pass through river and cave.',
+    'Cannot pass through lake or canyon.'
   ],
   [PieceTypes.PALADIN]: [
     'Moves diagonal as many steps as possible.',
     'Shoots up to 3 steps (diagonal); shoots through friendly figures and captures only the first enemy in each line.',
     'Range attacks pass over rock, cave, river, lake, canyon, and mystery box; trees block the shot.',
     'Can also move onto an enemy in its path to capture it directly (any diagonal distance on a clear path).',
-    'Can pass through river (1 step wide), cave, canyon.',
+    'Can pass through river (1 step wide), cave, and canyon (only figure that can pass canyon).',
     'Cannot pass through lake.'
   ],
   [PieceTypes.WARLOCK]: [
