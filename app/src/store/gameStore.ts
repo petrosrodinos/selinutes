@@ -8,6 +8,7 @@ import {
     createInitialBoard,
     getValidMoves,
     getValidAttacks,
+    isChariotValidCaptureMoveTarget,
     resolveAttackModeAction,
     canUseCaptureAttackMode,
     makeMove,
@@ -227,7 +228,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 return { moves: [], attacks: [], swaps: [] as SwapTarget[] }
             }
             const isFrozen = (selectedCell.frozenTurns ?? 0) > 0
-            const moves = isFrozen ? [] : getValidMoves(board, piecePos, boardSize)
+            let moves = isFrozen ? [] : getValidMoves(board, piecePos, boardSize)
+            if (selectedCell.type === PieceTypes.CHARIOT) {
+                moves = moves.filter(move => {
+                    const targetCell = board[move.row]?.[move.col]
+                    if (targetCell && isPiece(targetCell) && targetCell.color !== selectedCell.color) {
+                        return isChariotValidCaptureMoveTarget(board, piecePos, move, selectedCell, boardSize)
+                    }
+                    return true
+                })
+            }
             const attacks = getValidAttacks(board, piecePos, boardSize)
             const swaps: SwapTarget[] = !isFrozen && selectedCell.type === PieceTypes.WARLOCK
                 ? getValidSwapTargets(board, piecePos).map(s => ({

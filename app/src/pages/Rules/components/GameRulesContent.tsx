@@ -302,6 +302,70 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
             </table>
           </div>
 
+          <p className="text-stone-400 mb-4 mt-10">Range attacks (shoot over obstacles):</p>
+          <div className="overflow-x-auto rounded-xl border border-stone-700/60 bg-stone-900/50 mb-10">
+            <table className="w-full min-w-[640px] border-collapse">
+              <thead>
+                <tr className="border-b border-stone-700/60">
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Figure</th>
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over Rock</th>
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over Tree</th>
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over Cave</th>
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over River</th>
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over Lake</th>
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Over Canyon</th>
+                </tr>
+              </thead>
+              <tbody className="text-stone-300 text-sm">
+                <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Paladin</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                </tr>
+                <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Chariot</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                </tr>
+                <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Ram-Tower</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                </tr>
+                <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Duchess</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                </tr>
+                <tr className="hover:bg-stone-800/30 transition-colors">
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Necromancer / Druid (Stun/Freeze)</td>
+                  <td className="py-3.5 px-4">NO</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                  <td className="py-3.5 px-4">YES</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
           <div className="space-y-10">
             {RULES_FIGURE_ORDER.map((pieceType, index) => (
               <div key={pieceType} className="flex gap-4 sm:gap-6">

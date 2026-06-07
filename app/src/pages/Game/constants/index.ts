@@ -35,6 +35,8 @@ export const PIECE_RULES: Record<string, PieceRules> = {
   [PieceTypes.CHARIOT]: {
     move: [[2, 1], [1, 2], [2, 2], [3, 1], [1, 3]],
     attackRange: 3,
+    chariotRangeKillGammaBox: 4,
+    chariotCaptureMaxGammaRange: 3,
     canPass: [ObstacleTypes.RIVER, ObstacleTypes.MYSTERY_BOX],
     canJumpPieces: true,
     canChooseAttackMode: true,
@@ -179,7 +181,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   [PieceTypes.CHARIOT]: [
     'Moves in corner patterns: 2-1, 1-2, 2-2, 3-1, 1-3 steps.',
     'Can jump over other figures on its path.',
-    'Attacks: gamma-shaped (L) at 1–4 steps along the path; shoots over friendly figures and all obstacles; enemy figures block the shot. Capture-and-move only targets enemies on a clear gamma path.',
+    'Attacks: gamma-shaped (L) ranged kill only at gamma range 4 (3+1 or 1+3); shoots over friendly figures and all obstacles; enemy figures block the shot. Capture-and-move only up to gamma range 3 (2+1 or 1+2) on a clear path — not at gamma range 4.',
     'Can pass through rivers and land beyond them.',
     'Cannot pass through lake, canyon, or cave.'
   ],
@@ -194,6 +196,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   [PieceTypes.PALADIN]: [
     'Moves diagonal as many steps as possible.',
     'Shoots up to 3 steps (diagonal); shoots through friendly figures and captures only the first enemy in each line.',
+    'Can also move onto an enemy in its path to capture it directly (any diagonal distance on a clear path).',
     'Can pass through river (1 step wide), cave, canyon.',
     'Cannot pass through lake.'
   ],

@@ -42,12 +42,13 @@ Understanding how captures work prevents most "why didn't my attack work?" ticke
 removes the targeted enemy from range. The attacker does **not** move onto the enemy's
 square. This applies to Hoplite, Ram-Tower, Chariot, Paladin, Warlock, Monarch, Duchess,
 and the Necromancer's melee kill.
-- **Move-capture (Ram-Tower and Zombies only):** The **Ram-Tower** — and any revived
-**Zombie** figure — captures by **moving onto** the enemy's square along its normal path.
+- **Move-capture (Ram-Tower, Paladin, and Zombies):** The **Ram-Tower** and **Paladin** —
+and any revived **Zombie** figure — capture by **moving onto** the enemy's square along
+their normal path (unlimited distance for Ram-Tower and Paladin when the path is clear).
 - **Line of sight:** Ranged attacks shoot through **friendly figures** but can capture only
 the **first enemy** in each attack line. Further enemies behind that target are out of
-range. Obstacles block based on each figure's pass rules (e.g. Chariot shoots over trees
-on its gamma path).
+range. Which obstacles block the shot depends on the figure — see the range-attack matrix
+in Section 3.4.
 - **Frozen figures cannot move:** A frozen figure cannot move, swap, capture-and-move, or use
 special actions until the freeze wears off, but it **can still use its normal ranged attacks**
 (see Necromancer freeze).
@@ -74,9 +75,8 @@ Obstacles are placed randomly each game, kept clear of the starting figure rows.
 other cave** on the board (it appears on an empty tile next to a destination cave; if no
 cave has an empty neighbour, the teleport is unavailable). Only figures that can enter
 caves may use them.
-- **Tree** — Blocks movement and blocks most shots. Notable exceptions: the **Chariot can
-shoot over all obstacles and friendly figures** on its gamma path, and the
-**Necromancer's freeze is blocked only by trees**.
+- **Tree** — Blocks movement and blocks most ranged shots. See Section 3.4 for which figures
+can shoot or freeze over trees on the attack path.
 - **Rock** — Solid. No figure can move through or stop on a rock.
 - **River** — Passable by some figures. Linear obstacle, can be several tiles wide.
 - **Lake** — A clustered body of water. Passable only by a few figures.
@@ -107,6 +107,26 @@ the Chariot/Bomber over obstacles), but they still cannot **land** on terrain ma
 > **Cave teleport detail:** Only the **Hoplite** and **Bomber** actually teleport between
 > caves when they move onto one. Other cave-capable figures (Paladin, Warlock, Monarch,
 > Necromancer) can pass over or rest on a cave tile but do not teleport.
+
+### 3.4 Range attack line-of-sight matrix
+
+"YES" means a ranged attack (or the Necromancer's stun/freeze) can pass **over** that
+obstacle type on the path to the target. This is separate from movement pass-through
+(Section 3.3).
+
+
+| Figure                            | Over Rock | Over Tree | Over Cave | Over River | Over Lake | Over Canyon |
+| --------------------------------- | --------- | --------- | --------- | ---------- | --------- | ----------- |
+| Paladin                           | YES       | NO        | YES       | YES        | YES       | YES         |
+| Chariot                           | NO        | YES       | YES       | YES        | YES       | YES         |
+| Ram-Tower                         | YES       | NO        | YES       | YES        | YES       | YES         |
+| Duchess                           | YES       | NO        | YES       | YES        | YES       | YES         |
+| Necromancer (Druid) (Stun/Freeze) | NO        | YES       | YES       | YES        | YES       | YES         |
+
+
+The Chariot uses this matrix on its gamma attack path. All other listed figures use it on
+straight or diagonal attack lines. The Necromancer's melee kill (range 1) does not use
+this matrix — only its stun/freeze ability does.
 
 ---
 
@@ -177,10 +197,11 @@ capture it directly.
 - **Jumping:** Jumps over any figures or obstacles in its path; only the **landing tile**
 matters. It cannot land on cave, lake, canyon, tree, or rock (it can land on river or
 empty tiles).
-- **Attack:** Gamma-shaped (L) ranged attack at **1–4 tiles** along the path (not only at
-maximum range). It **shoots over friendly figures and all obstacles**; only **enemy
-figures** block the shot. In capture-and-move mode, only enemies on a **clear** gamma
-path (no friendly figure or obstacle in the way) can be captured by moving onto them.
+- **Attack:** Gamma-shaped (L) ranged kill **only at gamma range 4** (3+1 or 1+3 — not at
+shorter distances). It **shoots over friendly figures and all obstacles**; only **enemy
+figures** block the shot. In capture-and-move mode, only enemies on a **clear** gamma path
+up to **gamma range 3** (2+1 or 1+2) can be captured by moving onto them — not at gamma
+range 4 (3+1 or 1+3).
 - **Terrain:** Can pass/land on river. Cannot land on lake, canyon, or cave.
 
 ### 6.4 Bomber (Saboteur) — 12 pts (Zombie 9)
@@ -200,6 +221,8 @@ its net.
 - **Move:** Diagonal, any number of tiles, until blocked.
 - **Attack:** Ranged diagonal attack up to **3 tiles**. Shoots through friendly figures;
 only the **first enemy** in each diagonal line can be captured.
+- **Move-capture:** Can also **move onto an enemy** along a clear diagonal path to capture
+it directly (any distance, not limited to the 3-tile ranged attack).
 - **Terrain:** Can pass cave, river (max **1 tile wide**), and canyon. Cannot pass lake.
 
 ### 6.6 Warlock (Vezier) — 11 pts

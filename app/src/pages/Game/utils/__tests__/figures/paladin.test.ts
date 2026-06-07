@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { getValidMoves, getValidAttacks } from '../../moveUtils'
+import {
+  getValidMoves,
+  getValidAttacks,
+  getDisplayedAttackTargets,
+  resolveAttackModeAction
+} from '../../moveUtils'
 import { PieceTypes, ObstacleTypes } from '../../../types'
 import type { PlayerColor } from '../../../types'
 import {
@@ -137,6 +142,81 @@ describe('Paladin', () => {
 
     expect(attacks).toContainEqual(pos(4, 3))
     expect(attacks).not.toContainEqual(pos(3, 2))
+  })
+
+  it('can move-capture an enemy beyond ranged attack distance', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.PALADIN, color: 'white' })
+    placePiece(board, pos(2, 1), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+
+    expect(moves).toContainEqual(pos(2, 1))
+  })
+
+  it('does not move-capture when a friendly blocks the diagonal path', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.PALADIN, color: 'white' })
+    placePiece(board, pos(4, 3), { type: PieceTypes.HOPLITE, color: 'white' })
+    placePiece(board, pos(2, 1), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+
+    expect(moves).not.toContainEqual(pos(2, 1))
+  })
+
+  it('highlights distant enemies for capture mode', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const paladin = { type: PieceTypes.PALADIN, color: 'white' as const }
+    placePiece(board, start, paladin)
+    placePiece(board, pos(2, 1), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const validMoves = getValidMoves(board, start, DEFAULT_SIZE)
+    const validAttacks = getValidAttacks(board, start, DEFAULT_SIZE)
+    const displayed = getDisplayedAttackTargets(
+      board,
+      validMoves,
+      validAttacks,
+      paladin,
+      start,
+      'capture',
+      DEFAULT_SIZE
+    )
+
+    expect(displayed).toContainEqual(pos(2, 1))
+    expect(validAttacks).not.toContainEqual(pos(2, 1))
+  })
+
+  it('allows move-capture beyond ranged attack distance in capture mode', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const target = pos(2, 1)
+    const paladin = { type: PieceTypes.PALADIN, color: 'white' as const }
+    placePiece(board, start, paladin)
+    const enemy = { type: PieceTypes.HOPLITE, color: 'black' as const }
+    placePiece(board, target, enemy)
+
+    const validMoves = getValidMoves(board, start, DEFAULT_SIZE)
+    const validAttacks = getValidAttacks(board, start, DEFAULT_SIZE)
+    const isValidMoveTarget = validMoves.some(move => move.row === target.row && move.col === target.col)
+    const isValidAttackTarget = validAttacks.some(attack => attack.row === target.row && attack.col === target.col)
+
+    const result = resolveAttackModeAction(
+      paladin,
+      enemy,
+      isValidMoveTarget,
+      isValidAttackTarget,
+      'capture'
+    )
+
+    expect(result).toEqual({
+      allowed: true,
+      shouldUseRangedAttack: false,
+      shouldUseMoveCapture: true
+    })
   })
 
   it('zombie paladin attack range is clamped to 1', () => {

@@ -303,7 +303,7 @@ const getDiagonalMoves = (board: Board, pos: Position, piece: Piece, boardSize: 
 
       if (cell) {
         if (isPiece(cell)) {
-          if (piece.isZombie && cell.color !== piece.color) {
+          if (cell.color !== piece.color && (piece.isZombie || piece.type === PieceTypes.PALADIN)) {
             moves.push({ row, col })
           }
           break
@@ -579,15 +579,32 @@ export const getNecromancerFreezeTargets = (board: Board, pos: Position, boardSi
   return targets
 }
 
-const getChariotAttackRange = (piece: Piece): number =>
-  getAdjustedAttackRange(piece, PIECE_RULES[PieceTypes.CHARIOT].attackRange)
+const getChariotRangeKillGammaBox = (piece: Piece): number =>
+  getAdjustedAttackRange(
+    piece,
+    PIECE_RULES[PieceTypes.CHARIOT].chariotRangeKillGammaBox ?? 4
+  )
 
-const isChariotGammaAttack = (from: Position, to: Position, maxLongLeg: number): boolean => {
+const getChariotCaptureMaxGammaRange = (piece: Piece): number =>
+  getAdjustedAttackRange(
+    piece,
+    PIECE_RULES[PieceTypes.CHARIOT].chariotCaptureMaxGammaRange ?? 3
+  )
+
+const getChariotGammaRange = (from: Position, to: Position): number | null => {
   const absDr = Math.abs(to.row - from.row)
   const absDc = Math.abs(to.col - from.col)
-  if (absDr < 1 || absDc < 1) return false
-  if (Math.min(absDr, absDc) !== 1) return false
-  return Math.max(absDr, absDc) <= maxLongLeg
+  if (absDr < 1 || absDc < 1) return null
+  if (Math.min(absDr, absDc) !== 1) return null
+  return Math.max(absDr, absDc) + 1
+}
+
+const isChariotExactRangeKillGamma = (from: Position, to: Position, exactGammaRange: number): boolean =>
+  getChariotGammaRange(from, to) === exactGammaRange
+
+const isChariotCaptureGamma = (from: Position, to: Position, maxGammaRange: number): boolean => {
+  const gammaRange = getChariotGammaRange(from, to)
+  return gammaRange !== null && gammaRange <= maxGammaRange
 }
 
 const getChariotGammaPathOptionCells = (
@@ -685,8 +702,8 @@ const isChariotGammaPathClear = (
   piece: Piece,
   boardSize: BoardSize
 ): boolean => {
-  const maxLongLeg = getChariotAttackRange(piece)
-  if (!isChariotGammaAttack(from, to, maxLongLeg)) {
+  const exactGammaRange = getChariotRangeKillGammaBox(piece)
+  if (!isChariotExactRangeKillGamma(from, to, exactGammaRange)) {
     return false
   }
 
@@ -713,8 +730,8 @@ const chariotGammaPathHasFriendlyOrObstacle = (
   piece: Piece,
   boardSize: BoardSize
 ): boolean => {
-  const maxLongLeg = getChariotAttackRange(piece)
-  if (!isChariotGammaAttack(from, to, maxLongLeg)) return false
+  const maxGammaRange = getChariotCaptureMaxGammaRange(piece)
+  if (!isChariotCaptureGamma(from, to, maxGammaRange)) return false
 
   return getChariotGammaPathOptions(from, to).some(option => {
     if (!isChariotGammaPathOptionClear(
@@ -813,7 +830,7 @@ const getPaladinValidAttacks = (board: Board, pos: Position, boardSize: BoardSiz
 
 const getChariotValidAttacks = (board: Board, pos: Position, boardSize: BoardSize, cell: Piece): Position[] => {
   const attacks: Position[] = []
-  const attackRange = getChariotAttackRange(cell)
+  const rangeKillGammaRange = getChariotRangeKillGammaBox(cell)
 
   for (let row = 0; row < boardSize.rows; row++) {
     for (let col = 0; col < boardSize.cols; col++) {
@@ -824,7 +841,7 @@ const getChariotValidAttacks = (board: Board, pos: Position, boardSize: BoardSiz
       if (targetCell.color === cell.color) continue
 
       const target = { row, col }
-      const isGamma = isChariotGammaAttack(pos, target, attackRange)
+      const isGamma = isChariotExactRangeKillGamma(pos, target, rangeKillGammaRange)
 
       if (isGamma && isChariotGammaPathClear(board, pos, target, cell, boardSize)) {
         attacks.push(target)
@@ -849,10 +866,16 @@ export const isChariotValidCaptureMoveTarget = (
   )
   if (!canLandOnEnemy) return false
 
-  const maxLongLeg = getChariotAttackRange(piece)
-  if (!isChariotGammaAttack(from, target, maxLongLeg)) return true
+  const captureMaxGammaRange = getChariotCaptureMaxGammaRange(piece)
 
-  return !chariotGammaPathHasFriendlyOrObstacle(board, from, target, piece, boardSize)
+  if (getChariotGammaRange(from, target) !== null) {
+    if (!isChariotCaptureGamma(from, target, captureMaxGammaRange)) {
+      return false
+    }
+    return !chariotGammaPathHasFriendlyOrObstacle(board, from, target, piece, boardSize)
+  }
+
+  return true
 }
 
 const isAttackPathClear = (

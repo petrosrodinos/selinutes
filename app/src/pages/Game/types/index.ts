@@ -59,6 +59,8 @@ export type BoardSizeKey = typeof BoardSizeKeys[keyof typeof BoardSizeKeys]
 export interface PieceRules {
   move: MovePattern | number[][] | number[]
   attackRange: number
+  chariotRangeKillGammaBox?: number
+  chariotCaptureMaxGammaRange?: number
   freezeRange?: number
   canPass: ObstacleType[]
   canJumpPieces?: boolean
