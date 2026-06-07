@@ -22,6 +22,7 @@ let fixtureIdCounter = 0
 export interface PlacePieceOptions {
   type: PieceType
   color: PlayerColor
+  startCol?: number
   hasMoved?: boolean
   isZombie?: boolean
   promotedFromHoplite?: boolean
@@ -37,6 +38,7 @@ export const placePiece = (board: Board, position: Position, options: PlacePiece
     type: options.type,
     color: options.color,
     hasMoved: options.hasMoved ?? false,
+    startCol: options.startCol,
     isZombie: options.isZombie,
     promotedFromHoplite: options.promotedFromHoplite,
     reviveCount: options.reviveCount,

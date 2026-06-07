@@ -54,13 +54,25 @@ export const getAdjustedAttackRange = (piece: Piece, baseRange: number): number 
 export const getStartingPositionForPieceType = (
   boardSize: BoardSize,
   pieceType: PieceType,
-  color: PlayerColor
+  color: PlayerColor,
+  startCol?: number
 ): Position | null => {
+  const row = color === PlayerColors.WHITE ? boardSize.rows - 1 : 0
+  if (startCol !== undefined) {
+    if (startCol < 0 || startCol >= boardSize.cols) return null
+    return { row, col: startCol }
+  }
   const backRow = getBackRowForBoardSize(boardSize.cols)
   const col = backRow.indexOf(pieceType)
   if (col === -1) return null
-  const row = color === PlayerColors.WHITE ? boardSize.rows - 1 : 0
   return { row, col }
+}
+
+export const getStartingPositionForPiece = (
+  boardSize: BoardSize,
+  piece: Pick<Piece, 'type' | 'color' | 'startCol'>
+): Position | null => {
+  return getStartingPositionForPieceType(boardSize, piece.type, piece.color, piece.startCol)
 }
 
 export const areRevivalGuardsInPlace = (board: Board, _boardSize: BoardSize, color: PlayerColor): boolean => {
@@ -126,7 +138,11 @@ export const getZombieRevivePlacementTarget = (
   revivePiece: Piece,
   currentPlayer: PlayerColor
 ): Position | null => {
-  const originalPosition = getStartingPositionForPieceType(boardSize, revivePiece.type, currentPlayer)
+  const originalPosition = getStartingPositionForPiece(boardSize, {
+    type: revivePiece.type,
+    color: currentPlayer,
+    startCol: revivePiece.startCol
+  })
   if (!originalPosition) return null
   if (board[originalPosition.row][originalPosition.col] === null) return originalPosition
 

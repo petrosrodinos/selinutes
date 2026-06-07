@@ -65,6 +65,7 @@ export {
   findPiecePosition,
   reviveZombiePiece,
   getStartingPositionForPieceType,
+  getStartingPositionForPiece,
   getZombieRevivePieces,
   isZombieReviveTargetEmpty,
   getZombieRevivePlacementTarget,

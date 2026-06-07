@@ -76,6 +76,7 @@ export interface Piece {
   id: string
   type: PieceType
   color: PlayerColor
+  startCol?: number
   hasMoved?: boolean
   isZombie?: boolean
   promotedFromHoplite?: boolean

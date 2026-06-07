@@ -124,22 +124,58 @@ describe('reviveZombiePiece', () => {
 describe('getZombieRevivePlacementTarget', () => {
   it('prefers the original starting square when empty', () => {
     const board = createEmptyBoard()
-    const revivePiece = makePiece({ type: PieceTypes.RAM_TOWER })
-    const expected = getStartingPositionForPieceType(DEFAULT_SIZE, PieceTypes.RAM_TOWER, 'white')
+    const revivePiece = makePiece({ type: PieceTypes.RAM_TOWER, startCol: 0 })
+    const expected = getStartingPositionForPieceType(DEFAULT_SIZE, PieceTypes.RAM_TOWER, 'white', 0)
 
     expect(getZombieRevivePlacementTarget(board, DEFAULT_SIZE, revivePiece, 'white')).toEqual(expected)
   })
 
-  it('falls back to the nearest empty square when the start is occupied', () => {
+  it('uses the captured piece start column for duplicate back-row types', () => {
+    const board = createInitialBoard(DEFAULT_SIZE)
+    const whiteBackRow = DEFAULT_SIZE.rows - 1
+    const secondRamCol = DEFAULT_SIZE.cols - 1
+    const capturedRam = board[whiteBackRow][secondRamCol]
+    expect(capturedRam && isPiece(capturedRam)).toBe(true)
+
+    board[whiteBackRow][secondRamCol] = null
+    placePiece(board, { row: whiteBackRow, col: 0 }, { type: PieceTypes.RAM_TOWER, color: 'white', startCol: 0 })
+
+    const target = getZombieRevivePlacementTarget(
+      board,
+      DEFAULT_SIZE,
+      capturedRam as Piece,
+      'white'
+    )
+
+    expect(target).toEqual({ row: whiteBackRow, col: secondRamCol })
+  })
+
+  it('falls back to the nearest empty square when the original square is occupied', () => {
     const board = createEmptyBoard()
-    const revivePiece = makePiece({ type: PieceTypes.RAM_TOWER })
-    const start = getStartingPositionForPieceType(DEFAULT_SIZE, PieceTypes.RAM_TOWER, 'white')!
-    placePiece(board, start, { type: PieceTypes.RAM_TOWER, color: 'white' })
+    const revivePiece = makePiece({ type: PieceTypes.RAM_TOWER, startCol: 0 })
+    const start = getStartingPositionForPieceType(DEFAULT_SIZE, PieceTypes.RAM_TOWER, 'white', 0)!
+    placePiece(board, start, { type: PieceTypes.RAM_TOWER, color: 'white', startCol: 0 })
 
     const target = getZombieRevivePlacementTarget(board, DEFAULT_SIZE, revivePiece, 'white')
 
     expect(target).not.toBeNull()
     expect(target).not.toEqual(start)
+    expect(Math.abs(target!.row - start.row) + Math.abs(target!.col - start.col)).toBe(1)
+  })
+
+  it('falls back to the nearest empty square to the original column', () => {
+    const board = createEmptyBoard()
+    const whiteBackRow = DEFAULT_SIZE.rows - 1
+    const revivePiece = makePiece({ type: PieceTypes.CHARIOT, startCol: 10 })
+    const original = { row: whiteBackRow, col: 10 }
+
+    placePiece(board, original, { type: PieceTypes.MONARCH, color: 'white' })
+    placePiece(board, { row: whiteBackRow, col: 9 }, { type: PieceTypes.HOPLITE, color: 'white' })
+    placePiece(board, { row: whiteBackRow - 1, col: 10 }, { type: PieceTypes.HOPLITE, color: 'white' })
+
+    const target = getZombieRevivePlacementTarget(board, DEFAULT_SIZE, revivePiece, 'white')
+
+    expect(target).toEqual({ row: whiteBackRow, col: 11 })
   })
 })
 

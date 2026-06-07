@@ -5,12 +5,17 @@ import { OBSTACLE_COUNTS, BACK_ROW_PIECES } from '../constants'
 let pieceIdCounter = 0
 const generatePieceId = (): string => `piece-${++pieceIdCounter}`
 
-const createPiece = (type: PieceType, color: typeof PlayerColors.WHITE | typeof PlayerColors.BLACK): Piece => {
+const createPiece = (
+  type: PieceType,
+  color: typeof PlayerColors.WHITE | typeof PlayerColors.BLACK,
+  startCol?: number
+): Piece => {
   const piece: Piece = {
     id: generatePieceId(),
     type,
     color,
-    hasMoved: false
+    hasMoved: false,
+    ...(startCol !== undefined ? { startCol } : {})
   }
 
   if (type === PieceTypes.NECROMANCER) {
@@ -424,19 +429,19 @@ export const createInitialBoard = (boardSize: BoardSize): Board => {
   const backRow = getBackRowForBoardSize(cols)
 
   for (let col = 0; col < cols; col++) {
-    board[0][col] = createPiece(backRow[col], PlayerColors.BLACK)
+    board[0][col] = createPiece(backRow[col], PlayerColors.BLACK, col)
   }
 
   for (let col = 0; col < cols; col++) {
-    board[1][col] = createPiece(PieceTypes.HOPLITE, PlayerColors.BLACK)
+    board[1][col] = createPiece(PieceTypes.HOPLITE, PlayerColors.BLACK, col)
   }
 
   for (let col = 0; col < cols; col++) {
-    board[rows - 2][col] = createPiece(PieceTypes.HOPLITE, PlayerColors.WHITE)
+    board[rows - 2][col] = createPiece(PieceTypes.HOPLITE, PlayerColors.WHITE, col)
   }
 
   for (let col = 0; col < cols; col++) {
-    board[rows - 1][col] = createPiece(backRow[col], PlayerColors.WHITE)
+    board[rows - 1][col] = createPiece(backRow[col], PlayerColors.WHITE, col)
   }
 
   placeObstacles(board, rows, cols)
