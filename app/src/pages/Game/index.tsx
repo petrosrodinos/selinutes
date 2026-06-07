@@ -58,6 +58,7 @@ export const Game = () => {
     resetGame,
     reset: resetOnlineState,
   } = useGameStore();
+  const attackMode = useGameStore((state) => state.attackMode);
   const { is3D, isTopMenuOpen, isRightMenuOpen, closeTopMenu, closeRightMenu } = useUIStore();
 
   useEffect(() => {
@@ -359,6 +360,7 @@ export const Game = () => {
                 <Suspense fallback={<Board3DLoadFallback />}>
                   <Board3DLazy
                     isOnline={isOnline}
+                    attackMode={attackMode}
                     onlineBoard={onlineBoard}
                     onlineBoardSize={onlineBoardSize}
                     onlineSelectedPosition={onlineSelectedPosition}
@@ -374,6 +376,7 @@ export const Game = () => {
               ) : (
                 <Board
                   isOnline={isOnline}
+                  attackMode={attackMode}
                   onlineBoard={onlineBoard}
                   onlineBoardSize={onlineBoardSize}
                   onlineSelectedPosition={onlineSelectedPosition}

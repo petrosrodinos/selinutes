@@ -194,16 +194,28 @@ export const useGameStore = create<GameStore>((set, get) => ({
     isLoading: false,
     error: null,
     setAttackMode: (mode: AttackMode) => {
+        const state = get()
+        if (mode === state.attackMode) return
+
         if (mode === 'capture') {
-            const { gameState, selectedPosition } = get()
-            const piecePos = gameState.selectedPosition ?? selectedPosition
+            const piecePos = state.gameState.selectedPosition ?? state.selectedPosition
             if (piecePos) {
-                const cell = gameState.board[piecePos.row]?.[piecePos.col]
+                const cell = state.gameState.board[piecePos.row]?.[piecePos.col]
                 if (cell && isPiece(cell) && !canUseCaptureAttackMode(cell)) {
                     return
                 }
             }
         }
+
+        const hasSelection = Boolean(state.gameState.selectedPosition ?? state.selectedPosition)
+        if (hasSelection && state.gameState.selectedPosition) {
+            set({
+                attackMode: mode,
+                gameState: { ...state.gameState }
+            })
+            return
+        }
+
         set({ attackMode: mode })
     },
     setNecromancerActionMode: (mode: NecromancerActionMode) => {

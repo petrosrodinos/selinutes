@@ -298,6 +298,40 @@ describe('Chariot', () => {
     expect(displayed).not.toContainEqual(outOfRangeTarget)
   })
 
+  it('shows gamma range 4 targets in ranged mode but not in capture mode (f9 to e12)', () => {
+    const board = createEmptyBoard()
+    const start = pos(8, 5)
+    const chariot = { type: PieceTypes.CHARIOT, color: 'white' as const, id: 'c1', hasMoved: false }
+    const gammaFourTarget = pos(11, 4)
+    placePiece(board, start, chariot)
+    placePiece(board, gammaFourTarget, { type: PieceTypes.WARLOCK, color: 'black' })
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+    const attacks = getValidAttacks(board, start, DEFAULT_SIZE)
+    const rangedDisplayed = getDisplayedAttackTargets(
+      board,
+      moves,
+      attacks,
+      chariot,
+      start,
+      'ranged',
+      DEFAULT_SIZE
+    )
+    const captureDisplayed = getDisplayedAttackTargets(
+      board,
+      moves,
+      attacks,
+      chariot,
+      start,
+      'capture',
+      DEFAULT_SIZE
+    )
+
+    expect(attacks).toContainEqual(gammaFourTarget)
+    expect(rangedDisplayed).toContainEqual(gammaFourTarget)
+    expect(captureDisplayed).not.toContainEqual(gammaFourTarget)
+  })
+
   it('excludes blocked and out-of-range capture-and-move targets in capture mode', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)

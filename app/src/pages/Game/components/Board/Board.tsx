@@ -15,6 +15,7 @@ const boardLabelInsetPx = (squareSize: number) => Math.max(16, Math.round(square
 
 interface BoardProps {
     isOnline?: boolean
+    attackMode?: 'ranged' | 'capture'
     onlineBoard?: BoardType
     onlineBoardSize?: BoardSize
     onlineSelectedPosition?: Position | null
@@ -29,6 +30,7 @@ interface BoardProps {
 
 export const Board = ({
     isOnline = false,
+    attackMode: attackModeProp,
     onlineBoard,
     onlineBoardSize,
     onlineSelectedPosition,
@@ -40,7 +42,9 @@ export const Board = ({
     onSquareClick,
     onMysteryBoxClick
 }: BoardProps) => {
-    const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection, attackMode } = useGameStore()
+    const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection } = useGameStore()
+    const attackModeFromStore = useGameStore(state => state.attackMode)
+    const attackMode = attackModeProp ?? attackModeFromStore
     const { helpEnabled, devMode } = useUIStore()
     const isAdmin = useIsAdmin()
     const effectiveDevMode = devMode && isAdmin
