@@ -22,7 +22,7 @@ export const PIECE_RULES: Record<string, PieceRules> = {
     move: [3, 2],
     attackRange: 1,
     canPass: [ObstacleTypes.CAVE, ObstacleTypes.MYSTERY_BOX],
-    canChooseAttackMode: false,
+    canChooseAttackMode: true,
     points: 3
   },
   [PieceTypes.RAM_TOWER]: {
@@ -207,7 +207,8 @@ export const RULES_FIGURE_SECTION_TITLES: Record<PieceType, string> = {
 export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   [PieceTypes.HOPLITE]: [
     'Moves 3 steps forward on the first move; afterwards, moves 2 steps.',
-    'Can attack 1 step on front diagonals (left/right) only.',
+    'Range attack: kills 1 step on front diagonals (left/right) without moving.',
+    'Capture and move: can move onto an enemy on a front diagonal to capture it.',
     'Reaching the opponent\'s back rank promotes to a Duchess (only 3 Hoplites may promote in the entire game).',
     'Can pass through caves.',
     'Cannot pass through river, lake, or canyon.'

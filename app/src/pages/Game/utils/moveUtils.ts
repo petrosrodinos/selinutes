@@ -182,6 +182,24 @@ const getHopliteMoves = (board: Board, pos: Position, piece: Piece, boardSize: B
     moves.push({ row: newRow, col: pos.col })
   }
 
+  if (rules.canChooseAttackMode) {
+    const diagonalDirections = [
+      [direction, -1],
+      [direction, 1]
+    ]
+    for (const [rowOff, colOff] of diagonalDirections) {
+      const row = pos.row + rowOff
+      const col = pos.col + colOff
+      if (!isInBounds(row, col, boardSize)) continue
+      const targetCell = board[row][col]
+      if (targetCell && isPiece(targetCell) && targetCell.color !== piece.color) {
+        if (!moves.some(move => move.row === row && move.col === col)) {
+          moves.push({ row, col })
+        }
+      }
+    }
+  }
+
   return moves
 }
 

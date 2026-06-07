@@ -20,14 +20,15 @@ export const MovementLogModal = ({ isOpen, onClose }: MovementLogModalProps) => 
         <p className="py-8 text-center text-sm text-stone-400">No moves yet</p>
       ) : (
         <ol className="max-h-[min(70vh,32rem)] space-y-2 overflow-y-auto pr-1">
-          {moveHistory.map((move, index) => {
+          {moveHistory.toReversed().map((move, index) => {
+            const moveNumber = moveHistory.length - index
             const isWhite = move.piece.color === PlayerColors.WHITE
             return (
               <li
-                key={`${move.piece.id}-${index}-${move.from.row}-${move.from.col}-${move.to.row}-${move.to.col}`}
+                key={`${move.piece.id}-${moveNumber}-${move.from.row}-${move.from.col}-${move.to.row}-${move.to.col}`}
                 className="flex gap-3 rounded-lg border border-stone-700/80 bg-stone-900/50 px-3 py-2.5 text-sm"
               >
-                <span className="w-6 shrink-0 tabular-nums text-stone-500">{index + 1}.</span>
+                <span className="w-6 shrink-0 tabular-nums text-stone-500">{moveNumber}.</span>
                 <span
                   className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${isWhite ? 'bg-stone-100 ring-1 ring-amber-200/40' : 'bg-stone-900 ring-1 ring-amber-900/50'}`}
                   aria-hidden

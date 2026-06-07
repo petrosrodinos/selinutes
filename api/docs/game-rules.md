@@ -177,8 +177,10 @@ The lowest possible value on the board is a revived Bomber at **9** points.
 
 - **Move:** Straight forward. **3 tiles on its very first move**, then **2 tiles** on every
 move after that. It cannot move backward or sideways.
-- **Attack:** Captures **one tile diagonally forward** (front-left or front-right). It
-cannot capture the tile straight ahead.
+- **Attack (range):** Kills an enemy **one tile diagonally forward** (front-left or
+front-right) without moving. Cannot kill the tile straight ahead.
+- **Attack (capture and move):** Can **move onto** an enemy on a front diagonal to capture
+it. Cannot capture the tile straight ahead unless the Hoplite is a zombie.
 - **Promotion:** When a Hoplite reaches the opponent's **back rank** (their first row), it
 is promoted to a **Duchess**. Only **3** Hoplites may promote in the **entire game**
 (both players combined), for a maximum of **5** Duchesses on the board if none have been
@@ -351,10 +353,11 @@ network, and each player may only act on their own turn.
 - **"How do I win?"** — Capture the opponent's Monarch. You also win if your opponent has no
 legal action on their turn.
 - **"Why can't my Hoplite capture the figure directly in front of it?"** — Hoplites only
-capture diagonally forward; they move straight but cannot capture straight ahead.
-- **"My figure attacked but stayed in place — is that a bug?"** — No. Most attacks are
-ranged: the attacker stays put and removes the target. Only the Ram-Tower and Zombie
-figures capture by moving onto the enemy.
+attack diagonally forward; they move straight but cannot capture straight ahead (unless the
+Hoplite is a zombie).
+- **"My figure attacked but stayed in place — is that a bug?"** — No. In **range attack**
+mode the attacker stays put and removes the target. Switch to **capture and move** (or use
+a zombie) to land on the enemy square after killing it.
 - **"Why did my figure die just by moving there?"** — It stepped onto an enemy Bomber's
 explosive-net tile. Net tiles sit on the diagonals 1-2 away and the orthogonal tiles 2
 away from an enemy Bomber.

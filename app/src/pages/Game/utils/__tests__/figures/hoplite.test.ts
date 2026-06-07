@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { getValidMoves, getValidAttacks, makeMove } from '../../moveUtils'
+import {
+  getValidMoves,
+  getValidAttacks,
+  makeMove,
+  resolveAttackModeAction,
+  getDisplayedAttackTargets,
+  getDisplayedMoveTargets
+} from '../../moveUtils'
 import { PieceTypes, ObstacleTypes } from '../../../types'
 import type { PlayerColor } from '../../../types'
 import {
@@ -199,4 +206,141 @@ describe('Hoplite', () => {
     expect(move.promotedTo).toBeUndefined()
     expect(newBoard[0][5] && 'type' in newBoard[0][5]! && newBoard[0][5]!.type).toBe(PieceTypes.HOPLITE)
   })
+
+  it.each(BOTH_COLORS)('includes diagonal enemies as capture move targets (%s)', (color: PlayerColor) => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const enemy = opponentOf(color)
+    const hoplite = { type: PieceTypes.HOPLITE, color, hasMoved: true }
+    placePiece(board, start, hoplite)
+    const dir = forwardDirection(color)
+    const leftDiagonal = pos(6 + dir, 4)
+    const rightDiagonal = pos(6 + dir, 6)
+    placePiece(board, leftDiagonal, { type: PieceTypes.HOPLITE, color: enemy })
+    placePiece(board, rightDiagonal, { type: PieceTypes.HOPLITE, color: enemy })
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+
+    expectContainsPositions(moves, [leftDiagonal, rightDiagonal])
+  })
+
+  it('hides diagonal enemy squares from move highlights when attack mode is available', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const hoplite = { type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true }
+    const leftDiagonal = pos(5, 4)
+    const rightDiagonal = pos(5, 6)
+    placePiece(board, start, hoplite)
+    placePiece(board, leftDiagonal, { type: PieceTypes.HOPLITE, color: 'black' })
+    placePiece(board, rightDiagonal, { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const validMoves = getValidMoves(board, start, DEFAULT_SIZE)
+    const displayedMoves = getDisplayedMoveTargets(board, validMoves, hoplite)
+
+    expectContainsPositions(displayedMoves, [pos(5, 5), pos(4, 5)])
+    expectExcludesPositions(displayedMoves, [leftDiagonal, rightDiagonal])
+  })
+
+  it('shows diagonal enemies in capture mode and ranged attacks in ranged mode', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const hoplite = { type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true }
+    const leftDiagonal = pos(5, 4)
+    const rightDiagonal = pos(5, 6)
+    placePiece(board, start, hoplite)
+    placePiece(board, leftDiagonal, { type: PieceTypes.HOPLITE, color: 'black' })
+    placePiece(board, rightDiagonal, { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const validMoves = getValidMoves(board, start, DEFAULT_SIZE)
+    const validAttacks = getValidAttacks(board, start, DEFAULT_SIZE)
+
+    expect(getDisplayedAttackTargets(
+      board,
+      validMoves,
+      validAttacks,
+      hoplite,
+      start,
+      'ranged',
+      DEFAULT_SIZE
+    )).toEqual(validAttacks)
+
+    expect(getDisplayedAttackTargets(
+      board,
+      validMoves,
+      validAttacks,
+      hoplite,
+      start,
+      'capture',
+      DEFAULT_SIZE
+    )).toEqual([leftDiagonal, rightDiagonal])
+  })
+
+  it('uses ranged attack in ranged mode without moving', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const target = pos(5, 4)
+    const hoplite = { type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true }
+    const enemy = { type: PieceTypes.HOPLITE, color: 'black' as const }
+    placePiece(board, start, hoplite)
+    placePiece(board, target, enemy)
+
+    const validMoves = getValidMoves(board, start, DEFAULT_SIZE)
+    const validAttacks = getValidAttacks(board, start, DEFAULT_SIZE)
+    const isValidMoveTarget = validMoves.some(move => move.row === target.row && move.col === target.col)
+    const isValidAttackTarget = validAttacks.some(attack => attack.row === target.row && attack.col === target.col)
+
+    const result = resolveAttackModeAction(
+      hoplite,
+      enemy,
+      isValidMoveTarget,
+      isValidAttackTarget,
+      'ranged'
+    )
+
+    expect(result).toEqual({
+      allowed: true,
+      shouldUseRangedAttack: true,
+      shouldUseMoveCapture: false
+    })
+
+    const { newBoard, move } = makeMove(board, start, target, DEFAULT_SIZE, true)
+    expect(move.isAttack).toBe(true)
+    expect(newBoard[start.row][start.col] && 'type' in newBoard[start.row][start.col]! && newBoard[start.row][start.col]!.type).toBe(PieceTypes.HOPLITE)
+    expect(newBoard[target.row][target.col]).toBeNull()
+  })
+
+  it('uses capture and move in capture mode', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const target = pos(5, 4)
+    const hoplite = { type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true }
+    const enemy = { type: PieceTypes.HOPLITE, color: 'black' as const }
+    placePiece(board, start, hoplite)
+    placePiece(board, target, enemy)
+
+    const validMoves = getValidMoves(board, start, DEFAULT_SIZE)
+    const validAttacks = getValidAttacks(board, start, DEFAULT_SIZE)
+    const isValidMoveTarget = validMoves.some(move => move.row === target.row && move.col === target.col)
+    const isValidAttackTarget = validAttacks.some(attack => attack.row === target.row && attack.col === target.col)
+
+    const result = resolveAttackModeAction(
+      hoplite,
+      enemy,
+      isValidMoveTarget,
+      isValidAttackTarget,
+      'capture'
+    )
+
+    expect(result).toEqual({
+      allowed: true,
+      shouldUseRangedAttack: false,
+      shouldUseMoveCapture: true
+    })
+
+    const { newBoard, move } = makeMove(board, start, target, DEFAULT_SIZE, false)
+    expect(move.captured?.type).toBe(PieceTypes.HOPLITE)
+    expect(newBoard[target.row][target.col] && 'type' in newBoard[target.row][target.col]! && newBoard[target.row][target.col]!.type).toBe(PieceTypes.HOPLITE)
+    expect(newBoard[start.row][start.col]).toBeNull()
+  })
+
 })

@@ -36,7 +36,7 @@ Single source of truth for every type and constant union used in game logic.
 
 | Piece | `move` | `attackRange` | `canPass` | Special flags |
 |---|---|---|---|---|
-| `hoplite` | `[3,2]` (first/subsequent) | `1` | CAVE, MYSTERY_BOX | — |
+| `hoplite` | `[3,2]` (first/subsequent) | `1` | CAVE, MYSTERY_BOX | `canChooseAttackMode` |
 | `ramTower` | CROSS | `5` | MYSTERY_BOX | `canChooseAttackMode` |
 | `chariot` | Pattern `[[2,1],[1,2],[2,2],[3,1],[1,3]]` | `4` | RIVER, MYSTERY_BOX | `canJumpPieces`, `canChooseAttackMode` |
 | `bomber` | Pattern `[[1,0],[0,1],[1,1],[2,0],[0,2],[2,2]]` | `0` | CAVE, RIVER, CANYON, MYSTERY_BOX | `canJumpPieces` |
