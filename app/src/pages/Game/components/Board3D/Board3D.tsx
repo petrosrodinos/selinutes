@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "rea
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { isPiece, isObstacle, ObstacleTypes, PlayerColors } from "../../types";
-import type { Board as BoardType, BoardSize, Move, MysteryBoxState, ObstacleType, Position, SwapTarget } from "../../types";
+import type { Board as BoardType, BoardSize, Move, MysteryBoxState, ObstacleType, PlayerColor, Position, SwapTarget } from "../../types";
 import { Piece3D } from "./Piece3D";
 import { BoardSquare3D } from "./BoardSquare3D";
 import { Obstacle3D } from "./Obstacle3D";
@@ -22,6 +22,7 @@ interface GameSceneProps {
   onlineValidAttacks?: Position[];
   onlineValidSwaps?: SwapTarget[];
   onlineLastMove?: Move | null;
+  onlineViewerColor?: PlayerColor;
   onlineMysteryBoxState?: MysteryBoxState;
   onSquareClick?: (pos: Position) => void;
   onMysteryBoxClick?: () => void;
@@ -29,7 +30,7 @@ interface GameSceneProps {
 
 const obstacleUsesGltf = (type: ObstacleType): boolean => type !== ObstacleTypes.ROCK && type !== ObstacleTypes.MYSTERY_BOX;
 
-const GameScene = ({ isOnline = false, onlineBoard, onlineBoardSize, onlineSelectedPosition, onlineValidMoves = [], onlineValidAttacks = [], onlineValidSwaps = [], onlineLastMove, onlineMysteryBoxState, onSquareClick, onMysteryBoxClick }: GameSceneProps) => {
+const GameScene = ({ isOnline = false, onlineBoard, onlineBoardSize, onlineSelectedPosition, onlineValidMoves = [], onlineValidAttacks = [], onlineValidSwaps = [], onlineLastMove, onlineViewerColor, onlineMysteryBoxState, onSquareClick, onMysteryBoxClick }: GameSceneProps) => {
   const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection, attackMode } = useGameStore();
   const { helpEnabled, devMode } = useUIStore();
   const isAdmin = useIsAdmin();
@@ -92,7 +93,14 @@ const GameScene = ({ isOnline = false, onlineBoard, onlineBoardSize, onlineSelec
 
   const isValidSwap = (row: number, col: number) => validSwaps.some((s) => s.position.row === row && s.position.col === col);
 
-  const isLastMoveSquare = (row: number, col: number) => lastMove != null && ((lastMove.from.row === row && lastMove.from.col === col) || (lastMove.to.row === row && lastMove.to.col === col));
+  const isPreviousMoveFromSquare = (row: number, col: number) => {
+    if (lastMove == null) return false;
+    if (lastMove.from.row !== row || lastMove.from.col !== col) return false;
+    if (isOnline && onlineViewerColor) {
+      return lastMove.piece.color === onlineViewerColor;
+    }
+    return true;
+  };
 
   const isHintSquare = (row: number, col: number) => currentHintMove !== null && !currentHintMove.isAttack && ((currentHintMove.from.row === row && currentHintMove.from.col === col) || (currentHintMove.to.row === row && currentHintMove.to.col === col));
 
@@ -180,7 +188,7 @@ const GameScene = ({ isOnline = false, onlineBoard, onlineBoardSize, onlineSelec
               isValidMove={isValidMove(rowIndex, colIndex) || isHelpMove(rowIndex, colIndex) || isDevModeTarget(rowIndex, colIndex)}
               isValidAttack={isValidAttack(rowIndex, colIndex) || isHelpAttack(rowIndex, colIndex)}
               isValidSwap={isValidSwap(rowIndex, colIndex)}
-              isLastMove={isLastMoveSquare(rowIndex, colIndex)}
+              isPreviousMoveFrom={isPreviousMoveFromSquare(rowIndex, colIndex)}
               isHint={isHintSquare(rowIndex, colIndex)}
               isHintAttack={isHintAttackSquare(rowIndex, colIndex)}
               isObstacle={!!hasObstacle}
@@ -249,12 +257,13 @@ interface Board3DProps {
   onlineValidAttacks?: Position[];
   onlineValidSwaps?: SwapTarget[];
   onlineLastMove?: Move | null;
+  onlineViewerColor?: PlayerColor;
   onlineMysteryBoxState?: MysteryBoxState;
   onSquareClick?: (pos: Position) => void;
   onMysteryBoxClick?: () => void;
 }
 
-export const Board3D = ({ isOnline = false, onlineBoard, onlineBoardSize, onlineSelectedPosition, onlineValidMoves = [], onlineValidAttacks = [], onlineValidSwaps = [], onlineLastMove, onlineMysteryBoxState, onSquareClick, onMysteryBoxClick }: Board3DProps) => {
+export const Board3D = ({ isOnline = false, onlineBoard, onlineBoardSize, onlineSelectedPosition, onlineValidMoves = [], onlineValidAttacks = [], onlineValidSwaps = [], onlineLastMove, onlineViewerColor, onlineMysteryBoxState, onSquareClick, onMysteryBoxClick }: Board3DProps) => {
   const { gameState } = useGameStore();
   const boardSize = isOnline && onlineBoardSize ? onlineBoardSize : gameState.boardSize;
   const maxDim = Math.max(boardSize.rows, boardSize.cols);
@@ -318,7 +327,7 @@ export const Board3D = ({ isOnline = false, onlineBoard, onlineBoardSize, online
       <Canvas camera={{ position: [0, cameraY, cameraZ], fov: 45 }} gl={{ antialias: true, powerPreference: "high-performance" }} dpr={[1, 1.25]}>
         <GltfLoadingProgressBridge onLoadingChange={handleGltfLoadingChange} />
         <color attach="background" args={["#1f2937"]} />
-        <GameScene isOnline={isOnline} onlineBoard={onlineBoard} onlineBoardSize={onlineBoardSize} onlineSelectedPosition={onlineSelectedPosition} onlineValidMoves={onlineValidMoves} onlineValidAttacks={onlineValidAttacks} onlineValidSwaps={onlineValidSwaps} onlineLastMove={onlineLastMove} onlineMysteryBoxState={onlineMysteryBoxState} onSquareClick={onSquareClick} onMysteryBoxClick={onMysteryBoxClick} />
+        <GameScene isOnline={isOnline} onlineBoard={onlineBoard} onlineBoardSize={onlineBoardSize} onlineSelectedPosition={onlineSelectedPosition} onlineValidMoves={onlineValidMoves} onlineValidAttacks={onlineValidAttacks} onlineValidSwaps={onlineValidSwaps} onlineLastMove={onlineLastMove} onlineViewerColor={onlineViewerColor} onlineMysteryBoxState={onlineMysteryBoxState} onSquareClick={onSquareClick} onMysteryBoxClick={onMysteryBoxClick} />
       </Canvas>
       {gltfAssetsLoading ? <Board3DLoadFallback mode="overlay" /> : null}
     </div>

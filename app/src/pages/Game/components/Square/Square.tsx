@@ -11,7 +11,7 @@ interface SquareProps {
   isValidMove: boolean
   isValidAttack: boolean
   isValidSwap: boolean
-  isLastMove: boolean
+  isPreviousMoveFrom: boolean
   isHint: boolean
   isHintAttack: boolean
   hasNarc?: PlayerColor | null
@@ -29,7 +29,7 @@ export const Square = ({
   isValidMove,
   isValidAttack,
   isValidSwap,
-  isLastMove,
+  isPreviousMoveFrom,
   isHint,
   isHintAttack,
   hasNarc = null,
@@ -65,8 +65,8 @@ export const Square = ({
       colorClasses = isLight ? 'bg-rose-300' : 'bg-rose-600'
     } else if (isHint) {
       colorClasses = isLight ? 'bg-cyan-300' : 'bg-cyan-600'
-    } else if (isLastMove) {
-      colorClasses = isLight ? 'bg-yellow-200' : 'bg-yellow-600'
+    } else if (isPreviousMoveFrom) {
+      colorClasses = isLight ? 'bg-sky-200/90' : 'bg-sky-800/70'
     } else if (isValidSwap) {
       colorClasses = isLight ? 'bg-violet-200 hover:bg-violet-300' : 'bg-violet-700 hover:bg-violet-600'
     } else if (isValidAttack) {
@@ -108,6 +108,9 @@ export const Square = ({
       )}
       {isValidSwap && cell && isPiece(cell) && (
         <div className="absolute w-full h-full border-4 border-violet-500 rounded-sm animate-pulse" />
+      )}
+      {isPreviousMoveFrom && (
+        <div className="absolute inset-0 ring-2 ring-sky-400/80 ring-inset" />
       )}
       {(isHint || isHintAttack) && (
         <div className={`absolute inset-0 ring-4 ${isHintAttack ? 'ring-rose-400' : 'ring-cyan-400'} ring-inset animate-pulse`} />
