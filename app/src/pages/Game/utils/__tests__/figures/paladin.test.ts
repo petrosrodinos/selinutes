@@ -246,4 +246,14 @@ describe('Paladin', () => {
 
     expect(getValidAttacks(board, start, DEFAULT_SIZE)).not.toContainEqual(pos(3, 2))
   })
+
+  it('can shoot over a mystery box on the diagonal attack path', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.PALADIN, color: 'white' })
+    placePiece(board, pos(3, 2), { type: PieceTypes.HOPLITE, color: 'black' })
+    placeObstacle(board, pos(5, 4), ObstacleTypes.MYSTERY_BOX)
+
+    expect(getValidAttacks(board, start, DEFAULT_SIZE)).toContainEqual(pos(3, 2))
+  })
 })

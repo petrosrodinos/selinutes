@@ -13,19 +13,23 @@ const canPassObstacle = (pieceType: PieceType, obstacleType: ObstacleType): bool
 
 const canPassRangeAttackObstacle = (pieceType: PieceType, obstacleType: ObstacleType): boolean => {
   const rules = PIECE_RULES[pieceType]
-  if (rules.rangeAttackCanPass) {
-    return rules.rangeAttackCanPass.includes(obstacleType)
-  }
-  return canPassObstacle(pieceType, obstacleType)
+  if (!rules.rangeAttackCanPass) return false
+  return rules.rangeAttackCanPass.includes(obstacleType)
 }
 
 const canPassFreezeObstacle = (obstacleType: ObstacleType): boolean => {
   const rules = PIECE_RULES[PieceTypes.NECROMANCER]
-  return rules.freezeCanPass?.includes(obstacleType) ?? false
+  if (!rules.freezeCanPass) return false
+  return rules.freezeCanPass.includes(obstacleType)
+}
+
+const canLandOnObstacle = (pieceType: PieceType, obstacleType: ObstacleType): boolean => {
+  if (obstacleType === ObstacleTypes.MYSTERY_BOX) return true
+  return canPassObstacle(pieceType, obstacleType)
 }
 
 const canStopOnObstacle = (obstacleType: ObstacleType): boolean => {
-  return obstacleType === ObstacleTypes.CAVE || obstacleType === ObstacleTypes.MYSTERY_BOX
+  return obstacleType === ObstacleTypes.CAVE
 }
 
 const getMaxRiverWidth = (pieceType: PieceType): number => {
@@ -83,7 +87,7 @@ const isPathClear = (
 
   if (rules.canJumpPieces) {
     const targetObstacle = getObstacleType(board, to.row, to.col)
-    if (targetObstacle && !canPassObstacle(piece.type, targetObstacle)) {
+    if (targetObstacle && !canLandOnObstacle(piece.type, targetObstacle)) {
       return false
     }
     return true
@@ -103,7 +107,11 @@ const isPathClear = (
     if (cell) {
       if (isPiece(cell)) return false
       if (isObstacle(cell)) {
-        if (!canPassObstacle(piece.type, cell.type)) return false
+        if (cell.type === ObstacleTypes.MYSTERY_BOX) {
+          if (!canPassObstacle(piece.type, ObstacleTypes.MYSTERY_BOX)) return false
+        } else if (!canPassObstacle(piece.type, cell.type)) {
+          return false
+        }
         if (cell.type === ObstacleTypes.RIVER) {
           if (riverRun >= maxRiver) return false
           riverRun++
@@ -121,7 +129,7 @@ const isPathClear = (
 
   const targetCell = board[to.row][to.col]
   if (targetCell && isObstacle(targetCell)) {
-    if (!canPassObstacle(piece.type, targetCell.type)) return false
+    if (!canLandOnObstacle(piece.type, targetCell.type)) return false
   }
 
   return true
@@ -146,6 +154,11 @@ const getHopliteMoves = (board: Board, pos: Position, piece: Piece, boardSize: B
         break
       }
       if (isObstacle(targetCell)) {
+        if (targetCell.type === ObstacleTypes.MYSTERY_BOX) {
+          moves.push({ row: newRow, col: pos.col })
+          if (!canPassObstacle(piece.type, ObstacleTypes.MYSTERY_BOX)) break
+          continue
+        }
         if (canPassObstacle(piece.type, targetCell.type)) {
           if (canStopOnObstacle(targetCell.type)) {
             const obstaclePos = { row: newRow, col: pos.col }
@@ -157,8 +170,6 @@ const getHopliteMoves = (board: Board, pos: Position, piece: Piece, boardSize: B
               } else {
                 moves.push(obstaclePos)
               }
-            } else if (targetCell.type === ObstacleTypes.MYSTERY_BOX) {
-              moves.push(obstaclePos)
             }
           }
           continue
@@ -195,6 +206,13 @@ const getCrossMoves = (board: Board, pos: Position, piece: Piece, boardSize: Boa
           break
         }
         if (isObstacle(cell)) {
+          if (cell.type === ObstacleTypes.MYSTERY_BOX) {
+            moves.push({ row, col })
+            if (!canPassObstacle(piece.type, ObstacleTypes.MYSTERY_BOX)) break
+            row += rowDir
+            col += colDir
+            continue
+          }
           if (canPassObstacle(piece.type, cell.type)) {
             if (cell.type === ObstacleTypes.RIVER) {
               if (riverRun >= maxRiver) break
@@ -212,8 +230,6 @@ const getCrossMoves = (board: Board, pos: Position, piece: Piece, boardSize: Boa
                 } else {
                   moves.push(obstaclePos)
                 }
-              } else if (cell.type === ObstacleTypes.MYSTERY_BOX) {
-                moves.push(obstaclePos)
               }
             }
             row += rowDir
@@ -257,6 +273,13 @@ const getSidewaysMoves = (board: Board, pos: Position, piece: Piece, boardSize: 
           break
         }
         if (isObstacle(cell)) {
+          if (cell.type === ObstacleTypes.MYSTERY_BOX) {
+            moves.push({ row, col })
+            if (!canPassObstacle(piece.type, ObstacleTypes.MYSTERY_BOX)) break
+            row += rowDir
+            col += colDir
+            continue
+          }
           if (canPassObstacle(piece.type, cell.type)) {
             if (cell.type === ObstacleTypes.RIVER) {
               if (riverRun >= maxRiver) break
@@ -274,8 +297,6 @@ const getSidewaysMoves = (board: Board, pos: Position, piece: Piece, boardSize: 
                 } else {
                   moves.push(obstaclePos)
                 }
-              } else if (cell.type === ObstacleTypes.MYSTERY_BOX) {
-                moves.push(obstaclePos)
               }
             }
             row += rowDir
@@ -319,6 +340,13 @@ const getDiagonalMoves = (board: Board, pos: Position, piece: Piece, boardSize: 
           break
         }
         if (isObstacle(cell)) {
+          if (cell.type === ObstacleTypes.MYSTERY_BOX) {
+            moves.push({ row, col })
+            if (!canPassObstacle(piece.type, ObstacleTypes.MYSTERY_BOX)) break
+            row += rowDir
+            col += colDir
+            continue
+          }
           if (canPassObstacle(piece.type, cell.type)) {
             if (cell.type === ObstacleTypes.RIVER) {
               if (riverRun >= maxRiver) break
@@ -336,8 +364,6 @@ const getDiagonalMoves = (board: Board, pos: Position, piece: Piece, boardSize: 
                 } else {
                   moves.push(obstaclePos)
                 }
-              } else if (cell.type === ObstacleTypes.MYSTERY_BOX) {
-                moves.push(obstaclePos)
               }
             }
             row += rowDir
@@ -387,6 +413,11 @@ const getAnyDirectionMoves = (board: Board, pos: Position, piece: Piece, boardSi
           break
         }
         if (isObstacle(cell)) {
+          if (cell.type === ObstacleTypes.MYSTERY_BOX) {
+            moves.push({ row, col })
+            if (!canPassObstacle(piece.type, ObstacleTypes.MYSTERY_BOX)) break
+            continue
+          }
           if (canPassObstacle(piece.type, cell.type)) {
             if (cell.type === ObstacleTypes.RIVER) {
               if (riverRun >= maxRiver) break
@@ -404,8 +435,6 @@ const getAnyDirectionMoves = (board: Board, pos: Position, piece: Piece, boardSi
                 } else {
                   moves.push(obstaclePos)
                 }
-              } else if (cell.type === ObstacleTypes.MYSTERY_BOX) {
-                moves.push(obstaclePos)
               }
             }
             continue

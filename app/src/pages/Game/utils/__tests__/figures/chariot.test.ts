@@ -201,7 +201,7 @@ describe('Chariot', () => {
     expect(attacks).not.toContainEqual(pos(9, 6))
   })
 
-  it.each([ObstacleTypes.TREE, ObstacleTypes.LAKE, ObstacleTypes.CANYON, ObstacleTypes.CAVE])(
+  it.each([ObstacleTypes.TREE, ObstacleTypes.LAKE, ObstacleTypes.CANYON, ObstacleTypes.CAVE, ObstacleTypes.MYSTERY_BOX])(
     'can shoot over %s on the fourth-box gamma path',
     (obstacle) => {
       const board = createEmptyBoard()

@@ -86,22 +86,25 @@ Mystery Box effect (see Section 7). Any figure can land on a Mystery Box.
 
 ### 3.3 Terrain pass-through matrix
 
-"YES" means the figure can move through and/or stop on that terrain. Trees and Rocks block
-every figure. The Chariot, Bomber, and Warlock can **jump over** intervening figures (and
-the Chariot/Bomber over obstacles), but they still cannot **land** on terrain marked "NO".
+"YES" means the figure can move **through** that terrain without stopping. Trees and Rocks block
+every figure. A figure that can pass any terrain in this table can also pass over a Mystery Box
+to land on a square beyond it — passing over does **not** trigger the box (see Section 7).
+Any figure may **land** on a Mystery Box tile to trigger its effect.
+The Chariot, Bomber, and Warlock can **jump over** intervening figures (and the
+Chariot/Bomber over obstacles), but they still cannot **land** on terrain marked "NO".
 
 
-| Figure                | Cave           | River            | Lake | Canyon | Tree | Rock |
-| --------------------- | -------------- | ---------------- | ---- | ------ | ---- | ---- |
-| Hoplite (Legionnaire) | YES (teleport) | NO               | NO   | NO     | NO   | NO   |
-| Ram-Tower             | NO             | NO               | NO   | NO     | NO   | NO   |
-| Chariot               | NO             | YES              | NO   | NO     | NO   | NO   |
-| Bomber (Saboteur)     | YES (teleport) | YES              | NO   | YES    | NO   | NO   |
-| Paladin               | YES            | YES (max 1 wide) | NO   | YES    | NO   | NO   |
-| Warlock (Vezier)      | YES            | NO               | YES  | NO     | NO   | NO   |
-| Monarch               | YES            | NO               | NO   | NO     | NO   | NO   |
-| Duchess               | NO             | YES              | NO   | NO     | NO   | NO   |
-| Necromancer (Druid)   | YES            | NO               | YES  | NO     | NO   | NO   |
+| Figure                | Cave           | River            | Lake | Canyon | Tree | Rock | Mystery Box |
+| --------------------- | -------------- | ---------------- | ---- | ------ | ---- | ---- | ----------- |
+| Hoplite (Legionnaire) | YES (teleport) | NO               | NO   | NO     | NO   | NO   | YES         |
+| Ram-Tower             | NO             | NO               | NO   | NO     | NO   | NO   | NO          |
+| Chariot               | NO             | YES              | NO   | NO     | NO   | NO   | YES         |
+| Bomber (Saboteur)     | YES (teleport) | YES              | NO   | YES    | NO   | NO   | YES         |
+| Paladin               | YES            | YES (max 1 wide) | NO   | YES    | NO   | NO   | YES         |
+| Warlock (Vezier)      | YES            | NO               | YES  | NO     | NO   | NO   | YES         |
+| Monarch               | YES            | NO               | NO   | NO     | NO   | NO   | YES         |
+| Duchess               | NO             | YES              | NO   | NO     | NO   | NO   | YES         |
+| Necromancer (Druid)   | YES            | NO               | YES  | NO     | NO   | NO   | YES         |
 
 
 > **Cave teleport detail:** Only the **Hoplite** and **Bomber** actually teleport between
@@ -115,18 +118,19 @@ obstacle type on the path to the target. This is separate from movement pass-thr
 (Section 3.3).
 
 
-| Figure                            | Over Rock | Over Tree | Over Cave | Over River | Over Lake | Over Canyon |
-| --------------------------------- | --------- | --------- | --------- | ---------- | --------- | ----------- |
-| Paladin                           | YES       | NO        | YES       | YES        | YES       | YES         |
-| Chariot                           | NO        | YES       | YES       | YES        | YES       | YES         |
-| Ram-Tower                         | YES       | NO        | YES       | YES        | YES       | YES         |
-| Duchess                           | YES       | NO        | YES       | YES        | YES       | YES         |
-| Necromancer (Druid) (Stun/Freeze) | NO        | YES       | YES       | YES        | YES       | YES         |
+| Figure                            | Over Rock | Over Tree | Over Cave | Over River | Over Lake | Over Canyon | Over Mystery Box |
+| --------------------------------- | --------- | --------- | --------- | ---------- | --------- | ----------- | ---------------- |
+| Paladin                           | YES       | NO        | YES       | YES        | YES       | YES         | YES              |
+| Chariot                           | NO        | YES       | YES       | YES        | YES       | YES         | YES              |
+| Ram-Tower                         | YES       | NO        | YES       | YES        | YES       | YES         | YES              |
+| Duchess                           | YES       | NO        | YES       | YES        | YES       | YES         | YES              |
+| Necromancer (Druid) (Stun/Freeze) | NO        | YES       | YES       | YES        | YES       | YES         | YES              |
 
 
 The Chariot uses this matrix on its gamma attack path. All other listed figures use it on
 straight or diagonal attack lines. The Necromancer's melee kill (range 1) does not use
-this matrix — only its stun/freeze ability does.
+this matrix — only its stun/freeze ability does. Passing over a Mystery Box on an attack
+path does **not** trigger it; only **landing** on a Mystery Box tile does.
 
 ---
 

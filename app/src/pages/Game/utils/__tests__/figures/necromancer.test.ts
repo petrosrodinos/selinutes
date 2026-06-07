@@ -116,6 +116,16 @@ describe('Necromancer', () => {
     expect(getNecromancerFreezeTargets(board, start, DEFAULT_SIZE)).toContainEqual(pos(1, 5))
   })
 
+  it('freeze line of sight passes over a mystery box', () => {
+    const board = createEmptyBoard()
+    const start = pos(9, 5)
+    placePiece(board, start, { type: PieceTypes.NECROMANCER, color: 'white' })
+    placePiece(board, pos(1, 5), { type: PieceTypes.HOPLITE, color: 'black' })
+    placeObstacle(board, pos(5, 5), ObstacleTypes.MYSTERY_BOX)
+
+    expect(getNecromancerFreezeTargets(board, start, DEFAULT_SIZE)).toContainEqual(pos(1, 5))
+  })
+
   it('does not freeze a non-aligned enemy', () => {
     const board = createEmptyBoard()
     const start = pos(9, 5)

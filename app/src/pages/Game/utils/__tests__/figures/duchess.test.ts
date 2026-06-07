@@ -112,6 +112,16 @@ describe('Duchess', () => {
     expect(attacks).toContainEqual(pos(6, 9))
   })
 
+  it('can shoot over a mystery box on the attack path', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.DUCHESS, color: 'white' })
+    placeObstacle(board, pos(6, 7), ObstacleTypes.MYSTERY_BOX)
+    placePiece(board, pos(6, 9), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    expect(getValidAttacks(board, start, DEFAULT_SIZE)).toContainEqual(pos(6, 9))
+  })
+
   it('attacks up to range 9 but not beyond', () => {
     const board = createEmptyBoard()
     const start = pos(11, 0)

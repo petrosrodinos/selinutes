@@ -28,13 +28,14 @@ export const PIECE_RULES: Record<string, PieceRules> = {
   [PieceTypes.RAM_TOWER]: {
     move: MovePatterns.CROSS,
     attackRange: 5,
-    canPass: [ObstacleTypes.MYSTERY_BOX],
+    canPass: [],
     rangeAttackCanPass: [
       ObstacleTypes.ROCK,
       ObstacleTypes.CAVE,
       ObstacleTypes.RIVER,
       ObstacleTypes.LAKE,
-      ObstacleTypes.CANYON
+      ObstacleTypes.CANYON,
+      ObstacleTypes.MYSTERY_BOX
     ],
     canChooseAttackMode: true,
     points: 20
@@ -50,7 +51,8 @@ export const PIECE_RULES: Record<string, PieceRules> = {
       ObstacleTypes.CAVE,
       ObstacleTypes.RIVER,
       ObstacleTypes.LAKE,
-      ObstacleTypes.CANYON
+      ObstacleTypes.CANYON,
+      ObstacleTypes.MYSTERY_BOX
     ],
     canJumpPieces: true,
     canChooseAttackMode: true,
@@ -75,7 +77,8 @@ export const PIECE_RULES: Record<string, PieceRules> = {
       ObstacleTypes.CAVE,
       ObstacleTypes.RIVER,
       ObstacleTypes.LAKE,
-      ObstacleTypes.CANYON
+      ObstacleTypes.CANYON,
+      ObstacleTypes.MYSTERY_BOX
     ],
     canChooseAttackMode: true,
     maxRiverWidth: 1,
@@ -106,7 +109,8 @@ export const PIECE_RULES: Record<string, PieceRules> = {
       ObstacleTypes.CAVE,
       ObstacleTypes.RIVER,
       ObstacleTypes.LAKE,
-      ObstacleTypes.CANYON
+      ObstacleTypes.CANYON,
+      ObstacleTypes.MYSTERY_BOX
     ],
     canChooseAttackMode: true,
     points: 27
@@ -121,7 +125,8 @@ export const PIECE_RULES: Record<string, PieceRules> = {
       ObstacleTypes.CAVE,
       ObstacleTypes.RIVER,
       ObstacleTypes.LAKE,
-      ObstacleTypes.CANYON
+      ObstacleTypes.CANYON,
+      ObstacleTypes.MYSTERY_BOX
     ],
     canChooseAttackMode: false,
     points: 13
@@ -210,14 +215,14 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   [PieceTypes.RAM_TOWER]: [
     'Moves cross-shaped (orthogonal) any number of blocks.',
     'Catapult attack: cross-shaped, up to 5 blocks away; shoots through friendly figures and captures only the first enemy in each line.',
-    'Range attacks pass over rock, cave, river, lake, and canyon; trees block the shot.',
+    'Range attacks pass over rock, cave, river, lake, canyon, and mystery box; trees block the shot.',
     'Can also move onto an enemy in its path to capture it directly.',
     'Cannot pass through cave, river, lake, or canyon.'
   ],
   [PieceTypes.CHARIOT]: [
     'Moves in corner patterns: 2-1, 1-2, 2-2, 3-1, 1-3 steps.',
     'Can jump over other figures on its path.',
-    'Attacks: gamma-shaped (L) ranged kill only at gamma range 4 (3+1 or 1+3); shoots over friendly figures; range attacks pass over tree, cave, river, lake, and canyon but rock blocks the shot; enemy figures block the shot. Capture-and-move only up to gamma range 3 (2+1 or 1+2) on a clear path — not at gamma range 4.',
+    'Attacks: gamma-shaped (L) ranged kill only at gamma range 4 (3+1 or 1+3); shoots over friendly figures; range attacks pass over tree, cave, river, lake, canyon, and mystery box but rock blocks the shot; enemy figures block the shot. Capture-and-move only up to gamma range 3 (2+1 or 1+2) on a clear path — not at gamma range 4.',
     'Can pass through rivers and land beyond them.',
     'Cannot pass through lake, canyon, or cave.'
   ],
@@ -232,7 +237,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   [PieceTypes.PALADIN]: [
     'Moves diagonal as many steps as possible.',
     'Shoots up to 3 steps (diagonal); shoots through friendly figures and captures only the first enemy in each line.',
-    'Range attacks pass over rock, cave, river, lake, and canyon; trees block the shot.',
+    'Range attacks pass over rock, cave, river, lake, canyon, and mystery box; trees block the shot.',
     'Can also move onto an enemy in its path to capture it directly (any diagonal distance on a clear path).',
     'Can pass through river (1 step wide), cave, canyon.',
     'Cannot pass through lake.'
@@ -254,14 +259,14 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   [PieceTypes.DUCHESS]: [
     'Moves in any direction, any number of steps.',
     'Shoots up to 9 steps in any direction; shoots through friendly figures and captures only the first enemy in each line.',
-    'Range attacks pass over rock, cave, river, lake, and canyon; trees block the shot.',
+    'Range attacks pass over rock, cave, river, lake, canyon, and mystery box; trees block the shot.',
     'Can pass through river.',
     'Cannot pass through lake, canyon, cave, or tree.'
   ],
   [PieceTypes.NECROMANCER]: [
     'Moves 1 step in any direction.',
     'Melee attack: kills an adjacent enemy 1 step away in any direction.',
-    'Freeze-stun: stuns an enemy in a straight line up to 8 steps away; rock blocks it, but tree, cave, river, lake, and canyon do not. Stunned figures cannot move or capture-and-move, but can still use their normal ranged attacks. Freeze duration equals half the distance used (e.g. 8 steps away = 4 turns, 6 = 3, 4 = 2, 2 = 1). Maximum freeze range drops by 2 for every revival performed; after 4 revivals the Necromancer can no longer freeze.',
+    'Freeze-stun: stuns an enemy in a straight line up to 8 steps away; rock blocks it, but tree, cave, river, lake, canyon, and mystery box do not. Stunned figures cannot move or capture-and-move, but can still use their normal ranged attacks. Freeze duration equals half the distance used (e.g. 8 steps away = 4 turns, 6 = 3, 4 = 2, 2 = 1). Maximum freeze range drops by 2 for every revival performed; after 4 revivals the Necromancer can no longer freeze.',
     'Can revive Ram, Chariot, Bomber, or Paladin when the Necromancer, Monarch, and Duchess are on the same horizontal line.',
     'Revived figures attack at range 1 only; a revived Bomber can still attack as a Zombie.',
     'Can pass through lake and cave.',

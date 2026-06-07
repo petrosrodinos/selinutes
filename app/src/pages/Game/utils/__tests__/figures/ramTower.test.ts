@@ -52,7 +52,7 @@ describe('Ram Tower', () => {
     expectExcludesPositions(moves, [pos(6, 7), pos(6, 8)])
   })
 
-  it('passes and stops on a mystery box', () => {
+  it('can land on a mystery box but cannot pass through it', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
     placePiece(board, start, { type: PieceTypes.RAM_TOWER, color: 'white' })
@@ -60,7 +60,8 @@ describe('Ram Tower', () => {
 
     const moves = getValidMoves(board, start, DEFAULT_SIZE)
 
-    expectContainsPositions(moves, [pos(6, 6), pos(6, 7), pos(6, 8)])
+    expectContainsPositions(moves, [pos(6, 6), pos(6, 7)])
+    expectExcludesPositions(moves, [pos(6, 8)])
   })
 
   it.each(BOTH_COLORS)('attacks along the cross up to range 5 (%s)', (color: PlayerColor) => {
@@ -150,5 +151,15 @@ describe('Ram Tower', () => {
     placeObstacle(board, pos(6, 7), ObstacleTypes.TREE)
 
     expect(getValidAttacks(board, start, DEFAULT_SIZE)).not.toContainEqual(pos(6, 9))
+  })
+
+  it('can shoot over a mystery box on the cross attack path', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.RAM_TOWER, color: 'white' })
+    placePiece(board, pos(6, 9), { type: PieceTypes.HOPLITE, color: 'black' })
+    placeObstacle(board, pos(6, 7), ObstacleTypes.MYSTERY_BOX)
+
+    expect(getValidAttacks(board, start, DEFAULT_SIZE)).toContainEqual(pos(6, 9))
   })
 })
