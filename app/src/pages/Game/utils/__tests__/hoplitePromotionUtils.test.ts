@@ -37,14 +37,14 @@ describe('hoplitePromotionUtils', () => {
 
   it('allows promotion when under the global limit', () => {
     const board = createEmptyBoard()
-    const piece = { id: 'h1', type: PieceTypes.HOPLITE, color: PlayerColors.WHITE as const, hasMoved: true }
+    const piece = { id: 'h1', type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true }
 
     expect(canPromoteHoplite(piece, pos(0, 5), DEFAULT_SIZE, board, { white: [], black: [] })).toBe(true)
   })
 
   it('blocks promotion at the global limit regardless of player', () => {
     const board = createEmptyBoard()
-    const piece = { id: 'h1', type: PieceTypes.HOPLITE, color: PlayerColors.WHITE as const, hasMoved: true }
+    const piece = { id: 'h1', type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true }
 
     placePiece(board, pos(0, 0), { type: PieceTypes.DUCHESS, color: 'white', promotedFromHoplite: true })
     placePiece(board, pos(11, 0), { type: PieceTypes.DUCHESS, color: 'black', promotedFromHoplite: true })
@@ -55,7 +55,7 @@ describe('hoplitePromotionUtils', () => {
 
   it('blocks promotion at the global limit when only one player promoted', () => {
     const board = createEmptyBoard()
-    const piece = { id: 'h1', type: PieceTypes.HOPLITE, color: PlayerColors.WHITE as const, hasMoved: true }
+    const piece = { id: 'h1', type: PieceTypes.HOPLITE, color: 'white' as const, hasMoved: true }
 
     for (let col = 0; col < HOPLITE_PROMOTION_MAX; col++) {
       placePiece(board, pos(0, col), {
@@ -72,7 +72,7 @@ describe('hoplitePromotionUtils', () => {
     const piece = {
       id: 'hoplite-99',
       type: PieceTypes.HOPLITE,
-      color: PlayerColors.BLACK as const,
+      color: 'black' as const,
       hasMoved: true
     }
 

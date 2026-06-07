@@ -164,8 +164,8 @@ describe('monarch detection', () => {
 
 describe('frozen capture attack mode', () => {
   it('canUseCaptureAttackMode is false for frozen figures with dual attack modes', () => {
-    const frozenRam = { type: PieceTypes.RAM_TOWER, color: 'white' as const, frozenTurns: 1 }
-    const activeRam = { type: PieceTypes.RAM_TOWER, color: 'white' as const }
+    const frozenRam = { id: 'ram1', type: PieceTypes.RAM_TOWER, color: 'white' as const, frozenTurns: 1 }
+    const activeRam = { id: 'ram2', type: PieceTypes.RAM_TOWER, color: 'white' as const }
 
     expect(canUseCaptureAttackMode(frozenRam)).toBe(false)
     expect(canUseCaptureAttackMode(activeRam)).toBe(true)
@@ -176,7 +176,7 @@ describe('frozen capture attack mode', () => {
     const start = pos(6, 5)
     const rangedTarget = pos(6, 8)
     const captureTarget = pos(4, 5)
-    const ram = { type: PieceTypes.RAM_TOWER, color: 'white' as const, frozenTurns: 1 }
+    const ram = { id: 'ram1', type: PieceTypes.RAM_TOWER, color: 'white' as const, frozenTurns: 1 }
     placePiece(board, start, ram)
     placePiece(board, rangedTarget, { type: PieceTypes.HOPLITE, color: 'black' })
     placePiece(board, captureTarget, { type: PieceTypes.HOPLITE, color: 'black' })
@@ -201,7 +201,7 @@ describe('frozen capture attack mode', () => {
     const board = createEmptyBoard()
     const from = pos(6, 5)
     const to = pos(4, 5)
-    const ram = { type: PieceTypes.RAM_TOWER, color: 'white' as const, frozenTurns: 1 }
+    const ram = { id: 'ram1', type: PieceTypes.RAM_TOWER, color: 'white' as const, frozenTurns: 1 }
     placePiece(board, from, ram)
     placePiece(board, to, { type: PieceTypes.HOPLITE, color: 'black' })
 
