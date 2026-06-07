@@ -3,6 +3,7 @@ import { Trophy, X, Home, RotateCcw } from "lucide-react";
 import type { Piece, PlayerColor } from "../../types";
 import type { Player } from "../../../../features/game/interfaces";
 import { PIECE_RULES } from "../../constants";
+import { useGameStore } from "../../../../store/gameStore";
 
 interface GameResultModalProps {
   isOpen: boolean;
@@ -42,6 +43,8 @@ const getResultText = (winner: PlayerColor | null, isOnline: boolean, currentPla
 
 export const GameResultModal = ({ isOpen, onClose, winner, capturedPieces, isOnline, currentPlayer, players }: GameResultModalProps) => {
   const navigate = useNavigate();
+  const resetGame = useGameStore((state) => state.resetGame);
+  const resetOnlineState = useGameStore((state) => state.reset);
 
   if (!isOpen) return null;
 
@@ -54,15 +57,21 @@ export const GameResultModal = ({ isOpen, onClose, winner, capturedPieces, isOnl
   const blackPlayer = players?.find((p) => p.color === "black");
 
   const handleGoHome = () => {
+    if (isOnline) {
+      resetOnlineState();
+    }
+    resetGame();
+    onClose();
     navigate("/home");
   };
 
   const handlePlayAgain = () => {
     if (isOnline) {
       handleGoHome();
-    } else {
-      window.location.reload();
+      return;
     }
+    resetGame();
+    onClose();
   };
 
   return (

@@ -98,6 +98,9 @@ export const Game = () => {
     const isGameOver = isOnline ? onlineGameOver : gameState.gameOver;
     if (isGameOver) {
       setIsResultModalOpen(true);
+    } else {
+      setIsResultModalOpen(false);
+      offlineGameSavedRef.current = false;
     }
   }, [isOnline, onlineGameOver, gameState.gameOver]);
 
@@ -273,9 +276,8 @@ export const Game = () => {
     setIsSettingsOpen(false);
     if (isOnline) {
       resetOnlineState();
-    } else {
-      resetGame();
     }
+    resetGame();
     navigate("/home");
   };
 

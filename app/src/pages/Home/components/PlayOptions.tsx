@@ -2,6 +2,7 @@ import { useCallback, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { User, Users, Plus, LogIn, Copy, Check, Loader2, X } from 'lucide-react'
 import { useAuthStore } from '../../../store/authStore'
+import { useGameStore } from '../../../store/gameStore'
 import { GameModes, SocketEvents } from '../../../constants'
 import type { GameMode } from '../../../constants'
 import { useSocket } from '../../../hooks'
@@ -28,6 +29,7 @@ export const PlayOptions = () => {
     const [isJoining, setIsJoining] = useState(false)
     const [isWaiting, setIsWaiting] = useState(false)
     const { emit, on, off, connectionError } = useSocket()
+    const resetGame = useGameStore(state => state.resetGame)
 
     useEffect(() => {
         if (connectionError && (isCreating || isJoining)) {
@@ -72,8 +74,9 @@ export const PlayOptions = () => {
     }, [on, off, navigate])
 
     const handleModeSelect = useCallback((mode: GameMode) => {
+        resetGame()
         navigate(`/game?mode=${mode}`)
-    }, [navigate])
+    }, [navigate, resetGame])
 
     const handleCreateGame = useCallback(() => {
         if (!userId) return
