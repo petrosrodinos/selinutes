@@ -84,7 +84,32 @@ describe('Duchess', () => {
 
     const attacks = getValidAttacks(board, start, DEFAULT_SIZE)
 
+    expect(attacks).toContainEqual(pos(6, 9))
+  })
+
+  it('cannot shoot through a tree', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.DUCHESS, color: 'white' })
+    placeObstacle(board, pos(6, 7), ObstacleTypes.TREE)
+    placePiece(board, pos(6, 9), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const attacks = getValidAttacks(board, start, DEFAULT_SIZE)
+
     expect(attacks).not.toContainEqual(pos(6, 9))
+  })
+
+  it('can shoot over rock and cave on the attack path', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.DUCHESS, color: 'white' })
+    placeObstacle(board, pos(6, 7), ObstacleTypes.ROCK)
+    placeObstacle(board, pos(6, 8), ObstacleTypes.CAVE)
+    placePiece(board, pos(6, 9), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const attacks = getValidAttacks(board, start, DEFAULT_SIZE)
+
+    expect(attacks).toContainEqual(pos(6, 9))
   })
 
   it('attacks up to range 9 but not beyond', () => {

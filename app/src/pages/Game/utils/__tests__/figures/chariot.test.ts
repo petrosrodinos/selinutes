@@ -201,7 +201,7 @@ describe('Chariot', () => {
     expect(attacks).not.toContainEqual(pos(9, 6))
   })
 
-  it.each([ObstacleTypes.TREE, ObstacleTypes.LAKE, ObstacleTypes.CANYON])(
+  it.each([ObstacleTypes.TREE, ObstacleTypes.LAKE, ObstacleTypes.CANYON, ObstacleTypes.CAVE])(
     'can shoot over %s on the fourth-box gamma path',
     (obstacle) => {
       const board = createEmptyBoard()
@@ -215,6 +215,19 @@ describe('Chariot', () => {
       expect(attacks).toContainEqual(pos(9, 6))
     }
   )
+
+  it('cannot shoot over rock on the fourth-box gamma path', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.CHARIOT, color: 'white' })
+    placePiece(board, pos(9, 6), { type: PieceTypes.HOPLITE, color: 'black' })
+    placeObstacle(board, pos(8, 5), ObstacleTypes.ROCK)
+    placeObstacle(board, pos(8, 6), ObstacleTypes.ROCK)
+
+    const attacks = getValidAttacks(board, start, DEFAULT_SIZE)
+
+    expect(attacks).not.toContainEqual(pos(9, 6))
+  })
 
   it('does not allow capture-and-move when a friendly figure is on the gamma path', () => {
     const board = createEmptyBoard()

@@ -96,16 +96,24 @@ describe('Necromancer', () => {
     expect(targets).toContainEqual(pos(1, 5))
   })
 
-  it('freeze line of sight is blocked only by a tree', () => {
+  it('freeze line of sight is blocked by rock', () => {
+    const board = createEmptyBoard()
+    const start = pos(9, 5)
+    placePiece(board, start, { type: PieceTypes.NECROMANCER, color: 'white' })
+    placePiece(board, pos(1, 5), { type: PieceTypes.HOPLITE, color: 'black' })
+    placeObstacle(board, pos(5, 5), ObstacleTypes.ROCK)
+
+    expect(getNecromancerFreezeTargets(board, start, DEFAULT_SIZE)).not.toContainEqual(pos(1, 5))
+  })
+
+  it('freeze line of sight passes over a tree', () => {
     const board = createEmptyBoard()
     const start = pos(9, 5)
     placePiece(board, start, { type: PieceTypes.NECROMANCER, color: 'white' })
     placePiece(board, pos(1, 5), { type: PieceTypes.HOPLITE, color: 'black' })
     placeObstacle(board, pos(5, 5), ObstacleTypes.TREE)
 
-    const targets = getNecromancerFreezeTargets(board, start, DEFAULT_SIZE)
-
-    expect(targets).not.toContainEqual(pos(1, 5))
+    expect(getNecromancerFreezeTargets(board, start, DEFAULT_SIZE)).toContainEqual(pos(1, 5))
   })
 
   it('does not freeze a non-aligned enemy', () => {

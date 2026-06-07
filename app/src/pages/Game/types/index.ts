@@ -63,6 +63,8 @@ export interface PieceRules {
   chariotCaptureMaxGammaRange?: number
   freezeRange?: number
   canPass: ObstacleType[]
+  rangeAttackCanPass?: ObstacleType[]
+  freezeCanPass?: ObstacleType[]
   canJumpPieces?: boolean
   canChooseAttackMode: boolean
   maxRiverWidth?: number

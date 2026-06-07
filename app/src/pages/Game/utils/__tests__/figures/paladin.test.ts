@@ -231,4 +231,19 @@ describe('Paladin', () => {
     expect(attacks).toContainEqual(pos(5, 4))
     expect(attacks).not.toContainEqual(pos(8, 3))
   })
+
+  it('can shoot over rock and lake but not tree on the diagonal attack path', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.PALADIN, color: 'white' })
+    placePiece(board, pos(3, 2), { type: PieceTypes.HOPLITE, color: 'black' })
+    placeObstacle(board, pos(5, 4), ObstacleTypes.ROCK)
+    placeObstacle(board, pos(4, 3), ObstacleTypes.LAKE)
+
+    expect(getValidAttacks(board, start, DEFAULT_SIZE)).toContainEqual(pos(3, 2))
+
+    placeObstacle(board, pos(5, 4), ObstacleTypes.TREE)
+
+    expect(getValidAttacks(board, start, DEFAULT_SIZE)).not.toContainEqual(pos(3, 2))
+  })
 })

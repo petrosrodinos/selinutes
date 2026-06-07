@@ -186,7 +186,8 @@ or rock.
 
 - **Move:** Cross / orthogonal (up, down, left, right) any number of tiles, until blocked.
 - **Attack (Catapult):** Ranged cross-shaped attack up to **5 tiles** away. Shoots through
-friendly figures; only the **first enemy** in each line can be captured.
+friendly figures; only the **first enemy** in each line can be captured. Range attacks pass
+over rock, cave, river, lake, and canyon; **trees block the shot** (see Section 3.4).
 - **Move-capture:** Unusually, the Ram-Tower can also **move onto an enemy in its path** to
 capture it directly.
 - **Terrain:** Cannot pass any terrain (cave, river, lake, canyon, tree, rock).
@@ -198,10 +199,11 @@ capture it directly.
 matters. It cannot land on cave, lake, canyon, tree, or rock (it can land on river or
 empty tiles).
 - **Attack:** Gamma-shaped (L) ranged kill **only at gamma range 4** (3+1 or 1+3 — not at
-shorter distances). It **shoots over friendly figures and all obstacles**; only **enemy
-figures** block the shot. In capture-and-move mode, only enemies on a **clear** gamma path
-up to **gamma range 3** (2+1 or 1+2) can be captured by moving onto them — not at gamma
-range 4 (3+1 or 1+3).
+shorter distances). It **shoots over friendly figures**; range attacks pass over tree, cave,
+river, lake, and canyon but **rock blocks the shot**; only **enemy figures** block the shot
+(see Section 3.4). In capture-and-move mode, only enemies on a **clear** gamma path up to
+**gamma range 3** (2+1 or 1+2) can be captured by moving onto them — not at gamma range 4
+(3+1 or 1+3).
 - **Terrain:** Can pass/land on river. Cannot land on lake, canyon, or cave.
 
 ### 6.4 Bomber (Saboteur) — 12 pts (Zombie 9)
@@ -220,7 +222,8 @@ its net.
 
 - **Move:** Diagonal, any number of tiles, until blocked.
 - **Attack:** Ranged diagonal attack up to **3 tiles**. Shoots through friendly figures;
-only the **first enemy** in each diagonal line can be captured.
+only the **first enemy** in each diagonal line can be captured. Range attacks pass over
+rock, cave, river, lake, and canyon; **trees block the shot** (see Section 3.4).
 - **Move-capture:** Can also **move onto an enemy** along a clear diagonal path to capture
 it directly (any distance, not limited to the 3-tile ranged attack).
 - **Terrain:** Can pass cave, river (max **1 tile wide**), and canyon. Cannot pass lake.
@@ -246,7 +249,8 @@ it directly (any distance, not limited to the 3-tile ranged attack).
 
 - **Move:** Any direction, any number of tiles, until blocked.
 - **Attack:** Ranged, up to **9 tiles** in any direction. Shoots through friendly figures;
-only the **first enemy** in each line can be captured.
+only the **first enemy** in each line can be captured. Range attacks pass over rock, cave,
+river, lake, and canyon; **trees block the shot** (see Section 3.4).
 - **Terrain:** Can pass river. Cannot pass lake, canyon, cave, or tree.
 
 ### 6.9 Necromancer (Druid) — 13 pts
@@ -256,13 +260,14 @@ The Necromancer is a support/control figure with three distinct actions.
 - **Move:** One tile in any direction.
 - **Melee attack:** Kills an adjacent enemy (1 tile, any direction).
 - **Freeze-stun (special action):** Stuns an enemy figure in a **straight line** (orthogonal
-or diagonal) up to **8 tiles** away. Only **trees** block the freeze; other obstacles and
-figures do not. The maximum freeze range **drops by 2 for each revival the Necromancer has
-performed** (8 → 6 → 4 → 2 → 0; at **0** the Necromancer can no longer freeze). A frozen
-figure **cannot move** or capture-and-move, but **can still attack** using its normal range
-and attack rules. **Freeze duration = distance used ÷ 2** (rounded down): 8 tiles = 4 turns,
-6 = 3, 4 = 2, 2 = 1. Adjacent targets (1 tile) cannot be frozen — use melee kill instead.
-A figure that is already frozen cannot be frozen again.
+or diagonal) up to **8 tiles** away. **Rock blocks the freeze**; tree, cave, river, lake,
+and canyon do not (see Section 3.4). Figures do not block the freeze. The maximum freeze
+range **drops by 2 for each revival the Necromancer has performed** (8 → 6 → 4 → 2 → 0; at
+**0** the Necromancer can no longer freeze). A frozen figure **cannot move** or
+capture-and-move, but **can still attack** using its normal range and attack rules. **Freeze
+duration = distance used ÷ 2** (rounded down): 8 tiles = 4 turns, 6 = 3, 4 = 2, 2 = 1.
+Adjacent targets (1 tile) cannot be frozen — use melee kill instead. A figure that is
+already frozen cannot be frozen again.
 - **Revive (special action):** See Section 6.10.
 - **Terrain:** Can pass lake and cave. Cannot pass river or canyon.
 
@@ -315,9 +320,10 @@ a net tile (diagonals 1-2 away, orthogonals 2 away).
 - **Warlock swaps:** Reposition the Monarch with the Warlock or with a friendly Hoplite.
 - **Hoplite promotion:** A Hoplite that reaches the opponent's back rank becomes a Duchess
 (only 3 promotions allowed in the entire game).
-- **Necromancer freeze:** Straight-line stun up to 8 tiles, blocked only by trees; range
-drops by 2 per revival (to 0 after four). Duration = distance ÷ 2 turns. Stunned figures
-cannot move or capture-and-move but can still use normal ranged attacks.
+- **Necromancer freeze:** Straight-line stun up to 8 tiles; rock blocks it, but tree, cave,
+river, lake, and canyon do not; range drops by 2 per revival (to 0 after four). Duration =
+distance ÷ 2 turns. Stunned figures cannot move or capture-and-move but can still use normal
+ranged attacks.
 - **Revival / Zombie mode:** Ram-Tower, Chariot, Bomber, or Paladin can return as Zombies
 while the Necromancer, Monarch, and Duchess share the same row; Zombies attack at range 1
 and are worth fewer points.

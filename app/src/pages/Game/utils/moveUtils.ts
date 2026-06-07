@@ -7,11 +7,21 @@ import { canPromoteHoplite, promoteHopliteToDuchess } from './hoplitePromotionUt
 import { getAdjustedAttackRange } from './zombieUtils'
 
 const canPassObstacle = (pieceType: PieceType, obstacleType: ObstacleType): boolean => {
-  if (pieceType === PieceTypes.DUCHESS && obstacleType === ObstacleTypes.TREE) {
-    return false
-  }
   const rules = PIECE_RULES[pieceType]
   return rules.canPass.includes(obstacleType)
+}
+
+const canPassRangeAttackObstacle = (pieceType: PieceType, obstacleType: ObstacleType): boolean => {
+  const rules = PIECE_RULES[pieceType]
+  if (rules.rangeAttackCanPass) {
+    return rules.rangeAttackCanPass.includes(obstacleType)
+  }
+  return canPassObstacle(pieceType, obstacleType)
+}
+
+const canPassFreezeObstacle = (obstacleType: ObstacleType): boolean => {
+  const rules = PIECE_RULES[PieceTypes.NECROMANCER]
+  return rules.freezeCanPass?.includes(obstacleType) ?? false
 }
 
 const canStopOnObstacle = (obstacleType: ObstacleType): boolean => {
@@ -545,7 +555,7 @@ const isFreezePathClear = (
   while (row !== to.row || col !== to.col) {
     if (!isInBounds(row, col, boardSize)) return false
     const cell = board[row][col]
-    if (cell && isObstacle(cell) && cell.type === ObstacleTypes.TREE) return false
+    if (cell && isObstacle(cell) && !canPassFreezeObstacle(cell.type)) return false
     row += rowDir
     col += colDir
   }
@@ -665,6 +675,10 @@ const isChariotGammaPathOptionClear = (
   for (const cellPos of intermediateCells) {
     const cell = board[cellPos.row][cellPos.col]
     if (!cell) continue
+    if (isObstacle(cell)) {
+      if (!canPassRangeAttackObstacle(piece.type, cell.type)) return false
+      continue
+    }
     if (isPiece(cell)) {
       if (cell.color === piece.color) continue
       return false
@@ -784,7 +798,7 @@ const getRamTowerValidAttacks = (board: Board, pos: Position, boardSize: BoardSi
       const targetCell = board[row][col]
       if (!targetCell) continue
       if (isObstacle(targetCell)) {
-        if (!canPassObstacle(cell.type, targetCell.type)) break
+        if (!canPassRangeAttackObstacle(cell.type, targetCell.type)) break
         continue
       }
       if (targetCell.color === cell.color) continue
@@ -813,7 +827,7 @@ const getPaladinValidAttacks = (board: Board, pos: Position, boardSize: BoardSiz
       const targetCell = board[row][col]
       if (!targetCell) continue
       if (isObstacle(targetCell)) {
-        if (!canPassObstacle(cell.type, targetCell.type)) break
+        if (!canPassRangeAttackObstacle(cell.type, targetCell.type)) break
         continue
       }
       if (targetCell.color === cell.color) continue
@@ -904,7 +918,7 @@ const isAttackPathClear = (
         }
         return false
       }
-      if (isObstacle(cell) && !canPassObstacle(piece.type, cell.type)) return false
+      if (isObstacle(cell) && !canPassRangeAttackObstacle(piece.type, cell.type)) return false
     }
 
     row += rowDir

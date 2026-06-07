@@ -136,4 +136,19 @@ describe('Ram Tower', () => {
     expect(attacks).toContainEqual(pos(6, 6))
     expect(attacks).not.toContainEqual(pos(6, 8))
   })
+
+  it('can shoot over rock and lake but not tree on the cross attack path', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.RAM_TOWER, color: 'white' })
+    placePiece(board, pos(6, 9), { type: PieceTypes.HOPLITE, color: 'black' })
+    placeObstacle(board, pos(6, 7), ObstacleTypes.ROCK)
+    placeObstacle(board, pos(6, 8), ObstacleTypes.LAKE)
+
+    expect(getValidAttacks(board, start, DEFAULT_SIZE)).toContainEqual(pos(6, 9))
+
+    placeObstacle(board, pos(6, 7), ObstacleTypes.TREE)
+
+    expect(getValidAttacks(board, start, DEFAULT_SIZE)).not.toContainEqual(pos(6, 9))
+  })
 })
