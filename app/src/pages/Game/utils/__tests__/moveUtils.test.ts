@@ -217,6 +217,72 @@ describe('frozen capture attack mode', () => {
     expect(result.shouldUseMoveCapture).toBe(false)
     expect(result.shouldUseRangedAttack).toBe(false)
   })
+
+  it('getDisplayedAttackTargets ignores capture mode for frozen chariot', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const rangedTarget = pos(9, 6)
+    const chariot = { id: 'c1', type: PieceTypes.CHARIOT, color: 'white' as const, frozenTurns: 1 }
+    placePiece(board, start, chariot)
+    placePiece(board, rangedTarget, { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+    const attacks = getValidAttacks(board, start, DEFAULT_SIZE)
+    const displayed = getDisplayedAttackTargets(
+      board,
+      moves,
+      attacks,
+      chariot,
+      start,
+      'capture',
+      DEFAULT_SIZE
+    )
+
+    expect(displayed).toEqual(attacks)
+    expect(displayed).toContainEqual(rangedTarget)
+  })
+
+  it('resolveAttackModeAction uses ranged attack for frozen chariot in capture mode', () => {
+    const board = createEmptyBoard()
+    const from = pos(6, 5)
+    const to = pos(9, 6)
+    const chariot = { id: 'c1', type: PieceTypes.CHARIOT, color: 'white' as const, frozenTurns: 1 }
+    placePiece(board, from, chariot)
+    placePiece(board, to, { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const result = resolveAttackModeAction(
+      chariot,
+      board[to.row][to.col]!,
+      false,
+      true,
+      'capture',
+      { board, from, to, boardSize: DEFAULT_SIZE }
+    )
+
+    expect(result.shouldUseMoveCapture).toBe(false)
+    expect(result.shouldUseRangedAttack).toBe(true)
+  })
+
+  it('resolveAttackModeAction uses ranged attack for frozen ram tower in capture mode', () => {
+    const board = createEmptyBoard()
+    const from = pos(6, 5)
+    const to = pos(6, 8)
+    const ram = { id: 'ram1', type: PieceTypes.RAM_TOWER, color: 'white' as const, frozenTurns: 1 }
+    placePiece(board, from, ram)
+    placePiece(board, to, { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const result = resolveAttackModeAction(
+      ram,
+      board[to.row][to.col]!,
+      false,
+      true,
+      'capture',
+      { board, from, to, boardSize: DEFAULT_SIZE }
+    )
+
+    expect(result.shouldUseMoveCapture).toBe(false)
+    expect(result.shouldUseRangedAttack).toBe(true)
+  })
 })
 
 describe('hasLegalMoves', () => {

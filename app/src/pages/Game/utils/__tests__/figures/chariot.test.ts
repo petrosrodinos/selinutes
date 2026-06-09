@@ -3,7 +3,8 @@ import {
   getValidMoves,
   getValidAttacks,
   isChariotValidCaptureMoveTarget,
-  getDisplayedAttackTargets
+  getDisplayedAttackTargets,
+  resolveAttackModeAction
 } from '../../moveUtils'
 import { PieceTypes, ObstacleTypes } from '../../../types'
 import type { PlayerColor } from '../../../types'
@@ -357,5 +358,38 @@ describe('Chariot', () => {
 
     expect(displayed).not.toContainEqual(blockedTarget)
     expect(displayed).not.toContainEqual(outOfCaptureRangeTarget)
+  })
+
+  it('a frozen chariot cannot move but can still gamma range attack', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const rangedTarget = pos(9, 6)
+    const chariot = { type: PieceTypes.CHARIOT, color: 'white' as const, id: 'c1', frozenTurns: 1 }
+    placePiece(board, start, chariot)
+    placePiece(board, rangedTarget, { type: PieceTypes.HOPLITE, color: 'black' })
+
+    expect(getValidMoves(board, start, DEFAULT_SIZE)).toHaveLength(0)
+    expect(getValidAttacks(board, start, DEFAULT_SIZE)).toContainEqual(rangedTarget)
+  })
+
+  it('resolveAttackModeAction uses ranged attack for frozen chariot even in capture mode', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const target = pos(9, 6)
+    const chariot = { type: PieceTypes.CHARIOT, color: 'white' as const, id: 'c1', frozenTurns: 1 }
+    placePiece(board, start, chariot)
+    placePiece(board, target, { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const result = resolveAttackModeAction(
+      chariot,
+      board[target.row][target.col]!,
+      false,
+      true,
+      'capture',
+      { board, from: start, to: target, boardSize: DEFAULT_SIZE }
+    )
+
+    expect(result.shouldUseMoveCapture).toBe(false)
+    expect(result.shouldUseRangedAttack).toBe(true)
   })
 })
