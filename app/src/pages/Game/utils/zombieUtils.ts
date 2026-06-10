@@ -1,6 +1,7 @@
 import type { Board, BoardSize, Piece, PieceType, PlayerColor, Position } from '../types'
 import { isPiece, PieceTypes, PlayerColors } from '../types'
 import { cloneBoard, getBackRowForBoardSize } from './boardUtils'
+import { filterRevivableCapturedPieces } from './chariotSoulBindUtils'
 
 export const ZOMBIE_REVIVE_ALIGNMENT_HINT =
   'Necromancer, Monarch, Duchess, and Warlock must be on the same horizontal line.'
@@ -129,7 +130,7 @@ export const getZombieRevivePieces = (
   currentPlayer: PlayerColor
 ): Piece[] => {
   const pieces = capturedPieces?.[currentPlayer] || []
-  return filterZombieRevivablePieces(pieces)
+  return filterRevivableCapturedPieces(filterZombieRevivablePieces(pieces))
 }
 
 export const isZombieReviveTargetEmpty = (board: Board, target: Position | null): boolean => {
@@ -222,6 +223,7 @@ export const getZombieReviveStatusMessage = (params: {
   isMyTurn: boolean
   necromancerPosition: Position | null
   revivableCount: number
+  hasChariotBoundCaptures?: boolean
   selectedZombiePiece: Piece | null
   reviveTarget: Position | null
 }): string | null => {
@@ -230,13 +232,19 @@ export const getZombieReviveStatusMessage = (params: {
     isMyTurn,
     necromancerPosition,
     revivableCount,
+    hasChariotBoundCaptures,
     selectedZombiePiece,
     reviveTarget
   } = params
 
   if (isOnline && !isMyTurn) return 'Wait for your turn to revive a Zombie.'
   if (!necromancerPosition) return 'Your Necromancer must be on the board.'
-  if (revivableCount === 0) return 'No eligible captured pieces available.'
+  if (revivableCount === 0) {
+    if (hasChariotBoundCaptures) {
+      return 'Captured pieces taken by an enemy Chariot capture-and-move cannot be revived until that Chariot is destroyed.'
+    }
+    return 'No eligible captured pieces available.'
+  }
   if (selectedZombiePiece && !reviveTarget) return 'No empty tiles available to place the Zombie.'
   return null
 }

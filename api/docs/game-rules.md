@@ -211,7 +211,9 @@ shorter distances). It **shoots over friendly figures**; range attacks pass over
 river, lake, and canyon but **rock blocks the shot**; only **enemy figures** block the shot
 (see Section 3.4). In capture-and-move mode, only enemies on a **clear** gamma path up to
 **gamma range 3** (2+1 or 1+2) can be captured by moving onto them — not at gamma range 4
-(3+1 or 1+3).
+(3+1 or 1+3). Victims taken by capture-and-move **cannot be revived** (Necromancer Zombie
+revival or Mystery Box Hoplite Sacrifice & Revive) until **that specific Chariot** is removed
+from the board. Gamma range-4 ranged kills do not bind souls.
 - **Terrain:** Can pass/land on river. Cannot land on lake, canyon, or cave.
 
 ### 6.4 Bomber (Saboteur) — 12 pts (Zombie 9)
@@ -286,7 +288,8 @@ be frozen again.
 The Necromancer can bring back fallen figures as Zombies.
 
 - **Eligible figures:** Only **Ram-Tower, Chariot, Bomber, and Paladin** can be revived, and
-only from the pieces the reviving player has lost.
+only from the pieces the reviving player has lost. Captures taken by an enemy Chariot
+**capture-and-move** cannot be revived until that Chariot is killed.
 - **Revival guards (requirement):** Revival is allowed **only while the player's Necromancer,
 Monarch, Duchess, and Warlock are all on the board on the same horizontal line (same row).**
 If any of the four is missing or on a different row, revival is locked.
@@ -314,7 +317,8 @@ your figures.
 revive any one figure the opponent previously captured from you. The revived figure
 returns with **full ranged-attack capabilities** (unlike a Necromancer Zombie). It must be
 placed on an **empty** tile. This option is only available if you have at least one Hoplite
-and at least one captured figure to bring back.
+and at least one captured figure to bring back. Figures bound by an enemy Chariot
+capture-and-move cannot be revived until that Chariot is killed.
 - **Option 3 — Obstacle Swap:** Roll a die; you may then relocate up to that many obstacle
 blocks, swapping them with an equal number of empty tiles. You can move individual blocks
 (Cave, Tree, Rock) or a whole obstacle set (Canyon, River, Lake) when the roll allows.
@@ -337,7 +341,7 @@ river, lake, and canyon do not; maximum range and duration both drop with each r
 capture-and-move but can still use normal ranged attacks.
 - **Revival / Zombie mode:** Ram-Tower, Chariot, Bomber, or Paladin can return as Zombies
 while the Necromancer, Monarch, Duchess, and Warlock share the same row; Zombies attack at range 1
-and are worth fewer points.
+and are worth fewer points. Chariot capture-and-move binds victims until that Chariot dies.
 - **Mystery Box:** Figure Swap, Hoplite Sacrifice & Revive, or Obstacle Swap.
 
 ---

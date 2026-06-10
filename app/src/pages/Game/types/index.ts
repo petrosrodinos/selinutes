@@ -83,6 +83,7 @@ export interface Piece {
   reviveCount?: number
   frozenTurns?: number
   standingOnObstacle?: ObstacleType
+  chariotHeldBy?: string
 }
 
 export interface Obstacle {

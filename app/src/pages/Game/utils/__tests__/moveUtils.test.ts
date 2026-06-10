@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   makeMove,
+  collectCapturedPiecesFromMoves,
   decrementFrozenTurnsForPlayer,
   hasLegalMoves,
   findMonarch,
@@ -45,6 +46,30 @@ describe('makeMove', () => {
     expect(isPiece(moved) && moved.hasMoved).toBe(true)
     expect(move.from).toEqual(from)
     expect(move.to).toEqual(pos(4, 5))
+  })
+
+  it('chariot capture-and-move binds the victim until the chariot is killed', () => {
+    const board = createEmptyBoard()
+    const from = pos(6, 5)
+    const target = pos(8, 6)
+    placePiece(board, from, { id: 'c1', type: PieceTypes.CHARIOT, color: 'white' })
+    placePiece(board, target, { id: 'v1', type: PieceTypes.PALADIN, color: 'black' })
+
+    const { moves } = makeMove(board, from, target, DEFAULT_SIZE, false)
+    const afterCapture = collectCapturedPiecesFromMoves(moves, { white: [], black: [] })
+
+    expect(afterCapture.black).toHaveLength(1)
+    expect(afterCapture.black[0].chariotHeldBy).toBe('c1')
+
+    const killBoard = createEmptyBoard()
+    placePiece(killBoard, pos(4, 4), { id: 'd1', type: PieceTypes.DUCHESS, color: 'black' })
+    placePiece(killBoard, target, { id: 'c1', type: PieceTypes.CHARIOT, color: 'white' })
+
+    const { moves: killMoves } = makeMove(killBoard, pos(4, 4), target, DEFAULT_SIZE, true)
+    const afterKill = collectCapturedPiecesFromMoves(killMoves, afterCapture)
+
+    expect(afterKill.black[0].chariotHeldBy).toBeUndefined()
+    expect(afterKill.white[0].type).toBe(PieceTypes.CHARIOT)
   })
 
   it('ranged attack removes the target but keeps the attacker in place', () => {

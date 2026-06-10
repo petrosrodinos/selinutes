@@ -22,7 +22,7 @@ import { BOT_DELAY, PIECE_RULES } from "./constants";
 import { PIECE_NAMES, PIECE_SYMBOLS } from "./constants";
 import { environments } from "../../config/environments";
 import { GameModes } from "../../constants";
-import { areRevivalGuardsInPlace, findPiecePosition, getZombieRevivePieces, getZombieReviveStatusMessage, getZombieReviveConfirmState, getZombieRevivePlacementTarget, ZOMBIE_REVIVE_ALIGNMENT_HINT } from "./utils";
+import { areRevivalGuardsInPlace, findPiecePosition, filterZombieRevivablePieces, getZombieRevivePieces, getZombieReviveStatusMessage, getZombieReviveConfirmState, getZombieRevivePlacementTarget, hasChariotBoundCaptures, ZOMBIE_REVIVE_ALIGNMENT_HINT } from "./utils";
 import { useSaveOfflineGame } from "../../features/game/hooks";
 import { LeaveGameConfirmModal } from "./components/LeaveGameConfirmModal";
 
@@ -200,16 +200,22 @@ export const Game = () => {
     });
   }, [board, boardSize, revivePlayerColor, necromancerPosition, selectedZombiePiece, reviveTarget, isOnline, isMyTurn]);
 
+  const hasChariotBoundZombieCaptures = useMemo(() => {
+    const eligible = filterZombieRevivablePieces(capturedPieces[revivePlayerColor] || []);
+    return hasChariotBoundCaptures(eligible);
+  }, [capturedPieces, revivePlayerColor]);
+
   const zombieReviveStatusMessage = useMemo(() => {
     return getZombieReviveStatusMessage({
       isOnline,
       isMyTurn,
       necromancerPosition,
       revivableCount: revivableZombiePieces.length,
+      hasChariotBoundCaptures: hasChariotBoundZombieCaptures,
       selectedZombiePiece,
       reviveTarget,
     });
-  }, [isOnline, isMyTurn, necromancerPosition, revivableZombiePieces.length, selectedZombiePiece, reviveTarget]);
+  }, [isOnline, isMyTurn, necromancerPosition, revivableZombiePieces.length, hasChariotBoundZombieCaptures, selectedZombiePiece, reviveTarget]);
 
   const openZombieRevive = () => {
     setSelectedZombiePiece(null);

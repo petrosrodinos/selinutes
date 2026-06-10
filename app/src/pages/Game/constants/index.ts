@@ -224,7 +224,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   [PieceTypes.CHARIOT]: [
     'Moves in corner patterns: 2-1, 1-2, 2-2, 3-1, 1-3 steps.',
     'Can jump over other figures on its path.',
-    'Attacks: gamma-shaped (L) ranged kill only at gamma range 4 (3+1 or 1+3); shoots over friendly figures; range attacks pass over tree, cave, river, lake, canyon, and mystery box but rock blocks the shot; enemy figures block the shot. Capture-and-move only up to gamma range 3 (2+1 or 1+2) on a clear path — not at gamma range 4.',
+    'Attacks: gamma-shaped (L) ranged kill only at gamma range 4 (3+1 or 1+3); shoots over friendly figures; range attacks pass over tree, cave, river, lake, canyon, and mystery box but rock blocks the shot; enemy figures block the shot. Capture-and-move only up to gamma range 3 (2+1 or 1+2) on a clear path — not at gamma range 4. Capture-and-move victims cannot be revived until that Chariot is killed.',
     'Can pass through rivers and land beyond them.',
     'Cannot pass through lake, canyon, or cave.'
   ],
@@ -268,7 +268,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
     'Moves 1 step in any direction.',
     'Melee attack: kills an adjacent enemy 1 step away in any direction.',
     'Freeze-stun: stuns an enemy in a straight line up to 8 steps away; rock blocks it, but tree, cave, river, lake, canyon, and mystery box do not. Stunned figures cannot move or capture-and-move, but can still use their normal ranged attacks. Freeze duration is always half the Necromancer\'s maximum freeze range (4 turns at full power). Each revival permanently reduces maximum freeze range by 2, which also lowers freeze duration (e.g. after one revival: range 6, duration 3 turns). After 4 revivals the Necromancer can no longer freeze.',
-    'Can revive Ram, Chariot, Bomber, or Paladin when the Necromancer, Monarch, Duchess, and Warlock are on the same horizontal line.',
+    'Can revive Ram, Chariot, Bomber, or Paladin when the Necromancer, Monarch, Duchess, and Warlock are on the same horizontal line. Chariot capture-and-move victims stay unrevivable until that Chariot is killed.',
     'Revived figures attack at range 1 only; a revived Bomber can still attack as a Zombie.',
     'Cannot pass through cave, river, lake, or canyon.'
   ]

@@ -5,6 +5,11 @@ import { PIECE_RULES } from '../constants'
 import { createNarcsForBomber, checkNarcNetTrigger, checkNarcTrigger, removeNarcsForBomber } from './narcUtils'
 import { canPromoteHoplite, promoteHopliteToDuchess } from './hoplitePromotionUtils'
 import { getAdjustedAttackRange } from './zombieUtils'
+import {
+  bindCaptureToChariot,
+  isChariotCaptureMove,
+  releaseCapturesBoundToChariot
+} from './chariotSoulBindUtils'
 
 const canPassObstacle = (pieceType: PieceType, obstacleType: ObstacleType): boolean => {
   if (obstacleType === ObstacleTypes.MYSTERY_BOX) return true
@@ -1306,10 +1311,21 @@ export const collectCapturedPiecesFromMoves = (
 
   for (const move of moves) {
     if (!move.captured) continue
-    if (move.captured.color === PlayerColors.WHITE) {
-      newCaptured.white.push(move.captured)
+
+    const capturedEntry = isChariotCaptureMove(move)
+      ? bindCaptureToChariot(move.captured, move.piece.id)
+      : move.captured
+
+    if (capturedEntry.color === PlayerColors.WHITE) {
+      newCaptured.white.push(capturedEntry)
     } else {
-      newCaptured.black.push(move.captured)
+      newCaptured.black.push(capturedEntry)
+    }
+
+    if (move.captured.type === PieceTypes.CHARIOT) {
+      const released = releaseCapturesBoundToChariot(newCaptured, move.captured.id)
+      newCaptured.white = released.white
+      newCaptured.black = released.black
     }
   }
 

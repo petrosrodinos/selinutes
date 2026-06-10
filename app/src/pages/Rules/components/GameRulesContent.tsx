@@ -87,7 +87,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
               </li>
               <li className="flex gap-2">
                 <span className="text-amber-500/80 mt-0.5 font-medium text-stone-300">Option 2:</span>
-                <span>Release a Hoplite figure and revive another figure of your choosing (among those that the opponent has killed). The revived figure will possess full range-attack capabilities. The block where it is revived must be empty.</span>
+                <span>Release a Hoplite figure and revive another figure of your choosing (among those that the opponent has killed). Figures taken by an enemy Chariot capture-and-move cannot be revived until that Chariot is killed. The revived figure will possess full range-attack capabilities. The block where it is revived must be empty.</span>
               </li>
               <li className="flex gap-2">
                 <span className="text-amber-500/80 mt-0.5 font-medium text-stone-300">Option 3:</span>
@@ -456,7 +456,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
             <li className="flex gap-2">
               <span className="text-amber-500/80 mt-0.5">•</span>
               <span>
-                <strong className="text-stone-300">Revival:</strong> Necromancer revives select units when the Necromancer, Monarch, Duchess, and Warlock share a row; revived units may have limited abilities.
+                <strong className="text-stone-300">Revival:</strong> Necromancer revives select units when the Necromancer, Monarch, Duchess, and Warlock share a row; revived units may have limited abilities. Chariot capture-and-move binds victims until that Chariot is killed.
               </span>
             </li>
             <li className="flex gap-2">

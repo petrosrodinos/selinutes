@@ -59,6 +59,14 @@ export {
 } from './swapUtils'
 export type { SwapResult, SwapTarget } from './swapUtils'
 export {
+  isChariotCaptureMove,
+  bindCaptureToChariot,
+  releaseCapturesBoundToChariot,
+  isRevivableCapturedPiece,
+  filterRevivableCapturedPieces,
+  hasChariotBoundCaptures
+} from './chariotSoulBindUtils'
+export {
   isZombieEligibleType,
   filterZombieRevivablePieces,
   getNightModeFromBoard,

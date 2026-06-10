@@ -9,6 +9,7 @@ import {
   canPlayerUseMysteryBoxOption1,
   canPlayerUseMysteryBoxOption2,
   canPlayerUseMysteryBoxOption3,
+  getRevivablePieces,
   getPhaseForOption,
   isObstacleSwapPlacementRowDisabled
 } from '../mysteryBoxUtils'
@@ -121,6 +122,18 @@ describe('mystery box availability checks', () => {
 
     expect(canPlayerUseMysteryBoxOption2(board, 'white', captured)).toBe(true)
     expect(canPlayerUseMysteryBoxOption2(board, 'white', { white: [], black: [] })).toBe(false)
+  })
+
+  it('option 2 ignores chariot-bound captured pieces', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(3, 3), { type: PieceTypes.HOPLITE, color: 'white' })
+    const captured = {
+      white: [{ id: 'c', type: PieceTypes.CHARIOT, color: 'white', hasMoved: false, chariotHeldBy: 'enemy-c1' } as Piece],
+      black: []
+    }
+
+    expect(canPlayerUseMysteryBoxOption2(board, 'white', captured)).toBe(false)
+    expect(getRevivablePieces('white', captured)).toEqual([])
   })
 
   it('option 3 needs a selectable obstacle and an allowed empty tile', () => {

@@ -10,6 +10,7 @@ import {
   getZombieReviveOpenState,
   getZombieReviveConfirmState,
   getZombieReviveStatusMessage,
+  getZombieRevivePieces,
   ZOMBIE_REVIVE_ALIGNMENT_HINT
 } from '../zombieUtils'
 import { createInitialBoard } from '../boardUtils'
@@ -23,6 +24,22 @@ const makePiece = (overrides: Partial<Piece>): Piece => ({
   color: 'white',
   hasMoved: false,
   ...overrides
+})
+
+describe('getZombieRevivePieces', () => {
+  it('excludes chariot-bound zombie-eligible captures', () => {
+    const capturedPieces = {
+      white: [
+        makePiece({ id: 'bound', type: PieceTypes.CHARIOT, chariotHeldBy: 'enemy-c1' }),
+        makePiece({ id: 'free', type: PieceTypes.BOMBER })
+      ],
+      black: []
+    }
+
+    expect(getZombieRevivePieces(capturedPieces, 'white')).toEqual([
+      expect.objectContaining({ id: 'free' })
+    ])
+  })
 })
 
 describe('isZombieEligibleType', () => {
@@ -288,6 +305,18 @@ describe('zombie revive UI guards', () => {
         reviveTarget: null
       })
     ).toBe('No eligible captured pieces available.')
+
+    expect(
+      getZombieReviveStatusMessage({
+        isOnline: false,
+        isMyTurn: true,
+        necromancerPosition: pos(9, 5),
+        revivableCount: 0,
+        hasChariotBoundCaptures: true,
+        selectedZombiePiece: null,
+        reviveTarget: null
+      })
+    ).toBe('Captured pieces taken by an enemy Chariot capture-and-move cannot be revived until that Chariot is destroyed.')
 
     expect(ZOMBIE_REVIVE_ALIGNMENT_HINT).toBe(
       'Necromancer, Monarch, Duchess, and Warlock must be on the same horizontal line.'

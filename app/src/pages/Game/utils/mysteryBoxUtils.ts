@@ -1,6 +1,7 @@
 import type { Board, Position, Piece, PlayerColor, MysteryBoxState, MysteryBoxOption, MysteryBoxPhase } from '../types'
 import { PieceTypes, ObstacleTypes, MysteryBoxOptions, MysteryBoxPhases } from '../types'
 import { isPiece, isObstacle } from '../types'
+import { filterRevivableCapturedPieces } from './chariotSoulBindUtils'
 
 export const getInitialMysteryBoxState = (): MysteryBoxState => ({
     isActive: false,
@@ -28,7 +29,7 @@ export const getRandomMysteryBoxOption = (
         MysteryBoxOptions.OBSTACLE_SWAP
     ]
 
-    if (capturedPieces[currentPlayerColor] && capturedPieces[currentPlayerColor].length > 0) {
+    if (getRevivablePieces(currentPlayerColor, capturedPieces).length > 0) {
         options.push(MysteryBoxOptions.HOPLITE_SACRIFICE_REVIVE)
     }
     return options[1]
@@ -163,7 +164,7 @@ export const canPlayerUseMysteryBoxOption1 = (board: Board, playerColor: PlayerC
 
 export const canPlayerUseMysteryBoxOption2 = (board: Board, playerColor: PlayerColor, capturedPieces: { white: Piece[]; black: Piece[] }): boolean => {
     const hasHoplite = getPlayerHoplites(board, playerColor).length > 0
-    const hasRevivable = capturedPieces[playerColor] && capturedPieces[playerColor].length > 0
+    const hasRevivable = getRevivablePieces(playerColor, capturedPieces).length > 0
     return hasHoplite && hasRevivable
 }
 
@@ -193,7 +194,7 @@ export const getRevivablePieces = (
     color: PlayerColor,
     capturedPieces: { white: Piece[]; black: Piece[] }
 ): Piece[] => {
-    return capturedPieces[color] || []
+    return filterRevivableCapturedPieces(capturedPieces[color] || [])
 }
 
 export const getPhaseForOption = (option: MysteryBoxOption): MysteryBoxPhase => {

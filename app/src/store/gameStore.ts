@@ -1204,6 +1204,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
             }
 
             if (phase === MysteryBoxPhases.WAITING_REVIVE_PLACEMENT && selectedRevivePiece && firstFigurePosition) {
+                if (selectedRevivePiece.chariotHeldBy) return false
+
                 if (board[pos.row][pos.col] !== null) {
                     if (!isOnline) {
                         toast.warning('❌ Invalid Placement - You must select an EMPTY tile to place the revived piece!', { autoClose: 3000 })
@@ -1554,7 +1556,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         const available = gameState.capturedPieces[currentPlayer] || []
         const match = available.find(p => p.id === revivePiece.id && p.type === revivePiece.type && p.color === revivePiece.color)
-        if (!match) return false
+        if (!match || match.chariotHeldBy) return false
 
         const necromancerCell = board[necromancerPosition.row][necromancerPosition.col]
         if (!necromancerCell || !isPiece(necromancerCell)) return false
