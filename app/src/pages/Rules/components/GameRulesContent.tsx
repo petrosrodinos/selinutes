@@ -212,7 +212,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
             </table>
           </div>
           <p className="mt-4 text-stone-400 text-sm">
-            <strong className="text-stone-300">Revival:</strong> Necromancer can revive low-value units (Ram, Chariot, Bomber, Paladin) when the Necromancer, Monarch, and Duchess are on the same horizontal line. Lowest points: 9.
+            <strong className="text-stone-300">Revival:</strong> Necromancer can revive low-value units (Ram, Chariot, Bomber, Paladin) when the Necromancer, Monarch, Duchess, and Warlock are on the same horizontal line. Lowest points: 9.
           </p>
         </section>
 
@@ -456,7 +456,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
             <li className="flex gap-2">
               <span className="text-amber-500/80 mt-0.5">•</span>
               <span>
-                <strong className="text-stone-300">Revival:</strong> Necromancer revives select units when the Necromancer, Monarch, and Duchess share a row; revived units may have limited abilities.
+                <strong className="text-stone-300">Revival:</strong> Necromancer revives select units when the Necromancer, Monarch, Duchess, and Warlock share a row; revived units may have limited abilities.
               </span>
             </li>
             <li className="flex gap-2">

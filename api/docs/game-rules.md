@@ -288,8 +288,8 @@ The Necromancer can bring back fallen figures as Zombies.
 - **Eligible figures:** Only **Ram-Tower, Chariot, Bomber, and Paladin** can be revived, and
 only from the pieces the reviving player has lost.
 - **Revival guards (requirement):** Revival is allowed **only while the player's Necromancer,
-Monarch, and Duchess are all on the board on the same horizontal line (same row).** If any of
-the three is missing or on a different row, revival is locked.
+Monarch, Duchess, and Warlock are all on the board on the same horizontal line (same row).**
+If any of the four is missing or on a different row, revival is locked.
 - **Placement:** The revived figure appears on its own original starting square if that tile
 is empty; otherwise on the nearest empty tile.
 - **Zombie attack penalty:** Revived figures attack at **range 1 only**. A revived Bomber
@@ -336,7 +336,7 @@ river, lake, and canyon do not; maximum range and duration both drop with each r
 8 / duration 4 at start → 0 after four revivals). Stunned figures cannot move or
 capture-and-move but can still use normal ranged attacks.
 - **Revival / Zombie mode:** Ram-Tower, Chariot, Bomber, or Paladin can return as Zombies
-while the Necromancer, Monarch, and Duchess share the same row; Zombies attack at range 1
+while the Necromancer, Monarch, Duchess, and Warlock share the same row; Zombies attack at range 1
 and are worth fewer points.
 - **Mystery Box:** Figure Swap, Hoplite Sacrifice & Revive, or Obstacle Swap.
 
@@ -367,7 +367,7 @@ a zombie) to land on the enemy square after killing it.
 explosive-net tile. Net tiles sit on the diagonals 1-2 away and the orthogonal tiles 2
 away from an enemy Bomber.
 - **"Why can't my Necromancer revive anyone?"** — Revival requires your Necromancer, Monarch,
-and Duchess to all be on the same horizontal line, plus an eligible captured figure
+Duchess, and Warlock to all be on the same horizontal line, plus an eligible captured figure
 (Ram-Tower, Chariot, Bomber, or Paladin).
 - **"Why is my Necromancer's freeze weaker now?"** — Each revival it performs reduces its
 maximum freeze range by 2 (8 → 6 → 4 → 2 → 0) and shortens freeze duration by 1 turn (4 → 3

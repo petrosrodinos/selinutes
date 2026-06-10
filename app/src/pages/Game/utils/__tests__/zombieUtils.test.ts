@@ -57,31 +57,43 @@ describe('getAdjustedAttackRange', () => {
 })
 
 describe('areRevivalGuardsInPlace', () => {
-  it('is true when necromancer, monarch, and duchess share a row', () => {
+  it('is true when necromancer, monarch, duchess, and warlock share a row', () => {
     const board = createInitialBoard(DEFAULT_SIZE)
 
     expect(areRevivalGuardsInPlace(board, DEFAULT_SIZE, 'white')).toBe(true)
   })
 
-  it('is true when all three are on the same row away from their starts', () => {
+  it('is true when all four are on the same row away from their starts', () => {
     const board = createEmptyBoard()
     placePiece(board, pos(6, 2), { type: PieceTypes.NECROMANCER, color: 'white' })
+    placePiece(board, pos(6, 4), { type: PieceTypes.WARLOCK, color: 'white' })
     placePiece(board, pos(6, 5), { type: PieceTypes.MONARCH, color: 'white' })
     placePiece(board, pos(6, 8), { type: PieceTypes.DUCHESS, color: 'white' })
 
     expect(areRevivalGuardsInPlace(board, DEFAULT_SIZE, 'white')).toBe(true)
   })
 
-  it('is false when the three are not on the same row', () => {
+  it('is false when the four are not on the same row', () => {
     const board = createEmptyBoard()
     placePiece(board, pos(6, 2), { type: PieceTypes.NECROMANCER, color: 'white' })
+    placePiece(board, pos(6, 4), { type: PieceTypes.WARLOCK, color: 'white' })
     placePiece(board, pos(6, 5), { type: PieceTypes.MONARCH, color: 'white' })
     placePiece(board, pos(7, 8), { type: PieceTypes.DUCHESS, color: 'white' })
 
     expect(areRevivalGuardsInPlace(board, DEFAULT_SIZE, 'white')).toBe(false)
   })
 
-  it('is false after the necromancer leaves the monarch and duchess row', () => {
+  it('is false when the warlock leaves the shared row', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(6, 2), { type: PieceTypes.NECROMANCER, color: 'white' })
+    placePiece(board, pos(7, 4), { type: PieceTypes.WARLOCK, color: 'white' })
+    placePiece(board, pos(6, 5), { type: PieceTypes.MONARCH, color: 'white' })
+    placePiece(board, pos(6, 8), { type: PieceTypes.DUCHESS, color: 'white' })
+
+    expect(areRevivalGuardsInPlace(board, DEFAULT_SIZE, 'white')).toBe(false)
+  })
+
+  it('is false after the necromancer leaves the shared row', () => {
     const board = createInitialBoard(DEFAULT_SIZE)
     const necroPos = getStartingPositionForPieceType(DEFAULT_SIZE, PieceTypes.NECROMANCER, 'white')!
     const necro = board[necroPos.row][necroPos.col]
@@ -278,7 +290,7 @@ describe('zombie revive UI guards', () => {
     ).toBe('No eligible captured pieces available.')
 
     expect(ZOMBIE_REVIVE_ALIGNMENT_HINT).toBe(
-      'Necromancer, Monarch, and Duchess must be on the same horizontal line.'
+      'Necromancer, Monarch, Duchess, and Warlock must be on the same horizontal line.'
     )
   })
 })

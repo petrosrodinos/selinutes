@@ -3,7 +3,7 @@ import { isPiece, PieceTypes, PlayerColors } from '../types'
 import { cloneBoard, getBackRowForBoardSize } from './boardUtils'
 
 export const ZOMBIE_REVIVE_ALIGNMENT_HINT =
-  'Necromancer, Monarch, and Duchess must be on the same horizontal line.'
+  'Necromancer, Monarch, Duchess, and Warlock must be on the same horizontal line.'
 
 const ZOMBIE_ELIGIBLE_TYPES: PieceType[] = [
   PieceTypes.RAM_TOWER,
@@ -79,8 +79,13 @@ export const areRevivalGuardsInPlace = (board: Board, _boardSize: BoardSize, col
   const necromancerPos = findPiecePosition(board, PieceTypes.NECROMANCER, color)
   const monarchPos = findPiecePosition(board, PieceTypes.MONARCH, color)
   const duchessPos = findPiecePosition(board, PieceTypes.DUCHESS, color)
-  if (!necromancerPos || !monarchPos || !duchessPos) return false
-  return necromancerPos.row === monarchPos.row && necromancerPos.row === duchessPos.row
+  const warlockPos = findPiecePosition(board, PieceTypes.WARLOCK, color)
+  if (!necromancerPos || !monarchPos || !duchessPos || !warlockPos) return false
+  return (
+    necromancerPos.row === monarchPos.row &&
+    necromancerPos.row === duchessPos.row &&
+    necromancerPos.row === warlockPos.row
+  )
 }
 
 export const findPiecePosition = (board: Board, pieceType: PieceType, color: PlayerColor): Position | null => {

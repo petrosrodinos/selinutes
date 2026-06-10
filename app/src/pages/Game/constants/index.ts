@@ -268,7 +268,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
     'Moves 1 step in any direction.',
     'Melee attack: kills an adjacent enemy 1 step away in any direction.',
     'Freeze-stun: stuns an enemy in a straight line up to 8 steps away; rock blocks it, but tree, cave, river, lake, canyon, and mystery box do not. Stunned figures cannot move or capture-and-move, but can still use their normal ranged attacks. Freeze duration is always half the Necromancer\'s maximum freeze range (4 turns at full power). Each revival permanently reduces maximum freeze range by 2, which also lowers freeze duration (e.g. after one revival: range 6, duration 3 turns). After 4 revivals the Necromancer can no longer freeze.',
-    'Can revive Ram, Chariot, Bomber, or Paladin when the Necromancer, Monarch, and Duchess are on the same horizontal line.',
+    'Can revive Ram, Chariot, Bomber, or Paladin when the Necromancer, Monarch, Duchess, and Warlock are on the same horizontal line.',
     'Revived figures attack at range 1 only; a revived Bomber can still attack as a Zombie.',
     'Cannot pass through cave, river, lake, or canyon.'
   ]
