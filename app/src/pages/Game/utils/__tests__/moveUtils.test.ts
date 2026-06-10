@@ -97,7 +97,103 @@ describe('makeMove', () => {
     const from = pos(5, 3)
     placePiece(board, from, { type: PieceTypes.HOPLITE, color: 'white', hasMoved: true })
 
-    const { newBoard, move } = makeMove(board, from, pos(4, 3), DEFAULT_SIZE)
+    const { newBoard, moves, move } = makeMove(board, from, pos(4, 3), DEFAULT_SIZE)
+
+    expect(moves).toHaveLength(1)
+    expect(move.terminatedByNarc).toBe(true)
+    expect(newBoard[5][3]).toBeNull()
+    expect(newBoard[4][3]).toBeNull()
+  })
+
+  it('logs capture and narc trap when move-capturing an enemy on a narc net tile', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(4, 5), { type: PieceTypes.BOMBER, color: 'black', hasMoved: true })
+    const from = pos(5, 3)
+    const target = pos(4, 3)
+    placePiece(board, from, { type: PieceTypes.PALADIN, color: 'white', hasMoved: true })
+    placePiece(board, target, { type: PieceTypes.HOPLITE, color: 'black', hasMoved: true })
+
+    const { newBoard, moves } = makeMove(board, from, target, DEFAULT_SIZE)
+
+    expect(moves).toHaveLength(2)
+    expect(moves[0].captured?.type).toBe(PieceTypes.HOPLITE)
+    expect(moves[0].terminatedByNarc).toBeUndefined()
+    expect(moves[1].terminatedByNarc).toBe(true)
+    expect(moves[1].captured?.id).toBe(moves[1].piece.id)
+    expect(newBoard[5][3]).toBeNull()
+    expect(newBoard[4][3]).toBeNull()
+  })
+
+  it('logs capture and narc trap through capture attack mode for Ram Tower on a narc tile', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(4, 5), { type: PieceTypes.BOMBER, color: 'black', hasMoved: true })
+    const from = pos(6, 3)
+    const target = pos(4, 3)
+    const ram = placePiece(board, from, { type: PieceTypes.RAM_TOWER, color: 'white', hasMoved: true })
+    const targetCell = placePiece(board, target, { type: PieceTypes.HOPLITE, color: 'black', hasMoved: true })
+
+    const action = resolveAttackModeAction(
+      ram,
+      targetCell,
+      true,
+      true,
+      'capture',
+      { board, from, to: target, boardSize: DEFAULT_SIZE }
+    )
+
+    expect(action.shouldUseMoveCapture).toBe(true)
+    expect(action.shouldUseRangedAttack).toBe(false)
+
+    const isAttack = action.shouldUseRangedAttack && !action.shouldUseMoveCapture
+    const { newBoard, moves } = makeMove(board, from, target, DEFAULT_SIZE, isAttack)
+
+    expect(moves).toHaveLength(2)
+    expect(moves[0].captured?.type).toBe(PieceTypes.HOPLITE)
+    expect(moves[1].terminatedByNarc).toBe(true)
+    expect(newBoard[6][3]).toBeNull()
+    expect(newBoard[4][3]).toBeNull()
+  })
+
+  it('does not trigger narc when using ranged attack on an enemy sitting on a narc tile', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(4, 5), { type: PieceTypes.BOMBER, color: 'black', hasMoved: true })
+    const from = pos(5, 3)
+    const target = pos(4, 3)
+    const paladin = placePiece(board, from, { type: PieceTypes.PALADIN, color: 'white', hasMoved: true })
+    const targetCell = placePiece(board, target, { type: PieceTypes.HOPLITE, color: 'black', hasMoved: true })
+
+    const action = resolveAttackModeAction(
+      paladin,
+      targetCell,
+      true,
+      true,
+      'ranged',
+      { board, from, to: target, boardSize: DEFAULT_SIZE }
+    )
+
+    expect(action.shouldUseRangedAttack).toBe(true)
+    expect(action.shouldUseMoveCapture).toBe(false)
+
+    const isAttack = action.shouldUseRangedAttack && !action.shouldUseMoveCapture
+    const { newBoard, moves } = makeMove(board, from, target, DEFAULT_SIZE, isAttack)
+
+    expect(moves).toHaveLength(1)
+    expect(moves[0].terminatedByNarc).toBeUndefined()
+    expect(moves[0].captured?.type).toBe(PieceTypes.HOPLITE)
+    expect(newBoard[5][3]?.type).toBe(PieceTypes.PALADIN)
+    expect(newBoard[4][3]).toBeNull()
+  })
+
+  it('triggers narc from stored narcs array on an empty net tile', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(6, 5), { type: PieceTypes.BOMBER, color: 'black', hasMoved: true })
+    const from = pos(5, 3)
+    placePiece(board, from, { type: PieceTypes.HOPLITE, color: 'white', hasMoved: true })
+    const narcs: Narc[] = [
+      { id: 'n1', position: pos(4, 3), ownerColor: 'black', bomberId: 'b1' }
+    ]
+
+    const { newBoard, move } = makeMove(board, from, pos(4, 3), DEFAULT_SIZE, false, narcs)
 
     expect(move.terminatedByNarc).toBe(true)
     expect(newBoard[5][3]).toBeNull()

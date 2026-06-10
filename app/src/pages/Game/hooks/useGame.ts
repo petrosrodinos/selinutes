@@ -7,6 +7,7 @@ import {
     getValidMoves,
     getValidAttacks,
     makeMove,
+    collectCapturedPiecesFromMoves,
     hasLegalMoves,
     isMonarchCaptured,
     getBotMove,
@@ -79,7 +80,7 @@ export const useGame = (initialBoardSizeKey: BoardSizeKey = BoardSizeKeys.SMALL)
                 return
             }
 
-            const { newBoard, move } = makeMove(
+            const { newBoard, moves, move } = makeMove(
                 gameState.board,
                 botMove.from,
                 botMove.to,
@@ -92,14 +93,7 @@ export const useGame = (initialBoardSizeKey: BoardSizeKey = BoardSizeKeys.SMALL)
             const nextPlayer = PlayerColors.WHITE
             const { gameOver, winner } = checkGameOver(newBoard, nextPlayer)
 
-            const newCaptured = { ...gameState.capturedPieces }
-            if (move.captured) {
-                if (move.captured.color === PlayerColors.WHITE) {
-                    newCaptured.white = [...newCaptured.white, move.captured]
-                } else {
-                    newCaptured.black = [...newCaptured.black, move.captured]
-                }
-            }
+            const newCaptured = collectCapturedPiecesFromMoves(moves, gameState.capturedPieces)
 
             setGameState(prev => ({
                 ...prev,
@@ -108,7 +102,7 @@ export const useGame = (initialBoardSizeKey: BoardSizeKey = BoardSizeKeys.SMALL)
                 selectedPosition: null,
                 validMoves: [],
                 validAttacks: [],
-                moveHistory: [...prev.moveHistory, move],
+                moveHistory: [...prev.moveHistory, ...moves],
                 capturedPieces: newCaptured,
                 lastMove: move,
                 gameOver,
@@ -143,7 +137,7 @@ export const useGame = (initialBoardSizeKey: BoardSizeKey = BoardSizeKeys.SMALL)
                 if (isValidMoveTarget || isValidAttackTarget) {
                     setHistory(h => [...h, { gameState: prev }])
 
-                    const { newBoard, move } = makeMove(
+                    const { newBoard, moves, move } = makeMove(
                         prev.board,
                         prev.selectedPosition,
                         pos,
@@ -156,14 +150,7 @@ export const useGame = (initialBoardSizeKey: BoardSizeKey = BoardSizeKeys.SMALL)
                     const nextPlayer = prev.currentPlayer === PlayerColors.WHITE ? PlayerColors.BLACK : PlayerColors.WHITE
                     const { gameOver, winner } = checkGameOver(newBoard, nextPlayer)
 
-                    const newCaptured = { ...prev.capturedPieces }
-                    if (move.captured) {
-                        if (move.captured.color === PlayerColors.WHITE) {
-                            newCaptured.white = [...newCaptured.white, move.captured]
-                        } else {
-                            newCaptured.black = [...newCaptured.black, move.captured]
-                        }
-                    }
+                    const newCaptured = collectCapturedPiecesFromMoves(moves, prev.capturedPieces)
 
                     return {
                         ...prev,
@@ -172,7 +159,7 @@ export const useGame = (initialBoardSizeKey: BoardSizeKey = BoardSizeKeys.SMALL)
                         selectedPosition: null,
                         validMoves: [],
                         validAttacks: [],
-                        moveHistory: [...prev.moveHistory, move],
+                        moveHistory: [...prev.moveHistory, ...moves],
                         capturedPieces: newCaptured,
                         lastMove: move,
                         gameOver,

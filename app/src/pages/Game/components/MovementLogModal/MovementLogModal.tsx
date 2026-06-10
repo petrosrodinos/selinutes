@@ -26,7 +26,7 @@ export const MovementLogModal = ({ isOpen, onClose }: MovementLogModalProps) => 
             const isWhite = move.piece.color === PlayerColors.WHITE
             return (
               <li
-                key={`${move.piece.id}-${moveNumber}-${move.from.row}-${move.from.col}-${move.to.row}-${move.to.col}`}
+                key={`${move.piece.id}-${moveNumber}-${move.from.row}-${move.from.col}-${move.to.row}-${move.to.col}-${move.terminatedByNarc ? 'narc' : move.isAttack ? 'attack' : 'move'}-${move.captured?.id ?? 'none'}`}
                 className="flex gap-3 rounded-lg border border-stone-700/80 bg-stone-900/50 px-3 py-2.5 text-sm"
               >
                 <span className="w-6 shrink-0 tabular-nums text-stone-500">{moveNumber}.</span>

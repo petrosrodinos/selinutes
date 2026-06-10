@@ -2,7 +2,7 @@ import type { Board, Piece, Position, Move, PlayerColor, PieceType, BoardSize, O
 import { isPiece, isObstacle, PlayerColors, PieceTypes, ObstacleTypes, MovePatterns } from '../types'
 import { isInBounds, cloneBoard, findAllCaves } from './boardUtils'
 import { PIECE_RULES } from '../constants'
-import { createNarcsForBomber, checkNarcNetTrigger, removeNarcsForBomber } from './narcUtils'
+import { createNarcsForBomber, checkNarcNetTrigger, checkNarcTrigger, removeNarcsForBomber } from './narcUtils'
 import { canPromoteHoplite, promoteHopliteToDuchess } from './hoplitePromotionUtils'
 import { getAdjustedAttackRange } from './zombieUtils'
 
@@ -1295,6 +1295,27 @@ export const hasCaveExit = (board: Board, cavePos: Position, boardSize: BoardSiz
   return validExits.length > 0
 }
 
+export const collectCapturedPiecesFromMoves = (
+  moves: Move[],
+  capturedPieces: { white: Piece[]; black: Piece[] }
+): { white: Piece[]; black: Piece[] } => {
+  const newCaptured = {
+    white: [...capturedPieces.white],
+    black: [...capturedPieces.black]
+  }
+
+  for (const move of moves) {
+    if (!move.captured) continue
+    if (move.captured.color === PlayerColors.WHITE) {
+      newCaptured.white.push(move.captured)
+    } else {
+      newCaptured.black.push(move.captured)
+    }
+  }
+
+  return newCaptured
+}
+
 export const makeMove = (
   board: Board,
   from: Position,
@@ -1303,7 +1324,7 @@ export const makeMove = (
   isAttack: boolean = false,
   narcs: Narc[] = [],
   capturedPieces: { white: Piece[]; black: Piece[] } = { white: [], black: [] }
-): { newBoard: Board; move: Move; newNarcs: Narc[] } => {
+): { newBoard: Board; moves: Move[]; move: Move; newNarcs: Narc[] } => {
   const newBoard = cloneBoard(board)
   const cell = newBoard[from.row][from.col]
 
@@ -1330,12 +1351,19 @@ export const makeMove = (
   }
 
   let newNarcs = [...narcs]
-  const triggeredNarcNet = checkNarcNetTrigger(board, boardSize, finalPosition, piece.color)
 
-  if (triggeredNarcNet && !isAttack) {
+  const isNarcTriggeredAt = (position: Position): boolean => {
+    if (isAttack) return false
+    return Boolean(
+      checkNarcTrigger(newNarcs, position, piece.color) ||
+      checkNarcNetTrigger(board, boardSize, position, piece.color)
+    )
+  }
+
+  if (isNarcTriggeredAt(finalPosition) && !captured) {
     newBoard[from.row][from.col] = sourceObstacle ? { type: sourceObstacle } : null
 
-    const move: Move = {
+    const narcMove: Move = {
       from,
       to: finalPosition,
       piece: { ...piece },
@@ -1344,7 +1372,7 @@ export const makeMove = (
       terminatedByNarc: true
     }
 
-    return { newBoard, move, newNarcs }
+    return { newBoard, moves: [narcMove], move: narcMove, newNarcs }
   }
 
   let move: Move = {
@@ -1395,7 +1423,25 @@ export const makeMove = (
     newNarcs = [...newNarcs, ...bomberNarcs]
   }
 
-  return { newBoard, move, newNarcs }
+  if (isNarcTriggeredAt(finalPosition) && captured && !isAttack) {
+    newBoard[finalPosition.row][finalPosition.col] = null
+    if (piece.type === PieceTypes.BOMBER) {
+      newNarcs = removeNarcsForBomber(newNarcs, piece.id)
+    }
+
+    const narcMove: Move = {
+      from,
+      to: finalPosition,
+      piece: { ...piece },
+      captured: { ...piece },
+      isAttack: false,
+      terminatedByNarc: true
+    }
+
+    return { newBoard, moves: [move, narcMove], move: narcMove, newNarcs }
+  }
+
+  return { newBoard, moves: [move], move, newNarcs }
 }
 
 export const applyNecromancerFreeze = (

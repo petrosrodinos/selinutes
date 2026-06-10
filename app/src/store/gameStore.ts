@@ -14,6 +14,7 @@ import {
     resolveInitialAttackMode,
     canUseCaptureAttackMode,
     makeMove,
+    collectCapturedPiecesFromMoves,
     hasLegalMoves,
     isMonarchCaptured,
     getBotMove,
@@ -351,7 +352,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         }
 
                         const boardWithoutMysteryBox = removeMysteryBoxFromBoard(board, pos)
-                        const { newBoard: movedBoard, move, newNarcs } = makeMove(
+                        const { newBoard: movedBoard, moves, move, newNarcs } = makeMove(
                             boardWithoutMysteryBox,
                             selectedPosition,
                             pos,
@@ -361,20 +362,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
                             gameState.capturedPieces
                         )
 
-                        const newCaptured = { ...gameState.capturedPieces }
-                        if (move.captured) {
-                            if (move.captured.color === PlayerColors.WHITE) {
-                                newCaptured.white = [...newCaptured.white, move.captured]
-                            } else {
-                                newCaptured.black = [...newCaptured.black, move.captured]
-                            }
-                        }
+                        const newCaptured = collectCapturedPiecesFromMoves(moves, gameState.capturedPieces)
 
                         const revivablePieces = option === MysteryBoxOptions.HOPLITE_SACRIFICE_REVIVE
                             ? getRevivablePieces(gameState.currentPlayer, newCaptured)
                             : []
 
-                        const mysteryBoxMove = { ...move, mysteryBoxOption: option }
+                        const mysteryBoxMoves = moves.map((historyMove, index) =>
+                            index === moves.length - 1 ? { ...historyMove, mysteryBoxOption: option } : historyMove
+                        )
+                        const mysteryBoxMove = mysteryBoxMoves[mysteryBoxMoves.length - 1]
 
                         set({
                             gameState: {
@@ -384,7 +381,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                                 validMoves: [],
                                 validAttacks: [],
                                 validSwaps: [],
-                                moveHistory: [...gameState.moveHistory, mysteryBoxMove],
+                                moveHistory: [...gameState.moveHistory, ...mysteryBoxMoves],
                                 capturedPieces: newCaptured,
                                 lastMove: mysteryBoxMove,
                                 narcs: newNarcs,
@@ -497,7 +494,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                             { board, from: selectedPosition, to: pos, boardSize }
                           )
                     if (!attackAction.allowed) return false
-                    const { newBoard, move, newNarcs } = makeMove(
+                    const { newBoard, moves, move, newNarcs } = makeMove(
                         board,
                         selectedPosition,
                         pos,
@@ -513,14 +510,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         : PlayerColors.WHITE
                     const { gameOver, winner } = checkGameOver(boardAfterTurn, nextPlayer, boardSize)
 
-                    const newCaptured = { ...gameState.capturedPieces }
-                    if (move.captured) {
-                        if (move.captured.color === PlayerColors.WHITE) {
-                            newCaptured.white = [...newCaptured.white, move.captured]
-                        } else {
-                            newCaptured.black = [...newCaptured.black, move.captured]
-                        }
-                    }
+                    const newCaptured = collectCapturedPiecesFromMoves(moves, gameState.capturedPieces)
 
                     set({
                         gameState: {
@@ -531,7 +521,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                             validMoves: [],
                             validAttacks: [],
                             validSwaps: [],
-                            moveHistory: [...gameState.moveHistory, move],
+                            moveHistory: [...gameState.moveHistory, ...moves],
                             capturedPieces: newCaptured,
                             lastMove: move,
                             gameOver,
@@ -670,7 +660,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     toast.success(`${optionDescriptions[option]}`, { autoClose: 5000 })
 
                     const boardWithoutMysteryBox = removeMysteryBoxFromBoard(gameState.board, pos)
-                    const { newBoard: movedBoard, move, newNarcs } = makeMove(
+                    const { newBoard: movedBoard, moves, move, newNarcs } = makeMove(
                         boardWithoutMysteryBox,
                         gameState.selectedPosition,
                         pos,
@@ -680,20 +670,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         gameState.capturedPieces
                     )
 
-                    const newCaptured = { ...gameState.capturedPieces }
-                    if (move.captured) {
-                        if (move.captured.color === PlayerColors.WHITE) {
-                            newCaptured.white = [...newCaptured.white, move.captured]
-                        } else {
-                            newCaptured.black = [...newCaptured.black, move.captured]
-                        }
-                    }
+                    const newCaptured = collectCapturedPiecesFromMoves(moves, gameState.capturedPieces)
 
                     const revivablePieces = option === MysteryBoxOptions.HOPLITE_SACRIFICE_REVIVE
                         ? getRevivablePieces(gameState.currentPlayer, newCaptured)
                         : []
 
-                    const mysteryBoxMove = { ...move, mysteryBoxOption: option }
+                    const mysteryBoxMoves = moves.map((historyMove, index) =>
+                        index === moves.length - 1 ? { ...historyMove, mysteryBoxOption: option } : historyMove
+                    )
+                    const mysteryBoxMove = mysteryBoxMoves[mysteryBoxMoves.length - 1]
 
                     set({
                         gameState: {
@@ -703,7 +689,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                             validMoves: [],
                             validAttacks: [],
                             validSwaps: [],
-                            moveHistory: [...gameState.moveHistory, mysteryBoxMove],
+                            moveHistory: [...gameState.moveHistory, ...mysteryBoxMoves],
                             capturedPieces: newCaptured,
                             lastMove: mysteryBoxMove,
                             narcs: newNarcs,
@@ -808,7 +794,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         }
                     )
                 if (!attackAction.allowed) return false
-                const { newBoard, move, newNarcs } = makeMove(
+                const { newBoard, moves, move, newNarcs } = makeMove(
                     gameState.board,
                     gameState.selectedPosition,
                     pos,
@@ -827,14 +813,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
                 const { gameOver, winner } = checkGameOver(boardAfterTurn, nextPlayer, gameState.boardSize)
 
-                const newCaptured = { ...gameState.capturedPieces }
-                if (move.captured) {
-                    if (move.captured.color === PlayerColors.WHITE) {
-                        newCaptured.white = [...newCaptured.white, move.captured]
-                    } else {
-                        newCaptured.black = [...newCaptured.black, move.captured]
-                    }
-                }
+                const newCaptured = collectCapturedPiecesFromMoves(moves, gameState.capturedPieces)
 
                 set({
                     gameState: {
@@ -845,7 +824,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         validMoves: [],
                         validAttacks: [],
                         validSwaps: [],
-                        moveHistory: [...gameState.moveHistory, move],
+                        moveHistory: [...gameState.moveHistory, ...moves],
                         capturedPieces: newCaptured,
                         lastMove: move,
                         gameOver,
@@ -1067,7 +1046,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             return
         }
 
-        const { newBoard, move, newNarcs } = makeMove(
+        const { newBoard, moves, move, newNarcs } = makeMove(
             gameState.board,
             botMove.from,
             botMove.to,
@@ -1081,14 +1060,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const nextPlayer = PlayerColors.WHITE
         const { gameOver, winner } = checkGameOver(boardAfterTurn, nextPlayer, gameState.boardSize)
 
-        const newCaptured = { ...gameState.capturedPieces }
-        if (move.captured) {
-            if (move.captured.color === PlayerColors.WHITE) {
-                newCaptured.white = [...newCaptured.white, move.captured]
-            } else {
-                newCaptured.black = [...newCaptured.black, move.captured]
-            }
-        }
+        const newCaptured = collectCapturedPiecesFromMoves(moves, gameState.capturedPieces)
 
         set({
             gameState: {
@@ -1098,7 +1070,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 selectedPosition: null,
                 validMoves: [],
                 validAttacks: [],
-                moveHistory: [...gameState.moveHistory, move],
+                moveHistory: [...gameState.moveHistory, ...moves],
                 capturedPieces: newCaptured,
                 lastMove: move,
                 gameOver,

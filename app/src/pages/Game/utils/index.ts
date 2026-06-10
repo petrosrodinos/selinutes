@@ -25,6 +25,7 @@ export {
   applyNecromancerFreeze,
   decrementFrozenTurnsForPlayer,
   makeMove,
+  collectCapturedPiecesFromMoves,
   hasLegalMoves,
   findMonarch,
   isMonarchCaptured,

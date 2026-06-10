@@ -238,12 +238,12 @@ const GameScene = ({ isOnline = false, attackMode: attackModeProp, onlineBoard, 
         const x = narcNet.position.col - offsetX;
         const z = narcNet.position.row - offsetZ;
         const cell = board[narcNet.position.row]?.[narcNet.position.col];
-        if (cell) return null;
+        const occupied = Boolean(cell);
 
         return (
           <mesh key={`narc-net-${index}`} position={[x, 0.05, z]}>
-            <sphereGeometry args={[0.08, 10, 10]} />
-            <meshLambertMaterial color={narcNet.ownerColor === PlayerColors.WHITE ? "#f5deb3" : "#3d3d3d"} transparent opacity={0.6} />
+            <sphereGeometry args={[occupied ? 0.05 : 0.08, 10, 10]} />
+            <meshLambertMaterial color={narcNet.ownerColor === PlayerColors.WHITE ? "#f5deb3" : "#3d3d3d"} transparent opacity={occupied ? 0.45 : 0.6} />
           </mesh>
         );
       })}

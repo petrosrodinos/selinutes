@@ -122,9 +122,9 @@ export const Square = ({
       {(isHint || isHintAttack) && (
         <div className={`absolute inset-0 ring-4 ${isHintAttack ? 'ring-rose-400' : 'ring-cyan-400'} ring-inset animate-pulse`} />
       )}
-      {hasNarc && !cell && (
+      {hasNarc && (
         <div 
-          className={`absolute w-2 h-2 rounded-full ${
+          className={`absolute bottom-0.5 right-0.5 w-2 h-2 rounded-full ${
             hasNarc === PlayerColors.WHITE 
               ? 'bg-amber-200/60' 
               : 'bg-stone-800/60'
