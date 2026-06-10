@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { toast } from 'react-toastify'
 import type { GameState, Position, BotDifficulty, HintMove, BoardSizeKey, PlayerColor, CellContent, SwapTarget, MysteryBoxState, Piece } from '../pages/Game/types'
 import { isPiece, isObstacle, BOARD_SIZES, PlayerColors, BotDifficulties, BoardSizeKeys, PieceTypes, MysteryBoxOptions, MysteryBoxPhases, ObstacleTypes } from '../pages/Game/types'
-import { DEFAULT_BOARD_SIZE, PIECE_RULES } from '../pages/Game/constants'
+import { DEFAULT_BOARD_SIZE } from '../pages/Game/constants'
 import type { GameSession, Player } from '../features/game/interfaces'
 import {
     createInitialBoard,
@@ -352,7 +352,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         }
 
                         const boardWithoutMysteryBox = removeMysteryBoxFromBoard(board, pos)
-                        const { newBoard: movedBoard, moves, move, newNarcs } = makeMove(
+                        const { newBoard: movedBoard, moves, newNarcs } = makeMove(
                             boardWithoutMysteryBox,
                             selectedPosition,
                             pos,
@@ -660,7 +660,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     toast.success(`${optionDescriptions[option]}`, { autoClose: 5000 })
 
                     const boardWithoutMysteryBox = removeMysteryBoxFromBoard(gameState.board, pos)
-                    const { newBoard: movedBoard, moves, move, newNarcs } = makeMove(
+                    const { newBoard: movedBoard, moves, newNarcs } = makeMove(
                         boardWithoutMysteryBox,
                         gameState.selectedPosition,
                         pos,
