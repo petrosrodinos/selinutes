@@ -1115,6 +1115,56 @@ export const getDisplayedMoveTargets = (
   })
 }
 
+export const getCaptureMoveTargets = (
+  board: Board,
+  validMoves: Position[],
+  selectedPiece: Piece,
+  selectedPosition: Position | null,
+  boardSize: BoardSize
+): Position[] => {
+  if (!canUseCaptureAttackMode(selectedPiece)) return []
+
+  const enemyMoveTargets = validMoves.filter(move => {
+    const cell = board[move.row]?.[move.col]
+    return cell && isPiece(cell) && cell.color !== selectedPiece.color
+  })
+
+  if (selectedPiece.type === PieceTypes.CHARIOT && selectedPosition) {
+    return enemyMoveTargets.filter(target =>
+      isChariotValidCaptureMoveTarget(board, selectedPosition, target, selectedPiece, boardSize)
+    )
+  }
+
+  return enemyMoveTargets
+}
+
+export const resolveInitialAttackMode = (
+  board: Board,
+  piece: Piece,
+  piecePos: Position,
+  validMoves: Position[],
+  validAttacks: Position[],
+  boardSize: BoardSize
+): 'ranged' | 'capture' => {
+  if ((piece.frozenTurns ?? 0) > 0) return 'ranged'
+  if (!PIECE_RULES[piece.type].canChooseAttackMode) return 'ranged'
+
+  const hasCaptureTargets = getCaptureMoveTargets(board, validMoves, piece, piecePos, boardSize).length > 0
+  const hasRangedTargets = validAttacks.length > 0
+
+  if (piece.isZombie) {
+    return hasCaptureTargets ? 'capture' : 'ranged'
+  }
+
+  if (piece.type === PieceTypes.RAM_TOWER) {
+    if (hasRangedTargets) return 'ranged'
+    if (hasCaptureTargets) return 'capture'
+    return 'ranged'
+  }
+
+  return 'ranged'
+}
+
 export const getDisplayedAttackTargets = (
   board: Board,
   validMoves: Position[],
@@ -1129,21 +1179,7 @@ export const getDisplayedAttackTargets = (
   }
 
   if (attackMode === 'capture') {
-    const enemyMoveTargets = validMoves.filter(move => {
-      const cell = board[move.row]?.[move.col]
-      return cell && isPiece(cell) && cell.color !== selectedPiece.color
-    })
-
-    if (
-      selectedPiece.type === PieceTypes.CHARIOT &&
-      selectedPosition
-    ) {
-      return enemyMoveTargets.filter(target =>
-        isChariotValidCaptureMoveTarget(board, selectedPosition, target, selectedPiece, boardSize)
-      )
-    }
-
-    return enemyMoveTargets
+    return getCaptureMoveTargets(board, validMoves, selectedPiece, selectedPosition, boardSize)
   }
 
   return validAttacks
@@ -1185,6 +1221,17 @@ export const resolveAttackModeAction = (
     return { allowed: false, shouldUseRangedAttack: false, shouldUseMoveCapture: false }
   }
 
+  if (
+    canChooseAttackMode &&
+    selectedPiece.type === PieceTypes.RAM_TOWER &&
+    attackMode === 'capture' &&
+    isEnemyTarget &&
+    !isEnemyMoveCaptureTarget &&
+    canMoveCapture
+  ) {
+    return { allowed: false, shouldUseRangedAttack: false, shouldUseMoveCapture: false }
+  }
+
   const shouldUseRangedAttack = isValidAttackTarget && (
     !canChooseAttackMode || attackMode === 'ranged' || !canMoveCapture
   )
@@ -1192,7 +1239,9 @@ export const resolveAttackModeAction = (
     attackMode === 'capture' &&
     (selectedPiece.type === PieceTypes.CHARIOT
       ? isChariotCaptureTarget
-      : (isValidAttackTarget || isEnemyMoveCaptureTarget)))
+      : selectedPiece.type === PieceTypes.RAM_TOWER
+        ? isEnemyMoveCaptureTarget
+        : (isValidAttackTarget || isEnemyMoveCaptureTarget)))
 
   return { allowed: true, shouldUseRangedAttack, shouldUseMoveCapture }
 }

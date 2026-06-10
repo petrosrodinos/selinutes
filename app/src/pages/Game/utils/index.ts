@@ -15,6 +15,8 @@ export {
   getValidAttacks,
   getDisplayedMoveTargets,
   getDisplayedAttackTargets,
+  getCaptureMoveTargets,
+  resolveInitialAttackMode,
   resolveAttackModeAction,
   canUseCaptureAttackMode,
   isChariotValidCaptureMoveTarget,

@@ -176,7 +176,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Ram-Tower</td>
                   <td className="py-3.5 px-4">20</td>
-                  <td className="py-3.5 px-4 text-stone-500">–</td>
+                  <td className="py-3.5 px-4">15</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
                   <td className="py-3.5 px-4 font-medium text-stone-200">Chariot</td>

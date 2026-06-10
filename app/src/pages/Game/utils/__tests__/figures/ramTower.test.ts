@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { getValidMoves, getValidAttacks } from '../../moveUtils'
+import { getValidMoves, getValidAttacks, getDisplayedAttackTargets, resolveAttackModeAction, getCaptureMoveTargets, resolveInitialAttackMode } from '../../moveUtils'
+import { PIECE_RULES } from '../../../constants'
 import { PieceTypes, ObstacleTypes } from '../../../types'
 import type { PlayerColor } from '../../../types'
 import {
@@ -160,5 +161,66 @@ describe('Ram Tower', () => {
     placeObstacle(board, pos(6, 7), ObstacleTypes.MYSTERY_BOX)
 
     expect(getValidAttacks(board, start, DEFAULT_SIZE)).toContainEqual(pos(6, 9))
+  })
+
+  it('is worth 20 points normally and 15 when revived as a zombie', () => {
+    const rules = PIECE_RULES[PieceTypes.RAM_TOWER]
+    expect(rules.points).toBe(20)
+    expect(rules.zombiePoints).toBe(15)
+  })
+
+  it('does not move-capture an enemy beyond an impassable obstacle', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.RAM_TOWER, color: 'white' })
+    placeObstacle(board, pos(6, 7), ObstacleTypes.ROCK)
+    placePiece(board, pos(6, 9), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+
+    expect(moves).not.toContainEqual(pos(6, 9))
+  })
+
+  it('does not highlight or allow capture mode move-capture over an impassable obstacle', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const target = pos(6, 9)
+    const ram = { type: PieceTypes.RAM_TOWER, color: 'white' as const, id: 'ram-1' }
+    const enemy = { type: PieceTypes.HOPLITE, color: 'black' as const, id: 'hoplite-enemy' }
+    placePiece(board, start, ram)
+    placeObstacle(board, pos(6, 7), ObstacleTypes.ROCK)
+    placePiece(board, target, enemy)
+
+    const validMoves = getValidMoves(board, start, DEFAULT_SIZE)
+    const validAttacks = getValidAttacks(board, start, DEFAULT_SIZE)
+    const isValidMoveTarget = validMoves.some(move => move.row === target.row && move.col === target.col)
+    const isValidAttackTarget = validAttacks.some(attack => attack.row === target.row && attack.col === target.col)
+    const displayed = getDisplayedAttackTargets(
+      board,
+      validMoves,
+      validAttacks,
+      ram,
+      start,
+      'capture',
+      DEFAULT_SIZE
+    )
+
+    expect(validAttacks).toContainEqual(target)
+    expect(isValidMoveTarget).toBe(false)
+    expect(displayed).not.toContainEqual(target)
+    expect(resolveAttackModeAction(
+      ram,
+      enemy,
+      isValidMoveTarget,
+      isValidAttackTarget,
+      'capture',
+      { board, from: start, to: target, boardSize: DEFAULT_SIZE }
+    )).toEqual({
+      allowed: false,
+      shouldUseRangedAttack: false,
+      shouldUseMoveCapture: false
+    })
+    expect(getCaptureMoveTargets(board, validMoves, ram, start, DEFAULT_SIZE)).toEqual([])
+    expect(resolveInitialAttackMode(board, ram, start, validMoves, validAttacks, DEFAULT_SIZE)).toBe('ranged')
   })
 })

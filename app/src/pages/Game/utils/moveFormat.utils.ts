@@ -1,5 +1,12 @@
 import type { BoardSize, GameLogEntry, Move, Position } from '../types'
+import { MysteryBoxOptions } from '../types'
 import { generateFiles, PIECE_NAMES } from '../constants'
+
+const MYSTERY_BOX_OPTION_NAMES: Record<number, string> = {
+  [MysteryBoxOptions.FIGURE_SWAP]: 'Figure Swap',
+  [MysteryBoxOptions.HOPLITE_SACRIFICE_REVIVE]: 'Hoplite Sacrifice & Revive',
+  [MysteryBoxOptions.OBSTACLE_SWAP]: 'Obstacle Swap',
+}
 
 export const formatBoardSquare = (position: Position, boardSize: BoardSize): string => {
   const files = generateFiles(boardSize.cols)
@@ -7,6 +14,15 @@ export const formatBoardSquare = (position: Position, boardSize: BoardSize): str
 }
 
 export const formatMoveAction = (move: Move): string => {
+  if (move.isZombieRevive && move.revivedPiece) {
+    return `Revive · ${PIECE_NAMES[move.revivedPiece.type]}`
+  }
+  if (move.isMysteryBoxRevive && move.revivedPiece) {
+    return `Mystery Box Revive · ${PIECE_NAMES[move.revivedPiece.type]}`
+  }
+  if (move.mysteryBoxOption) {
+    return `Mystery Box · ${MYSTERY_BOX_OPTION_NAMES[move.mysteryBoxOption]}`
+  }
   if (move.isFreeze) {
     const turns = move.freezeTurns ? ` (${move.freezeTurns} turns)` : ''
     return `Freeze${turns}`

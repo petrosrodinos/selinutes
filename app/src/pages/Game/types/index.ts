@@ -124,6 +124,10 @@ export interface Move {
   freezeTurns?: number
   terminatedByNarc?: boolean
   promotedTo?: PieceType
+  mysteryBoxOption?: MysteryBoxOption
+  isZombieRevive?: boolean
+  isMysteryBoxRevive?: boolean
+  revivedPiece?: Piece
 }
 
 export interface GameLogEntry {

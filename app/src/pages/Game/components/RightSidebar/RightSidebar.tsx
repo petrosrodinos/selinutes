@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import type { Piece } from "../../types";
 import { PieceTypes, PlayerColors } from "../../types";
 import { PIECE_RULES, PIECE_NAMES } from "../../constants";
 import { useGameStore } from "../../../../store/gameStore";
-import { getNecromancerKillTargets, getNecromancerFreezeTargets } from "../../utils";
+import { getNecromancerKillTargets, getNecromancerFreezeTargets, getCaptureMoveTargets } from "../../utils";
 import { getPiece2DAssetUrl } from "../../utils/figureAssets.utils";
 import { POINTS_LABEL } from "../../../../constants/game";
 import { MovementLogButton } from "../MovementLogModal";
@@ -175,10 +175,21 @@ export const RightSidebar = ({ onOpenZombieRevive }: RightSidebarProps) => {
   const isRamTower = Boolean(selectedCell && "color" in selectedCell && selectedCell.type === PieceTypes.RAM_TOWER);
   const isFrozen = Boolean(selectedCell && "color" in selectedCell && (selectedCell.frozenTurns ?? 0) > 0);
   const hasRangedTargetsWithinFive = currentValidAttacks.length > 0;
+  const captureMoveTargets = useMemo(() => {
+    if (!selectedCell || !("color" in selectedCell) || !currentSelectedPosition) return [];
+    return getCaptureMoveTargets(
+      gameState.board,
+      currentValidMoves,
+      selectedCell,
+      currentSelectedPosition,
+      gameState.boardSize
+    );
+  }, [selectedCell, currentSelectedPosition, currentValidMoves, gameState.board, gameState.boardSize]);
+  const hasCaptureMoveTargets = captureMoveTargets.length > 0;
   const isRangedAttackDisabled =
     (Boolean(selectedCell && "color" in selectedCell && selectedCell.isZombie) && !isFrozen) ||
     (isRamTower && !hasRangedTargetsWithinFive && !isFrozen);
-  const isCaptureAttackDisabled = isFrozen;
+  const isCaptureAttackDisabled = isFrozen || !hasCaptureMoveTargets;
 
   useEffect(() => {
     if (isFrozen && attackMode === "capture") {
@@ -187,9 +198,15 @@ export const RightSidebar = ({ onOpenZombieRevive }: RightSidebarProps) => {
   }, [isFrozen, attackMode, setAttackMode]);
 
   useEffect(() => {
-    if (isFrozen || !isRamTower || !isRangedAttackDisabled || attackMode !== "ranged") return;
+    if (isCaptureAttackDisabled && attackMode === "capture" && !isRangedAttackDisabled) {
+      setAttackMode("ranged");
+    }
+  }, [isCaptureAttackDisabled, isRangedAttackDisabled, attackMode, setAttackMode]);
+
+  useEffect(() => {
+    if (isFrozen || !isRamTower || !isRangedAttackDisabled || isCaptureAttackDisabled || attackMode !== "ranged") return;
     setAttackMode("capture");
-  }, [isFrozen, isRamTower, isRangedAttackDisabled, attackMode, setAttackMode]);
+  }, [isFrozen, isRamTower, isRangedAttackDisabled, isCaptureAttackDisabled, attackMode, setAttackMode]);
 
   return (
     <div className="w-full rounded-2xl border border-stone-700/80 bg-stone-900/45 p-4 shadow-lg shadow-black/20 backdrop-blur-md sm:p-5">
@@ -217,18 +234,29 @@ export const RightSidebar = ({ onOpenZombieRevive }: RightSidebarProps) => {
                 Range attack (kill without moving)
               </button>
             )}
-            <button
-              type="button"
-              onClick={() => setAttackMode("capture")}
-              disabled={isCaptureAttackDisabled}
-              className={`text-xs rounded-md px-2 py-2 border transition-colors ${isCaptureAttackDisabled ? "cursor-not-allowed border-stone-700 bg-stone-800/40 text-stone-500 line-through" : attackMode === "capture" ? "bg-emerald-700 border-emerald-500 text-emerald-100" : "bg-stone-800 border-stone-600 text-stone-200 hover:bg-stone-700"}`}
-            >
-              Capture and move to target
-            </button>
-            {isCaptureAttackDisabled && (
-              <p className="text-[11px] leading-snug text-amber-200/80">
-                Frozen figures cannot move to capture — use range attack instead.
-              </p>
+            {isCaptureAttackDisabled ? (
+              <div className="group relative">
+                <button
+                  type="button"
+                  disabled
+                  className="w-full cursor-not-allowed text-xs rounded-md px-2 py-2 border border-stone-700 bg-stone-800/40 text-stone-500 line-through"
+                >
+                  Capture and move to target
+                </button>
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 hidden w-56 -translate-x-1/2 rounded-md border border-amber-900/60 bg-stone-950 px-2.5 py-2 text-center text-[11px] leading-snug text-amber-200/80 shadow-xl group-hover:block">
+                  {isFrozen
+                    ? "Frozen figures cannot move to capture — use range attack instead."
+                    : "No enemies on a clear movement path — use range attack instead."}
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setAttackMode("capture")}
+                className={`text-xs rounded-md px-2 py-2 border transition-colors ${attackMode === "capture" ? "bg-emerald-700 border-emerald-500 text-emerald-100" : "bg-stone-800 border-stone-600 text-stone-200 hover:bg-stone-700"}`}
+              >
+                Capture and move to target
+              </button>
             )}
           </div>
         </div>

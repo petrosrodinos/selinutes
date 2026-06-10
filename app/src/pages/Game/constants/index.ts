@@ -38,7 +38,8 @@ export const PIECE_RULES: Record<string, PieceRules> = {
       ObstacleTypes.MYSTERY_BOX
     ],
     canChooseAttackMode: true,
-    points: 20
+    points: 20,
+    zombiePoints: 15
   },
   [PieceTypes.CHARIOT]: {
     move: [[2, 1], [1, 2], [2, 2], [3, 1], [1, 3]],
@@ -217,7 +218,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
     'Moves cross-shaped (orthogonal) any number of blocks.',
     'Catapult attack: cross-shaped, up to 5 blocks away; shoots through friendly figures and captures only the first enemy in each line.',
     'Range attacks pass over rock, cave, river, lake, canyon, and mystery box; trees block the shot.',
-    'Can also move onto an enemy in its path to capture it directly.',
+    'Can also move onto an enemy in its path to capture it directly when the movement path is clear.',
     'Cannot pass through cave, river, lake, or canyon.'
   ],
   [PieceTypes.CHARIOT]: [

@@ -10,6 +10,8 @@ import {
     getValidAttacks,
     isChariotValidCaptureMoveTarget,
     resolveAttackModeAction,
+    getCaptureMoveTargets,
+    resolveInitialAttackMode,
     canUseCaptureAttackMode,
     makeMove,
     hasLegalMoves,
@@ -61,18 +63,6 @@ interface NecromancerFreezeResult {
 
 type AttackMode = 'ranged' | 'capture'
 type NecromancerActionMode = 'move' | 'kill' | 'freeze'
-
-const getDefaultAttackMode = (cell: CellContent): AttackMode => {
-    if (cell && isPiece(cell) && (cell.frozenTurns ?? 0) > 0) {
-        return 'ranged'
-    }
-    if (cell && isPiece(cell) && PIECE_RULES[cell.type].canChooseAttackMode) {
-        if (cell.isZombie || cell.type === PieceTypes.RAM_TOWER) {
-            return 'capture'
-        }
-    }
-    return 'ranged'
-}
 
 interface GameStore {
     gameState: GameState
@@ -201,8 +191,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
             const piecePos = state.gameState.selectedPosition ?? state.selectedPosition
             if (piecePos) {
                 const cell = state.gameState.board[piecePos.row]?.[piecePos.col]
-                if (cell && isPiece(cell) && !canUseCaptureAttackMode(cell)) {
-                    return
+                if (cell && isPiece(cell)) {
+                    if (!canUseCaptureAttackMode(cell)) {
+                        return
+                    }
+                    const moves = state.gameState.selectedPosition ? state.gameState.validMoves : state.validMoves
+                    const captureTargets = getCaptureMoveTargets(
+                        state.gameState.board,
+                        moves,
+                        cell,
+                        piecePos,
+                        state.gameState.boardSize
+                    )
+                    if (captureTargets.length === 0) {
+                        return
+                    }
                 }
             }
         }
@@ -371,6 +374,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                             ? getRevivablePieces(gameState.currentPlayer, newCaptured)
                             : []
 
+                        const mysteryBoxMove = { ...move, mysteryBoxOption: option }
+
                         set({
                             gameState: {
                                 ...gameState,
@@ -379,9 +384,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
                                 validMoves: [],
                                 validAttacks: [],
                                 validSwaps: [],
-                                moveHistory: [...gameState.moveHistory, move],
+                                moveHistory: [...gameState.moveHistory, mysteryBoxMove],
                                 capturedPieces: newCaptured,
-                                lastMove: move,
+                                lastMove: mysteryBoxMove,
                                 narcs: newNarcs,
                                 nightMode: getNightModeFromBoard(movedBoard)
                             },
@@ -564,7 +569,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         validMoves: moves,
                         validAttacks: attacks,
                         validSwaps: swaps,
-                        attackMode: getDefaultAttackMode(cell),
+                        attackMode: resolveInitialAttackMode(board, cell, pos, moves, attacks, boardSize),
                         necromancerActionMode: 'move'
                     })
                     return false
@@ -589,7 +594,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     validMoves: moves,
                     validAttacks: attacks,
                     validSwaps: swaps,
-                    attackMode: getDefaultAttackMode(cell),
+                    attackMode: resolveInitialAttackMode(board, cell, pos, moves, attacks, boardSize),
                     necromancerActionMode: 'move'
                 })
             }
@@ -688,6 +693,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         ? getRevivablePieces(gameState.currentPlayer, newCaptured)
                         : []
 
+                    const mysteryBoxMove = { ...move, mysteryBoxOption: option }
+
                     set({
                         gameState: {
                             ...gameState,
@@ -696,9 +703,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
                             validMoves: [],
                             validAttacks: [],
                             validSwaps: [],
-                            moveHistory: [...gameState.moveHistory, move],
+                            moveHistory: [...gameState.moveHistory, mysteryBoxMove],
                             capturedPieces: newCaptured,
-                            lastMove: move,
+                            lastMove: mysteryBoxMove,
                             narcs: newNarcs,
                             nightMode: getNightModeFromBoard(movedBoard)
                         },
@@ -881,7 +888,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         validAttacks: attacks,
                         validSwaps: swaps
                     },
-                    attackMode: getDefaultAttackMode(cell),
+                    attackMode: resolveInitialAttackMode(gameState.board, cell, pos, moves, attacks, gameState.boardSize),
                     necromancerActionMode: 'move'
                 })
                 return false
@@ -915,7 +922,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     validAttacks: attacks,
                     validSwaps: swaps
                 },
-                attackMode: getDefaultAttackMode(cell),
+                attackMode: resolveInitialAttackMode(gameState.board, cell, pos, moves, attacks, gameState.boardSize),
                 necromancerActionMode: 'move'
             })
         }
@@ -1252,12 +1259,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 const nextPlayer = currentPlayer === PlayerColors.WHITE ? PlayerColors.BLACK : PlayerColors.WHITE
                 const { gameOver, winner } = checkGameOver(newBoard, nextPlayer, boardSize)
 
+                const reviveMove = {
+                    from: firstFigurePosition,
+                    to: pos,
+                    piece: { ...selectedRevivePiece, color: currentPlayer },
+                    revivedPiece: selectedRevivePiece,
+                    isMysteryBoxRevive: true,
+                }
+
                 set({
                     gameState: {
                         ...gameState,
                         board: newBoard,
                         currentPlayer: nextPlayer,
                         capturedPieces: newCaptured,
+                        moveHistory: [...gameState.moveHistory, reviveMove],
+                        lastMove: reviveMove,
                         gameOver,
                         winner,
                         nightMode: getNightModeFromBoard(newBoard)
@@ -1581,6 +1598,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const { gameOver, winner } = checkGameOver(newBoard, nextPlayer, boardSize)
         const newHistory = [...history, { gameState }]
 
+        const reviveMove = {
+            from: necromancerPosition,
+            to: target,
+            piece: necromancerCell,
+            revivedPiece: match,
+            isZombieRevive: true,
+        }
+
         set({
             gameState: {
                 ...gameState,
@@ -1590,6 +1615,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 validMoves: [],
                 validAttacks: [],
                 validSwaps: [],
+                moveHistory: [...gameState.moveHistory, reviveMove],
+                lastMove: reviveMove,
                 capturedPieces: newCaptured,
                 gameOver,
                 winner,

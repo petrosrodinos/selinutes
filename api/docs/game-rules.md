@@ -158,7 +158,7 @@ Points represent a figure's value (used for scoring and to gauge what is worth t
 | ------------------- | ------ | ------------------ |
 | Monarch             | 210    | –                  |
 | Duchess             | 27     | –                  |
-| Ram-Tower           | 20     | –                  |
+| Ram-Tower           | 20     | 15                 |
 | Chariot             | 16     | 13                 |
 | Paladin             | 15     | 12                 |
 | Bomber (Saboteur)   | 12     | 9                  |
@@ -188,14 +188,16 @@ captured (2 starting + 3 promoted).
 - **Terrain:** Can pass through caves (teleporting). Cannot pass river, lake, canyon, tree,
 or rock.
 
-### 6.2 Ram-Tower — 20 pts
+### 6.2 Ram-Tower — 20 pts (Zombie 15)
 
 - **Move:** Cross / orthogonal (up, down, left, right) any number of tiles, until blocked.
 - **Attack (Catapult):** Ranged cross-shaped attack up to **5 tiles** away. Shoots through
 friendly figures; only the **first enemy** in each line can be captured. Range attacks pass
 over rock, cave, river, lake, and canyon; **trees block the shot** (see Section 3.4).
 - **Move-capture:** Unusually, the Ram-Tower can also **move onto an enemy in its path** to
-capture it directly.
+capture it directly. This requires a clear movement path — impassable terrain blocks
+move-capture the same way it blocks normal movement (unlike the catapult attack, which can
+shoot over some obstacles).
 - **Terrain:** Cannot pass any terrain (cave, river, lake, canyon, tree, rock).
 
 ### 6.3 Chariot — 16 pts (Zombie 13)
