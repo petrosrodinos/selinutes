@@ -29,6 +29,7 @@ export interface AddRecipientsToList {
 export interface EmailFromAddress {
     verification: string;
     confirmation: string;
+    password_reset: string;
 }
 
 export interface GetListRecipients {
@@ -48,6 +49,7 @@ export const EmailTemplates = {
     CHAT_INTERNAL_MESSAGE: 'chat-internal-message',
     CHAT_CLIENT_MESSAGE_CONFIRMATION: 'chat-client-message-confirmation',
     CAMPAIGN_MESSAGE: 'campaign-message',
+    PASSWORD_RESET: 'password-reset',
 } as const;
 
 export type EmailTemplate = (typeof EmailTemplates)[keyof typeof EmailTemplates];

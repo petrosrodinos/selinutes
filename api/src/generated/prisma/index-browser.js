@@ -132,6 +132,15 @@ exports.Prisma.UserScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  user_uuid: 'user_uuid',
+  token_hash: 'token_hash',
+  expires_at: 'expires_at',
+  used_at: 'used_at',
+  created_at: 'created_at'
+};
+
 exports.Prisma.UserStatsScalarFieldEnum = {
   id: 'id',
   user_uuid: 'user_uuid',
@@ -207,6 +216,7 @@ exports.GameStatus = exports.$Enums.GameStatus = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  PasswordResetToken: 'PasswordResetToken',
   UserStats: 'UserStats',
   Game: 'Game'
 };

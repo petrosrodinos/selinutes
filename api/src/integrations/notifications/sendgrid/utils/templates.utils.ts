@@ -7,7 +7,7 @@ import { EmailTemplate } from '../interfaces/mail.interfaces';
 @Injectable()
 export class TemplateService {
     private readonly logger = new Logger(TemplateService.name);
-    private readonly templatesPath = path.join(process.cwd(), 'dist', 'integrations', 'notifications', 'sendgrid', 'templates');
+    private readonly templatesPath = path.join(__dirname, '..', 'templates');
     private compiledTemplates = new Map<string, HandlebarsTemplateDelegate>();
 
     constructor() {

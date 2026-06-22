@@ -1,9 +1,10 @@
-const EmailAddress = "info@appointmy.com"
+const defaultFromEmail = process.env.RESEND_FROM_EMAIL || 'Selinutes <onboarding@resend.dev>';
 
 export const EmailConfig = {
     email_addresses: {
-        verification: EmailAddress,
-        confirmation: EmailAddress,
+        verification: defaultFromEmail,
+        confirmation: defaultFromEmail,
+        password_reset: defaultFromEmail,
     },
     lists: {
         waitlist: 'b50df3f8-835f-42f8-966f-6e47a375bacf',

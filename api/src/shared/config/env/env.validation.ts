@@ -8,6 +8,8 @@ const EnvSchema = z.object({
     DATABASE_URL: z.string().url().optional(),
     JWT_SECRET: z.string().optional(),
     JWT_EXPIRATION_TIME: z.string().default('30d'),
+    RESEND_API_KEY: z.string().optional(),
+    RESEND_FROM_EMAIL: z.string().optional(),
 });
 
 

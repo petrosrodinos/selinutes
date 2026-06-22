@@ -6,6 +6,8 @@ import type {
     SignUp,
     UpdatePasswordPayload,
     UpdateUsernamePayload,
+    ForgotPasswordPayload,
+    ResetPasswordPayload,
 } from '../interfaces/auth.interfaces'
 
 export const signUp = async (data: SignUp): Promise<AuthResponse> => {
@@ -50,5 +52,23 @@ export const updatePassword = async (data: UpdatePasswordPayload): Promise<{ mes
         return response.data
     } catch (error: any) {
         throw new Error(error.response.data.message || 'An error occurred while updating password');
+    }
+}
+
+export const forgotPassword = async (data: ForgotPasswordPayload): Promise<{ message: string }> => {
+    try {
+        const response = await axiosInstance.post<{ message: string }>(ApiRoutes.auth.email.forgot_password, data)
+        return response.data
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'An error occurred while requesting password reset');
+    }
+}
+
+export const resetPassword = async (data: ResetPasswordPayload): Promise<{ message: string }> => {
+    try {
+        const response = await axiosInstance.post<{ message: string }>(ApiRoutes.auth.email.reset_password, data)
+        return response.data
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'An error occurred while resetting password');
     }
 }

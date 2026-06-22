@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Login, Register, Home, AdminPage } from "./pages";
+import { ForgotPassword } from "./pages/Auth/ForgotPassword";
+import { ResetPassword } from "./pages/Auth/ResetPassword";
 import { AuthGuard } from "./components/AuthGuard";
 import { AdminGuard } from "./components/AdminGuard";
 import { useAuthStore } from "./store/authStore";
@@ -63,6 +65,22 @@ function App() {
             element={
               <AuthRoute>
                 <Register />
+              </AuthRoute>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <AuthRoute>
+                <ForgotPassword />
+              </AuthRoute>
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              <AuthRoute>
+                <ResetPassword />
               </AuthRoute>
             }
           />
