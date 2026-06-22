@@ -3,35 +3,13 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import * as bcrypt from 'bcrypt'
 import * as dotenv from 'dotenv'
 import * as path from 'path'
+import { getLevelFromPoints } from '../src/modules/game/constants/game-rewards.constants'
 
 dotenv.config({ path: path.resolve(__dirname, '../.env.staging') })
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
 const prisma = new PrismaClient({ adapter } as any)
 
-// ── Level helpers (mirrors game-rewards.constants.ts) ──────────────────────
-const MAX_LEVEL = 33
-
-function getPointsForLevel(level: number): number {
-    if (level < 1 || level > MAX_LEVEL) return 0
-    return Math.floor(80 + 0.9 * (level - 1) ** 2)
-}
-
-function getTotalPointsToReachLevel(level: number): number {
-    let total = 0
-    for (let i = 1; i <= level; i++) total += getPointsForLevel(i)
-    return total
-}
-
-function getLevelFromPoints(points: number): number {
-    if (points <= 0) return 1
-    for (let l = MAX_LEVEL; l >= 1; l--) {
-        if (points >= getTotalPointsToReachLevel(l)) return l
-    }
-    return 1
-}
-
-// ── Seed data ──────────────────────────────────────────────────────────────
 const DEMO_PASSWORD = 'Password123!'
 
 const USERS = [

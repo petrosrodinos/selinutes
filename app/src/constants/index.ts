@@ -6,11 +6,17 @@ export {
   FigureLevels,
   FigureLevelFigures,
   FIGURE_LEVELS,
+  FIGURE_LEVEL_TIER_ORDER,
+  FIGURE_LEVEL_FIGURE_ORDER,
+  FIGURES_PER_LEVEL_TIER,
   getFigureLevelAssetUrl,
+  getPlayerLevelMeta,
+  buildPlayerLevelCatalog,
   resolveFigureLevelAssetUrl,
 } from './figureLevels'
 export type {
   FigureLevelKey,
   FigureLevelFigureKey,
   FigureLevelConfigEntry,
+  PlayerLevelMeta,
 } from './figureLevels'

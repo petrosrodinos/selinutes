@@ -181,3 +181,61 @@ export const getFigureLevelAssetUrl = (
   levelKey: FigureLevelKey,
   figureKey: FigureLevelFigureKey,
 ): string | null => resolveFigureLevelAssetUrl(FIGURE_LEVELS[levelKey].figures[figureKey].assetPath)
+
+export const FIGURE_LEVEL_TIER_ORDER = [
+  FigureLevels.BRONZE,
+  FigureLevels.SILVER,
+  FigureLevels.RUBY,
+  FigureLevels.GOLD,
+  FigureLevels.DIAMOND,
+] as const
+
+export const FIGURE_LEVEL_FIGURE_ORDER = [
+  FigureLevelFigures.HOPLITE,
+  FigureLevelFigures.NECROMANCER,
+  FigureLevelFigures.WARLOCK,
+  FigureLevelFigures.BOMBER,
+  FigureLevelFigures.PALADIN,
+  FigureLevelFigures.CHARIOT,
+  FigureLevelFigures.RAM_TOWER,
+  FigureLevelFigures.DUCHESS,
+  FigureLevelFigures.MONARCH,
+] as const
+
+export const FIGURES_PER_LEVEL_TIER = FIGURE_LEVEL_FIGURE_ORDER.length
+
+export type PlayerLevelMeta = {
+  readonly playerLevel: number
+  readonly tierKey: FigureLevelKey
+  readonly tierLabel: string
+  readonly tierRank: number
+  readonly figureKey: FigureLevelFigureKey
+  readonly figureTitle: string
+  readonly imageUrl: string | null
+}
+
+const clampPlayerLevel = (playerLevel: number, maxLevel: number): number =>
+  Math.min(Math.max(Math.floor(playerLevel), 1), maxLevel)
+
+export const getPlayerLevelMeta = (playerLevel: number, maxLevel: number): PlayerLevelMeta => {
+  const clampedLevel = clampPlayerLevel(playerLevel, maxLevel)
+  const tierIndex = Math.floor((clampedLevel - 1) / FIGURES_PER_LEVEL_TIER)
+  const figureIndex = (clampedLevel - 1) % FIGURES_PER_LEVEL_TIER
+  const tierKey = FIGURE_LEVEL_TIER_ORDER[tierIndex]
+  const figureKey = FIGURE_LEVEL_FIGURE_ORDER[figureIndex]
+  const tier = FIGURE_LEVELS[tierKey]
+  const figure = tier.figures[figureKey]
+
+  return {
+    playerLevel: clampedLevel,
+    tierKey,
+    tierLabel: tier.label,
+    tierRank: tier.level,
+    figureKey,
+    figureTitle: figure.title,
+    imageUrl: resolveFigureLevelAssetUrl(figure.assetPath),
+  }
+}
+
+export const buildPlayerLevelCatalog = (maxLevel: number): readonly PlayerLevelMeta[] =>
+  Array.from({ length: maxLevel }, (_, index) => getPlayerLevelMeta(index + 1, maxLevel))

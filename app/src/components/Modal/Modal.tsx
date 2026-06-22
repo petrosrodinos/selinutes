@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
 type ModalSize = 'md' | 'xl'
+type ModalElevation = 'default' | 'overlay'
 
 interface ModalProps {
   isOpen: boolean
@@ -9,6 +10,7 @@ interface ModalProps {
   title: string
   children: React.ReactNode
   size?: ModalSize
+  elevation?: ModalElevation
 }
 
 const modalSizeClasses: Record<ModalSize, string> = {
@@ -16,7 +18,12 @@ const modalSizeClasses: Record<ModalSize, string> = {
   xl: 'max-w-4xl',
 }
 
-export const Modal = ({ isOpen, onClose, title, children, size = 'md' }: ModalProps) => {
+const modalElevationClasses: Record<ModalElevation, string> = {
+  default: 'z-[100]',
+  overlay: 'z-[110]',
+}
+
+export const Modal = ({ isOpen, onClose, title, children, size = 'md', elevation = 'default' }: ModalProps) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -32,7 +39,7 @@ export const Modal = ({ isOpen, onClose, title, children, size = 'md' }: ModalPr
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm"
+      className={`fixed inset-0 ${modalElevationClasses[elevation]} flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm`}
       onClick={onClose}
     >
       <div

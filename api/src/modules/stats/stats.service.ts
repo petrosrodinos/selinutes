@@ -49,7 +49,20 @@ export class StatsService {
             throw new NotFoundException('Stats not found')
         }
 
-        return stats
+        return this.syncLevelFromPoints(stats)
+    }
+
+    private async syncLevelFromPoints(stats: UserStats): Promise<UserStats> {
+        const level = getLevelFromPoints(stats.points)
+
+        if (level === stats.level) {
+            return stats
+        }
+
+        return this.prisma.userStats.update({
+            where: { user_uuid: stats.user_uuid },
+            data: { level },
+        })
     }
 
     async getLeaderboard(limit = 10): Promise<LeaderboardEntry[]> {
@@ -86,7 +99,7 @@ export class StatsService {
                 user_uuid: g.user_uuid,
                 username: usernameMap.get(g.user_uuid) ?? 'Unknown',
                 points,
-                level: stats?.level ?? 0,
+                level: getLevelFromPoints(points),
                 wins: stats?.wins ?? 0,
                 losses: stats?.losses ?? 0,
                 draws: stats?.draws ?? 0,
@@ -151,7 +164,7 @@ export class StatsService {
             role: user.role,
             games_played: (onlineGamesCountByUser.get(user.uuid) ?? 0) + (nonOnlineGamesCountByUser.get(user.uuid) ?? 0),
             points: user.stats?.points ?? 0,
-            level: user.stats?.level ?? 0,
+            level: getLevelFromPoints(user.stats?.points ?? 0),
             wins: user.stats?.wins ?? 0,
             losses: user.stats?.losses ?? 0,
             draws: user.stats?.draws ?? 0,

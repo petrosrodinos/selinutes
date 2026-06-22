@@ -447,7 +447,7 @@ export class GameService {
                         }
                     })
 
-                    this.logger.log(`Saved game record for player ${player.id} (${status}, ${points} pts, rank #${newRank})`)
+                    this.logger.log(`Saved game record for player ${player.id} (${status}, ${points} pts, lvl ${newLevel}, rank #${newRank})`)
                 }
             })
         } catch (error) {
