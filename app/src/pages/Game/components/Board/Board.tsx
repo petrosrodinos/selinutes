@@ -3,6 +3,8 @@ import { AnimatePresence } from 'framer-motion'
 import { generateFiles, generateRanks } from '../../constants'
 import { Square } from '../Square'
 import { AnimatedPiece } from '../Piece/AnimatedPiece'
+import { ProjectileLayer } from '../Projectile'
+import { useProjectileAnimation } from '../../hooks/useProjectileAnimation'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
 import { useIsAdmin } from '../../../../hooks'
@@ -58,6 +60,7 @@ export const Board = ({
     const validAttacks = isOnline ? onlineValidAttacks : gameState.validAttacks
     const validSwaps = isOnline ? onlineValidSwaps : gameState.validSwaps
     const lastMove = gameState.lastMove ?? onlineLastMove ?? null
+    const { projectiles, removeProjectile } = useProjectileAnimation(lastMove)
     const currentHintMove = isOnline ? null : hintMove
     const selectedCell = selectedPosition ? board[selectedPosition.row]?.[selectedPosition.col] : null
     const selectedPiece = selectedCell && isPiece(selectedCell) ? selectedCell : null
@@ -298,6 +301,11 @@ export const Board = ({
                             })
                         )}
                     </AnimatePresence>
+                    <ProjectileLayer
+                        projectiles={projectiles}
+                        squareSize={squareSize}
+                        onProjectileComplete={removeProjectile}
+                    />
                 </div>
 
                 <div className="flex flex-col">
