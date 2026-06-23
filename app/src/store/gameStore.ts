@@ -42,7 +42,6 @@ import {
     getWholeObstacleSelectionBlockedMessage,
     partitionObstaclePlacementUnits,
     removeObstaclePlacementUnitAtPosition,
-    getObstaclePlacementUnitForPosition,
     computeGroupPlacementDestinations,
     getGroupPlacementBlockedMessage,
     filterZombieRevivablePieces,
