@@ -577,7 +577,10 @@ export const getPieceMoves = (board: Board, pos: Position, boardSize: BoardSize)
   } else if (rules.move === MovePatterns.DIAGONAL) {
     moves = getDiagonalMoves(board, pos, cell, boardSize)
   } else if (rules.move === MovePatterns.ANY) {
-    const maxSteps = cell.type === PieceTypes.MONARCH ? 1 : boardSize.rows
+    const maxSteps =
+      cell.type === PieceTypes.MONARCH || cell.type === PieceTypes.WARLOCK
+        ? 1
+        : boardSize.rows
     moves = getAnyDirectionMoves(board, pos, cell, boardSize, maxSteps)
   } else if (Array.isArray(rules.move)) {
     moves = getPatternMoves(board, pos, cell, boardSize)

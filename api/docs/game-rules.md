@@ -90,8 +90,8 @@ Mystery Box effect (see Section 7). Any figure can land on a Mystery Box.
 every figure. **Every figure** can pass over a Mystery Box tile to reach a square beyond it —
 passing over does **not** trigger the box (see Section 7). Any figure may **land** on a Mystery
 Box tile to trigger its effect.
-The Chariot, Bomber, and Warlock can **jump over** intervening figures (and the
-Chariot/Bomber over obstacles), but they still cannot **land** on terrain marked "NO".
+The Chariot and Bomber can **jump over** intervening figures (and obstacles for those
+pieces), but they still cannot **land** on terrain marked "NO".
 
 
 | Figure                | Cave           | River            | Lake | Canyon | Tree | Rock | Mystery Box |
@@ -240,7 +240,7 @@ it directly (any distance, not limited to the 3-tile ranged attack).
 
 ### 6.6 Warlock (Vezier) — 11 pts
 
-- **Move:** 2-tile corner patterns (2 orthogonal or 2 diagonal). Jumps over figures.
+- **Move:** One tile in any direction (horizontal, vertical, or diagonal).
 - **Attack:** Captures **one tile diagonally** (adjacent diagonals).
 - **Swap (special action):** The Warlock can rearrange the friendly back line:
   - **Swap with the Monarch** — the Warlock and its own Monarch trade places.

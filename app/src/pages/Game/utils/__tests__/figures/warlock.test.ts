@@ -10,65 +10,79 @@ import {
   BOTH_COLORS,
   DEFAULT_SIZE,
   opponentOf,
-  expectContainsPositions,
-  expectExcludesPositions
+  expectSamePositions,
+  expectExcludesPositions,
+  expectContainsPositions
 } from '../helpers/boardFixtures'
 
+const adjacent = (row: number, col: number) => [
+  pos(row - 1, col - 1), pos(row - 1, col), pos(row - 1, col + 1),
+  pos(row, col - 1), pos(row, col + 1),
+  pos(row + 1, col - 1), pos(row + 1, col), pos(row + 1, col + 1)
+]
+
 describe('Warlock', () => {
-  it.each(BOTH_COLORS)('moves in the 2-step corner pattern (%s)', (color: PlayerColor) => {
+  it.each(BOTH_COLORS)('moves one step in any direction (%s)', (color: PlayerColor) => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
     placePiece(board, start, { type: PieceTypes.WARLOCK, color })
 
     const moves = getValidMoves(board, start, DEFAULT_SIZE)
 
-    expectContainsPositions(moves, [
-      pos(4, 5), pos(8, 5), pos(6, 3), pos(6, 7),
-      pos(4, 3), pos(4, 7), pos(8, 3), pos(8, 7)
-    ])
+    expectSamePositions(moves, adjacent(6, 5))
   })
 
-  it('does not move single steps', () => {
+  it('does not move two steps', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
     placePiece(board, start, { type: PieceTypes.WARLOCK, color: 'white' })
 
     const moves = getValidMoves(board, start, DEFAULT_SIZE)
 
-    expectExcludesPositions(moves, [pos(5, 5), pos(6, 6), pos(5, 4)])
+    expectExcludesPositions(moves, [pos(4, 5), pos(6, 7), pos(8, 7)])
   })
 
-  it('jumps over pieces in its path', () => {
+  it('is blocked by pieces in adjacent squares', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
     placePiece(board, start, { type: PieceTypes.WARLOCK, color: 'white' })
-    placePiece(board, pos(7, 5), { type: PieceTypes.HOPLITE, color: 'white' })
+    placePiece(board, pos(5, 5), { type: PieceTypes.HOPLITE, color: 'white' })
 
     const moves = getValidMoves(board, start, DEFAULT_SIZE)
 
-    expect(moves).toContainEqual(pos(8, 5))
+    expect(moves).not.toContainEqual(pos(5, 5))
   })
 
-  it.each([ObstacleTypes.LAKE, ObstacleTypes.CAVE])('can land on passable %s', (obstacle) => {
+  it.each([ObstacleTypes.LAKE])('can pass over but not land on adjacent %s', (obstacle) => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
     placePiece(board, start, { type: PieceTypes.WARLOCK, color: 'white' })
-    placeObstacle(board, pos(6, 7), obstacle)
+    placeObstacle(board, pos(5, 5), obstacle)
 
     const moves = getValidMoves(board, start, DEFAULT_SIZE)
 
-    expect(moves).toContainEqual(pos(6, 7))
+    expect(moves).not.toContainEqual(pos(5, 5))
   })
 
+  it('can land on cave', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.WARLOCK, color: 'white' })
+    placeObstacle(board, pos(5, 5), ObstacleTypes.CAVE)
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+
+    expect(moves).toContainEqual(pos(5, 5))
+  })
   it.each([ObstacleTypes.RIVER, ObstacleTypes.CANYON])('cannot land on %s', (obstacle) => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
     placePiece(board, start, { type: PieceTypes.WARLOCK, color: 'white' })
-    placeObstacle(board, pos(6, 7), obstacle)
+    placeObstacle(board, pos(5, 5), obstacle)
 
     const moves = getValidMoves(board, start, DEFAULT_SIZE)
 
-    expect(moves).not.toContainEqual(pos(6, 7))
+    expect(moves).not.toContainEqual(pos(5, 5))
   })
 
   it.each(BOTH_COLORS)('attacks enemies one diagonal step away (%s)', (color: PlayerColor) => {
