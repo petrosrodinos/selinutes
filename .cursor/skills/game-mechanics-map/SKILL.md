@@ -20,6 +20,7 @@ Read `app/GAME_MECHANICS_MAP.md` before changing game logic.
 | Bomber mines (Narc system) | `app/src/pages/Game/utils/narcUtils.ts` |
 | Warlock position swap | `app/src/pages/Game/utils/swapUtils.ts` |
 | Mystery Box state machine | `app/src/pages/Game/utils/mysteryBoxUtils.ts` |
+| Mystery Box click handling | `app/src/store/gameStore.ts` → `handleMysteryBoxSelection` |
 | Bot AI / hint move | `app/src/pages/Game/utils/botUtils.ts` |
 | Offline game state orchestration | `app/src/pages/Game/hooks/useGame.ts` |
 | Shared game state (offline + online) | `app/src/store/gameStore.ts` |
@@ -78,6 +79,35 @@ When changing any game mechanic, **always verify online mode still works**:
 7. **Opponent receive path** — confirm the opponent's listener in `useOnlineGame.ts` calls `syncFromServer()` (or the correct handler) so the board updates without requiring a refresh.
 8. **Do not add rule logic to the API** — `game.gateway.ts` and `game.service.ts` only store/relay `gameState`. All validation stays in frontend `utils/`.
 
+## Mystery Box — Obstacle Swap
+
+Logic in `mysteryBoxUtils.ts`; orchestration in `gameStore.handleMysteryBoxSelection`. Tests in `mysteryBoxUtils.test.ts`.
+
+### Whole-set obstacles (River, Lake, Canyon)
+
+- Clicking any tile in a connected RIVER / LAKE / CANYON set selects or deselects the **entire** set (`getConnectedObstacleGroup`, `getObstacleSelectionForClick`).
+- The set tile count must fit within the remaining die roll. If not, block selection and show `getWholeObstacleSelectionBlockedMessage` (e.g. 3-tile river with only 2 moves left).
+- Cave, Tree, and Rock stay **one tile per click**.
+
+### Deselect by clicking again
+
+- **Obstacle selection phase** — click a selected obstacle (or any tile of a selected whole set) to deselect it.
+- **Empty-tile placement phase** — click a highlighted source obstacle to deselect that unit, drop any placement tied to it, and return to obstacle selection (`removeObstaclePlacementUnitAtPosition`).
+
+### Placement
+
+- Singles: one empty tile per obstacle tile.
+- Whole sets: one anchor empty tile places the full shape (`computeGroupPlacementDestinations`). Disabled rows: 2 and `rows - 3`.
+- Units tracked via `obstaclePlacementUnits` / `emptyPlacementUnits` on `MysteryBoxState`.
+
+### Mystery Box change checklist
+
+| Change | Update |
+|---|---|
+| Selection / whole-set / deselect rules | `mysteryBoxUtils.ts`, `gameStore.handleMysteryBoxSelection`, `mysteryBoxUtils.test.ts` |
+| Player-facing rules text | `api/docs/game-rules.md` section 7 (already documents whole-set + individual blocks) |
+| Rules page Mystery Box copy | `app/src/pages/Rules/components/GameRulesContent.tsx` if wording changes |
+
 ## Testing — Agent Requirements
 
 **Figure mechanics and their tests must stay in sync.** Any change to figure behaviour — `PIECE_RULES`, `moveUtils`, obstacle pass logic, attack range, special abilities, or related utils — requires updating the matching test file in the **same task**. Do not leave stale tests that assert the old behaviour.
@@ -90,6 +120,7 @@ When changing any game mechanic, **always verify online mode still works**:
 | Removed or renamed behaviour | Delete or rewrite tests that no longer apply |
 | Bug fix in figure logic | Add a regression test reproducing the bug, then fix |
 | Shared util change affecting multiple figures | Update every affected figure test file |
+| Mystery Box obstacle swap behaviour | Update `mysteryBoxUtils.test.ts` (whole-set selection, roll-too-small block, placement, deselect) |
 
 Run `npm test` in `app/` before finishing. All tests must pass with the new behaviour — failing tests mean the test file was not updated to match the code change.
 
@@ -247,3 +278,4 @@ Do not edit rule bullets inline in `app/src/pages/Rules/index.tsx` section 4 —
 - **Online = same rules, extra sync** — never duplicate rule logic for online. If offline works but online does not, the bug is in the sync/event path, not the utils.
 - **Tests must change with figure mechanics** — code and tests are one unit of work. Changing `PIECE_RULES`, `moveUtils`, or any figure util without updating the corresponding `__tests__/figures/*.test.ts` (and affected system util tests) is incomplete. Stale passing tests that assert removed behaviour are as bad as no tests.
 - **Docs and Rules page exports must change with figure mechanics** — update `api/docs/game-rules.md` and `app/src/pages/Game/constants/index.ts` (`FIGURE_RULES_BULLETS`, `RULES_FIGURE_SECTION_TITLES`, `RULES_FIGURE_ORDER`) whenever figure behaviour changes. Also sync `app/src/pages/Rules/index.tsx` when points or global special rules change. Outdated `FIGURE_RULES_BULLETS` or doc text are as bad as stale tests.
+- **Mystery Box OBSTACLE_SWAP** — River/Lake/Canyon move as whole connected sets; die roll must cover the full set. Cave/Tree/Rock are single tiles. Selected obstacles deselect on second click in both selection and placement phases. Keep `mysteryBoxUtils.ts`, `gameStore.handleMysteryBoxSelection`, and `mysteryBoxUtils.test.ts` in sync.

@@ -319,10 +319,15 @@ returns with **full ranged-attack capabilities** (unlike a Necromancer Zombie). 
 placed on an **empty** tile. This option is only available if you have at least one Hoplite
 and at least one captured figure to bring back. Figures bound by an enemy Chariot
 capture-and-move cannot be revived until that Chariot is killed.
-- **Option 3 — Obstacle Swap:** Roll a die; you may then relocate up to that many obstacle
-blocks, swapping them with an equal number of empty tiles. You can move individual blocks
-(Cave, Tree, Rock) or a whole obstacle set (Canyon, River, Lake) when the roll allows.
-Obstacles cannot be placed directly in front of either player's starting ranks.
+- **Option 3 — Obstacle Swap:** Roll a die (1–6). You may then relocate up to that many
+obstacle **tiles**, each swapped onto an empty tile. **Cave, Tree, and Rock** are moved one
+tile at a time (each tile counts toward the roll). **River, Lake, and Canyon** must always be
+moved as a **whole connected set** — clicking any tile in the set selects or deselects the
+entire set, and the set is placed in one piece with the same shape on empty tiles. If a whole
+set has more tiles than your remaining roll allows (e.g. a 3-tile river when you rolled 2),
+you cannot select that set. Click a selected obstacle again to deselect it; during placement,
+clicking a highlighted source obstacle also deselects it and returns you to obstacle
+selection. Obstacles cannot be placed on the 3rd row from either player's starting rank.
 
 ---
 
@@ -342,7 +347,9 @@ capture-and-move but can still use normal ranged attacks.
 - **Revival / Zombie mode:** Ram-Tower, Chariot, Bomber, or Paladin can return as Zombies
 while the Necromancer, Monarch, Duchess, and Warlock share the same row; Zombies attack at range 1
 and are worth fewer points. Chariot capture-and-move binds victims until that Chariot dies.
-- **Mystery Box:** Figure Swap, Hoplite Sacrifice & Revive, or Obstacle Swap.
+- **Mystery Box:** Figure Swap, Hoplite Sacrifice & Revive, or Obstacle Swap (individual
+Cave/Tree/Rock tiles or whole River/Lake/Canyon sets within the die roll; deselect by
+clicking again).
 
 ---
 

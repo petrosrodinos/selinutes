@@ -11,7 +11,14 @@ import {
   canPlayerUseMysteryBoxOption3,
   getRevivablePieces,
   getPhaseForOption,
-  isObstacleSwapPlacementRowDisabled
+  isObstacleSwapPlacementRowDisabled,
+  getConnectedObstacleGroup,
+  getObstacleSelectionForClick,
+  getWholeObstacleSelectionBlockedMessage,
+  partitionObstaclePlacementUnits,
+  removeObstaclePlacementUnitAtPosition,
+  computeGroupPlacementDestinations,
+  getGroupPlacementBlockedMessage
 } from '../mysteryBoxUtils'
 import { PieceTypes, ObstacleTypes, MysteryBoxOptions, MysteryBoxPhases, isPiece, isObstacle } from '../../types'
 import type { Piece } from '../../types'
@@ -157,5 +164,116 @@ describe('isObstacleSwapPlacementRowDisabled', () => {
     expect(isObstacleSwapPlacementRowDisabled(2, 12)).toBe(true)
     expect(isObstacleSwapPlacementRowDisabled(9, 12)).toBe(true)
     expect(isObstacleSwapPlacementRowDisabled(6, 12)).toBe(false)
+  })
+})
+
+describe('whole obstacle groups', () => {
+  it('returns a connected river group when clicking one tile', () => {
+    const board = createEmptyBoard()
+    placeObstacle(board, pos(5, 2), ObstacleTypes.RIVER)
+    placeObstacle(board, pos(5, 3), ObstacleTypes.RIVER)
+    placeObstacle(board, pos(5, 4), ObstacleTypes.RIVER)
+
+    expect(getConnectedObstacleGroup(board, pos(5, 3))).toEqual([
+      pos(5, 2),
+      pos(5, 3),
+      pos(5, 4)
+    ])
+    expect(getObstacleSelectionForClick(board, pos(5, 3))).toEqual([
+      pos(5, 2),
+      pos(5, 3),
+      pos(5, 4)
+    ])
+  })
+
+  it('treats cave, tree, and rock as single-tile selections', () => {
+    const board = createEmptyBoard()
+    placeObstacle(board, pos(4, 4), ObstacleTypes.CAVE)
+
+    expect(getObstacleSelectionForClick(board, pos(4, 4))).toEqual([pos(4, 4)])
+  })
+
+  it('blocks whole obstacle selection when the roll is too small', () => {
+    const board = createEmptyBoard()
+    placeObstacle(board, pos(5, 2), ObstacleTypes.LAKE)
+    placeObstacle(board, pos(5, 3), ObstacleTypes.LAKE)
+    placeObstacle(board, pos(5, 4), ObstacleTypes.LAKE)
+
+    const message = getWholeObstacleSelectionBlockedMessage(board, pos(5, 3), 2, 0)
+
+    expect(message).toContain('3 tiles')
+    expect(message).toContain('2 moves left')
+  })
+
+  it('partitions selected obstacles into whole groups and singles', () => {
+    const board = createEmptyBoard()
+    placeObstacle(board, pos(5, 2), ObstacleTypes.RIVER)
+    placeObstacle(board, pos(5, 3), ObstacleTypes.RIVER)
+    placeObstacle(board, pos(7, 7), ObstacleTypes.ROCK)
+
+    const units = partitionObstaclePlacementUnits(board, [pos(5, 2), pos(5, 3), pos(7, 7)])
+
+    expect(units).toEqual([
+      [pos(5, 2), pos(5, 3)],
+      [pos(7, 7)]
+    ])
+  })
+
+  it('computes translated destinations for a whole obstacle group', () => {
+    const board = createEmptyBoard()
+    placeObstacle(board, pos(5, 2), ObstacleTypes.CANYON)
+    placeObstacle(board, pos(5, 3), ObstacleTypes.CANYON)
+
+    const destinations = computeGroupPlacementDestinations(board, [pos(5, 2), pos(5, 3)], pos(7, 2))
+
+    expect(destinations).toEqual([pos(7, 2), pos(7, 3)])
+  })
+
+  it('rejects group placement when the translated shape does not fit', () => {
+    const board = createEmptyBoard()
+    placeObstacle(board, pos(5, 2), ObstacleTypes.RIVER)
+    placeObstacle(board, pos(5, 3), ObstacleTypes.RIVER)
+
+    expect(getGroupPlacementBlockedMessage(board, [pos(5, 2), pos(5, 3)], pos(2, 2))).not.toBeNull()
+  })
+
+  it('moves a whole river group through executeObstacleSwap', () => {
+    const board = createEmptyBoard()
+    placeObstacle(board, pos(5, 2), ObstacleTypes.RIVER)
+    placeObstacle(board, pos(5, 3), ObstacleTypes.RIVER)
+    placeObstacle(board, pos(5, 4), ObstacleTypes.RIVER)
+
+    const { success, newBoard } = executeObstacleSwap(
+      board,
+      [pos(5, 2), pos(5, 3), pos(5, 4)],
+      [pos(7, 2), pos(7, 3), pos(7, 4)]
+    )
+
+    expect(success).toBe(true)
+    expect(newBoard[5][2]).toBeNull()
+    expect(newBoard[5][3]).toBeNull()
+    expect(newBoard[5][4]).toBeNull()
+    expect(isObstacle(newBoard[7][2]) && newBoard[7][2].type).toBe(ObstacleTypes.RIVER)
+    expect(isObstacle(newBoard[7][3]) && newBoard[7][3].type).toBe(ObstacleTypes.RIVER)
+    expect(isObstacle(newBoard[7][4]) && newBoard[7][4].type).toBe(ObstacleTypes.RIVER)
+  })
+
+  it('removes a selected obstacle unit when clicking it again during placement', () => {
+    const units = [
+      [pos(5, 2), pos(5, 3)],
+      [pos(7, 7)]
+    ]
+    const emptyUnits = [
+      [pos(6, 2), pos(6, 3)]
+    ]
+
+    const removal = removeObstaclePlacementUnitAtPosition(units, emptyUnits, pos(5, 3))
+
+    expect(removal).toEqual({
+      obstaclePlacementUnits: [[pos(7, 7)]],
+      emptyPlacementUnits: [],
+      selectedObstacles: [pos(7, 7)],
+      selectedEmptyTiles: []
+    })
   })
 })

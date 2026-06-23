@@ -38,6 +38,13 @@ import {
     isSelectableObstacle,
     isPositionInList,
     isObstacleSwapPlacementAllowed,
+    getObstacleSelectionForClick,
+    getWholeObstacleSelectionBlockedMessage,
+    partitionObstaclePlacementUnits,
+    removeObstaclePlacementUnitAtPosition,
+    getObstaclePlacementUnitForPosition,
+    computeGroupPlacementDestinations,
+    getGroupPlacementBlockedMessage,
     filterZombieRevivablePieces,
     getNightModeFromBoard,
     areRevivalGuardsInPlace,
@@ -399,6 +406,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                                 diceRoll,
                                 firstFigurePosition: null,
                                 selectedObstacles: [],
+                                obstaclePlacementUnits: [],
+                                emptyPlacementUnits: [],
                                 selectedEmptyTiles: [],
                                 revivablePieces,
                                 selectedRevivePiece: null
@@ -703,6 +712,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                             diceRoll,
                             firstFigurePosition: null,
                             selectedObstacles: [],
+                            obstaclePlacementUnits: [],
+                            emptyPlacementUnits: [],
                             selectedEmptyTiles: [],
                             revivablePieces,
                             selectedRevivePiece: null
@@ -1089,7 +1100,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (!mysteryBoxState.isActive || !gameState) return false
 
         const { board, boardSize, capturedPieces, currentPlayer } = gameState
-        const { option, phase, diceRoll, firstFigurePosition, selectedObstacles, selectedEmptyTiles, selectedRevivePiece } = mysteryBoxState
+        const { option, phase, diceRoll, firstFigurePosition, selectedObstacles, obstaclePlacementUnits, emptyPlacementUnits, selectedEmptyTiles, selectedRevivePiece } = mysteryBoxState
 
         if (option === MysteryBoxOptions.FIGURE_SWAP) {
             if (phase === MysteryBoxPhases.WAITING_FIRST_FIGURE) {
@@ -1267,39 +1278,58 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     }
                     return false
                 }
-                if (isPositionInList(pos, selectedObstacles)) {
-                    const newSelectedObstacles = selectedObstacles.filter(p => p.row !== pos.row || p.col !== pos.col)
+
+                const selectionGroup = getObstacleSelectionForClick(board, pos)
+                const isGroupSelected = selectionGroup.some(p => isPositionInList(p, selectedObstacles))
+
+                if (isGroupSelected) {
+                    const newSelectedObstacles = selectedObstacles.filter(
+                        p => !selectionGroup.some(g => g.row === p.row && g.col === p.col)
+                    )
                     if (!isOnline) {
                         toast.info(`🔄 Obstacle deselected. ${newSelectedObstacles.length}/${diceRoll} obstacles selected.`, { autoClose: 2500 })
                     }
                     set({
                         mysteryBoxState: {
                             ...mysteryBoxState,
-                            selectedObstacles: newSelectedObstacles
+                            selectedObstacles: newSelectedObstacles,
+                            obstaclePlacementUnits: [],
+                            emptyPlacementUnits: []
                         }
                     })
                     return false
                 }
 
-                if (selectedObstacles.length >= diceRoll) {
+                const blockedMessage = getWholeObstacleSelectionBlockedMessage(board, pos, diceRoll, selectedObstacles.length)
+                if (blockedMessage) {
+                    if (!isOnline) {
+                        toast.warning(blockedMessage, { autoClose: 4500 })
+                    }
+                    return false
+                }
+
+                if (selectedObstacles.length + selectionGroup.length > diceRoll) {
                     if (!isOnline) {
                         toast.warning(`❌ Maximum ${diceRoll} obstacles already selected! Deselect one first or proceed to empty tile selection.`, { autoClose: 3500 })
                     }
                     return false
                 }
 
-                const newSelectedObstacles = [...selectedObstacles, pos]
+                const newSelectedObstacles = [...selectedObstacles, ...selectionGroup]
 
                 if (newSelectedObstacles.length === diceRoll) {
+                    const placementUnits = partitionObstaclePlacementUnits(board, newSelectedObstacles)
                     if (!isOnline) {
-                        toast.success(`✅ Selected ${diceRoll}/${diceRoll} obstacles! Now click on ${diceRoll} EMPTY tiles where you want to move these obstacles.`, { autoClose: 5000 })
+                        toast.success(`✅ Selected ${diceRoll}/${diceRoll} obstacles! Now place them on empty tiles.`, { autoClose: 5000 })
                     } else {
-                        toast.info(`🎯 Now select ${diceRoll} empty tile(s) to swap the obstacles to!`, { autoClose: 4000 })
+                        toast.info(`🎯 Now place the selected obstacle(s) on empty tile(s)!`, { autoClose: 4000 })
                     }
                     set({
                         mysteryBoxState: {
                             ...mysteryBoxState,
                             selectedObstacles: newSelectedObstacles,
+                            obstaclePlacementUnits: placementUnits,
+                            emptyPlacementUnits: [],
                             phase: MysteryBoxPhases.WAITING_EMPTY_TILE_SELECTION
                         }
                     })
@@ -1310,7 +1340,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     set({
                         mysteryBoxState: {
                             ...mysteryBoxState,
-                            selectedObstacles: newSelectedObstacles
+                            selectedObstacles: newSelectedObstacles,
+                            obstaclePlacementUnits: [],
+                            emptyPlacementUnits: []
                         }
                     })
                 }
@@ -1318,6 +1350,128 @@ export const useGameStore = create<GameStore>((set, get) => ({
             }
 
             if (phase === MysteryBoxPhases.WAITING_EMPTY_TILE_SELECTION) {
+                const placementUnits = obstaclePlacementUnits.length > 0
+                    ? obstaclePlacementUnits
+                    : partitionObstaclePlacementUnits(board, selectedObstacles)
+
+                if (isPositionInList(pos, selectedObstacles)) {
+                    const removal = removeObstaclePlacementUnitAtPosition(
+                        placementUnits,
+                        emptyPlacementUnits,
+                        pos
+                    )
+                    if (!removal) return false
+
+                    if (!isOnline) {
+                        toast.info(`🔄 Obstacle deselected. ${removal.selectedObstacles.length}/${diceRoll} obstacles selected.`, { autoClose: 2500 })
+                    }
+
+                    set({
+                        mysteryBoxState: {
+                            ...mysteryBoxState,
+                            selectedObstacles: removal.selectedObstacles,
+                            obstaclePlacementUnits: [],
+                            emptyPlacementUnits: [],
+                            selectedEmptyTiles: removal.selectedEmptyTiles,
+                            phase: MysteryBoxPhases.WAITING_OBSTACLE_SELECTION
+                        }
+                    })
+                    return false
+                }
+
+                const currentUnitIndex = emptyPlacementUnits.length
+                const currentUnit = placementUnits[currentUnitIndex]
+
+                if (!currentUnit) {
+                    return false
+                }
+
+                if (isPositionInList(pos, selectedEmptyTiles)) {
+                    const unitIndex = emptyPlacementUnits.findIndex(unit =>
+                        unit.some(p => p.row === pos.row && p.col === pos.col)
+                    )
+                    if (unitIndex < 0) return false
+
+                    const newEmptyPlacementUnits = emptyPlacementUnits.slice(0, unitIndex)
+                    const newSelectedEmptyTiles = newEmptyPlacementUnits.flat()
+                    if (!isOnline) {
+                        toast.info(`🔄 Placement deselected. ${newSelectedEmptyTiles.length}/${selectedObstacles.length} tiles placed.`, { autoClose: 2500 })
+                    }
+                    set({
+                        mysteryBoxState: {
+                            ...mysteryBoxState,
+                            obstaclePlacementUnits: placementUnits,
+                            emptyPlacementUnits: newEmptyPlacementUnits,
+                            selectedEmptyTiles: newSelectedEmptyTiles
+                        }
+                    })
+                    return false
+                }
+
+                if (currentUnit.length > 1) {
+                    const blockedMessage = getGroupPlacementBlockedMessage(board, currentUnit, pos)
+                    if (blockedMessage) {
+                        if (!isOnline) {
+                            toast.warning(blockedMessage, { autoClose: 4000 })
+                        }
+                        return false
+                    }
+
+                    const destinations = computeGroupPlacementDestinations(board, currentUnit, pos)
+                    if (!destinations) {
+                        if (!isOnline) {
+                            toast.warning('❌ Cannot place this obstacle set here — the whole shape must fit on empty tiles outside the disabled rows.', { autoClose: 4000 })
+                        }
+                        return false
+                    }
+
+                    const newEmptyPlacementUnits = [...emptyPlacementUnits, destinations]
+                    const newSelectedEmptyTiles = newEmptyPlacementUnits.flat()
+
+                    if (newEmptyPlacementUnits.length === placementUnits.length) {
+                        const { success, newBoard } = executeObstacleSwap(board, selectedObstacles, newSelectedEmptyTiles)
+                        if (!success) {
+                            if (!isOnline) {
+                                toast.error('❌ Obstacle swap failed! Please try again.', { autoClose: 2000 })
+                            }
+                            return false
+                        }
+
+                        if (!isOnline) {
+                            toast.success('🎉 Obstacles swapped with empty tiles! Your turn is complete.', { autoClose: 3000 })
+                        }
+
+                        const nextPlayer = currentPlayer === PlayerColors.WHITE ? PlayerColors.BLACK : PlayerColors.WHITE
+                        const { gameOver, winner } = checkGameOver(newBoard, nextPlayer, boardSize)
+
+                        set({
+                            gameState: {
+                                ...gameState,
+                                board: newBoard,
+                                currentPlayer: nextPlayer,
+                                gameOver,
+                                winner,
+                                nightMode: getNightModeFromBoard(newBoard)
+                            },
+                            mysteryBoxState: getInitialMysteryBoxState()
+                        })
+                        return true
+                    }
+
+                    if (!isOnline) {
+                        toast.info(`📍 Obstacle set placed! ${newSelectedEmptyTiles.length}/${selectedObstacles.length} tiles placed.`, { autoClose: 3000 })
+                    }
+                    set({
+                        mysteryBoxState: {
+                            ...mysteryBoxState,
+                            obstaclePlacementUnits: placementUnits,
+                            emptyPlacementUnits: newEmptyPlacementUnits,
+                            selectedEmptyTiles: newSelectedEmptyTiles
+                        }
+                    })
+                    return false
+                }
+
                 if (board[pos.row][pos.col] !== null) {
                     if (!isOnline) {
                         toast.warning('❌ Invalid Selection - You must select EMPTY tiles (no pieces or obstacles)!', { autoClose: 3000 })
@@ -1330,30 +1484,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     }
                     return false
                 }
-                if (isPositionInList(pos, selectedEmptyTiles)) {
-                    const newSelectedEmptyTiles = selectedEmptyTiles.filter(p => p.row !== pos.row || p.col !== pos.col)
-                    if (!isOnline) {
-                        toast.info(`🔄 Empty tile deselected. ${newSelectedEmptyTiles.length}/${selectedObstacles.length} selected.`, { autoClose: 2500 })
-                    }
-                    set({
-                        mysteryBoxState: {
-                            ...mysteryBoxState,
-                            selectedEmptyTiles: newSelectedEmptyTiles
-                        }
-                    })
-                    return false
-                }
 
-                if (selectedEmptyTiles.length >= selectedObstacles.length) {
-                    if (!isOnline) {
-                        toast.warning(`❌ Maximum ${selectedObstacles.length} empty tiles already selected! Deselect one first.`, { autoClose: 3000 })
-                    }
-                    return false
-                }
+                const newEmptyPlacementUnits = [...emptyPlacementUnits, [pos]]
+                const newSelectedEmptyTiles = newEmptyPlacementUnits.flat()
 
-                const newSelectedEmptyTiles = [...selectedEmptyTiles, pos]
-
-                if (newSelectedEmptyTiles.length === selectedObstacles.length) {
+                if (newEmptyPlacementUnits.length === placementUnits.length) {
                     const { success, newBoard } = executeObstacleSwap(board, selectedObstacles, newSelectedEmptyTiles)
                     if (!success) {
                         if (!isOnline) {
@@ -1381,17 +1516,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
                         mysteryBoxState: getInitialMysteryBoxState()
                     })
                     return true
-                } else {
-                    if (!isOnline) {
-                        toast.info(`📍 Empty tile selected! ${newSelectedEmptyTiles.length}/${selectedObstacles.length} selected. Select ${selectedObstacles.length - newSelectedEmptyTiles.length} more.`, { autoClose: 3000 })
-                    }
-                    set({
-                        mysteryBoxState: {
-                            ...mysteryBoxState,
-                            selectedEmptyTiles: newSelectedEmptyTiles
-                        }
-                    })
                 }
+
+                if (!isOnline) {
+                    toast.info(`📍 Empty tile selected! ${newSelectedEmptyTiles.length}/${selectedObstacles.length} placed. Select ${selectedObstacles.length - newSelectedEmptyTiles.length} more.`, { autoClose: 3000 })
+                }
+                set({
+                    mysteryBoxState: {
+                        ...mysteryBoxState,
+                        obstaclePlacementUnits: placementUnits,
+                        emptyPlacementUnits: newEmptyPlacementUnits,
+                        selectedEmptyTiles: newSelectedEmptyTiles
+                    }
+                })
                 return false
             }
         }
@@ -1420,14 +1557,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
     },
 
     confirmObstacleSelection: () => {
-        const { mysteryBoxState } = get()
+        const { mysteryBoxState, gameState } = get()
         if (!mysteryBoxState.isActive) return
         if (mysteryBoxState.phase !== MysteryBoxPhases.WAITING_OBSTACLE_SELECTION) return
         if (mysteryBoxState.selectedObstacles.length === 0) return
+        if (!gameState) return
 
         set({
             mysteryBoxState: {
                 ...mysteryBoxState,
+                obstaclePlacementUnits: partitionObstaclePlacementUnits(
+                    gameState.board,
+                    mysteryBoxState.selectedObstacles
+                ),
+                emptyPlacementUnits: [],
                 phase: MysteryBoxPhases.WAITING_EMPTY_TILE_SELECTION
             }
         })

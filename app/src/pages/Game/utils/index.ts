@@ -107,5 +107,15 @@ export {
   getMysteryBoxOptionName,
   removeMysteryBoxFromBoard,
   isPositionInList,
-  isObstacleSwapPlacementAllowed
+  isObstacleSwapPlacementAllowed,
+  isWholeMoveObstacleType,
+  getConnectedObstacleGroup,
+  getObstacleSelectionForClick,
+  partitionObstaclePlacementUnits,
+  removeObstaclePlacementUnitAtPosition,
+  getObstaclePlacementUnitForPosition,
+  getWholeObstacleSelectionBlockedMessage,
+  computeGroupPlacementDestinations,
+  getGroupPlacementBlockedMessage,
+  sortObstaclePositions
 } from './mysteryBoxUtils'

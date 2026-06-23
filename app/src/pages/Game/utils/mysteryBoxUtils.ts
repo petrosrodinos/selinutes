@@ -1,7 +1,8 @@
-import type { Board, Position, Piece, PlayerColor, MysteryBoxState, MysteryBoxOption, MysteryBoxPhase } from '../types'
+import type { Board, Position, Piece, PlayerColor, MysteryBoxState, MysteryBoxOption, MysteryBoxPhase, ObstacleType } from '../types'
 import { PieceTypes, ObstacleTypes, MysteryBoxOptions, MysteryBoxPhases } from '../types'
 import { isPiece, isObstacle } from '../types'
 import { filterRevivableCapturedPieces } from './chariotSoulBindUtils'
+import { OBSTACLE_NAMES } from '../constants'
 
 export const getInitialMysteryBoxState = (): MysteryBoxState => ({
     isActive: false,
@@ -11,6 +12,8 @@ export const getInitialMysteryBoxState = (): MysteryBoxState => ({
     diceRoll: null,
     firstFigurePosition: null,
     selectedObstacles: [],
+    obstaclePlacementUnits: [],
+    emptyPlacementUnits: [],
     selectedEmptyTiles: [],
     revivablePieces: [],
     selectedRevivePiece: null
@@ -91,6 +94,171 @@ export const getAllObstacles = (board: Board, types: string[]): Position[] => {
         }
     }
     return obstacles
+}
+
+export const WHOLE_MOVE_OBSTACLE_TYPES: readonly ObstacleType[] = [
+    ObstacleTypes.RIVER,
+    ObstacleTypes.LAKE,
+    ObstacleTypes.CANYON
+]
+
+export const isWholeMoveObstacleType = (type: ObstacleType): boolean =>
+    WHOLE_MOVE_OBSTACLE_TYPES.includes(type)
+
+const adjacentPositions = (row: number, col: number): Position[] => [
+    { row, col: col + 1 },
+    { row: row + 1, col },
+    { row, col: col - 1 },
+    { row: row - 1, col }
+]
+
+const positionKey = (pos: Position): string => `${pos.row},${pos.col}`
+
+export const sortObstaclePositions = (positions: Position[]): Position[] =>
+    [...positions].sort((a, b) => (a.row - b.row) || (a.col - b.col))
+
+export const getConnectedObstacleGroup = (board: Board, start: Position): Position[] => {
+    const cell = board[start.row][start.col]
+    if (!cell || !isObstacle(cell) || !isWholeMoveObstacleType(cell.type)) {
+        return [start]
+    }
+
+    const obstacleType = cell.type
+    const visited = new Set<string>()
+    const group: Position[] = []
+    const queue: Position[] = [start]
+
+    while (queue.length > 0) {
+        const current = queue.shift()!
+        const key = positionKey(current)
+        if (visited.has(key)) continue
+        visited.add(key)
+
+        const currentCell = board[current.row][current.col]
+        if (!currentCell || !isObstacle(currentCell) || currentCell.type !== obstacleType) continue
+
+        group.push(current)
+        for (const adjacent of adjacentPositions(current.row, current.col)) {
+            const { row, col } = adjacent
+            if (row < 0 || row >= board.length || col < 0 || col >= board[0].length) continue
+            queue.push(adjacent)
+        }
+    }
+
+    return sortObstaclePositions(group)
+}
+
+export const getObstacleSelectionForClick = (board: Board, pos: Position): Position[] => {
+    if (!isSelectableObstacle(board, pos)) return []
+    return getConnectedObstacleGroup(board, pos)
+}
+
+export const partitionObstaclePlacementUnits = (
+    board: Board,
+    selectedObstacles: Position[]
+): Position[][] => {
+    const remaining = new Set(selectedObstacles.map(positionKey))
+    const units: Position[][] = []
+
+    for (const pos of selectedObstacles) {
+        const key = positionKey(pos)
+        if (!remaining.has(key)) continue
+
+        const selection = getConnectedObstacleGroup(board, pos).filter(p => remaining.has(positionKey(p)))
+        for (const p of selection) remaining.delete(positionKey(p))
+        units.push(sortObstaclePositions(selection))
+    }
+
+    return units
+}
+
+export const getObstaclePlacementUnitForPosition = (
+    placementUnits: Position[][],
+    pos: Position
+): { unit: Position[]; unitIndex: number } | null => {
+    const unitIndex = placementUnits.findIndex(unit =>
+        unit.some(p => p.row === pos.row && p.col === pos.col)
+    )
+    if (unitIndex < 0) return null
+    return { unit: placementUnits[unitIndex], unitIndex }
+}
+
+export const removeObstaclePlacementUnitAtPosition = (
+    placementUnits: Position[][],
+    emptyPlacementUnits: Position[][],
+    pos: Position
+): {
+    obstaclePlacementUnits: Position[][]
+    emptyPlacementUnits: Position[][]
+    selectedObstacles: Position[]
+    selectedEmptyTiles: Position[]
+} | null => {
+    const match = getObstaclePlacementUnitForPosition(placementUnits, pos)
+    if (!match) return null
+
+    const newObstacleUnits = placementUnits.filter((_, index) => index !== match.unitIndex)
+    const newEmptyUnits = emptyPlacementUnits.filter((_, index) => index !== match.unitIndex)
+
+    return {
+        obstaclePlacementUnits: newObstacleUnits,
+        emptyPlacementUnits: newEmptyUnits,
+        selectedObstacles: newObstacleUnits.flat(),
+        selectedEmptyTiles: newEmptyUnits.flat()
+    }
+}
+
+export const getWholeObstacleSelectionBlockedMessage = (
+    board: Board,
+    pos: Position,
+    diceRoll: number,
+    selectedCount: number
+): string | null => {
+    const cell = board[pos.row][pos.col]
+    if (!cell || !isObstacle(cell) || !isWholeMoveObstacleType(cell.type)) return null
+
+    const group = getConnectedObstacleGroup(board, pos)
+    const remaining = diceRoll - selectedCount
+    if (group.length <= remaining) return null
+
+    const obstacleName = OBSTACLE_NAMES[cell.type]
+    return `❌ This ${obstacleName} has ${group.length} tiles but you only have ${remaining} move${remaining === 1 ? '' : 's'} left (rolled ${diceRoll}). ${obstacleName}s must be moved as a whole.`
+}
+
+export const computeGroupPlacementDestinations = (
+    board: Board,
+    group: Position[],
+    anchor: Position
+): Position[] | null => {
+    if (group.length === 0) return null
+
+    const sortedGroup = sortObstaclePositions(group)
+    const origin = sortedGroup[0]
+    const destinations = sortedGroup.map(p => ({
+        row: anchor.row + (p.row - origin.row),
+        col: anchor.col + (p.col - origin.col)
+    }))
+
+    const rows = board.length
+    const cols = board[0].length
+    const sourceKeys = new Set(sortedGroup.map(positionKey))
+
+    for (const dest of destinations) {
+        if (dest.row < 0 || dest.row >= rows || dest.col < 0 || dest.col >= cols) return null
+        if (!isObstacleSwapPlacementAllowed(board, dest)) return null
+        const cell = board[dest.row][dest.col]
+        if (cell !== null && !sourceKeys.has(positionKey(dest))) return null
+    }
+
+    return destinations
+}
+
+export const getGroupPlacementBlockedMessage = (
+    board: Board,
+    group: Position[],
+    anchor: Position
+): string | null => {
+    if (computeGroupPlacementDestinations(board, group, anchor)) return null
+    return '❌ Cannot place this obstacle set here — the whole shape must fit on empty tiles outside the disabled rows.'
 }
 
 export const isSelectableObstacle = (board: Board, pos: Position): boolean => {

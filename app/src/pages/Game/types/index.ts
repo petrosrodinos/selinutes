@@ -200,6 +200,8 @@ export interface MysteryBoxState {
   diceRoll: number | null
   firstFigurePosition: Position | null
   selectedObstacles: Position[]
+  obstaclePlacementUnits: Position[][]
+  emptyPlacementUnits: Position[][]
   selectedEmptyTiles: Position[]
   revivablePieces: Piece[]
   selectedRevivePiece: Piece | null
