@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Loader2 } from "lucide-react";
+import { Home, Loader2 } from "lucide-react";
 import { Board } from "./components/Board";
 import { Board3DLoadFallback } from "./components/Board3D/Board3DLoadFallback";
 import { TopMenu } from "./components/TopMenu";
@@ -334,6 +334,17 @@ export const Game = () => {
         <div className="bg-rose-600/20 border border-rose-500 rounded-xl p-6 max-w-md">
           <h2 className="text-rose-400 text-xl font-bold mb-2">Error</h2>
           <p className="text-stone-200">{error}</p>
+          <Link
+            to="/home"
+            onClick={() => {
+              resetOnlineState();
+              resetGame();
+            }}
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-stone-700 px-4 py-3 font-medium text-white transition-colors hover:bg-stone-600"
+          >
+            <Home className="w-5 h-5" />
+            Return to Home
+          </Link>
         </div>
       </div>
     );
