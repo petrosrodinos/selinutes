@@ -6,6 +6,7 @@ export interface UpdateAdminUserPayload {
     role: AuthRole
     points: number
     level: number
+    rank: number
     wins: number
     losses: number
     draws: number

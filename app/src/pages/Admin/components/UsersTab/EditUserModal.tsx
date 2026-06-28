@@ -25,6 +25,7 @@ export const EditUserModal = ({ user, isOpen, isSaving, onClose, onSave }: EditU
         role: ADMIN_USER_ROLE_OPTIONS[0].value,
         points: 0,
         level: 1,
+        rank: 1,
         wins: 0,
         losses: 0,
         draws: 0,
@@ -39,6 +40,7 @@ export const EditUserModal = ({ user, isOpen, isSaving, onClose, onSave }: EditU
             role: isAuthRole(user.role) ? user.role : ADMIN_USER_ROLE_OPTIONS[0].value,
             points: user.points,
             level: user.level,
+            rank: user.rank,
             wins: user.wins,
             losses: user.losses,
             draws: user.draws,
@@ -55,6 +57,7 @@ export const EditUserModal = ({ user, isOpen, isSaving, onClose, onSave }: EditU
             role: form.role,
             points: form.points,
             level: form.level,
+            rank: form.rank,
             wins: form.wins,
             losses: form.losses,
             draws: form.draws,
@@ -114,7 +117,7 @@ export const EditUserModal = ({ user, isOpen, isSaving, onClose, onSave }: EditU
 
                 <section className="space-y-4">
                     <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-400">Stats</h3>
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         <label className="block space-y-1.5">
                             <span className="text-xs font-medium text-stone-400">Points</span>
                             <input
@@ -140,6 +143,22 @@ export const EditUserModal = ({ user, isOpen, isSaving, onClose, onSave }: EditU
                                     setForm((prev) => ({
                                         ...prev,
                                         level: Math.min(MAX_LEVEL, Math.max(1, parseNonNegativeInt(event.target.value) || 1)),
+                                    }))
+                                }
+                                className="w-full rounded-lg border border-stone-700 bg-stone-900/60 px-3 py-2 text-sm text-stone-100 outline-none transition-colors focus:border-amber-500/50"
+                            />
+                        </label>
+                        <label className="block space-y-1.5">
+                            <span className="text-xs font-medium text-stone-400">Rank</span>
+                            <input
+                                type="number"
+                                min={1}
+                                required
+                                value={form.rank}
+                                onChange={(event) =>
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        rank: Math.max(1, parseNonNegativeInt(event.target.value) || 1),
                                     }))
                                 }
                                 className="w-full rounded-lg border border-stone-700 bg-stone-900/60 px-3 py-2 text-sm text-stone-100 outline-none transition-colors focus:border-amber-500/50"
@@ -185,9 +204,6 @@ export const EditUserModal = ({ user, isOpen, isSaving, onClose, onSave }: EditU
                             />
                         </label>
                     </div>
-                    <p className="text-xs text-stone-500">
-                        Rank is recalculated automatically from points when you save.
-                    </p>
                 </section>
 
                 <div className="flex justify-end gap-3 border-t border-stone-700 pt-4">

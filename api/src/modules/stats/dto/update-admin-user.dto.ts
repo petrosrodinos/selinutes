@@ -28,6 +28,11 @@ export class UpdateAdminUserDto {
     @Max(MAX_LEVEL)
     level: number
 
+    @ApiProperty({ example: 5, minimum: 1 })
+    @IsInt()
+    @Min(1)
+    rank: number
+
     @ApiProperty({ example: 10, minimum: 0 })
     @IsInt()
     @Min(0)
