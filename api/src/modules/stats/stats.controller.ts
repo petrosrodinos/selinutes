@@ -1,7 +1,8 @@
-import { Controller, Get, Query, HttpCode, HttpStatus, UseGuards, ParseIntPipe, DefaultValuePipe, Delete, Param } from '@nestjs/common'
+import { Controller, Get, Query, HttpCode, HttpStatus, UseGuards, ParseIntPipe, DefaultValuePipe, Delete, Param, Patch, Body } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger'
 import { StatsService, LeaderboardEntry, AdminUserOverviewEntry, AdminGameSessionEntry } from './stats.service'
 import { GetAdminGamesDto } from './dto/get-admin-games.dto'
+import { UpdateAdminUserDto } from './dto/update-admin-user.dto'
 import { JwtGuard } from '@/shared/guards/jwt.guard'
 import { RolesGuard } from '@/shared/guards/roles.guard'
 import { Roles } from '@/shared/decorators/roles.decorator'
@@ -79,6 +80,21 @@ export class StatsController {
         @Param('sessionId') sessionId: string,
     ): Promise<{ message: string }> {
         return this.statsService.deleteAdminGameSession(sessionId)
+    }
+
+    @Patch('admin/users/:userUuid')
+    @Roles(AuthRoles.ADMIN)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Admin: update user profile and stats' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'User updated successfully' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+    @ApiResponse({ status: HttpStatus.CONFLICT, description: 'Username or email already in use' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
+    updateAdminUser(
+        @Param('userUuid') userUuid: string,
+        @Body() dto: UpdateAdminUserDto,
+    ): Promise<AdminUserOverviewEntry> {
+        return this.statsService.updateAdminUser(userUuid, dto)
     }
 
     @Delete('admin/users/:userUuid')

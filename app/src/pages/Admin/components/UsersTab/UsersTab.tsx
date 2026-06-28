@@ -1,6 +1,10 @@
 import { useState } from 'react'
-import { useAdminUsersOverview, useDeleteAdminUser } from '../../../../features/stats/hooks/use-stats'
+import { useAdminUsersOverview, useDeleteAdminUser, useUpdateAdminUser } from '../../../../features/stats/hooks/use-stats'
 import { ConfirmationDialog } from '../../../../components/ConfirmationDialog'
+import type { AdminUserOverviewEntry } from '../../../../features/stats/interfaces/stats.interface'
+import type { UpdateAdminUserPayload } from '../../../../features/stats/interfaces/admin-user-update.interface'
+import { UserActionsMenu } from './UserActionsMenu'
+import { EditUserModal } from './EditUserModal'
 
 const formatDate = (dateStr: string): string => {
     return new Date(dateStr).toLocaleString(undefined, {
@@ -19,17 +23,28 @@ const ROLE_BADGE_STYLES: Record<string, string> = {
 }
 
 export const UsersTab = () => {
-    const { data: users, isLoading, isError, refetch } = useAdminUsersOverview()
+    const { data: users, isLoading, isError } = useAdminUsersOverview()
     const deleteUserMutation = useDeleteAdminUser()
-    const [selectedUser, setSelectedUser] = useState<{ uuid: string; username: string } | null>(null)
+    const updateUserMutation = useUpdateAdminUser()
+    const [userToDelete, setUserToDelete] = useState<{ uuid: string; username: string } | null>(null)
+    const [userToEdit, setUserToEdit] = useState<AdminUserOverviewEntry | null>(null)
     const usersList = users ?? []
 
     const handleDeleteUser = async () => {
-        if (!selectedUser) return
+        if (!userToDelete) return
 
-        await deleteUserMutation.mutateAsync(selectedUser.uuid)
-        setSelectedUser(null)
-        await refetch()
+        await deleteUserMutation.mutateAsync(userToDelete.uuid)
+        setUserToDelete(null)
+    }
+
+    const handleSaveUser = async (payload: UpdateAdminUserPayload) => {
+        if (!userToEdit) return
+
+        await updateUserMutation.mutateAsync({
+            userUuid: userToEdit.user_uuid,
+            payload,
+        })
+        setUserToEdit(null)
     }
 
     if (isLoading) {
@@ -92,13 +107,10 @@ export const UsersTab = () => {
                                     <td className="px-4 py-3 text-red-300">{user.losses}</td>
                                     <td className="px-4 py-3 text-amber-200">{user.draws}</td>
                                     <td className="px-4 py-3">
-                                        <button
-                                            type="button"
-                                            onClick={() => setSelectedUser({ uuid: user.user_uuid, username: user.username })}
-                                            className="rounded-lg bg-rose-700 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-rose-600"
-                                        >
-                                            Delete
-                                        </button>
+                                        <UserActionsMenu
+                                            onEdit={() => setUserToEdit(user)}
+                                            onDelete={() => setUserToDelete({ uuid: user.user_uuid, username: user.username })}
+                                        />
                                     </td>
                                 </tr>
                             ))}
@@ -107,12 +119,20 @@ export const UsersTab = () => {
                 </div>
             </div>
 
+            <EditUserModal
+                user={userToEdit}
+                isOpen={!!userToEdit}
+                isSaving={updateUserMutation.isPending}
+                onClose={() => setUserToEdit(null)}
+                onSave={handleSaveUser}
+            />
+
             <ConfirmationDialog
-                isOpen={!!selectedUser}
-                onClose={() => setSelectedUser(null)}
+                isOpen={!!userToDelete}
+                onClose={() => setUserToDelete(null)}
                 onConfirm={handleDeleteUser}
                 title="Delete User"
-                message={`Are you sure you want to delete ${selectedUser?.username ?? 'this user'}? This action cannot be undone.`}
+                message={`Are you sure you want to delete ${userToDelete?.username ?? 'this user'}? This action cannot be undone.`}
                 confirmText={deleteUserMutation.isPending ? 'Deleting...' : 'Delete'}
                 cancelText="Cancel"
                 isConfirming={deleteUserMutation.isPending}

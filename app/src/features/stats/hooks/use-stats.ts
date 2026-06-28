@@ -6,8 +6,10 @@ import {
     getAdminUsersOverview,
     getAdminGamesOverview,
     deleteAdminUser,
+    updateAdminUser,
     deleteAdminGame,
 } from '../services/stats.service'
+import type { UpdateAdminUserPayload } from '../interfaces/admin-user-update.interface'
 import { toast } from 'react-toastify'
 
 export const useMyStats = () => {
@@ -47,10 +49,29 @@ export const useAdminGamesOverview = (params?: { page?: number; limit?: number }
 }
 
 export const useDeleteAdminUser = () => {
+    const queryClient = useQueryClient()
+
     return useMutation({
         mutationFn: deleteAdminUser,
-        onSuccess: () => {
+        onSuccess: async () => {
             toast.success('User deleted successfully')
+            await queryClient.invalidateQueries({ queryKey: ['stats', 'admin-users-overview'] })
+        },
+        onError: (error: Error) => {
+            toast.error(error.message)
+        },
+    })
+}
+
+export const useUpdateAdminUser = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({ userUuid, payload }: { userUuid: string; payload: UpdateAdminUserPayload }) =>
+            updateAdminUser(userUuid, payload),
+        onSuccess: async () => {
+            toast.success('User updated successfully')
+            await queryClient.invalidateQueries({ queryKey: ['stats', 'admin-users-overview'] })
         },
         onError: (error: Error) => {
             toast.error(error.message)

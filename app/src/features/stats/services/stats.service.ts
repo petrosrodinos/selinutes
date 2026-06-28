@@ -6,6 +6,7 @@ import type {
     AdminUserOverviewEntry,
     AdminGamesOverviewResponse,
 } from '../interfaces/stats.interface'
+import type { UpdateAdminUserPayload } from '../interfaces/admin-user-update.interface'
 
 export const getMyStats = async (): Promise<UserStats> => {
     const response = await axiosInstance.get<UserStats>(ApiRoutes.stats.me)
@@ -46,5 +47,16 @@ export const deleteAdminGame = async (sessionId: string): Promise<{ message: str
 
 export const deleteAdminUser = async (userUuid: string): Promise<{ message: string }> => {
     const response = await axiosInstance.delete<{ message: string }>(ApiRoutes.stats.adminDeleteUser(userUuid))
+    return response.data
+}
+
+export const updateAdminUser = async (
+    userUuid: string,
+    payload: UpdateAdminUserPayload,
+): Promise<AdminUserOverviewEntry> => {
+    const response = await axiosInstance.patch<AdminUserOverviewEntry>(
+        ApiRoutes.stats.adminUpdateUser(userUuid),
+        payload,
+    )
     return response.data
 }

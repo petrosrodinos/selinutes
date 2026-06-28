@@ -1,9 +1,10 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common'
+import { Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '@/core/databases/prisma/prisma.service'
 import { GameMode, GameStatus, Prisma, UserStats } from 'generated/prisma'
 import { getLevelFromPoints } from '../game/constants/game-rewards.constants'
 import { groupGamesBySession, AdminGameSessionEntry } from './helpers/admin-games.helper'
 import { GetAdminGamesDto } from './dto/get-admin-games.dto'
+import { UpdateAdminUserDto } from './dto/update-admin-user.dto'
 
 export type { AdminGameSessionEntry, AdminGamePlayerEntry } from './helpers/admin-games.helper'
 
@@ -164,7 +165,7 @@ export class StatsService {
             role: user.role,
             games_played: (onlineGamesCountByUser.get(user.uuid) ?? 0) + (nonOnlineGamesCountByUser.get(user.uuid) ?? 0),
             points: user.stats?.points ?? 0,
-            level: getLevelFromPoints(user.stats?.points ?? 0),
+            level: user.stats?.level ?? 1,
             wins: user.stats?.wins ?? 0,
             losses: user.stats?.losses ?? 0,
             draws: user.stats?.draws ?? 0,
@@ -270,6 +271,83 @@ export class StatsService {
         })
 
         return usersAhead + 1
+    }
+
+    async updateAdminUser(userUuid: string, dto: UpdateAdminUserDto): Promise<AdminUserOverviewEntry> {
+        const user = await this.prisma.user.findUnique({
+            where: { uuid: userUuid },
+            include: { stats: true },
+        })
+
+        if (!user) {
+            throw new NotFoundException('User not found')
+        }
+
+        const [existingUsername, existingEmail] = await Promise.all([
+            dto.username !== user.username
+                ? this.prisma.user.findFirst({
+                    where: { username: dto.username, NOT: { uuid: userUuid } },
+                    select: { uuid: true },
+                })
+                : null,
+            dto.email !== user.email
+                ? this.prisma.user.findFirst({
+                    where: { email: dto.email, NOT: { uuid: userUuid } },
+                    select: { uuid: true },
+                })
+                : null,
+        ])
+
+        if (existingUsername) {
+            throw new ConflictException('Username already in use')
+        }
+
+        if (existingEmail) {
+            throw new ConflictException('Email already in use')
+        }
+
+        await this.prisma.$transaction(async (tx) => {
+            await tx.user.update({
+                where: { uuid: userUuid },
+                data: {
+                    username: dto.username,
+                    email: dto.email,
+                    role: dto.role,
+                },
+            })
+
+            const rank = await this.calculateRankWithTx(tx, userUuid, dto.points)
+
+            await tx.userStats.upsert({
+                where: { user_uuid: userUuid },
+                create: {
+                    user_uuid: userUuid,
+                    points: dto.points,
+                    wins: dto.wins,
+                    losses: dto.losses,
+                    draws: dto.draws,
+                    level: dto.level,
+                    rank,
+                },
+                update: {
+                    points: dto.points,
+                    wins: dto.wins,
+                    losses: dto.losses,
+                    draws: dto.draws,
+                    level: dto.level,
+                    rank,
+                },
+            })
+        })
+
+        const overview = await this.getAdminUsersOverview()
+        const updatedUser = overview.find((entry) => entry.user_uuid === userUuid)
+
+        if (!updatedUser) {
+            throw new NotFoundException('User not found after update')
+        }
+
+        return updatedUser
     }
 
     async deleteUserByUuid(adminUuid: string, userUuid: string): Promise<{ message: string }> {

@@ -30,6 +30,7 @@ export const ApiRoutes = {
             return `/stats/admin/games-overview${query ? `?${query}` : ''}`
         },
         adminDeleteUser: (userUuid: string) => `/stats/admin/users/${userUuid}`,
+        adminUpdateUser: (userUuid: string) => `/stats/admin/users/${userUuid}`,
         adminDeleteGame: (sessionId: string) => `/stats/admin/games/${sessionId}`,
     },
     docs: {
