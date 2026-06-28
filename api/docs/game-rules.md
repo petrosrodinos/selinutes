@@ -353,7 +353,44 @@ clicking again).
 
 ---
 
-## 9. Game modes
+## 9. Player levels and figure skins
+
+Your **player level** (1–45) tracks how much you have played and how well you perform. You
+earn **SEL points** from completed games; as your total points grow, your level rises. Higher
+levels are a badge of experience — and they unlock richer **3D figure skins** on the board.
+
+### How levels are organised
+
+There are **45 levels** in total, split into **five tiers of nine levels each**. Every tier
+has its own look for your in-game figures:
+
+
+| Tier    | Levels | What you unlock                                      |
+| ------- | ------ | ---------------------------------------------------- |
+| Bronze  | 1–9    | Starter 3D figure skins (Tier 1)                     |
+| Silver  | 10–18  | Silver-tier 3D skins (Tier 2)                        |
+| Ruby    | 19–27  | Ruby-tier 3D skins (Tier 3)                          |
+| Gold    | 28–36  | Gold-tier 3D skins (Tier 4)                          |
+| Diamond | 37–45  | Diamond-tier 3D skins (Tier 5 — the highest look) |
+
+
+Within each tier, individual levels spotlight a different figure on your profile badge (for
+example Hoplite at level 1, Necromancer at level 2, and so on through Monarch at level 9 in
+Bronze). **Reaching level 10 — the first level of a new tier — is what unlocks the next skin
+set for all your pieces in 3D view.**
+
+### In-game behaviour
+
+- **Offline and vs. Bot:** Your figures use the 3D skin for your current tier.
+- **Online multiplayer:** Each player sees their **own** tier skins on their side; your
+opponent's figures use **their** level. Game rules are identical — only the cosmetics differ.
+- **2D board:** Figure art stays the same across tiers; skin upgrades apply to the **3D board**.
+
+You can browse every level, tier, and figure preview from your profile on the home screen.
+
+---
+
+## 10. Game modes
 
 - **Vs. Bot (single player):** The player controls White; the AI controls Black. Bot
 difficulty (Easy / Medium / Hard) affects its thinking time and decisions.
@@ -364,7 +401,7 @@ network, and each player may only act on their own turn.
 
 ---
 
-## 10. Support-agent quick answers (FAQ)
+## 11. Support-agent quick answers (FAQ)
 
 - **"How do I win?"** — Capture the opponent's Monarch. You also win if your opponent has no
 legal action on their turn.
@@ -390,4 +427,10 @@ still depends on the figure (e.g. trees block the Duchess).
 and Bombers emerge next to another cave on the board.
 - **"What is night mode?"** — A visual state that appears while Zombie (revived) figures are
 on the board. It changes no rules by itself.
+- **"How do player levels and figure skins work?"** — There are 45 levels grouped into five
+tiers (Bronze, Silver, Ruby, Gold, Diamond), nine levels per tier. You gain levels by
+earning SEL points from games. Each new tier unlocks upgraded 3D figure skins on the board;
+in online play everyone uses their own tier. The 2D board is unchanged.
+- **"Why do my opponent's figures look different from mine online?"** — 3D skins follow each
+player's level and tier. That is cosmetic only; movement and combat rules are the same.
 

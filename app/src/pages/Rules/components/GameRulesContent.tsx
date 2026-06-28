@@ -423,9 +423,79 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
           </div>
         </section>
 
-        <section className="mb-8">
+        <section className="mb-14">
           <h2 className="text-xl font-bold text-stone-100 mb-4 flex items-baseline gap-2">
             <span className="flex w-8 h-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 text-sm font-semibold">5</span>
+            Player levels and figure skins
+          </h2>
+          <p className="text-stone-400 mb-4 text-sm leading-relaxed">
+            As you play and earn <strong className="text-stone-300">SEL points</strong>, your player level rises from 1 to 45.
+            There are <strong className="text-stone-300">five tiers</strong>, each spanning <strong className="text-stone-300">nine levels</strong>.
+            Reaching a new tier unlocks a fresh set of <strong className="text-stone-300">3D figure skins</strong> on the board — your pieces look more distinctive as you progress.
+          </p>
+          <div className="overflow-x-auto rounded-xl border border-stone-700/60 bg-stone-900/50 mb-4">
+            <table className="w-full min-w-[420px] border-collapse">
+              <thead>
+                <tr className="border-b border-stone-700/60">
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Tier</th>
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Levels</th>
+                  <th className="text-left py-3.5 px-4 text-sm font-semibold text-amber-200/90 bg-stone-800/60">Unlock</th>
+                </tr>
+              </thead>
+              <tbody className="text-stone-300 text-sm">
+                <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Bronze</td>
+                  <td className="py-3.5 px-4">1–9</td>
+                  <td className="py-3.5 px-4 text-stone-400">Starter 3D skins</td>
+                </tr>
+                <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Silver</td>
+                  <td className="py-3.5 px-4">10–18</td>
+                  <td className="py-3.5 px-4 text-stone-400">Silver-tier 3D skins</td>
+                </tr>
+                <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Ruby</td>
+                  <td className="py-3.5 px-4">19–27</td>
+                  <td className="py-3.5 px-4 text-stone-400">Ruby-tier 3D skins</td>
+                </tr>
+                <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Gold</td>
+                  <td className="py-3.5 px-4">28–36</td>
+                  <td className="py-3.5 px-4 text-stone-400">Gold-tier 3D skins</td>
+                </tr>
+                <tr className="hover:bg-stone-800/30 transition-colors">
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Diamond</td>
+                  <td className="py-3.5 px-4">37–45</td>
+                  <td className="py-3.5 px-4 text-stone-400">Diamond-tier 3D skins (highest)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <ul className="space-y-2 text-stone-400 text-sm">
+            <li className="flex gap-2">
+              <span className="text-amber-500/80 mt-0.5">•</span>
+              <span>
+                Each level within a tier highlights a different figure on your profile badge. Hitting level 10, 19, 28, or 37 — the first level of a new tier — unlocks that tier&apos;s skins for every piece in 3D view.
+              </span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-amber-500/80 mt-0.5">•</span>
+              <span>
+                <strong className="text-stone-300">Online:</strong> You and your opponent each see your own tier skins; rules are unchanged.
+              </span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-amber-500/80 mt-0.5">•</span>
+              <span>
+                <strong className="text-stone-300">2D board:</strong> Skins apply to the 3D board only. Browse all levels from your profile on the home screen.
+              </span>
+            </li>
+          </ul>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold text-stone-100 mb-4 flex items-baseline gap-2">
+            <span className="flex w-8 h-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 text-sm font-semibold">6</span>
             Special rules
           </h2>
           <ul className="space-y-2 text-stone-400 text-sm">
