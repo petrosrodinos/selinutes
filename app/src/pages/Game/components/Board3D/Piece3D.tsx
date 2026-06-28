@@ -8,6 +8,7 @@ import { FigureTiers } from '../../../../constants/figures'
 import type { PieceType, PlayerColor } from '../../types'
 import { PlayerColors, PieceTypes } from '../../types'
 import { getPieceGlbUrl } from './board3dGltfUrls'
+import { getPiece3DBoardFacingY, getPiece3DRulesPreviewFacingY } from './piece3dOrientation.utils'
 
 interface Piece3DProps {
   type: PieceType
@@ -124,13 +125,8 @@ export const Piece3D = ({
   })
 
   const url = getPieceGlbUrl(type, color, tier)
-  const baseRotation = color === PlayerColors.WHITE ? Math.PI / 2 : -Math.PI / 2
-  const boardFacingY =
-    type === PieceTypes.CHARIOT
-      ? (color === PlayerColors.WHITE ? 0 : Math.PI)
-      : baseRotation
-  const whiteBoardFacingY = type === PieceTypes.CHARIOT ? 0 : Math.PI / 2
-  const rotationY = rulesPreview ? whiteBoardFacingY + Math.PI : boardFacingY
+  const boardFacingY = getPiece3DBoardFacingY(type, color, tier)
+  const rotationY = rulesPreview ? getPiece3DRulesPreviewFacingY(type) + Math.PI : boardFacingY
   const pieceScale = type === PieceTypes.CHARIOT ? 1.2 : 1.4
 
   return (
