@@ -6,6 +6,7 @@ import { useSignUp } from "../../../features/auth/hooks/use-auth";
 import { signUpSchema, type SignUpFormValues } from "../../../features/auth/schemas/auth.schemas";
 import { environments } from "../../../config/environments";
 import { useAuthStore } from "../../../store/authStore";
+import { AppLogo } from "../../../components/AppLogo";
 import { Navbar } from "../../../components/Navbar";
 
 export const Register = () => {
@@ -46,6 +47,9 @@ export const Register = () => {
       <main className="flex min-h-[calc(100vh-73px)] items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="bg-stone-800/60 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-stone-700/50">
+            <div className="mb-6 flex justify-center">
+              <AppLogo size="lg" showName={false} linkToHome={false} />
+            </div>
             <h1 className="text-4xl font-bold text-center mb-2 bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text text-transparent">{environments.APP_NAME}</h1>
             <p className="text-stone-400 text-center mb-8">Create your account</p>
 

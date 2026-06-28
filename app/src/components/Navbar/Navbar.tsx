@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
-import { environments } from '../../config/environments'
+import { AppLogo } from '../AppLogo'
 import { useAuthStore } from '../../store/authStore'
 import { useIsAdmin } from '../../hooks/useIsAdmin'
 
@@ -38,12 +38,7 @@ export const Navbar = ({ showBackButton = false, showPrimaryAction = true }: Nav
               <ArrowLeft className="h-5 w-5" />
             </button>
           )}
-          <Link
-            to="/"
-            className="text-lg font-semibold tracking-tight text-amber-400/90 transition-colors hover:text-amber-400"
-          >
-            {environments.APP_NAME}
-          </Link>
+          <AppLogo size="sm" />
         </div>
         <nav className="flex items-center gap-6">
           <Link

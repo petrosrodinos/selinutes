@@ -13,6 +13,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { environments } from '../../config/environments'
+import { AppLogo } from '../../components/AppLogo'
 import { Navbar } from '../../components/Navbar'
 import { PoweredByFooter } from '../../components/PoweredByFooter.tsx'
 import { useAuthStore } from '../../store/authStore'
@@ -61,6 +62,9 @@ export const LandingPage = () => {
           initial="hidden"
           animate="visible"
         >
+          <motion.div variants={item} className="flex justify-center mb-8">
+            <AppLogo size="xl" showName={false} linkToHome={false} />
+          </motion.div>
           <motion.h1
             variants={item}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-center max-w-4xl mx-auto mb-6"

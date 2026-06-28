@@ -148,7 +148,10 @@ export const TopMenu = ({ onOpenSettings, onOpenRules, onRequestLeave, gameTitle
 
         <div className="justify-self-center px-2 text-center">
           {gameTitle ? (
-            <h2 className="bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text text-lg font-bold tracking-tight text-transparent sm:text-xl">{gameTitle}</h2>
+            <div className="flex items-center justify-center gap-2.5">
+              <img src="/logo.png" alt="" aria-hidden className="h-8 w-8 shrink-0 drop-shadow-[0_2px_8px_rgba(251,191,36,0.25)]" />
+              <h2 className="bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text text-lg font-bold tracking-tight text-transparent sm:text-xl">{gameTitle}</h2>
+            </div>
           ) : null}
         </div>
 

@@ -3,7 +3,7 @@ import { Settings, LogOut, Shield, FileText } from "lucide-react";
 import { RulesNavIcon } from "../../../components/RulesNavIcon";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
-import { environments } from "../../../config/environments";
+import { AppLogo } from "../../../components/AppLogo";
 import { SettingsModal } from "./SettingsModal";
 import { ConfirmationDialog } from "../../../components/ConfirmationDialog";
 
@@ -32,9 +32,7 @@ export const Navigation = () => {
       <nav className="bg-stone-800/60 backdrop-blur-sm border-b border-stone-700/50 sticky top-0 z-40">
         <div className="mx-auto max-w-7xl px-3 py-3 sm:px-4 sm:py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="text-xl font-bold bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text text-transparent transition-opacity hover:opacity-90 sm:text-2xl">
-              {environments.APP_NAME}
-            </Link>
+            <AppLogo size="md" className="sm:[&_span]:text-2xl" />
             <div className="flex items-center gap-1.5 sm:gap-2">
               {isAdmin ? (
                 <>
