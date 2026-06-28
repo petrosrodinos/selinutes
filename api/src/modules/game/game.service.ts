@@ -91,9 +91,19 @@ export class GameService {
         return { data, total, page, limit }
     }
 
+    private async resolvePlayerLevel(playerId: string): Promise<number> {
+        const user = await this.prisma.user.findUnique({
+            where: { uuid: playerId },
+            select: { stats: { select: { level: true } } },
+        })
+
+        return user?.stats?.level ?? 1
+    }
+
     async createGame(dto: CreateGameDto): Promise<GameSession> {
         const code = await this.generateUniqueGameCode()
         const boardSizeKey: BoardSizeKey = dto?.boardSizeKey || BoardSizeKeys.SMALL
+        const hostLevel = await this.resolvePlayerLevel(dto.playerId)
 
         const gameState = {
             board: dto.gameState?.board,
@@ -118,7 +128,8 @@ export class GameService {
                     id: dto.playerId,
                     name: dto.playerName,
                     color: PlayerColors.WHITE,
-                    joinedAt: new Date()
+                    joinedAt: new Date(),
+                    level: hostLevel,
                 }
             ],
             createdAt: new Date(),
@@ -152,6 +163,8 @@ export class GameService {
         //     throw new BadRequestException('Game is full')
         // }
 
+        const joinerLevel = await this.resolvePlayerLevel(dto.playerId)
+
         const updatedGameSession: GameSession = {
             ...gameSession,
             status: GameStatuses.IN_PROGRESS,
@@ -161,7 +174,8 @@ export class GameService {
                     id: dto.playerId,
                     name: dto.playerName,
                     color: PlayerColors.BLACK,
-                    joinedAt: new Date()
+                    joinedAt: new Date(),
+                    level: joinerLevel,
                 }
             ]
         }

@@ -1,6 +1,7 @@
 import { figuresConfig, FigureTiers, type FigureName, type FigureTierKey } from '../../../constants/figures'
 import { resolveFigureAssetUrl } from '../../../constants/figureAssetUrls'
 import { ObstacleTypes, PieceTypes, PlayerColors, type ObstacleType, type PieceType, type PlayerColor } from '../types'
+import type { PlayerFigureTiersByColor } from './resolvePlayerFigureTiers'
 
 const PIECE_TO_FIGURE_NAME = {
   [PieceTypes.BOMBER]: 'bomber',
@@ -32,6 +33,11 @@ const getVariantKeyFromColor = (color: PlayerColor): 'variant_a' | 'variant_b' =
 const getPieceTierAssets = (figureName: PieceFigureName, tier: FigureTierKey = FigureTiers.TIER1) =>
   figuresConfig[figureName][tier]
 
+export const getPieceTierForColor = (
+  color: PlayerColor,
+  tiersByColor: PlayerFigureTiersByColor,
+): FigureTierKey => tiersByColor[color]
+
 export const getPiece2DAssetUrl = (
   pieceType: PieceType,
   color: PlayerColor,
@@ -44,6 +50,12 @@ export const getPiece2DAssetUrl = (
   return resolveFigureAssetUrl(relativePath)
 }
 
+export const getPiece2DAssetUrlForTiers = (
+  pieceType: PieceType,
+  color: PlayerColor,
+  tiersByColor: PlayerFigureTiersByColor,
+): string | null => getPiece2DAssetUrl(pieceType, color, getPieceTierForColor(color, tiersByColor))
+
 export const getPiece3DAssetUrl = (
   pieceType: PieceType,
   color: PlayerColor,
@@ -55,6 +67,12 @@ export const getPiece3DAssetUrl = (
   if (!relativePath) return null
   return resolveFigureAssetUrl(relativePath)
 }
+
+export const getPiece3DAssetUrlForTiers = (
+  pieceType: PieceType,
+  color: PlayerColor,
+  tiersByColor: PlayerFigureTiersByColor,
+): string | null => getPiece3DAssetUrl(pieceType, color, getPieceTierForColor(color, tiersByColor))
 
 export const getObstacle2DAssetUrl = (obstacleType: ObstacleType): string | null => {
   const figureName = OBSTACLE_TO_FIGURE_NAME[obstacleType]

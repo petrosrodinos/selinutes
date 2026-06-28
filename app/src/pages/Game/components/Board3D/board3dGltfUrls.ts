@@ -1,5 +1,7 @@
+import type { FigureTierKey } from '../../../../constants/figures'
+import { FigureTiers } from '../../../../constants/figures'
 import type { PieceType } from '../../types'
-import { ObstacleTypes, PieceTypes, PlayerColors } from '../../types'
+import { ObstacleTypes, PieceTypes, PlayerColors, type PlayerColor } from '../../types'
 import { getObstacle3DAssetUrl, getPiece3DAssetUrl } from '../../utils/figureAssets.utils'
 
 const requireAssetUrl = (assetUrl: string | null, errorLabel: string): string => {
@@ -7,49 +9,30 @@ const requireAssetUrl = (assetUrl: string | null, errorLabel: string): string =>
   throw new Error(`Missing figure asset: ${errorLabel}`)
 }
 
-export const pieceGLBMap: Record<PieceType, { white: string; black: string }> = {
-  [PieceTypes.BOMBER]: {
-    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.BOMBER, PlayerColors.WHITE), 'bomber variant_a 3d'),
-    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.BOMBER, PlayerColors.BLACK), 'bomber variant_b 3d'),
-  },
-  [PieceTypes.CHARIOT]: {
-    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.CHARIOT, PlayerColors.WHITE), 'chariot variant_a 3d'),
-    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.CHARIOT, PlayerColors.BLACK), 'chariot variant_b 3d'),
-  },
-  [PieceTypes.DUCHESS]: {
-    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.DUCHESS, PlayerColors.WHITE), 'duchess variant_a 3d'),
-    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.DUCHESS, PlayerColors.BLACK), 'duchess variant_b 3d'),
-  },
-  [PieceTypes.HOPLITE]: {
-    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.HOPLITE, PlayerColors.WHITE), 'hoplite variant_a 3d'),
-    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.HOPLITE, PlayerColors.BLACK), 'hoplite variant_b 3d'),
-  },
-  [PieceTypes.MONARCH]: {
-    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.MONARCH, PlayerColors.WHITE), 'monarch variant_a 3d'),
-    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.MONARCH, PlayerColors.BLACK), 'monarch variant_b 3d'),
-  },
-  [PieceTypes.NECROMANCER]: {
-    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.NECROMANCER, PlayerColors.WHITE), 'necromancer variant_a 3d'),
-    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.NECROMANCER, PlayerColors.BLACK), 'necromancer variant_b 3d'),
-  },
-  [PieceTypes.PALADIN]: {
-    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.PALADIN, PlayerColors.WHITE), 'paladin variant_a 3d'),
-    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.PALADIN, PlayerColors.BLACK), 'paladin variant_b 3d'),
-  },
-  [PieceTypes.RAM_TOWER]: {
-    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.RAM_TOWER, PlayerColors.WHITE), 'ram_tower variant_a 3d'),
-    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.RAM_TOWER, PlayerColors.BLACK), 'ram_tower variant_b 3d'),
-  },
-  [PieceTypes.WARLOCK]: {
-    white: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.WARLOCK, PlayerColors.WHITE), 'warlock variant_a 3d'),
-    black: requireAssetUrl(getPiece3DAssetUrl(PieceTypes.WARLOCK, PlayerColors.BLACK), 'warlock variant_b 3d'),
-  },
+export const getPieceGlbUrl = (
+  type: PieceType,
+  color: PlayerColor,
+  tier: FigureTierKey = FigureTiers.TIER1,
+): string => {
+  const variantLabel = color === PlayerColors.WHITE ? 'variant_a' : 'variant_b'
+  return requireAssetUrl(
+    getPiece3DAssetUrl(type, color, tier),
+    `${type} ${variantLabel} 3d tier ${tier}`,
+  )
 }
 
-export const PIECE_GLB_URLS: readonly string[] = Object.values(pieceGLBMap).flatMap((pair) => [
-  pair.white,
-  pair.black,
-])
+export const collectPieceGlbUrlsForTier = (tier: FigureTierKey): string[] => {
+  const pieceTypes = Object.values(PieceTypes)
+  return pieceTypes.flatMap((type) => [
+    getPieceGlbUrl(type, PlayerColors.WHITE, tier),
+    getPieceGlbUrl(type, PlayerColors.BLACK, tier),
+  ])
+}
+
+export const collectPieceGlbUrlsForTiers = (whiteTier: FigureTierKey, blackTier: FigureTierKey): string[] => {
+  const tiers = whiteTier === blackTier ? [whiteTier] : [whiteTier, blackTier]
+  return tiers.flatMap((tier) => collectPieceGlbUrlsForTier(tier))
+}
 
 const canyonGLB = requireAssetUrl(getObstacle3DAssetUrl(ObstacleTypes.CANYON), 'canyon variant_a 3d')
 const caveGLB = requireAssetUrl(getObstacle3DAssetUrl(ObstacleTypes.CAVE), 'cave variant_a 3d')
@@ -70,3 +53,5 @@ export const OBSTACLE_GLB_URLS: readonly string[] = [
   ...(rockGLB ? [rockGLB] : []),
   ...(mysteryBoxGLB ? [mysteryBoxGLB] : []),
 ]
+
+export const PIECE_GLB_URLS: readonly string[] = collectPieceGlbUrlsForTier(FigureTiers.TIER1)

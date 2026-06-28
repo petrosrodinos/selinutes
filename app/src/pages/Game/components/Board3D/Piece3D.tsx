@@ -3,13 +3,16 @@ import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import type { Group } from 'three'
 import * as THREE from 'three'
+import type { FigureTierKey } from '../../../../constants/figures'
+import { FigureTiers } from '../../../../constants/figures'
 import type { PieceType, PlayerColor } from '../../types'
 import { PlayerColors, PieceTypes } from '../../types'
-import { pieceGLBMap } from './board3dGltfUrls'
+import { getPieceGlbUrl } from './board3dGltfUrls'
 
 interface Piece3DProps {
   type: PieceType
   color: PlayerColor
+  tier: FigureTierKey
   position: [number, number, number]
   isSelected: boolean
   isHint: boolean
@@ -22,10 +25,9 @@ interface Piece3DProps {
 
 export { PIECE_GLB_URLS } from './board3dGltfUrls'
 
-export function preloadPieceGltfPair(type: PieceType): void {
-  const { white, black } = pieceGLBMap[type]
-  useGLTF.preload(white)
-  useGLTF.preload(black)
+export function preloadPieceGltfPair(type: PieceType, tier: FigureTierKey = FigureTiers.TIER1): void {
+  useGLTF.preload(getPieceGlbUrl(type, PlayerColors.WHITE, tier))
+  useGLTF.preload(getPieceGlbUrl(type, PlayerColors.BLACK, tier))
 }
 
 const GLBPiece = memo(function GLBPiece({
@@ -46,6 +48,7 @@ const GLBPiece = memo(function GLBPiece({
 export const Piece3D = ({
   type,
   color,
+  tier,
   position,
   isSelected,
   isHint,
@@ -120,15 +123,12 @@ export const Piece3D = ({
     }
   })
 
-  const urls = pieceGLBMap[type]
-  const url = urls[color === PlayerColors.WHITE ? 'white' : 'black']
+  const url = getPieceGlbUrl(type, color, tier)
   const baseRotation = color === PlayerColors.WHITE ? Math.PI / 2 : -Math.PI / 2
-  // Chariot model already faces Z axis — use 0/π instead of the ±π/2 used by other pieces
   const boardFacingY =
     type === PieceTypes.CHARIOT
       ? (color === PlayerColors.WHITE ? 0 : Math.PI)
       : baseRotation
-  // Rules preview: same frontal yaw for light and dark (black’s board yaw is −white’s, so +π on both used to flip only white)
   const whiteBoardFacingY = type === PieceTypes.CHARIOT ? 0 : Math.PI / 2
   const rotationY = rulesPreview ? whiteBoardFacingY + Math.PI : boardFacingY
   const pieceScale = type === PieceTypes.CHARIOT ? 1.2 : 1.4

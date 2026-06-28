@@ -2,6 +2,7 @@ import { Suspense, useCallback, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import type { PieceType, PlayerColor } from "../../Game/types";
+import { FigureTiers } from "../../../constants/figures";
 import { Piece3D, preloadPieceGltfPair } from "../../Game/components/Board3D/Piece3D";
 
 type Piece3DShowcaseProps = {
@@ -23,6 +24,7 @@ const Scene = ({ pieceType, playerColor, onPieceClick }: SceneProps) => (
     <Piece3D
       type={pieceType}
       color={playerColor}
+      tier={FigureTiers.TIER1}
       position={[0, 0, 0]}
       isSelected={false}
       isHint={false}

@@ -5,7 +5,8 @@ import { PieceTypes, PlayerColors } from "../../types";
 import { PIECE_RULES, PIECE_NAMES } from "../../constants";
 import { useGameStore } from "../../../../store/gameStore";
 import { getNecromancerKillTargets, getNecromancerFreezeTargets, getCaptureMoveTargets } from "../../utils";
-import { getPiece2DAssetUrl } from "../../utils/figureAssets.utils";
+import { getPiece2DAssetUrlForTiers } from "../../utils/figureAssets.utils";
+import { useFigureTiers } from "../../context/FigureTierContext";
 import { POINTS_LABEL } from "../../../../constants/game";
 import { MovementLogButton } from "../MovementLogModal";
 
@@ -31,7 +32,8 @@ const getTotalPointsForPieces = (pieces: Piece[]) =>
   }, 0);
 
 const CapturedPieceIcon = ({ piece }: { piece: Piece }) => {
-  const imageUrl = getPiece2DAssetUrl(piece.type, piece.color);
+  const { tiersByColor } = useFigureTiers();
+  const imageUrl = getPiece2DAssetUrlForTiers(piece.type, piece.color, tiersByColor);
   if (imageUrl) {
     return (
       <img

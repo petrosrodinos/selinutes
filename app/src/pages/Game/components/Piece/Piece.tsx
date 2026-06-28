@@ -1,16 +1,18 @@
 import type { Piece as PieceType } from '../../types'
 import { PlayerColors } from '../../types'
 import { PIECE_SYMBOLS, PIECE_NAMES } from '../../constants'
-import { getPiece2DAssetUrl } from '../../utils/figureAssets.utils'
+import { getPiece2DAssetUrlForTiers } from '../../utils/figureAssets.utils'
+import { useFigureTiers } from '../../context/FigureTierContext'
 
 interface PieceProps {
   piece: PieceType
 }
 
 export const Piece = ({ piece }: PieceProps) => {
+  const { tiersByColor } = useFigureTiers()
   const pieceName = PIECE_NAMES[piece.type]
   const displayName = piece.isZombie ? `${pieceName} (Zombie)` : pieceName
-  const imageUrl = getPiece2DAssetUrl(piece.type, piece.color)
+  const imageUrl = getPiece2DAssetUrlForTiers(piece.type, piece.color, tiersByColor)
 
   return (
     <span

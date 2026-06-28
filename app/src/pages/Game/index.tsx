@@ -25,6 +25,7 @@ import { GameModes } from "../../constants";
 import { areRevivalGuardsInPlace, findPiecePosition, filterZombieRevivablePieces, getZombieRevivePieces, getZombieReviveStatusMessage, getZombieReviveConfirmState, getZombieRevivePlacementTarget, hasChariotBoundCaptures, ZOMBIE_REVIVE_ALIGNMENT_HINT } from "./utils";
 import { useSaveOfflineGame } from "../../features/game/hooks";
 import { LeaveGameConfirmModal } from "./components/LeaveGameConfirmModal";
+import { FigureTierProvider, useFigureTiers } from "./context/FigureTierContext";
 
 const Board3DLazy = lazy(() =>
   import("./components/Board3D/Board3D").then((m) => ({ default: m.Board3D }))
@@ -37,7 +38,13 @@ const calculatePoints = (pieces: Piece[]): number =>
     return total + (piece.isZombie && rules.zombiePoints ? rules.zombiePoints : rules.points);
   }, 0);
 
-export const Game = () => {
+export const Game = () => (
+  <FigureTierProvider>
+    <GamePage />
+  </FigureTierProvider>
+);
+
+const GamePage = () => {
   const navigate = useNavigate();
   const { mode } = useGameMode();
   const isOnline = mode === GameModes.ONLINE;
@@ -60,11 +67,14 @@ export const Game = () => {
   } = useGameStore();
   const attackMode = useGameStore((state) => state.attackMode);
   const { is3D, isTopMenuOpen, isRightMenuOpen, closeTopMenu, closeRightMenu } = useUIStore();
+  const { tiersByColor } = useFigureTiers();
 
   useEffect(() => {
     if (!is3D) return;
-    void import("./components/Board3D/board3dPreload").then((m) => m.preloadBoard3DGltfs());
-  }, [is3D]);
+    void import("./components/Board3D/board3dPreload").then((m) =>
+      m.preloadBoard3DGltfs(tiersByColor.white, tiersByColor.black),
+    );
+  }, [is3D, tiersByColor.white, tiersByColor.black]);
   const userUuid = useAuthStore(state => state.user_uuid);
   const { mutate: saveOfflineGameResult } = useSaveOfflineGame();
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);

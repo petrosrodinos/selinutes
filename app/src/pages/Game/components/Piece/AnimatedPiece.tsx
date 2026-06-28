@@ -2,7 +2,8 @@ import { motion } from 'framer-motion'
 import type { Piece as PieceType, Position } from '../../types'
 import { PlayerColors } from '../../types'
 import { PIECE_SYMBOLS, PIECE_NAMES } from '../../constants'
-import { getPiece2DAssetUrl } from '../../utils/figureAssets.utils'
+import { getPiece2DAssetUrlForTiers } from '../../utils/figureAssets.utils'
+import { useFigureTiers } from '../../context/FigureTierContext'
 
 interface AnimatedPieceProps {
   piece: PieceType
@@ -12,9 +13,10 @@ interface AnimatedPieceProps {
 }
 
 export const AnimatedPiece = ({ piece, position, squareSize, onClick }: AnimatedPieceProps) => {
+  const { tiersByColor } = useFigureTiers()
   const pieceName = PIECE_NAMES[piece.type]
   const displayName = piece.isZombie ? `${pieceName} (Zombie)` : pieceName
-  const imageUrl = getPiece2DAssetUrl(piece.type, piece.color)
+  const imageUrl = getPiece2DAssetUrlForTiers(piece.type, piece.color, tiersByColor)
 
   const x = position.col * squareSize
   const y = position.row * squareSize
