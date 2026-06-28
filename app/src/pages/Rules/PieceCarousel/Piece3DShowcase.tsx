@@ -2,21 +2,23 @@ import { Suspense, useCallback, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import type { PieceType, PlayerColor } from "../../Game/types";
-import { FigureTiers } from "../../../constants/figures";
+import type { FigureTierKey } from "../../../constants/figures";
 import { Piece3D, preloadPieceGltfPair } from "../../Game/components/Board3D/Piece3D";
 
 type Piece3DShowcaseProps = {
   pieceType: PieceType;
   playerColor: PlayerColor;
+  tier: FigureTierKey;
 };
 
 type SceneProps = {
   pieceType: PieceType;
   playerColor: PlayerColor;
+  tier: FigureTierKey;
   onPieceClick: () => void;
 };
 
-const Scene = ({ pieceType, playerColor, onPieceClick }: SceneProps) => (
+const Scene = ({ pieceType, playerColor, tier, onPieceClick }: SceneProps) => (
   <>
     <ambientLight intensity={0.6} />
     <directionalLight position={[3, 5, 2]} intensity={1.2} />
@@ -24,7 +26,7 @@ const Scene = ({ pieceType, playerColor, onPieceClick }: SceneProps) => (
     <Piece3D
       type={pieceType}
       color={playerColor}
-      tier={FigureTiers.TIER1}
+      tier={tier}
       position={[0, 0, 0]}
       isSelected={false}
       isHint={false}
@@ -46,17 +48,17 @@ const Scene = ({ pieceType, playerColor, onPieceClick }: SceneProps) => (
   </>
 );
 
-export const Piece3DShowcase = ({ pieceType, playerColor }: Piece3DShowcaseProps) => {
+export const Piece3DShowcase = ({ pieceType, playerColor, tier }: Piece3DShowcaseProps) => {
   const onPieceClick = useCallback(() => {}, []);
 
   useEffect(() => {
-    preloadPieceGltfPair(pieceType);
-  }, [pieceType]);
+    preloadPieceGltfPair(pieceType, tier);
+  }, [pieceType, tier]);
 
   return (
     <div className="w-full h-[240px] rounded-xl overflow-hidden bg-[#1c1917] border border-stone-700/50 [&_canvas]:block">
       <Canvas
-        key={`${pieceType}-${playerColor}`}
+        key={`${pieceType}-${playerColor}-${tier}`}
         camera={{ position: [0, 0.5, 2.15], fov: 45 }}
         gl={{ antialias: true, powerPreference: "high-performance" }}
         dpr={[1, 1.25]}
@@ -64,7 +66,7 @@ export const Piece3DShowcase = ({ pieceType, playerColor }: Piece3DShowcaseProps
       >
         <color attach="background" args={["#1c1917"]} />
         <Suspense fallback={null}>
-          <Scene pieceType={pieceType} playerColor={playerColor} onPieceClick={onPieceClick} />
+          <Scene pieceType={pieceType} playerColor={playerColor} tier={tier} onPieceClick={onPieceClick} />
         </Suspense>
       </Canvas>
     </div>

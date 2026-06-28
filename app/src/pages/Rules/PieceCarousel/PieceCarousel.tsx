@@ -3,17 +3,27 @@ import { ChevronLeft, ChevronRight, LayoutGrid, Box } from "lucide-react";
 import { RULES_FIGURE_ORDER, RULES_FIGURE_SECTION_TITLES } from "../../Game/constants";
 import { PlayerColors, type PlayerColor } from "../../Game/types";
 import { FigureSymbol } from "../../../components/FigureSymbol";
+import { FIGURE_LEVELS, FIGURE_LEVEL_TIER_ORDER } from "../../../constants/figureLevels";
+import { FIGURE_TIER_ORDER, FigureTiers, type FigureTierKey } from "../../../constants/figures";
 import { Piece3DShowcase } from "./Piece3DShowcase";
 
 type ViewMode = "2d" | "3d";
+
+const FIGURE_TIER_OPTIONS = FIGURE_TIER_ORDER.map((tierKey, index) => ({
+  tierKey,
+  number: index + 1,
+  label: FIGURE_LEVELS[FIGURE_LEVEL_TIER_ORDER[index]].label,
+}));
 
 export const PieceCarousel = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>("2d");
   const [figureVariant, setFigureVariant] = useState<PlayerColor>(PlayerColors.WHITE);
+  const [figureTier, setFigureTier] = useState<FigureTierKey>(FigureTiers.TIER1);
 
   const pieceType = RULES_FIGURE_ORDER[activeIndex];
   const total = RULES_FIGURE_ORDER.length;
+  const activeTierOption = FIGURE_TIER_OPTIONS.find((option) => option.tierKey === figureTier);
 
   const goPrev = useCallback(() => {
     setActiveIndex((i) => (i - 1 + total) % total);
@@ -60,6 +70,23 @@ export const PieceCarousel = () => {
               Dark
             </button>
           </div>
+          {viewMode === "3d" ? (
+            <div className="flex rounded-lg border border-stone-600/60 bg-stone-800/50 p-0.5" role="group" aria-label="Figure tier">
+              {FIGURE_TIER_OPTIONS.map(({ tierKey, number, label }) => (
+                <button
+                  key={tierKey}
+                  type="button"
+                  onClick={() => setFigureTier(tierKey)}
+                  className={`min-w-[2.25rem] px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-colors ${figureTier === tierKey ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" : "text-stone-400 hover:text-stone-200"}`}
+                  aria-pressed={figureTier === tierKey}
+                  aria-label={`Tier ${number}, ${label}`}
+                  title={`Tier ${number} · ${label}`}
+                >
+                  {number}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -78,8 +105,15 @@ export const PieceCarousel = () => {
             </div>
           ) : (
             <div className="flex flex-col rounded-xl bg-stone-800/50 border border-stone-700/50 overflow-hidden">
-              <Piece3DShowcase pieceType={pieceType} playerColor={figureVariant} />
-              <p className="text-center py-3 px-4 text-base sm:text-lg font-semibold text-amber-200/95 bg-stone-900/60 border-t border-stone-700/50">{RULES_FIGURE_SECTION_TITLES[pieceType]}</p>
+              <Piece3DShowcase pieceType={pieceType} playerColor={figureVariant} tier={figureTier} />
+              <p className="text-center py-3 px-4 bg-stone-900/60 border-t border-stone-700/50">
+                <span className="block text-base sm:text-lg font-semibold text-amber-200/95">{RULES_FIGURE_SECTION_TITLES[pieceType]}</span>
+                {activeTierOption ? (
+                  <span className="block mt-1 text-xs sm:text-sm text-stone-400">
+                    Tier {activeTierOption.number} · {activeTierOption.label}
+                  </span>
+                ) : null}
+              </p>
             </div>
           )}
         </div>
