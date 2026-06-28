@@ -1,179 +1,179 @@
 export const figuresConfig = {
   bomber: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Bomber/default/2d/variant-A/figure.png',
-        variant_b: 'figures/Bomber/default/2d/variant-B/figure.png',
+        variant_a: 'figures/Bomber/tier1/2d/variant-A/figure.png',
+        variant_b: 'figures/Bomber/tier1/2d/variant-B/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Bomber/default/3d/variant-A/mesh.glb',
-        variant_b: 'figures/Bomber/default/3d/variant-B/mesh.glb',
+        variant_a: 'figures/Bomber/tier1/3d/variant-A/mesh.glb',
+        variant_b: 'figures/Bomber/tier1/3d/variant-B/mesh.glb',
       }
     },
   },
   chariot: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Chariot/default/2d/variant-A/figure.png',
-        variant_b: 'figures/Chariot/default/2d/variant-B/figure.png',
+        variant_a: 'figures/Chariot/tier1/2d/variant-A/figure.png',
+        variant_b: 'figures/Chariot/tier1/2d/variant-B/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Chariot/default/3d/variant-A/mesh.glb',
-        variant_b: 'figures/Chariot/default/3d/variant-B/mesh.glb',
+        variant_a: 'figures/Chariot/tier1/3d/variant-A/mesh.glb',
+        variant_b: 'figures/Chariot/tier1/3d/variant-B/mesh.glb',
       }
     },
   },
   duchess: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Duchess/default/2d/variant-A/figure.png',
-        variant_b: 'figures/Duchess/default/2d/variant-B/figure.png',
+        variant_a: 'figures/Duchess/tier1/2d/variant-A/figure.png',
+        variant_b: 'figures/Duchess/tier1/2d/variant-B/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Duchess/default/3d/variant-A/mesh.glb',
-        variant_b: 'figures/Duchess/default/3d/variant-B/mesh.glb',
+        variant_a: 'figures/Duchess/tier1/3d/variant-A/mesh.glb',
+        variant_b: 'figures/Duchess/tier1/3d/variant-B/mesh.glb',
       }
     },
   },
   hoplite: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Hoplite/default/2d/variant-A/figure.png',
-        variant_b: 'figures/Hoplite/default/2d/variant-B/figure.png',
+        variant_a: 'figures/Hoplite/tier1/2d/variant-A/figure.png',
+        variant_b: 'figures/Hoplite/tier1/2d/variant-B/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Hoplite/default/3d/variant-A/mesh.glb',
-        variant_b: 'figures/Hoplite/default/3d/variant-B/mesh.glb',
+        variant_a: 'figures/Hoplite/tier1/3d/variant-A/mesh.glb',
+        variant_b: 'figures/Hoplite/tier1/3d/variant-B/mesh.glb',
       }
     },
   },
   monarch: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Monarch/default/2d/variant-A/figure.png',
-        variant_b: 'figures/Monarch/default/2d/variant-B/figure.png',
+        variant_a: 'figures/Monarch/tier1/2d/variant-A/figure.png',
+        variant_b: 'figures/Monarch/tier1/2d/variant-B/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Monarch/default/3d/variant-A/mesh.glb',
-        variant_b: 'figures/Monarch/default/3d/variant-B/mesh.glb',
+        variant_a: 'figures/Monarch/tier1/3d/variant-A/mesh.glb',
+        variant_b: 'figures/Monarch/tier1/3d/variant-B/mesh.glb',
       }
     },
   },
   necromancer: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Necromancer/default/2d/variant-A/figure.png',
-        variant_b: 'figures/Necromancer/default/2d/variant-B/figure.png',
+        variant_a: 'figures/Necromancer/tier1/2d/variant-A/figure.png',
+        variant_b: 'figures/Necromancer/tier1/2d/variant-B/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Necromancer/default/3d/variant-A/mesh.glb',
-        variant_b: 'figures/Necromancer/default/3d/variant-B/mesh.glb',
+        variant_a: 'figures/Necromancer/tier1/3d/variant-A/mesh.glb',
+        variant_b: 'figures/Necromancer/tier1/3d/variant-B/mesh.glb',
       }
     },
   },
   paladin: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Paladin/default/2d/variant-A/figure.png',
-        variant_b: 'figures/Paladin/default/2d/variant-B/figure.png',
+        variant_a: 'figures/Paladin/tier1/2d/variant-A/figure.png',
+        variant_b: 'figures/Paladin/tier1/2d/variant-B/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Paladin/default/3d/variant-A/mesh.glb',
-        variant_b: 'figures/Paladin/default/3d/variant-B/mesh.glb',
+        variant_a: 'figures/Paladin/tier1/3d/variant-A/mesh.glb',
+        variant_b: 'figures/Paladin/tier1/3d/variant-B/mesh.glb',
       }
     },
   },
   ram_tower: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Ram-Tower/default/2d/variant-A/figure.png',
-        variant_b: 'figures/Ram-Tower/default/2d/variant-B/figure.png',
+        variant_a: 'figures/Ram-Tower/tier1/2d/variant-A/figure.png',
+        variant_b: 'figures/Ram-Tower/tier1/2d/variant-B/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Ram-Tower/default/3d/variant-A/mesh.glb',
-        variant_b: 'figures/Ram-Tower/default/3d/variant-B/mesh.glb',
+        variant_a: 'figures/Ram-Tower/tier1/3d/variant-A/mesh.glb',
+        variant_b: 'figures/Ram-Tower/tier1/3d/variant-B/mesh.glb',
       }
     },
   },
   warlock: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Warlock/default/2d/variant-A/figure.png',
-        variant_b: 'figures/Warlock/default/2d/variant-B/figure.png',
+        variant_a: 'figures/Warlock/tier1/2d/variant-A/figure.png',
+        variant_b: 'figures/Warlock/tier1/2d/variant-B/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Warlock/default/3d/variant-A/mesh.glb',
-        variant_b: 'figures/Warlock/default/3d/variant-B/mesh.glb',
+        variant_a: 'figures/Warlock/tier1/3d/variant-A/mesh.glb',
+        variant_b: 'figures/Warlock/tier1/3d/variant-B/mesh.glb',
       }
     },
   },
   canyon: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Canyon/default/2d/variant-A/figure.png',
+        variant_a: 'figures/Canyon/tier1/2d/variant-A/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Canyon/default/3d/variant-A/mesh.glb',
+        variant_a: 'figures/Canyon/tier1/3d/variant-A/mesh.glb',
       },
     }
   },
   cave: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Cave/default/2d/variant-A/figure.png',
+        variant_a: 'figures/Cave/tier1/2d/variant-A/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Cave/default/3d/variant-A/mesh.glb',
+        variant_a: 'figures/Cave/tier1/3d/variant-A/mesh.glb',
       },
     }
   },
   river: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/River/default/2d/variant-A/figure.png',
+        variant_a: 'figures/River/tier1/2d/variant-A/figure.png',
       },
       threeD: {
-        variant_a: 'figures/River/default/3d/variant-A/mesh.glb',
+        variant_a: 'figures/River/tier1/3d/variant-A/mesh.glb',
       },
     }
   },
   tree: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Tree/default/2d/variant-A/figure.png',
+        variant_a: 'figures/Tree/tier1/2d/variant-A/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Tree/default/3d/variant-A/mesh.glb',
+        variant_a: 'figures/Tree/tier1/3d/variant-A/mesh.glb',
       },
     }
   },
   lake: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Lake/default/2d/variant-A/figure.png',
+        variant_a: 'figures/Lake/tier1/2d/variant-A/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Lake/default/3d/variant-A/mesh.glb',
+        variant_a: 'figures/Lake/tier1/3d/variant-A/mesh.glb',
       },
     }
   },
   rock: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/Rock/default/2d/variant-A/figure.png',
+        variant_a: 'figures/Rock/tier1/2d/variant-A/figure.png',
       },
       threeD: {
-        variant_a: 'figures/Rock/default/3d/variant-A/mesh.glb',
+        variant_a: 'figures/Rock/tier1/3d/variant-A/mesh.glb',
       },
     }
   },
   mystery_box: {
-    default: {
+    tier1: {
       twoD: {
-        variant_a: 'figures/MysteryBox/default/2d/variant-A/figure.png',
+        variant_a: 'figures/MysteryBox/tier1/2d/variant-A/figure.png',
       },
       threeD: {
-        variant_a: 'figures/MysteryBox/default/3d/variant-A/mesh.glb',
+        variant_a: 'figures/MysteryBox/tier1/3d/variant-A/mesh.glb',
       },
     }
   },

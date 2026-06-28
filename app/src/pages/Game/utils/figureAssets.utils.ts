@@ -32,7 +32,7 @@ const getVariantKeyFromColor = (color: PlayerColor): 'variant_a' | 'variant_b' =
 export const getPiece2DAssetUrl = (pieceType: PieceType, color: PlayerColor): string | null => {
   const figureName: PieceFigureName = PIECE_TO_FIGURE_NAME[pieceType]
   const variantKey = getVariantKeyFromColor(color)
-  const relativePath = figuresConfig[figureName].default.twoD[variantKey]
+  const relativePath = figuresConfig[figureName].tier1.twoD[variantKey]
   if (!relativePath) return null
   return resolveFigureAssetUrl(relativePath)
 }
@@ -40,7 +40,7 @@ export const getPiece2DAssetUrl = (pieceType: PieceType, color: PlayerColor): st
 export const getPiece3DAssetUrl = (pieceType: PieceType, color: PlayerColor): string | null => {
   const figureName: PieceFigureName = PIECE_TO_FIGURE_NAME[pieceType]
   const variantKey = getVariantKeyFromColor(color)
-  const relativePath = figuresConfig[figureName].default.threeD[variantKey]
+  const relativePath = figuresConfig[figureName].tier1.threeD[variantKey]
   if (!relativePath) return null
   return resolveFigureAssetUrl(relativePath)
 }
@@ -48,7 +48,7 @@ export const getPiece3DAssetUrl = (pieceType: PieceType, color: PlayerColor): st
 export const getObstacle2DAssetUrl = (obstacleType: ObstacleType): string | null => {
   const figureName = OBSTACLE_TO_FIGURE_NAME[obstacleType]
   if (!figureName) return null
-  const relativePath = figuresConfig[figureName].default.twoD.variant_a
+  const relativePath = figuresConfig[figureName].tier1.twoD.variant_a
   if (!relativePath) return null
   return resolveFigureAssetUrl(relativePath)
 }
@@ -56,7 +56,7 @@ export const getObstacle2DAssetUrl = (obstacleType: ObstacleType): string | null
 export const getObstacle3DAssetUrl = (obstacleType: ObstacleType): string | null => {
   const figureName = OBSTACLE_TO_FIGURE_NAME[obstacleType]
   if (!figureName) return null
-  const relativePath = figuresConfig[figureName].default.threeD.variant_a
+  const relativePath = figuresConfig[figureName].tier1.threeD.variant_a
   if (!relativePath) return null
   return resolveFigureAssetUrl(relativePath)
 }
