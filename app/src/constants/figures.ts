@@ -4,6 +4,12 @@ export const FigureTiers = {
   TIER3: 'tier3',
   TIER4: 'tier4',
   TIER5: 'tier5',
+  TIER6: 'tier6',
+  TIER7: 'tier7',
+  TIER8: 'tier8',
+  TIER9: 'tier9',
+  TIER10: 'tier10',
+  TIER11: 'tier11',
 } as const
 
 export type FigureTierKey = typeof FigureTiers[keyof typeof FigureTiers]
@@ -14,6 +20,12 @@ export const FIGURE_TIER_ORDER = [
   FigureTiers.TIER3,
   FigureTiers.TIER4,
   FigureTiers.TIER5,
+  FigureTiers.TIER6,
+  FigureTiers.TIER7,
+  FigureTiers.TIER8,
+  FigureTiers.TIER9,
+  FigureTiers.TIER10,
+  FigureTiers.TIER11,
 ] as const
 
 export const LEVELS_PER_FIGURE_TIER = 9
@@ -80,6 +92,12 @@ const createPieceTierAssets = (figureFolder: FigureAssetFolder): Record<FigureTi
     tier3: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER3) },
     tier4: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER4) },
     tier5: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER5) },
+    tier6: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER6) },
+    tier7: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER7) },
+    tier8: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER8) },
+    tier9: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER9) },
+    tier10: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER10) },
+    tier11: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER11) },
   }
 }
 
