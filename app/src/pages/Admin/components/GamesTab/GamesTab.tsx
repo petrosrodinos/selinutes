@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Gamepad2 } from 'lucide-react'
 import { useAdminGamesOverview, useDeleteAdminGame } from '../../../../features/stats/hooks/use-stats'
+import { useCanMutateAdmin } from '../../../../hooks'
 import { ConfirmationDialog } from '../../../../components/ConfirmationDialog'
 import { ADMIN_GAMES_PAGE_LIMIT } from '../../config/admin-tabs.config'
 import type { AdminGameSessionEntry } from '../../../../features/stats/interfaces/stats.interface'
@@ -26,6 +27,7 @@ const SkeletonCard = () => (
 
 export const GamesTab = ({ page, onPageChange }: GamesTabProps) => {
     const { data, isLoading, isError } = useAdminGamesOverview({ page, limit: ADMIN_GAMES_PAGE_LIMIT })
+    const canMutate = useCanMutateAdmin()
     const deleteGameMutation = useDeleteAdminGame()
     const [selectedSession, setSelectedSession] = useState<AdminGameSessionEntry | null>(null)
 
@@ -82,7 +84,7 @@ export const GamesTab = ({ page, onPageChange }: GamesTabProps) => {
                             <GameSessionCard
                                 key={session.id}
                                 session={session}
-                                onDelete={() => setSelectedSession(session)}
+                                onDelete={canMutate ? () => setSelectedSession(session) : undefined}
                             />
                         ))}
                     </div>
@@ -113,16 +115,18 @@ export const GamesTab = ({ page, onPageChange }: GamesTabProps) => {
                 ) : null}
             </div>
 
-            <ConfirmationDialog
-                isOpen={!!selectedSession}
-                onClose={() => setSelectedSession(null)}
-                onConfirm={handleDeleteGame}
-                title="Delete Game"
-                message={deleteMessage}
-                confirmText={deleteGameMutation.isPending ? 'Deleting...' : 'Delete'}
-                cancelText="Cancel"
-                isConfirming={deleteGameMutation.isPending}
-            />
+            {canMutate ? (
+                <ConfirmationDialog
+                    isOpen={!!selectedSession}
+                    onClose={() => setSelectedSession(null)}
+                    onConfirm={handleDeleteGame}
+                    title="Delete Game"
+                    message={deleteMessage}
+                    confirmText={deleteGameMutation.isPending ? 'Deleting...' : 'Delete'}
+                    cancelText="Cancel"
+                    isConfirming={deleteGameMutation.isPending}
+                />
+            ) : null}
         </>
     )
 }

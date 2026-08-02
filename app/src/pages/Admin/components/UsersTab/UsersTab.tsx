@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAdminUsersOverview, useDeleteAdminUser, useUpdateAdminUser } from '../../../../features/stats/hooks/use-stats'
+import { useCanMutateAdmin } from '../../../../hooks'
 import { ConfirmationDialog } from '../../../../components/ConfirmationDialog'
 import type { AdminUserOverviewEntry } from '../../../../features/stats/interfaces/stats.interface'
 import type { UpdateAdminUserPayload } from '../../../../features/stats/interfaces/admin-user-update.interface'
@@ -19,11 +20,13 @@ const formatDate = (dateStr: string): string => {
 const ROLE_BADGE_STYLES: Record<string, string> = {
     SUPER_ADMIN: 'bg-violet-500/15 text-violet-300',
     ADMIN: 'bg-amber-500/15 text-amber-300',
+    SUPPORT: 'bg-sky-500/15 text-sky-300',
     USER: 'bg-stone-500/15 text-stone-400',
 }
 
 export const UsersTab = () => {
     const { data: users, isLoading, isError } = useAdminUsersOverview()
+    const canMutate = useCanMutateAdmin()
     const deleteUserMutation = useDeleteAdminUser()
     const updateUserMutation = useUpdateAdminUser()
     const [userToDelete, setUserToDelete] = useState<{ uuid: string; username: string } | null>(null)
@@ -80,7 +83,7 @@ export const UsersTab = () => {
                                 <th className="px-4 py-3">W</th>
                                 <th className="px-4 py-3">L</th>
                                 <th className="px-4 py-3">D</th>
-                                <th className="px-4 py-3">Actions</th>
+                                {canMutate ? <th className="px-4 py-3">Actions</th> : null}
                             </tr>
                         </thead>
                         <tbody>
@@ -106,12 +109,14 @@ export const UsersTab = () => {
                                     <td className="px-4 py-3 text-emerald-300">{user.wins}</td>
                                     <td className="px-4 py-3 text-red-300">{user.losses}</td>
                                     <td className="px-4 py-3 text-amber-200">{user.draws}</td>
-                                    <td className="px-4 py-3">
-                                        <UserActionsMenu
-                                            onEdit={() => setUserToEdit(user)}
-                                            onDelete={() => setUserToDelete({ uuid: user.user_uuid, username: user.username })}
-                                        />
-                                    </td>
+                                    {canMutate ? (
+                                        <td className="px-4 py-3">
+                                            <UserActionsMenu
+                                                onEdit={() => setUserToEdit(user)}
+                                                onDelete={() => setUserToDelete({ uuid: user.user_uuid, username: user.username })}
+                                            />
+                                        </td>
+                                    ) : null}
                                 </tr>
                             ))}
                         </tbody>
@@ -119,24 +124,28 @@ export const UsersTab = () => {
                 </div>
             </div>
 
-            <EditUserModal
-                user={userToEdit}
-                isOpen={!!userToEdit}
-                isSaving={updateUserMutation.isPending}
-                onClose={() => setUserToEdit(null)}
-                onSave={handleSaveUser}
-            />
+            {canMutate ? (
+                <>
+                    <EditUserModal
+                        user={userToEdit}
+                        isOpen={!!userToEdit}
+                        isSaving={updateUserMutation.isPending}
+                        onClose={() => setUserToEdit(null)}
+                        onSave={handleSaveUser}
+                    />
 
-            <ConfirmationDialog
-                isOpen={!!userToDelete}
-                onClose={() => setUserToDelete(null)}
-                onConfirm={handleDeleteUser}
-                title="Delete User"
-                message={`Are you sure you want to delete ${userToDelete?.username ?? 'this user'}? This action cannot be undone.`}
-                confirmText={deleteUserMutation.isPending ? 'Deleting...' : 'Delete'}
-                cancelText="Cancel"
-                isConfirming={deleteUserMutation.isPending}
-            />
+                    <ConfirmationDialog
+                        isOpen={!!userToDelete}
+                        onClose={() => setUserToDelete(null)}
+                        onConfirm={handleDeleteUser}
+                        title="Delete User"
+                        message={`Are you sure you want to delete ${userToDelete?.username ?? 'this user'}? This action cannot be undone.`}
+                        confirmText={deleteUserMutation.isPending ? 'Deleting...' : 'Delete'}
+                        cancelText="Cancel"
+                        isConfirming={deleteUserMutation.isPending}
+                    />
+                </>
+            ) : null}
         </>
     )
 }

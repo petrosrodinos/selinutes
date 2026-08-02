@@ -2,12 +2,13 @@ import { describe, it, expect } from 'vitest'
 import {
   createInitialBoard,
   cloneBoard,
+  shuffleFiguresOnBoard,
   isInBounds,
   getObstacleType,
   findPiecePositions,
   findAllCaves
 } from '../boardUtils'
-import { PieceTypes, ObstacleTypes, isPiece } from '../../types'
+import { PieceTypes, ObstacleTypes, isPiece, isObstacle } from '../../types'
 import type { BoardSize } from '../../types'
 import { createEmptyBoard, placePiece, placeObstacle, pos } from './helpers/boardFixtures'
 
@@ -104,5 +105,31 @@ describe('findAllCaves', () => {
     expect(caves).toHaveLength(2)
     expect(caves).toContainEqual({ row: 4, col: 4 })
     expect(caves).toContainEqual({ row: 8, col: 8 })
+  })
+})
+
+describe('shuffleFiguresOnBoard', () => {
+  it('scatters pieces onto empty tiles across the board and leaves obstacles', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(10, 0), { type: PieceTypes.MONARCH, color: 'white', id: 'w-monarch' })
+    placePiece(board, pos(10, 1), { type: PieceTypes.DUCHESS, color: 'white', id: 'w-duchess' })
+    placePiece(board, pos(10, 2), { type: PieceTypes.HOPLITE, color: 'white', id: 'w-hoplite' })
+    placePiece(board, pos(1, 0), { type: PieceTypes.MONARCH, color: 'black', id: 'b-monarch' })
+    placePiece(board, pos(1, 1), { type: PieceTypes.DUCHESS, color: 'black', id: 'b-duchess' })
+    placeObstacle(board, pos(5, 5), ObstacleTypes.ROCK)
+
+    const beforeIds = board.flat().flatMap((cell) => (cell && isPiece(cell) ? [cell.id] : []))
+
+    const shuffled = shuffleFiguresOnBoard(board)
+    const afterPieces = shuffled.flatMap((row, rowIndex) =>
+      row.flatMap((cell, colIndex) => (cell && isPiece(cell) ? [{ id: cell.id, row: rowIndex, col: colIndex }] : [])),
+    )
+    const afterIds = afterPieces.map((piece) => piece.id)
+
+    expect(afterIds.toSorted()).toEqual(beforeIds.toSorted())
+    expect(afterPieces).toHaveLength(5)
+    expect(isObstacle(shuffled[5][5]) && shuffled[5][5].type).toBe(ObstacleTypes.ROCK)
+    expect(afterPieces.every((piece) => !(piece.row === 5 && piece.col === 5))).toBe(true)
+    expect(isPiece(board[10][0]) && board[10][0].type).toBe(PieceTypes.MONARCH)
   })
 })

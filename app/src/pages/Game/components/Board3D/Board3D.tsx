@@ -38,7 +38,7 @@ const GameScene = ({ isOnline = false, attackMode: attackModeProp, onlineBoard, 
   const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection } = useGameStore();
   const attackModeFromStore = useGameStore((state) => state.attackMode);
   const attackMode = attackModeProp ?? attackModeFromStore;
-  const { helpEnabled, devMode } = useUIStore();
+  const { helpEnabled, devMode, showObstacles } = useUIStore();
   const canAccessDevMode = useCanAccessDevMode();
   const effectiveDevMode = devMode && canAccessDevMode;
 
@@ -184,7 +184,7 @@ const GameScene = ({ isOnline = false, attackMode: attackModeProp, onlineBoard, 
           const x = colIndex - offsetX;
           const z = rowIndex - offsetZ;
           const isLight = (rowIndex + colIndex) % 2 === 0;
-          const hasObstacle = cell && isObstacle(cell);
+          const hasVisibleObstacle = Boolean(cell && isObstacle(cell) && showObstacles);
 
           return (
             <BoardSquare3D
@@ -198,7 +198,7 @@ const GameScene = ({ isOnline = false, attackMode: attackModeProp, onlineBoard, 
               isLastKillSquare={isLastKillSquare(rowIndex, colIndex)}
               isHint={isHintSquare(rowIndex, colIndex)}
               isHintAttack={isHintAttackSquare(rowIndex, colIndex)}
-              isObstacle={!!hasObstacle}
+              isObstacle={hasVisibleObstacle}
               isMysteryBoxSelectedObstacle={isMysteryBoxSelectedObstacle(rowIndex, colIndex)}
               isMysteryBoxSelectedEmptyTile={isMysteryBoxSelectedEmptyTile(rowIndex, colIndex)}
               isMysteryBoxSelectedFigure={isMysteryBoxSelectedFigure(rowIndex, colIndex)}
@@ -208,14 +208,15 @@ const GameScene = ({ isOnline = false, attackMode: attackModeProp, onlineBoard, 
         }),
       )}
 
-      {board.map((row, rowIndex) =>
-        row.map((cell, colIndex) => {
-          if (!cell || !isObstacle(cell) || obstacleUsesGltf(cell.type)) return null;
-          const x = colIndex - offsetX;
-          const z = rowIndex - offsetZ;
-          return <Obstacle3D key={`obstacle-${rowIndex}-${colIndex}`} type={cell.type} position={[x, 0.1, z]} />;
-        }),
-      )}
+      {showObstacles &&
+        board.map((row, rowIndex) =>
+          row.map((cell, colIndex) => {
+            if (!cell || !isObstacle(cell) || obstacleUsesGltf(cell.type)) return null;
+            const x = colIndex - offsetX;
+            const z = rowIndex - offsetZ;
+            return <Obstacle3D key={`obstacle-${rowIndex}-${colIndex}`} type={cell.type} position={[x, 0.1, z]} />;
+          }),
+        )}
 
       <Suspense fallback={null}>
         {board.map((row, rowIndex) =>
@@ -225,7 +226,7 @@ const GameScene = ({ isOnline = false, attackMode: attackModeProp, onlineBoard, 
             const z = rowIndex - offsetZ;
 
             if (isObstacle(cell)) {
-              if (!obstacleUsesGltf(cell.type)) return null;
+              if (!showObstacles || !obstacleUsesGltf(cell.type)) return null;
               return <Obstacle3D key={`obstacle-gltf-${rowIndex}-${colIndex}`} type={cell.type} position={[x, 0.1, z]} />;
             }
 

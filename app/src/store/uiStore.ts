@@ -7,12 +7,14 @@ interface UIStore {
     isRightMenuOpen: boolean
     helpEnabled: boolean
     devMode: boolean
+    showObstacles: boolean
     soundEnabled: boolean
     soundVolume: number
 
     toggle3D: () => void
     toggleHelp: () => void
     toggleDevMode: () => void
+    toggleShowObstacles: () => void
     openTopMenu: () => void
     closeTopMenu: () => void
     openRightMenu: () => void
@@ -27,12 +29,14 @@ export const useUIStore = create<UIStore>((set) => ({
     isRightMenuOpen: false,
     helpEnabled: true,
     devMode: false,
+    showObstacles: true,
     soundEnabled: true,
     soundVolume: 0.5,
 
     toggle3D: () => set((state) => ({ is3D: !state.is3D })),
     toggleHelp: () => set((state) => ({ helpEnabled: !state.helpEnabled })),
     toggleDevMode: () => set((state) => ({ devMode: !state.devMode })),
+    toggleShowObstacles: () => set((state) => ({ showObstacles: !state.showObstacles })),
     openTopMenu: () => set({ isTopMenuOpen: true }),
     closeTopMenu: () => set({ isTopMenuOpen: false }),
     openRightMenu: () => set({ isRightMenuOpen: true }),

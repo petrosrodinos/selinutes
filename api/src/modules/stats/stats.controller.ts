@@ -48,7 +48,7 @@ export class StatsController {
     }
 
     @Get('admin/users-overview')
-    @Roles(AuthRoles.ADMIN)
+    @Roles(AuthRoles.SUPPORT)
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Admin: get users overview with stats and games played' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Users overview retrieved successfully' })
@@ -58,7 +58,7 @@ export class StatsController {
     }
 
     @Get('admin/games-overview')
-    @Roles(AuthRoles.ADMIN)
+    @Roles(AuthRoles.SUPPORT)
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Admin: get all games grouped by session code' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Games overview retrieved successfully' })

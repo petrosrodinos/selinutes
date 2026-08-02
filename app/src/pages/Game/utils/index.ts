@@ -1,6 +1,7 @@
 export {
   createInitialBoard,
   cloneBoard,
+  shuffleFiguresOnBoard,
   isInBounds,
   isSquareBlockedByObstacle,
   getCellContent,

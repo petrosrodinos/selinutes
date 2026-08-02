@@ -32,7 +32,7 @@ const formatDuration = (seconds: number | null): string => {
 
 interface GameSessionCardProps {
     session: AdminGameSessionEntry
-    onDelete: () => void
+    onDelete?: () => void
 }
 
 export const GameSessionCard = ({ session, onDelete }: GameSessionCardProps) => {
@@ -62,14 +62,16 @@ export const GameSessionCard = ({ session, onDelete }: GameSessionCardProps) => 
                         <Clock className="h-3.5 w-3.5" />
                         <span>{formatDate(finishedAt)}</span>
                     </div>
-                    <button
-                        type="button"
-                        onClick={onDelete}
-                        className="rounded-lg border border-rose-700/40 bg-rose-900/20 p-1.5 text-rose-400 transition-colors hover:bg-rose-800/40 hover:text-rose-300"
-                        aria-label="Delete game"
-                    >
-                        <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    {onDelete ? (
+                        <button
+                            type="button"
+                            onClick={onDelete}
+                            className="rounded-lg border border-rose-700/40 bg-rose-900/20 p-1.5 text-rose-400 transition-colors hover:bg-rose-800/40 hover:text-rose-300"
+                            aria-label="Delete game"
+                        >
+                            <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                    ) : null}
                 </div>
             </div>
 

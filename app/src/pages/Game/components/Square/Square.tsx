@@ -2,6 +2,7 @@ import type { CellContent, Position, PlayerColor } from '../../types'
 import { isPiece, isObstacle, PlayerColors } from '../../types'
 import { OBSTACLE_SYMBOLS, OBSTACLE_NAMES } from '../../constants'
 import { getObstacle2DAssetUrl } from '../../utils/figureAssets.utils'
+import { useUIStore } from '../../../../store/uiStore'
 
 interface SquareProps {
   cell: CellContent
@@ -40,13 +41,15 @@ export const Square = ({
   isMysteryBoxSelectedFigure = false,
   onClick
 }: SquareProps) => {
+  const showObstacles = useUIStore((state) => state.showObstacles)
   const isLight = (position.row + position.col) % 2 === 0
-  const obstacleImageUrl = cell && isObstacle(cell) ? getObstacle2DAssetUrl(cell.type) : null
+  const hasVisibleObstacle = Boolean(cell && isObstacle(cell) && showObstacles)
+  const obstacleImageUrl = hasVisibleObstacle && cell && isObstacle(cell) ? getObstacle2DAssetUrl(cell.type) : null
 
   const getSquareClasses = () => {
     const baseClasses = 'flex items-center justify-center cursor-pointer relative transition-all duration-200'
     
-    if (cell && isObstacle(cell)) {
+    if (hasVisibleObstacle) {
       if (isMysteryBoxSelectedObstacle) {
         return `${baseClasses} bg-stone-600 ring-4 ring-orange-500 ring-inset animate-pulse`
       }
@@ -82,7 +85,7 @@ export const Square = ({
 
   return (
     <div className={getSquareClasses()} onClick={onClick} style={{ width: squareSize, height: squareSize }}>
-      {cell && isObstacle(cell) && (
+      {hasVisibleObstacle && cell && isObstacle(cell) && (
         <span 
           className="select-none"
           style={{ fontSize: Math.max(20, Math.round(squareSize * 0.66)) }}

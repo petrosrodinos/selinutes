@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
+import { canAccessAdminPage } from '../../config/roles/admin-access-roles.config'
 
 interface AdminGuardProps {
     children: ReactNode
@@ -14,7 +15,7 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
         return <Navigate to="/login" replace />
     }
 
-    if (!['ADMIN', 'SUPER_ADMIN'].includes(role ?? '')) {
+    if (!canAccessAdminPage(role)) {
         return <Navigate to="/home" replace />
     }
 

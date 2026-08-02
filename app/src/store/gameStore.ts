@@ -6,6 +6,7 @@ import { DEFAULT_BOARD_SIZE } from '../pages/Game/constants'
 import type { GameSession, Player } from '../features/game/interfaces'
 import {
     createInitialBoard,
+    shuffleFiguresOnBoard,
     getValidMoves,
     getValidAttacks,
     isChariotValidCaptureMoveTarget,
@@ -103,6 +104,7 @@ interface GameStore {
     selectSquare: (pos: Position, isOnline?: boolean) => MysteryBoxTriggerResult | NecromancerFreezeResult | boolean
     devModeSelectSquare: (pos: Position) => void
     resetGame: (newBoardSizeKey?: BoardSizeKey) => void
+    shuffleFigures: () => void
     startGameTimer: () => void
     toggleBot: () => void
     setDifficulty: (difficulty: BotDifficulty) => void
@@ -986,6 +988,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
             botThinking: false,
             hintMove: null,
             mysteryBoxState: getInitialMysteryBoxState(),
+            attackMode: 'ranged',
+            necromancerActionMode: 'move'
+        })
+    },
+
+    shuffleFigures: () => {
+        const { gameState } = get()
+        if (gameState.gameOver) return
+
+        set({
+            gameState: {
+                ...gameState,
+                board: shuffleFiguresOnBoard(gameState.board),
+                selectedPosition: null,
+                validMoves: [],
+                validAttacks: [],
+                validSwaps: []
+            },
+            hintMove: null,
+            devModeSelected: null,
             attackMode: 'ranged',
             necromancerActionMode: 'move'
         })

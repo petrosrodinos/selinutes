@@ -458,6 +458,48 @@ export const cloneBoard = (board: Board): Board => {
   }))
 }
 
+const shuffleInPlace = <T>(items: T[]): void => {
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const temp = items[i]
+    items[i] = items[j]
+    items[j] = temp
+  }
+}
+
+export const shuffleFiguresOnBoard = (board: Board): Board => {
+  const newBoard = cloneBoard(board)
+  const pieces: Piece[] = []
+  const emptyTiles: { row: number; col: number }[] = []
+
+  for (let row = 0; row < newBoard.length; row++) {
+    for (let col = 0; col < newBoard[row].length; col++) {
+      const cell = newBoard[row][col]
+      if (cell && isPiece(cell)) {
+        pieces.push({ ...cell })
+        newBoard[row][col] = null
+        emptyTiles.push({ row, col })
+      } else if (cell === null) {
+        emptyTiles.push({ row, col })
+      }
+    }
+  }
+
+  if (pieces.length === 0 || emptyTiles.length < pieces.length) {
+    return cloneBoard(board)
+  }
+
+  shuffleInPlace(pieces)
+  shuffleInPlace(emptyTiles)
+
+  for (let i = 0; i < pieces.length; i++) {
+    const { row, col } = emptyTiles[i]
+    newBoard[row][col] = pieces[i]
+  }
+
+  return newBoard
+}
+
 export const isInBounds = (row: number, col: number, boardSize: BoardSize): boolean => {
   return row >= 0 && row < boardSize.rows && col >= 0 && col < boardSize.cols
 }

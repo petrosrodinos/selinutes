@@ -6,6 +6,7 @@ import { Board } from "./components/Board";
 import { Board3DLoadFallback } from "./components/Board3D/Board3DLoadFallback";
 import { TopMenu } from "./components/TopMenu";
 import { GameSettingsModal } from "./components/GameSettingsModal";
+import { DevToolsModal } from "./components/DevToolsModal";
 import { BottomMenu } from "./components/BottomMenu";
 import { RightSidebar, CapturedPieces } from "./components/RightSidebar";
 import { GameResultModal } from "./components/GameResultModal";
@@ -79,6 +80,7 @@ const GamePage = () => {
   const { mutate: saveOfflineGameResult } = useSaveOfflineGame();
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
   const [isRulesOpen, setIsRulesOpen] = useState(false);
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
   const [isZombieReviveOpen, setIsZombieReviveOpen] = useState(false);
@@ -371,6 +373,7 @@ const GamePage = () => {
           <TopMenu
             gameTitle={environments.APP_NAME}
             onOpenSettings={() => setIsSettingsOpen(true)}
+            onOpenDevTools={() => setIsDevToolsOpen(true)}
             onOpenRules={() => setIsRulesOpen(true)}
             onRequestLeave={() => setLeaveConfirmOpen(true)}
           />
@@ -433,6 +436,10 @@ const GamePage = () => {
               closeTopMenu();
               setIsSettingsOpen(true);
             }}
+            onOpenDevTools={() => {
+              closeTopMenu();
+              setIsDevToolsOpen(true);
+            }}
             onOpenRules={() => {
               closeTopMenu();
               setIsRulesOpen(true);
@@ -445,6 +452,8 @@ const GamePage = () => {
         </Modal>
 
         <GameSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} onRequestLeave={() => setLeaveConfirmOpen(true)} />
+
+        <DevToolsModal isOpen={isDevToolsOpen} onClose={() => setIsDevToolsOpen(false)} />
 
         <RulesModal isOpen={isRulesOpen} onClose={() => setIsRulesOpen(false)} />
 

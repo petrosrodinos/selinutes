@@ -1,4 +1,4 @@
-import { LogOut, Settings } from "lucide-react";
+import { LogOut, Settings, Wrench } from "lucide-react";
 import { RulesNavIcon } from "../../../../components/RulesNavIcon";
 import { PlayerColors } from "../../types";
 import { useGameStore } from "../../../../store/gameStore";
@@ -9,6 +9,7 @@ import { GameModes } from "../../../../constants";
 interface TopMenuProps {
   onOpenSettings?: () => void;
   onOpenRules?: () => void;
+  onOpenDevTools?: () => void;
   onRequestLeave?: () => void;
   gameTitle?: string;
 }
@@ -19,7 +20,7 @@ const tapButtonBase =
 const iconGhost =
   "rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-800/90 hover:text-amber-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60";
 
-export const TopMenu = ({ onOpenSettings, onOpenRules, onRequestLeave, gameTitle }: TopMenuProps) => {
+export const TopMenu = ({ onOpenSettings, onOpenRules, onOpenDevTools, onRequestLeave, gameTitle }: TopMenuProps) => {
   const { gameState, botEnabled, botDifficulty, gameSession, getCurrentTurnPlayer, isMyTurn } = useGameStore();
 
   const { devMode, toggleDevMode, closeTopMenu } = useUIStore();
@@ -84,9 +85,13 @@ export const TopMenu = ({ onOpenSettings, onOpenRules, onRequestLeave, gameTitle
     onOpenRules?.();
   };
 
+  const openDevTools = () => {
+    closeTopMenu();
+    onOpenDevTools?.();
+  };
+
   return (
     <>
-      {/* Mobile & tablet — compact strip */}
       <div className="lg:hidden">
         <div className="rounded-2xl border border-stone-700/50 backdrop-blur-sm">
           <div className="flex items-stretch gap-1.5 px-2 py-1.5">
@@ -105,6 +110,12 @@ export const TopMenu = ({ onOpenSettings, onOpenRules, onRequestLeave, gameTitle
                 </div>
               )}
             </div>
+
+            {showDevToggle ? (
+              <button type="button" onClick={openDevTools} className={`${tapButtonBase} h-9 min-w-9 text-orange-400 hover:bg-stone-800/90`} aria-label="Open dev tools">
+                <Wrench className="h-4 w-4" strokeWidth={2.25} />
+              </button>
+            ) : null}
 
             {onOpenRules ? (
               <RulesNavIcon onClick={openRules} variant="ghost" compact />
@@ -168,6 +179,12 @@ export const TopMenu = ({ onOpenSettings, onOpenRules, onRequestLeave, gameTitle
               </button>
             </div>
           )}
+
+          {showDevToggle ? (
+            <button type="button" onClick={openDevTools} className={iconGhost} aria-label="Open dev tools">
+              <Wrench className="h-5 w-5 text-orange-400/90" strokeWidth={2} />
+            </button>
+          ) : null}
 
           {onOpenRules ? (
             <RulesNavIcon onClick={openRules} variant="ghost" />

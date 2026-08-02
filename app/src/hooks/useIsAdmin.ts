@@ -1,7 +1,7 @@
 import { useAuthStore } from "../store/authStore";
+import { canMutateAdmin } from "../config/roles/admin-access-roles.config";
 
-/** True when the current user has ADMIN or SUPER_ADMIN role. */
 export function useIsAdmin(): boolean {
   const role = useAuthStore((s) => s.user?.role);
-  return role === "ADMIN" || role === "SUPER_ADMIN";
+  return canMutateAdmin(role);
 }
