@@ -3,7 +3,7 @@ import { RulesNavIcon } from "../../../../components/RulesNavIcon";
 import { PlayerColors } from "../../types";
 import { useGameStore } from "../../../../store/gameStore";
 import { useUIStore } from "../../../../store/uiStore";
-import { useGameMode, useIsAdmin } from "../../../../hooks";
+import { useGameMode, useCanAccessDevMode } from "../../../../hooks";
 import { GameModes } from "../../../../constants";
 
 interface TopMenuProps {
@@ -24,11 +24,10 @@ export const TopMenu = ({ onOpenSettings, onOpenRules, onRequestLeave, gameTitle
 
   const { devMode, toggleDevMode, closeTopMenu } = useUIStore();
   const { showBot, showDev, mode } = useGameMode();
-  const isAdmin = useIsAdmin();
+  const canAccessDevMode = useCanAccessDevMode();
 
   const isOnline = mode === GameModes.ONLINE;
-  const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === "development";
-  const showDevToggle = showDev && mode === GameModes.SINGLE && isDevelopment && isAdmin;
+  const showDevToggle = showDev && mode === GameModes.SINGLE && canAccessDevMode;
 
   const players = gameSession?.players || [];
   const currentTurnPlayer = getCurrentTurnPlayer();

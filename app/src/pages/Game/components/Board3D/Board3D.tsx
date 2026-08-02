@@ -8,7 +8,7 @@ import { BoardSquare3D } from "./BoardSquare3D";
 import { Obstacle3D } from "./Obstacle3D";
 import { useGameStore } from "../../../../store/gameStore";
 import { useUIStore } from "../../../../store/uiStore";
-import { useIsAdmin } from "../../../../hooks";
+import { useCanAccessDevMode } from "../../../../hooks";
 import { getValidMoves, getValidAttacks, getAllNarcNetPositions, getDisplayedMoveTargets, getDisplayedAttackTargets } from "../../utils";
 import { Board3DLoadFallback } from "./Board3DLoadFallback";
 import { GltfLoadingProgressBridge } from "./GltfLoadingProgressBridge";
@@ -39,8 +39,8 @@ const GameScene = ({ isOnline = false, attackMode: attackModeProp, onlineBoard, 
   const attackModeFromStore = useGameStore((state) => state.attackMode);
   const attackMode = attackModeProp ?? attackModeFromStore;
   const { helpEnabled, devMode } = useUIStore();
-  const isAdmin = useIsAdmin();
-  const effectiveDevMode = devMode && isAdmin;
+  const canAccessDevMode = useCanAccessDevMode();
+  const effectiveDevMode = devMode && canAccessDevMode;
 
   const mysteryBoxState = isOnline && onlineMysteryBoxState ? onlineMysteryBoxState : offlineMysteryBoxState;
 

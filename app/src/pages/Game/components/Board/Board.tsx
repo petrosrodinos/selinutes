@@ -7,7 +7,7 @@ import { ProjectileLayer } from '../Projectile'
 import { useProjectileAnimation } from '../../hooks/useProjectileAnimation'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
-import { useIsAdmin } from '../../../../hooks'
+import { useCanAccessDevMode } from '../../../../hooks'
 import { getValidMoves, getValidAttacks, getAllNarcNetPositions, getDisplayedMoveTargets, getDisplayedAttackTargets } from '../../utils'
 import { isPiece } from '../../types'
 import type { Board as BoardType, BoardSize, Position, Move, SwapTarget, MysteryBoxState } from '../../types'
@@ -48,8 +48,8 @@ export const Board = ({
     const attackModeFromStore = useGameStore(state => state.attackMode)
     const attackMode = attackModeProp ?? attackModeFromStore
     const { helpEnabled, devMode } = useUIStore()
-    const isAdmin = useIsAdmin()
-    const effectiveDevMode = devMode && isAdmin
+    const canAccessDevMode = useCanAccessDevMode()
+    const effectiveDevMode = devMode && canAccessDevMode
     
     const mysteryBoxState = isOnline && onlineMysteryBoxState ? onlineMysteryBoxState : offlineMysteryBoxState
 
