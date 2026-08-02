@@ -12,6 +12,24 @@ export const DevToolsModal = ({ isOpen, onClose }: DevToolsModalProps) => {
   const { devMode, toggleDevMode, showObstacles, toggleShowObstacles } = useUIStore()
   const shuffleFigures = useGameStore((state) => state.shuffleFigures)
 
+  const handleToggleShowObstacles = () => {
+    toggleShowObstacles()
+    useGameStore.setState((state) => ({
+      gameState: {
+        ...state.gameState,
+        selectedPosition: null,
+        validMoves: [],
+        validAttacks: [],
+        validSwaps: [],
+      },
+      selectedPosition: null,
+      validMoves: [],
+      validAttacks: [],
+      validSwaps: [],
+      hintMove: null,
+    }))
+  }
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Dev tools">
       <div className="space-y-4">
@@ -38,7 +56,7 @@ export const DevToolsModal = ({ isOpen, onClose }: DevToolsModalProps) => {
           </label>
           <button
             type="button"
-            onClick={toggleShowObstacles}
+            onClick={handleToggleShowObstacles}
             className={`relative ml-auto h-7 w-12 overflow-hidden rounded-full transition-colors duration-200 sm:w-14 ${showObstacles ? 'bg-orange-600' : 'bg-stone-600'}`}
             aria-label={showObstacles ? 'Hide obstacles' : 'Show obstacles'}
             aria-pressed={showObstacles}

@@ -1,4 +1,4 @@
-import type { Board, PieceType, BoardSize, ObstacleType, CellContent, BoardSizeKey, Piece } from '../types'
+import type { Board, PieceType, BoardSize, ObstacleType, CellContent, BoardSizeKey, Piece, Position } from '../types'
 import { isPiece, isObstacle, PlayerColors, PieceTypes, ObstacleTypes, BoardSizeKeys } from '../types'
 import { OBSTACLE_COUNTS, BACK_ROW_PIECES } from '../constants'
 
@@ -456,6 +456,23 @@ export const cloneBoard = (board: Board): Board => {
     if (isObstacle(cell)) return { ...cell }
     return null
   }))
+}
+
+export const stripObstaclesFromBoard = (board: Board): Board => {
+  return board.map(row => row.map(cell => {
+    if (cell === null) return null
+    if (isObstacle(cell)) return null
+    if (isPiece(cell)) return { ...cell }
+    return null
+  }))
+}
+
+export const clearObstacleAt = (board: Board, pos: Position): Board => {
+  const cell = board[pos.row]?.[pos.col]
+  if (!cell || !isObstacle(cell)) return board
+  const newBoard = cloneBoard(board)
+  newBoard[pos.row][pos.col] = null
+  return newBoard
 }
 
 const shuffleInPlace = <T>(items: T[]): void => {

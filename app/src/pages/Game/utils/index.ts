@@ -1,6 +1,8 @@
 export {
   createInitialBoard,
   cloneBoard,
+  stripObstaclesFromBoard,
+  clearObstacleAt,
   shuffleFiguresOnBoard,
   isInBounds,
   isSquareBlockedByObstacle,

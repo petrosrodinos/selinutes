@@ -8,7 +8,7 @@ import { useProjectileAnimation } from '../../hooks/useProjectileAnimation'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
 import { useCanAccessDevMode } from '../../../../hooks'
-import { getValidMoves, getValidAttacks, getAllNarcNetPositions, getDisplayedMoveTargets, getDisplayedAttackTargets } from '../../utils'
+import { getValidMoves, getValidAttacks, getAllNarcNetPositions, getDisplayedMoveTargets, getDisplayedAttackTargets, stripObstaclesFromBoard } from '../../utils'
 import { isPiece } from '../../types'
 import type { Board as BoardType, BoardSize, Position, Move, SwapTarget, MysteryBoxState } from '../../types'
 
@@ -47,7 +47,7 @@ export const Board = ({
     const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection } = useGameStore()
     const attackModeFromStore = useGameStore(state => state.attackMode)
     const attackMode = attackModeProp ?? attackModeFromStore
-    const { helpEnabled, devMode } = useUIStore()
+    const { helpEnabled, devMode, showObstacles } = useUIStore()
     const canAccessDevMode = useCanAccessDevMode()
     const effectiveDevMode = devMode && canAccessDevMode
     
@@ -64,13 +64,17 @@ export const Board = ({
     const currentHintMove = isOnline ? null : hintMove
     const selectedCell = selectedPosition ? board[selectedPosition.row]?.[selectedPosition.col] : null
     const selectedPiece = selectedCell && isPiece(selectedCell) ? selectedCell : null
+    const movementBoard = useMemo(
+        () => (showObstacles ? board : stripObstaclesFromBoard(board)),
+        [board, showObstacles]
+    )
     const displayedValidMoves = useMemo(
         () => getDisplayedMoveTargets(board, validMoves, selectedPiece),
         [board, validMoves, selectedPiece]
     )
     const displayedValidAttacks = useMemo(
-        () => getDisplayedAttackTargets(board, validMoves, validAttacks, selectedPiece, selectedPosition, attackMode, boardSize),
-        [board, validMoves, validAttacks, selectedPiece, selectedPosition, attackMode, boardSize]
+        () => getDisplayedAttackTargets(movementBoard, validMoves, validAttacks, selectedPiece, selectedPosition, attackMode, boardSize),
+        [movementBoard, validMoves, validAttacks, selectedPiece, selectedPosition, attackMode, boardSize]
     )
 
     const narcNetPositions = useMemo(() => {
@@ -80,10 +84,10 @@ export const Board = ({
 
     const [helpPosition, setHelpPosition] = useState<{ row: number; col: number } | null>(null)
     const helpMoves = helpPosition && helpEnabled && !isOnline
-        ? getValidMoves(board, helpPosition, boardSize)
+        ? getValidMoves(movementBoard, helpPosition, boardSize)
         : []
     const helpAttacks = helpPosition && helpEnabled && !isOnline
-        ? getValidAttacks(board, helpPosition, boardSize)
+        ? getValidAttacks(movementBoard, helpPosition, boardSize)
         : []
 
     const files = generateFiles(boardSize.cols)
@@ -133,8 +137,7 @@ export const Board = ({
 
     const isDevModeTarget = (row: number, col: number) => {
         if (isOnline || !effectiveDevMode || !devModeSelected) return false
-        const cell = board[row][col]
-        return cell === null
+        return !(devModeSelected.row === row && devModeSelected.col === col)
     }
 
     const isValidMove = (row: number, col: number) =>

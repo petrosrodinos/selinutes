@@ -4,9 +4,12 @@ import type { GameState, Position, BotDifficulty, HintMove, BoardSizeKey, Player
 import { isPiece, isObstacle, BOARD_SIZES, PlayerColors, BotDifficulties, BoardSizeKeys, PieceTypes, MysteryBoxOptions, MysteryBoxPhases, ObstacleTypes } from '../pages/Game/types'
 import { DEFAULT_BOARD_SIZE } from '../pages/Game/constants'
 import type { GameSession, Player } from '../features/game/interfaces'
+import { useUIStore } from './uiStore'
 import {
     createInitialBoard,
     shuffleFiguresOnBoard,
+    stripObstaclesFromBoard,
+    clearObstacleAt,
     getValidMoves,
     getValidAttacks,
     isChariotValidCaptureMoveTarget,
@@ -246,23 +249,29 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     selectSquare: (pos: Position, isOnline = false): MysteryBoxTriggerResult | NecromancerFreezeResult | boolean => {
         const { gameState, botEnabled, history, mysteryBoxState, gameSession, currentPlayerId, selectedPosition, validMoves, validAttacks, validSwaps, attackMode, necromancerActionMode } = get()
+        const ignoreObstacles = !useUIStore.getState().showObstacles
+        const getMovementBoard = (board: GameState['board']) =>
+            ignoreObstacles ? stripObstaclesFromBoard(board) : board
+        const getBoardForMoveExecution = (board: GameState['board'], target: Position) =>
+            ignoreObstacles ? clearObstacleAt(board, target) : board
         const getSelectionData = (board: GameState['board'], boardSize: GameState['boardSize'], piecePos: Position) => {
             const selectedCell = board[piecePos.row][piecePos.col]
             if (!selectedCell || !isPiece(selectedCell)) {
                 return { moves: [], attacks: [], swaps: [] as SwapTarget[] }
             }
+            const movementBoard = getMovementBoard(board)
             const isFrozen = (selectedCell.frozenTurns ?? 0) > 0
-            let moves = isFrozen ? [] : getValidMoves(board, piecePos, boardSize)
+            let moves = isFrozen ? [] : getValidMoves(movementBoard, piecePos, boardSize)
             if (selectedCell.type === PieceTypes.CHARIOT) {
                 moves = moves.filter(move => {
                     const targetCell = board[move.row]?.[move.col]
                     if (targetCell && isPiece(targetCell) && targetCell.color !== selectedCell.color) {
-                        return isChariotValidCaptureMoveTarget(board, piecePos, move, selectedCell, boardSize)
+                        return isChariotValidCaptureMoveTarget(movementBoard, piecePos, move, selectedCell, boardSize)
                     }
                     return true
                 })
             }
-            const attacks = getValidAttacks(board, piecePos, boardSize)
+            const attacks = getValidAttacks(movementBoard, piecePos, boardSize)
             const swaps: SwapTarget[] = !isFrozen && selectedCell.type === PieceTypes.WARLOCK
                 ? getValidSwapTargets(board, piecePos).map(s => ({
                     position: s.position,
@@ -272,8 +281,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
             if (selectedCell.type !== PieceTypes.NECROMANCER) {
                 return { moves, attacks, swaps }
             }
-            const closeTargets = getNecromancerKillTargets(board, piecePos, boardSize)
-            const freezeTargets = isFrozen ? [] : getNecromancerFreezeTargets(board, piecePos, boardSize)
+            const closeTargets = getNecromancerKillTargets(movementBoard, piecePos, boardSize)
+            const freezeTargets = isFrozen ? [] : getNecromancerFreezeTargets(movementBoard, piecePos, boardSize)
             const mergedAttacks = [...closeTargets, ...freezeTargets].filter((target, index, arr) =>
                 index === arr.findIndex(item => item.row === target.row && item.col === target.col)
             )
@@ -347,7 +356,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
                 if (isValidMoveTarget || isValidAttackTarget) {
                     const targetCell = board[pos.row][pos.col]
-                    const isMysteryBox = targetCell && isObstacle(targetCell) && targetCell.type === ObstacleTypes.MYSTERY_BOX
+                    const isMysteryBox = !ignoreObstacles && targetCell && isObstacle(targetCell) && targetCell.type === ObstacleTypes.MYSTERY_BOX
 
                     if (isMysteryBox && !isValidAttackTarget) {
                         const option = getRandomMysteryBoxOption(gameState.currentPlayer, gameState.capturedPieces)
@@ -505,7 +514,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                           )
                     if (!attackAction.allowed) return false
                     const { newBoard, moves, move, newNarcs } = makeMove(
-                        board,
+                        getBoardForMoveExecution(board, pos),
                         selectedPosition,
                         pos,
                         boardSize,
@@ -654,7 +663,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
             if (isValidMoveTarget || isValidAttackTarget) {
                 const targetCell = gameState.board[pos.row][pos.col]
-                const isMysteryBox = targetCell && isObstacle(targetCell) && targetCell.type === ObstacleTypes.MYSTERY_BOX
+                const isMysteryBox = !ignoreObstacles && targetCell && isObstacle(targetCell) && targetCell.type === ObstacleTypes.MYSTERY_BOX
 
                 if (isMysteryBox && !isValidAttackTarget) {
                     const option = getRandomMysteryBoxOption(gameState.currentPlayer, gameState.capturedPieces)
@@ -807,7 +816,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     )
                 if (!attackAction.allowed) return false
                 const { newBoard, moves, move, newNarcs } = makeMove(
-                    gameState.board,
+                    getBoardForMoveExecution(gameState.board, pos),
                     gameState.selectedPosition,
                     pos,
                     gameState.boardSize,
@@ -926,37 +935,63 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const cell = gameState.board[pos.row][pos.col]
 
         if (devModeSelected) {
-            const selectedCell = gameState.board[devModeSelected.row][devModeSelected.col]
+            if (devModeSelected.row === pos.row && devModeSelected.col === pos.col) {
+                set({ devModeSelected: null })
+                return
+            }
 
-            if (cell === null && selectedCell !== null) {
-                const newBoard = gameState.board.map(row => [...row])
+            const selectedCell = gameState.board[devModeSelected.row][devModeSelected.col]
+            if (!selectedCell || (!isPiece(selectedCell) && !isObstacle(selectedCell))) {
+                set({ devModeSelected: null })
+                return
+            }
+
+            const newBoard = gameState.board.map(row => [...row])
+
+            if (isPiece(selectedCell) && cell && isPiece(cell)) {
+                newBoard[pos.row][pos.col] = selectedCell
+                newBoard[devModeSelected.row][devModeSelected.col] = cell
+            } else {
                 newBoard[pos.row][pos.col] = selectedCell
                 newBoard[devModeSelected.row][devModeSelected.col] = null as CellContent
-
-                set({
-                    gameState: {
-                        ...gameState,
-                        board: newBoard,
-                        selectedPosition: null,
-                        validMoves: [],
-                        validAttacks: []
-                    },
-                    devModeSelected: null
-                })
-                return
             }
 
-            if (cell !== null && (isPiece(cell) || isObstacle(cell))) {
-                set({ devModeSelected: pos })
-                return
-            }
-
-            set({ devModeSelected: null })
+            set({
+                gameState: {
+                    ...gameState,
+                    board: newBoard,
+                    selectedPosition: null,
+                    validMoves: [],
+                    validAttacks: [],
+                    validSwaps: [],
+                    nightMode: getNightModeFromBoard(newBoard)
+                },
+                selectedPosition: null,
+                validMoves: [],
+                validAttacks: [],
+                validSwaps: [],
+                hintMove: null,
+                devModeSelected: null
+            })
             return
         }
 
         if (cell !== null && (isPiece(cell) || isObstacle(cell))) {
-            set({ devModeSelected: pos })
+            set({
+                devModeSelected: pos,
+                gameState: {
+                    ...gameState,
+                    selectedPosition: null,
+                    validMoves: [],
+                    validAttacks: [],
+                    validSwaps: []
+                },
+                selectedPosition: null,
+                validMoves: [],
+                validAttacks: [],
+                validSwaps: [],
+                hintMove: null
+            })
         }
     },
 
@@ -1058,7 +1093,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (gameState.currentPlayer !== PlayerColors.WHITE) return
         if (gameState.gameOver) return
 
-        const hint = getHintMove(gameState.board, gameState.lastMove, gameState.boardSize)
+        const movementBoard = useUIStore.getState().showObstacles
+            ? gameState.board
+            : stripObstaclesFromBoard(gameState.board)
+        const hint = getHintMove(movementBoard, gameState.lastMove, gameState.boardSize)
         set({ hintMove: hint })
     },
 
@@ -1071,7 +1109,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         set({ botThinking: true })
 
-        const botMove = getBotMove(gameState.board, gameState.lastMove, botDifficulty, gameState.boardSize)
+        const ignoreObstacles = !useUIStore.getState().showObstacles
+        const movementBoard = ignoreObstacles
+            ? stripObstaclesFromBoard(gameState.board)
+            : gameState.board
+        const botMove = getBotMove(movementBoard, gameState.lastMove, botDifficulty, gameState.boardSize)
 
         if (!botMove) {
             set({ botThinking: false })
@@ -1079,7 +1121,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
 
         const { newBoard, moves, move, newNarcs } = makeMove(
-            gameState.board,
+            ignoreObstacles ? clearObstacleAt(gameState.board, botMove.to) : gameState.board,
             botMove.from,
             botMove.to,
             gameState.boardSize,

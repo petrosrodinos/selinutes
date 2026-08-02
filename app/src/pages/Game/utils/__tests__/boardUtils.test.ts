@@ -3,6 +3,8 @@ import {
   createInitialBoard,
   cloneBoard,
   shuffleFiguresOnBoard,
+  stripObstaclesFromBoard,
+  clearObstacleAt,
   isInBounds,
   getObstacleType,
   findPiecePositions,
@@ -105,6 +107,33 @@ describe('findAllCaves', () => {
     expect(caves).toHaveLength(2)
     expect(caves).toContainEqual({ row: 4, col: 4 })
     expect(caves).toContainEqual({ row: 8, col: 8 })
+  })
+})
+
+describe('stripObstaclesFromBoard', () => {
+  it('removes obstacles and keeps pieces', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(10, 0), { type: PieceTypes.MONARCH, color: 'white', id: 'w-monarch' })
+    placeObstacle(board, pos(5, 5), ObstacleTypes.ROCK)
+
+    const stripped = stripObstaclesFromBoard(board)
+
+    expect(isPiece(stripped[10][0]) && stripped[10][0].id).toBe('w-monarch')
+    expect(stripped[5][5]).toBeNull()
+    expect(isObstacle(board[5][5])).toBe(true)
+  })
+})
+
+describe('clearObstacleAt', () => {
+  it('clears only the target obstacle cell', () => {
+    const board = createEmptyBoard()
+    placeObstacle(board, pos(5, 5), ObstacleTypes.ROCK)
+    placeObstacle(board, pos(6, 6), ObstacleTypes.TREE)
+
+    const cleared = clearObstacleAt(board, pos(5, 5))
+
+    expect(cleared[5][5]).toBeNull()
+    expect(isObstacle(cleared[6][6]) && cleared[6][6].type).toBe(ObstacleTypes.TREE)
   })
 })
 

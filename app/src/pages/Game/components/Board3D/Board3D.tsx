@@ -9,7 +9,7 @@ import { Obstacle3D } from "./Obstacle3D";
 import { useGameStore } from "../../../../store/gameStore";
 import { useUIStore } from "../../../../store/uiStore";
 import { useCanAccessDevMode } from "../../../../hooks";
-import { getValidMoves, getValidAttacks, getAllNarcNetPositions, getDisplayedMoveTargets, getDisplayedAttackTargets } from "../../utils";
+import { getValidMoves, getValidAttacks, getAllNarcNetPositions, getDisplayedMoveTargets, getDisplayedAttackTargets, stripObstaclesFromBoard } from "../../utils";
 import { Board3DLoadFallback } from "./Board3DLoadFallback";
 import { GltfLoadingProgressBridge } from "./GltfLoadingProgressBridge";
 import { useFigureTiers } from "../../context/FigureTierContext";
@@ -54,13 +54,17 @@ const GameScene = ({ isOnline = false, attackMode: attackModeProp, onlineBoard, 
   const currentHintMove = isOnline ? null : hintMove;
   const selectedCell = selectedPosition ? board[selectedPosition.row]?.[selectedPosition.col] : null;
   const selectedPiece = selectedCell && isPiece(selectedCell) ? selectedCell : null;
+  const movementBoard = useMemo(
+    () => (showObstacles ? board : stripObstaclesFromBoard(board)),
+    [board, showObstacles]
+  );
   const displayedValidMoves = useMemo(
     () => getDisplayedMoveTargets(board, validMoves, selectedPiece),
     [board, validMoves, selectedPiece]
   );
   const displayedValidAttacks = useMemo(
-    () => getDisplayedAttackTargets(board, validMoves, validAttacks, selectedPiece, selectedPosition, attackMode, boardSize),
-    [board, validMoves, validAttacks, selectedPiece, selectedPosition, attackMode, boardSize]
+    () => getDisplayedAttackTargets(movementBoard, validMoves, validAttacks, selectedPiece, selectedPosition, attackMode, boardSize),
+    [movementBoard, validMoves, validAttacks, selectedPiece, selectedPosition, attackMode, boardSize]
   );
 
   const narcNetPositions = useMemo(() => {
@@ -69,8 +73,8 @@ const GameScene = ({ isOnline = false, attackMode: attackModeProp, onlineBoard, 
   }, [board, boardSize]);
 
   const [helpPosition, setHelpPosition] = useState<{ row: number; col: number } | null>(null);
-  const helpMoves = helpPosition && helpEnabled && !isOnline ? getValidMoves(board, helpPosition, boardSize) : [];
-  const helpAttacks = helpPosition && helpEnabled && !isOnline ? getValidAttacks(board, helpPosition, boardSize) : [];
+  const helpMoves = helpPosition && helpEnabled && !isOnline ? getValidMoves(movementBoard, helpPosition, boardSize) : [];
+  const helpAttacks = helpPosition && helpEnabled && !isOnline ? getValidAttacks(movementBoard, helpPosition, boardSize) : [];
   const { rows, cols } = boardSize;
   const offsetX = (cols - 1) / 2;
   const offsetZ = (rows - 1) / 2;
@@ -89,8 +93,7 @@ const GameScene = ({ isOnline = false, attackMode: attackModeProp, onlineBoard, 
 
   const isDevModeTarget = (row: number, col: number) => {
     if (isOnline || !effectiveDevMode || !devModeSelected) return false;
-    const cell = board[row][col];
-    return cell === null;
+    return !(devModeSelected.row === row && devModeSelected.col === col);
   };
 
   const isValidMove = (row: number, col: number) => displayedValidMoves.some((m) => m.row === row && m.col === col);
