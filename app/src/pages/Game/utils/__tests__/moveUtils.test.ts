@@ -172,8 +172,8 @@ describe('makeMove', () => {
 
     expect(move.terminatedByNarc).toBeUndefined()
     expect(newBoard[6][3]).toBeNull()
-    expect(newBoard[6][5]?.type).toBe(PieceTypes.BOMBER)
-    expect(newBoard[6][5]?.color).toBe('white')
+    expect(isPiece(newBoard[6][5]) && newBoard[6][5].type).toBe(PieceTypes.BOMBER)
+    expect(isPiece(newBoard[6][5]) && newBoard[6][5].color).toBe('white')
   })
 
   it('logs capture and narc trap when move-capturing an enemy on a narc net tile', () => {

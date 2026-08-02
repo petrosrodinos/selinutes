@@ -155,7 +155,7 @@ describe('shuffleFiguresOnBoard', () => {
     )
     const afterIds = afterPieces.map((piece) => piece.id)
 
-    expect(afterIds.toSorted()).toEqual(beforeIds.toSorted())
+    expect([...afterIds].sort()).toEqual([...beforeIds].sort())
     expect(afterPieces).toHaveLength(5)
     expect(isObstacle(shuffled[5][5]) && shuffled[5][5].type).toBe(ObstacleTypes.ROCK)
     expect(afterPieces.every((piece) => !(piece.row === 5 && piece.col === 5))).toBe(true)
