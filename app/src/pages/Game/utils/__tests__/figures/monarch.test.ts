@@ -84,4 +84,15 @@ describe('Monarch', () => {
 
     expectExcludesPositions(attacks, [pos(6, 7), pos(6, 4)])
   })
+
+  it('can move-capture an adjacent enemy', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.MONARCH, color: 'white' })
+    placePiece(board, pos(6, 6), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+
+    expect(moves).toContainEqual(pos(6, 6))
+  })
 })

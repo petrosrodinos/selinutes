@@ -253,12 +253,14 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   [PieceTypes.MONARCH]: [
     'Moves in any direction, 1 step at a time.',
     'Shoots 1 step in any direction.',
+    'Can also move onto an adjacent enemy to capture it.',
     'Cannot pass through cave, river, lake, or canyon.'
   ],
   [PieceTypes.DUCHESS]: [
     'Moves in any direction, any number of steps.',
     'Shoots up to 9 steps in any direction; shoots through friendly figures and captures only the first enemy in each line.',
     'Range attacks pass over rock, cave, river, lake, canyon, and mystery box; trees block the shot.',
+    'Can also move onto an enemy in its path to capture it directly (any distance on a clear path).',
     'Can pass through river.',
     'Cannot pass through lake, canyon, cave, or tree.'
   ],

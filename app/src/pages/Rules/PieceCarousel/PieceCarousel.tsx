@@ -9,11 +9,15 @@ import { Piece3DShowcase } from "./Piece3DShowcase";
 
 type ViewMode = "2d" | "3d";
 
-const FIGURE_TIER_OPTIONS = FIGURE_TIER_ORDER.map((tierKey, index) => ({
-  tierKey,
-  number: index + 1,
-  label: FIGURE_LEVELS[FIGURE_LEVEL_TIER_ORDER[index]].label,
-}));
+const FIGURE_TIER_OPTIONS = FIGURE_TIER_ORDER.map((tierKey, index) => {
+  const levelKey = FIGURE_LEVEL_TIER_ORDER[index];
+  const number = index + 1;
+  return {
+    tierKey,
+    number,
+    label: levelKey ? FIGURE_LEVELS[levelKey].label : `Tier ${number}`,
+  };
+});
 
 export const PieceCarousel = () => {
   const [activeIndex, setActiveIndex] = useState(0);

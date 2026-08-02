@@ -471,7 +471,10 @@ const getAnyDirectionMoves = (board: Board, pos: Position, piece: Piece, boardSi
 
       if (cell) {
         if (isPiece(cell)) {
-          if (piece.isZombie && cell.color !== piece.color) {
+          if (
+            cell.color !== piece.color &&
+            (piece.isZombie || PIECE_RULES[piece.type].canChooseAttackMode)
+          ) {
             moves.push({ row, col })
           }
           break
@@ -1231,7 +1234,7 @@ export const resolveAttackModeAction = (
 
   if (
     canChooseAttackMode &&
-    selectedPiece.type === PieceTypes.RAM_TOWER &&
+    selectedPiece.type !== PieceTypes.CHARIOT &&
     attackMode === 'capture' &&
     isEnemyTarget &&
     !isEnemyMoveCaptureTarget &&
@@ -1247,9 +1250,7 @@ export const resolveAttackModeAction = (
     attackMode === 'capture' &&
     (selectedPiece.type === PieceTypes.CHARIOT
       ? isChariotCaptureTarget
-      : selectedPiece.type === PieceTypes.RAM_TOWER
-        ? isEnemyMoveCaptureTarget
-        : (isValidAttackTarget || isEnemyMoveCaptureTarget)))
+      : isEnemyMoveCaptureTarget))
 
   return { allowed: true, shouldUseRangedAttack, shouldUseMoveCapture }
 }

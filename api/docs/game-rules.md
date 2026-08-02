@@ -42,9 +42,10 @@ Understanding how captures work prevents most "why didn't my attack work?" ticke
 removes the targeted enemy from range. The attacker does **not** move onto the enemy's
 square. This applies to Hoplite, Ram-Tower, Chariot, Paladin, Warlock, Monarch, Duchess,
 and the Necromancer's melee kill.
-- **Move-capture (Ram-Tower, Paladin, and Zombies):** The **Ram-Tower** and **Paladin** —
-and any revived **Zombie** figure — capture by **moving onto** the enemy's square along
-their normal path (unlimited distance for Ram-Tower and Paladin when the path is clear).
+- **Move-capture (Ram-Tower, Paladin, Duchess, Monarch, Hoplite, Chariot, and Zombies):**
+Figures with attack-mode choice — and any revived **Zombie** figure — can capture by
+**moving onto** the enemy's square along a clear movement path (unlimited distance for
+Ram-Tower, Paladin, and Duchess when the path is clear; adjacent only for Monarch).
 - **Line of sight:** Ranged attacks shoot through **friendly figures** but can capture only
 the **first enemy** in each attack line. Further enemies behind that target are out of
 range. Which obstacles block the shot depends on the figure — see the range-attack matrix
@@ -251,7 +252,8 @@ it directly (any distance, not limited to the 3-tile ranged attack).
 ### 6.7 Monarch — 210 pts
 
 - **Move:** One tile in any direction.
-- **Attack:** Removes an adjacent enemy (1 tile, any direction).
+- **Attack:** Removes an adjacent enemy (1 tile, any direction) without moving, or
+**move-capture** by stepping onto an adjacent enemy.
 - **Terrain:** Cannot pass cave, river, lake, or canyon.
 - **Critical:** Losing the Monarch loses the game. Protect it.
 
@@ -261,6 +263,10 @@ it directly (any distance, not limited to the 3-tile ranged attack).
 - **Attack:** Ranged, up to **9 tiles** in any direction. Shoots through friendly figures;
 only the **first enemy** in each line can be captured. Range attacks pass over rock, cave,
 river, lake, and canyon; **trees block the shot** (see Section 3.4).
+- **Move-capture:** Can also **move onto an enemy in its path** to capture it directly.
+Requires a clear movement path — impassable terrain and friendly figures block move-capture
+the same way they block normal movement (unlike the ranged shot, which can pass friendlies
+and some obstacles).
 - **Terrain:** Can pass river. Cannot pass lake, canyon, cave, or tree.
 
 ### 6.9 Necromancer (Druid) — 13 pts

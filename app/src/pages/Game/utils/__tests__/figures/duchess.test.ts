@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { getValidMoves, getValidAttacks } from '../../moveUtils'
+import {
+  getValidMoves,
+  getValidAttacks,
+  getDisplayedAttackTargets,
+  getCaptureMoveTargets,
+  resolveAttackModeAction
+} from '../../moveUtils'
 import { PieceTypes, ObstacleTypes } from '../../../types'
 import type { PlayerColor } from '../../../types'
 import {
@@ -153,5 +159,92 @@ describe('Duchess', () => {
     const attacks = getValidAttacks(board, start, DEFAULT_SIZE)
 
     expect(attacks).not.toContainEqual(pos(6, 8))
+  })
+
+  it('can move-capture an enemy on a clear path', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.DUCHESS, color: 'white' })
+    placePiece(board, pos(6, 9), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+
+    expect(moves).toContainEqual(pos(6, 9))
+  })
+
+  it('does not move-capture when a friendly blocks the path', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.DUCHESS, color: 'white' })
+    placePiece(board, pos(6, 7), { type: PieceTypes.HOPLITE, color: 'white' })
+    placePiece(board, pos(6, 9), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+
+    expect(moves).not.toContainEqual(pos(6, 9))
+  })
+
+  it('does not move-capture through an impassable obstacle', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    placePiece(board, start, { type: PieceTypes.DUCHESS, color: 'white' })
+    placeObstacle(board, pos(6, 7), ObstacleTypes.LAKE)
+    placePiece(board, pos(6, 9), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const moves = getValidMoves(board, start, DEFAULT_SIZE)
+
+    expect(moves).not.toContainEqual(pos(6, 9))
+  })
+
+  it('highlights clear-path enemies for capture mode', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const duchess = { type: PieceTypes.DUCHESS, color: 'white' as const, id: 'duchess-1' }
+    placePiece(board, start, duchess)
+    placePiece(board, pos(6, 9), { type: PieceTypes.HOPLITE, color: 'black' })
+
+    const validMoves = getValidMoves(board, start, DEFAULT_SIZE)
+    const validAttacks = getValidAttacks(board, start, DEFAULT_SIZE)
+    const displayed = getDisplayedAttackTargets(
+      board,
+      validMoves,
+      validAttacks,
+      duchess,
+      start,
+      'capture',
+      DEFAULT_SIZE
+    )
+
+    expect(getCaptureMoveTargets(board, validMoves, duchess, start, DEFAULT_SIZE)).toContainEqual(pos(6, 9))
+    expect(displayed).toContainEqual(pos(6, 9))
+  })
+
+  it('allows move-capture in capture mode', () => {
+    const board = createEmptyBoard()
+    const start = pos(6, 5)
+    const target = pos(6, 9)
+    const duchess = { type: PieceTypes.DUCHESS, color: 'white' as const, id: 'duchess-1' }
+    placePiece(board, start, duchess)
+    const enemy = { type: PieceTypes.HOPLITE, color: 'black' as const, id: 'hoplite-enemy' }
+    placePiece(board, target, enemy)
+
+    const validMoves = getValidMoves(board, start, DEFAULT_SIZE)
+    const validAttacks = getValidAttacks(board, start, DEFAULT_SIZE)
+    const isValidMoveTarget = validMoves.some(move => move.row === target.row && move.col === target.col)
+    const isValidAttackTarget = validAttacks.some(attack => attack.row === target.row && attack.col === target.col)
+
+    const result = resolveAttackModeAction(
+      duchess,
+      enemy,
+      isValidMoveTarget,
+      isValidAttackTarget,
+      'capture'
+    )
+
+    expect(result).toEqual({
+      allowed: true,
+      shouldUseRangedAttack: false,
+      shouldUseMoveCapture: true
+    })
   })
 })
