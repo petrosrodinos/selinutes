@@ -45,7 +45,7 @@ export const PIECE_RULES: Record<string, PieceRules> = {
     move: [[2, 1], [1, 2], [2, 2], [3, 1], [1, 3]],
     attackRange: 3,
     chariotRangeKillGammaBox: 4,
-    chariotCaptureMaxGammaRange: 3,
+    chariotCaptureMaxGammaRange: 4,
     canPass: [ObstacleTypes.RIVER, ObstacleTypes.MYSTERY_BOX],
     rangeAttackCanPass: [
       ObstacleTypes.TREE,
@@ -226,7 +226,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
   [PieceTypes.CHARIOT]: [
     'Moves in corner patterns: 2-1, 1-2, 2-2, 3-1, 1-3 steps.',
     'Can jump over other figures on its path.',
-    'Attacks: gamma-shaped (L) ranged kill only at gamma range 4 (3+1 or 1+3); shoots over friendly figures; range attacks pass over tree, cave, river, lake, canyon, and mystery box but rock blocks the shot; enemy figures block the shot. Capture-and-move only up to gamma range 3 (2+1 or 1+2) on a clear path — not at gamma range 4. Capture-and-move victims cannot be revived until that Chariot is killed.',
+    'Attacks: gamma-shaped (L) ranged kill only at gamma range 4 (3+1 or 1+3); shoots over friendly figures; range attacks pass over tree, cave, river, lake, canyon, and mystery box but rock blocks the shot; enemy figures block the shot. Capture-and-move up to gamma range 4 (including 2+1, 1+2, 3+1, or 1+3) on a clear path. Capture-and-move victims cannot be revived until that Chariot is killed.',
     'Can pass through rivers and land beyond them.',
     'Can pass over enemy Bomber explosive nets without being destroyed.',
     'Cannot pass through lake, canyon, or cave.'

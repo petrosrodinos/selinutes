@@ -122,7 +122,7 @@ describe('Chariot', () => {
     expect(attacks).not.toContainEqual(target)
   })
 
-  it('does not allow capture-and-move at gamma range 4 (3+1)', () => {
+  it('allows capture-and-move at gamma range 4 (3+1)', () => {
     const board = createEmptyBoard()
     const start = pos(6, 5)
     const target = pos(9, 6)
@@ -130,10 +130,10 @@ describe('Chariot', () => {
     placePiece(board, start, chariot)
     placePiece(board, target, { type: PieceTypes.HOPLITE, color: 'black' })
 
-    expect(isChariotValidCaptureMoveTarget(board, start, target, chariot, DEFAULT_SIZE)).toBe(false)
+    expect(isChariotValidCaptureMoveTarget(board, start, target, chariot, DEFAULT_SIZE)).toBe(true)
   })
 
-  it('does not allow capture-and-move at gamma range 4 from f9 to e12 (3+1)', () => {
+  it('allows capture-and-move at gamma range 4 from f9 to e12 (3+1)', () => {
     const board = createEmptyBoard()
     const start = pos(8, 5)
     const target = pos(11, 4)
@@ -141,7 +141,7 @@ describe('Chariot', () => {
     placePiece(board, start, chariot)
     placePiece(board, target, { type: PieceTypes.WARLOCK, color: 'black' })
 
-    expect(isChariotValidCaptureMoveTarget(board, start, target, chariot, DEFAULT_SIZE)).toBe(false)
+    expect(isChariotValidCaptureMoveTarget(board, start, target, chariot, DEFAULT_SIZE)).toBe(true)
   })
 
   it('does not allow capture-and-move at gamma range 5 (4+1)', () => {
@@ -277,13 +277,13 @@ describe('Chariot', () => {
     expect(displayed).toContainEqual(clearTarget)
   })
 
-  it('excludes gamma range 4 capture targets in capture mode (f9 to e12)', () => {
+  it('includes gamma range 4 capture targets in capture mode (f9 to e12)', () => {
     const board = createEmptyBoard()
     const start = pos(8, 5)
     const chariot = { type: PieceTypes.CHARIOT, color: 'white' as const, id: 'c1', hasMoved: false }
-    const outOfRangeTarget = pos(11, 4)
+    const gammaFourTarget = pos(11, 4)
     placePiece(board, start, chariot)
-    placePiece(board, outOfRangeTarget, { type: PieceTypes.WARLOCK, color: 'black' })
+    placePiece(board, gammaFourTarget, { type: PieceTypes.WARLOCK, color: 'black' })
 
     const moves = getValidMoves(board, start, DEFAULT_SIZE)
     const attacks = getValidAttacks(board, start, DEFAULT_SIZE)
@@ -297,10 +297,10 @@ describe('Chariot', () => {
       DEFAULT_SIZE
     )
 
-    expect(displayed).not.toContainEqual(outOfRangeTarget)
+    expect(displayed).toContainEqual(gammaFourTarget)
   })
 
-  it('shows gamma range 4 targets in ranged mode but not in capture mode (f9 to e12)', () => {
+  it('shows gamma range 4 targets in both ranged and capture mode (f9 to e12)', () => {
     const board = createEmptyBoard()
     const start = pos(8, 5)
     const chariot = { type: PieceTypes.CHARIOT, color: 'white' as const, id: 'c1', hasMoved: false }
@@ -331,7 +331,7 @@ describe('Chariot', () => {
 
     expect(attacks).toContainEqual(gammaFourTarget)
     expect(rangedDisplayed).toContainEqual(gammaFourTarget)
-    expect(captureDisplayed).not.toContainEqual(gammaFourTarget)
+    expect(captureDisplayed).toContainEqual(gammaFourTarget)
   })
 
   it('excludes blocked and out-of-range capture-and-move targets in capture mode', () => {
@@ -339,7 +339,7 @@ describe('Chariot', () => {
     const start = pos(6, 5)
     const chariot = { type: PieceTypes.CHARIOT, color: 'white' as const, id: 'c1', hasMoved: false }
     const blockedTarget = pos(7, 7)
-    const outOfCaptureRangeTarget = pos(9, 6)
+    const outOfCaptureRangeTarget = pos(10, 6)
     placePiece(board, start, chariot)
     placePiece(board, blockedTarget, { type: PieceTypes.HOPLITE, color: 'black' })
     placePiece(board, outOfCaptureRangeTarget, { type: PieceTypes.HOPLITE, color: 'black' })

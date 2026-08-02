@@ -721,7 +721,7 @@ const getChariotRangeKillGammaBox = (piece: Piece): number =>
 const getChariotCaptureMaxGammaRange = (piece: Piece): number =>
   getAdjustedAttackRange(
     piece,
-    PIECE_RULES[PieceTypes.CHARIOT].chariotCaptureMaxGammaRange ?? 3
+    PIECE_RULES[PieceTypes.CHARIOT].chariotCaptureMaxGammaRange ?? 4
   )
 
 const getChariotGammaRange = (from: Position, to: Position): number | null => {

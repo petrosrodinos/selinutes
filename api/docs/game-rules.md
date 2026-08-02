@@ -210,11 +210,11 @@ empty tiles).
 - **Attack:** Gamma-shaped (L) ranged kill **only at gamma range 4** (3+1 or 1+3 — not at
 shorter distances). It **shoots over friendly figures**; range attacks pass over tree, cave,
 river, lake, and canyon but **rock blocks the shot**; only **enemy figures** block the shot
-(see Section 3.4). In capture-and-move mode, only enemies on a **clear** gamma path up to
-**gamma range 3** (2+1 or 1+2) can be captured by moving onto them — not at gamma range 4
-(3+1 or 1+3). Victims taken by capture-and-move **cannot be revived** (Necromancer Zombie
-revival or Mystery Box Hoplite Sacrifice & Revive) until **that specific Chariot** is removed
-from the board. Gamma range-4 ranged kills do not bind souls.
+(see Section 3.4). In capture-and-move mode, enemies on a **clear** gamma path up to
+**gamma range 4** (2+1, 1+2, 3+1, or 1+3) can be captured by moving onto them. Victims
+taken by capture-and-move **cannot be revived** (Necromancer Zombie revival or Mystery Box
+Hoplite Sacrifice & Revive) until **that specific Chariot** is removed from the board.
+Gamma range-4 ranged kills do not bind souls.
 - **Terrain:** Can pass/land on river. Cannot land on lake, canyon, or cave. Can pass over
 enemy Bomber explosive nets without being destroyed.
 
