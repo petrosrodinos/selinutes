@@ -52,7 +52,11 @@ import {
     getNightModeFromBoard,
     areRevivalGuardsInPlace,
     reviveZombiePiece,
-    ZOMBIE_REVIVE_ALIGNMENT_HINT
+    ZOMBIE_REVIVE_ALIGNMENT_HINT,
+    getDevModeContentsInRect,
+    isPositionSelected,
+    moveDevModeSelection,
+    getSelectionBounds
 } from '../pages/Game/utils'
 
 interface HistoryEntry {
@@ -84,7 +88,7 @@ interface GameStore {
     botThinking: boolean
     botDifficulty: BotDifficulty
     hintMove: HintMove | null
-    devModeSelected: Position | null
+    devModeSelected: Position[]
     mysteryBoxState: MysteryBoxState
     selectedPosition: Position | null
     validMoves: Position[]
@@ -106,6 +110,8 @@ interface GameStore {
 
     selectSquare: (pos: Position, isOnline?: boolean) => MysteryBoxTriggerResult | NecromancerFreezeResult | boolean
     devModeSelectSquare: (pos: Position) => void
+    devModeMarqueeSelect: (from: Position, to: Position) => void
+    devModeMarqueePlace: (from: Position, to: Position) => void
     resetGame: (newBoardSizeKey?: BoardSizeKey) => void
     shuffleFigures: () => void
     startGameTimer: () => void
@@ -182,7 +188,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     botThinking: false,
     botDifficulty: BotDifficulties.MEDIUM,
     hintMove: null,
-    devModeSelected: null,
+    devModeSelected: [],
     mysteryBoxState: getInitialMysteryBoxState(),
     selectedPosition: null,
     validMoves: [],
@@ -934,27 +940,58 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const { gameState, devModeSelected } = get()
         const cell = gameState.board[pos.row][pos.col]
 
-        if (devModeSelected) {
-            if (devModeSelected.row === pos.row && devModeSelected.col === pos.col) {
-                set({ devModeSelected: null })
+        if (devModeSelected.length > 0) {
+            if (isPositionSelected(devModeSelected, pos)) {
+                set({ devModeSelected: [] })
                 return
             }
 
-            const selectedCell = gameState.board[devModeSelected.row][devModeSelected.col]
-            if (!selectedCell || (!isPiece(selectedCell) && !isObstacle(selectedCell))) {
-                set({ devModeSelected: null })
+            if (devModeSelected.length === 1) {
+                const selectedPos = devModeSelected[0]
+                const selectedCell = gameState.board[selectedPos.row][selectedPos.col]
+                if (!selectedCell || (!isPiece(selectedCell) && !isObstacle(selectedCell))) {
+                    set({ devModeSelected: [] })
+                    return
+                }
+
+                const newBoard = gameState.board.map(row => [...row])
+
+                if (isPiece(selectedCell) && cell && isPiece(cell)) {
+                    newBoard[pos.row][pos.col] = selectedCell
+                    newBoard[selectedPos.row][selectedPos.col] = cell
+                } else {
+                    newBoard[pos.row][pos.col] = selectedCell
+                    newBoard[selectedPos.row][selectedPos.col] = null as CellContent
+                }
+
+                set({
+                    gameState: {
+                        ...gameState,
+                        board: newBoard,
+                        selectedPosition: null,
+                        validMoves: [],
+                        validAttacks: [],
+                        validSwaps: [],
+                        nightMode: getNightModeFromBoard(newBoard)
+                    },
+                    selectedPosition: null,
+                    validMoves: [],
+                    validAttacks: [],
+                    validSwaps: [],
+                    hintMove: null,
+                    devModeSelected: []
+                })
                 return
             }
 
-            const newBoard = gameState.board.map(row => [...row])
-
-            if (isPiece(selectedCell) && cell && isPiece(cell)) {
-                newBoard[pos.row][pos.col] = selectedCell
-                newBoard[devModeSelected.row][devModeSelected.col] = cell
-            } else {
-                newBoard[pos.row][pos.col] = selectedCell
-                newBoard[devModeSelected.row][devModeSelected.col] = null as CellContent
+            const bounds = getSelectionBounds(devModeSelected)
+            if (!bounds) {
+                set({ devModeSelected: [] })
+                return
             }
+
+            const newBoard = moveDevModeSelection(gameState.board, devModeSelected, pos, gameState.boardSize)
+            if (!newBoard) return
 
             set({
                 gameState: {
@@ -971,14 +1008,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 validAttacks: [],
                 validSwaps: [],
                 hintMove: null,
-                devModeSelected: null
+                devModeSelected: []
             })
             return
         }
 
         if (cell !== null && (isPiece(cell) || isObstacle(cell))) {
             set({
-                devModeSelected: pos,
+                devModeSelected: [pos],
                 gameState: {
                     ...gameState,
                     selectedPosition: null,
@@ -993,6 +1030,57 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 hintMove: null
             })
         }
+    },
+
+    devModeMarqueeSelect: (from: Position, to: Position) => {
+        const { gameState } = get()
+        const contents = getDevModeContentsInRect(gameState.board, from, to)
+
+        set({
+            devModeSelected: contents,
+            gameState: {
+                ...gameState,
+                selectedPosition: null,
+                validMoves: [],
+                validAttacks: [],
+                validSwaps: []
+            },
+            selectedPosition: null,
+            validMoves: [],
+            validAttacks: [],
+            validSwaps: [],
+            hintMove: null
+        })
+    },
+
+    devModeMarqueePlace: (from: Position, to: Position) => {
+        const { gameState, devModeSelected } = get()
+        if (devModeSelected.length === 0) return
+
+        const destBounds = getSelectionBounds([from, to])
+        if (!destBounds) return
+
+        const destAnchor = { row: destBounds.minRow, col: destBounds.minCol }
+        const newBoard = moveDevModeSelection(gameState.board, devModeSelected, destAnchor, gameState.boardSize)
+        if (!newBoard) return
+
+        set({
+            gameState: {
+                ...gameState,
+                board: newBoard,
+                selectedPosition: null,
+                validMoves: [],
+                validAttacks: [],
+                validSwaps: [],
+                nightMode: getNightModeFromBoard(newBoard)
+            },
+            selectedPosition: null,
+            validMoves: [],
+            validAttacks: [],
+            validSwaps: [],
+            hintMove: null,
+            devModeSelected: []
+        })
     },
 
     resetGame: (newBoardSizeKey?: BoardSizeKey) => {
@@ -1022,6 +1110,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             history: [],
             botThinking: false,
             hintMove: null,
+            devModeSelected: [],
             mysteryBoxState: getInitialMysteryBoxState(),
             attackMode: 'ranged',
             necromancerActionMode: 'move'
@@ -1042,7 +1131,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 validSwaps: []
             },
             hintMove: null,
-            devModeSelected: null,
+            devModeSelected: [],
             attackMode: 'ranged',
             necromancerActionMode: 'move'
         })

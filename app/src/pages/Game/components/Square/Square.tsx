@@ -53,6 +53,9 @@ export const Square = ({
       if (isMysteryBoxSelectedObstacle) {
         return `${baseClasses} bg-stone-600 ring-4 ring-orange-500 ring-inset animate-pulse`
       }
+      if (isSelected) {
+        return `${baseClasses} bg-stone-600 ring-4 ring-yellow-500 ring-inset`
+      }
       return `${baseClasses} bg-stone-600 cursor-default`
     }
     

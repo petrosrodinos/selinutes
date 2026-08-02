@@ -5,14 +5,14 @@ import { Square } from '../Square'
 import { AnimatedPiece } from '../Piece/AnimatedPiece'
 import { ProjectileLayer } from '../Projectile'
 import { useProjectileAnimation } from '../../hooks/useProjectileAnimation'
+import { useDevModeMarquee } from '../../hooks/useDevModeMarquee'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
 import { useCanAccessDevMode } from '../../../../hooks'
-import { getValidMoves, getValidAttacks, getAllNarcNetPositions, getDisplayedMoveTargets, getDisplayedAttackTargets, stripObstaclesFromBoard } from '../../utils'
+import { getValidMoves, getValidAttacks, getAllNarcNetPositions, getDisplayedMoveTargets, getDisplayedAttackTargets, stripObstaclesFromBoard, isPositionSelected } from '../../utils'
 import { isPiece } from '../../types'
 import type { Board as BoardType, BoardSize, Position, Move, SwapTarget, MysteryBoxState } from '../../types'
 
-/** Rank/file label width/height for a given square size (must stay in sync with layout). */
 const boardLabelInsetPx = (squareSize: number) => Math.max(16, Math.round(squareSize * 0.45))
 
 interface BoardProps {
@@ -44,12 +44,21 @@ export const Board = ({
     onSquareClick,
     onMysteryBoxClick
 }: BoardProps) => {
-    const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection } = useGameStore()
+    const {
+        gameState,
+        hintMove,
+        devModeSelectSquare,
+        devModeMarqueeSelect,
+        devModeMarqueePlace,
+        devModeSelected,
+        mysteryBoxState: offlineMysteryBoxState,
+        handleMysteryBoxSelection
+    } = useGameStore()
     const attackModeFromStore = useGameStore(state => state.attackMode)
     const attackMode = attackModeProp ?? attackModeFromStore
     const { helpEnabled, devMode, showObstacles } = useUIStore()
     const canAccessDevMode = useCanAccessDevMode()
-    const effectiveDevMode = devMode && canAccessDevMode
+    const effectiveDevMode = !isOnline && devMode && canAccessDevMode
     
     const mysteryBoxState = isOnline && onlineMysteryBoxState ? onlineMysteryBoxState : offlineMysteryBoxState
 
@@ -106,12 +115,11 @@ export const Board = ({
 
     const squareSize = useMemo(() => {
         const isXs = viewportWidth < 390
-        // Game page horizontal padding (e.g. p-2) plus a little buffer for safe area / scrollbar
         const pageHorizontalPadding = viewportWidth < 640 ? 20 : 40
         const safeBuffer = isXs ? 6 : 0
         const innerWidth = Math.max(0, viewportWidth - pageHorizontalPadding - safeBuffer)
         const cols = boardSize.cols
-        const borderReserve = 4 // matches border-2 on the grid wrapper
+        const borderReserve = 4
         const maxSq = 48
 
         for (let sq = maxSq; sq >= 12; sq--) {
@@ -128,16 +136,60 @@ export const Board = ({
     const rankLabelWidth = boardLabelInsetPx(squareSize)
     const fileLabelHeight = boardLabelInsetPx(squareSize)
 
+    const handleSquareClick = (row: number, col: number) => {
+        if (onSquareClick) {
+            if (!isOnline && offlineMysteryBoxState.isActive) {
+                onMysteryBoxClick?.()
+                handleMysteryBoxSelection({ row, col }, false)
+                return
+            }
+            
+            if (effectiveDevMode) {
+                devModeSelectSquare({ row, col })
+                return
+            }
+            
+            if (!isOnline && helpEnabled) {
+                const cell = board[row][col]
+                if (cell && isPiece(cell)) {
+                    setHelpPosition({ row, col })
+                } else {
+                    setHelpPosition(null)
+                }
+            }
+            
+            onSquareClick({ row, col })
+            return
+        }
+    }
+
+    const {
+        boardRef,
+        marqueeStyle,
+        onPointerDown,
+        onPointerMove,
+        onPointerUp,
+        onPointerCancel
+    } = useDevModeMarquee({
+        enabled: effectiveDevMode && !offlineMysteryBoxState.isActive,
+        squareSize,
+        boardSize,
+        hasSelection: devModeSelected.length > 0,
+        onSelect: devModeMarqueeSelect,
+        onPlace: devModeMarqueePlace,
+        onClickSquare: (pos) => handleSquareClick(pos.row, pos.col)
+    })
+
     const isSelected = (row: number, col: number) => {
-        if (!isOnline && effectiveDevMode && devModeSelected) {
-            return devModeSelected.row === row && devModeSelected.col === col
+        if (effectiveDevMode && devModeSelected.length > 0) {
+            return isPositionSelected(devModeSelected, { row, col })
         }
         return selectedPosition?.row === row && selectedPosition?.col === col
     }
 
     const isDevModeTarget = (row: number, col: number) => {
-        if (isOnline || !effectiveDevMode || !devModeSelected) return false
-        return !(devModeSelected.row === row && devModeSelected.col === col)
+        if (!effectiveDevMode || devModeSelected.length === 0) return false
+        return !isPositionSelected(devModeSelected, { row, col })
     }
 
     const isValidMove = (row: number, col: number) =>
@@ -197,33 +249,6 @@ export const Board = ({
         return mysteryBoxState.firstFigurePosition.row === row && mysteryBoxState.firstFigurePosition.col === col
     }
 
-    const handleSquareClick = (row: number, col: number) => {
-        if (onSquareClick) {
-            if (!isOnline && offlineMysteryBoxState.isActive) {
-                onMysteryBoxClick?.()
-                handleMysteryBoxSelection({ row, col }, false)
-                return
-            }
-            
-            if (!isOnline && effectiveDevMode) {
-                devModeSelectSquare({ row, col })
-                return
-            }
-            
-            if (!isOnline && helpEnabled) {
-                const cell = board[row][col]
-                if (cell && isPiece(cell)) {
-                    setHelpPosition({ row, col })
-                } else {
-                    setHelpPosition(null)
-                }
-            }
-            
-            onSquareClick({ row, col })
-            return
-        }
-    }
-
     if (!board || board.length === 0) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -260,29 +285,36 @@ export const Board = ({
                     ))}
                 </div>
 
-                <div className="border-2 border-stone-800 rounded shadow-2xl relative">
+                <div
+                    ref={boardRef}
+                    className="border-2 border-stone-800 rounded shadow-2xl relative touch-none"
+                    onPointerDown={effectiveDevMode ? onPointerDown : undefined}
+                    onPointerMove={effectiveDevMode ? onPointerMove : undefined}
+                    onPointerUp={effectiveDevMode ? onPointerUp : undefined}
+                    onPointerCancel={effectiveDevMode ? onPointerCancel : undefined}
+                >
                     {board.map((row, rowIndex) => (
                         <div key={rowIndex} className="flex">
                             {row.map((cell, colIndex) => (
-<Square
-                                                    key={`${rowIndex}-${colIndex}`}
-                                                    cell={cell}
-                                                    squareSize={squareSize}
-                                                    position={{ row: rowIndex, col: colIndex }}
-                                                    isSelected={isSelected(rowIndex, colIndex) || (!isOnline && helpEnabled && helpPosition?.row === rowIndex && helpPosition?.col === colIndex)}
-                                                    isValidMove={isValidMove(rowIndex, colIndex) || isHelpMove(rowIndex, colIndex) || isDevModeTarget(rowIndex, colIndex)}
-                                                    isValidAttack={isValidAttack(rowIndex, colIndex) || isHelpAttack(rowIndex, colIndex)}
-                                                    isValidSwap={isValidSwap(rowIndex, colIndex)}
-                                                    isPreviousMoveFrom={isPreviousMoveFromSquare(rowIndex, colIndex)}
-                                                    isLastKillSquare={isLastKillSquare(rowIndex, colIndex)}
-                                                    isHint={isHint(rowIndex, colIndex)}
-                                                    isHintAttack={isHintAttack(rowIndex, colIndex)}
-                                                    hasNarc={getNarcOwner(rowIndex, colIndex)}
-                                                    isMysteryBoxSelectedObstacle={isMysteryBoxSelectedObstacle(rowIndex, colIndex)}
-                                                    isMysteryBoxSelectedEmptyTile={isMysteryBoxSelectedEmptyTile(rowIndex, colIndex)}
-                                                    isMysteryBoxSelectedFigure={isMysteryBoxSelectedFigure(rowIndex, colIndex)}
-                                                    onClick={() => handleSquareClick(rowIndex, colIndex)}
-                                                />
+                                <Square
+                                    key={`${rowIndex}-${colIndex}`}
+                                    cell={cell}
+                                    squareSize={squareSize}
+                                    position={{ row: rowIndex, col: colIndex }}
+                                    isSelected={isSelected(rowIndex, colIndex) || (!isOnline && helpEnabled && helpPosition?.row === rowIndex && helpPosition?.col === colIndex)}
+                                    isValidMove={isValidMove(rowIndex, colIndex) || isHelpMove(rowIndex, colIndex) || isDevModeTarget(rowIndex, colIndex)}
+                                    isValidAttack={isValidAttack(rowIndex, colIndex) || isHelpAttack(rowIndex, colIndex)}
+                                    isValidSwap={isValidSwap(rowIndex, colIndex)}
+                                    isPreviousMoveFrom={isPreviousMoveFromSquare(rowIndex, colIndex)}
+                                    isLastKillSquare={isLastKillSquare(rowIndex, colIndex)}
+                                    isHint={isHint(rowIndex, colIndex)}
+                                    isHintAttack={isHintAttack(rowIndex, colIndex)}
+                                    hasNarc={getNarcOwner(rowIndex, colIndex)}
+                                    isMysteryBoxSelectedObstacle={isMysteryBoxSelectedObstacle(rowIndex, colIndex)}
+                                    isMysteryBoxSelectedEmptyTile={isMysteryBoxSelectedEmptyTile(rowIndex, colIndex)}
+                                    isMysteryBoxSelectedFigure={isMysteryBoxSelectedFigure(rowIndex, colIndex)}
+                                    onClick={effectiveDevMode ? () => undefined : () => handleSquareClick(rowIndex, colIndex)}
+                                />
                             ))}
                         </div>
                     ))}
@@ -296,7 +328,7 @@ export const Board = ({
                                             piece={c}
                                             position={{ row: rowIndex, col: colIndex }}
                                             squareSize={squareSize}
-                                            onClick={() => handleSquareClick(rowIndex, colIndex)}
+                                            onClick={effectiveDevMode ? () => undefined : () => handleSquareClick(rowIndex, colIndex)}
                                         />
                                     )
                                 }
@@ -309,6 +341,17 @@ export const Board = ({
                         squareSize={squareSize}
                         onProjectileComplete={removeProjectile}
                     />
+                    {marqueeStyle ? (
+                        <div
+                            className="pointer-events-none absolute z-20 border-2 border-orange-400 bg-orange-400/20"
+                            style={{
+                                left: marqueeStyle.left,
+                                top: marqueeStyle.top,
+                                width: marqueeStyle.width,
+                                height: marqueeStyle.height
+                            }}
+                        />
+                    ) : null}
                 </div>
 
                 <div className="flex flex-col">

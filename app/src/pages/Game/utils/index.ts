@@ -13,6 +13,15 @@ export {
   attackPiece
 } from './boardUtils'
 export {
+  normalizeRect,
+  getSelectionBounds,
+  getDevModeContentsInRect,
+  isSamePosition,
+  isPositionSelected,
+  moveDevModeSelection,
+  clientPointToBoardPosition
+} from './devModeBoardUtils'
+export {
   getPieceMoves,
   getValidMoves,
   getValidAttacks,

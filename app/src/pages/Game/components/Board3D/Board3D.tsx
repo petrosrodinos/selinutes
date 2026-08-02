@@ -9,7 +9,7 @@ import { Obstacle3D } from "./Obstacle3D";
 import { useGameStore } from "../../../../store/gameStore";
 import { useUIStore } from "../../../../store/uiStore";
 import { useCanAccessDevMode } from "../../../../hooks";
-import { getValidMoves, getValidAttacks, getAllNarcNetPositions, getDisplayedMoveTargets, getDisplayedAttackTargets, stripObstaclesFromBoard } from "../../utils";
+import { getValidMoves, getValidAttacks, getAllNarcNetPositions, getDisplayedMoveTargets, getDisplayedAttackTargets, stripObstaclesFromBoard, isPositionSelected } from "../../utils";
 import { Board3DLoadFallback } from "./Board3DLoadFallback";
 import { GltfLoadingProgressBridge } from "./GltfLoadingProgressBridge";
 import { useFigureTiers } from "../../context/FigureTierContext";
@@ -85,15 +85,15 @@ const GameScene = ({ isOnline = false, attackMode: attackModeProp, onlineBoard, 
   }, [rows, cols]);
 
   const isSelected = (row: number, col: number) => {
-    if (!isOnline && effectiveDevMode && devModeSelected) {
-      return devModeSelected.row === row && devModeSelected.col === col;
+    if (!isOnline && effectiveDevMode && devModeSelected.length > 0) {
+      return isPositionSelected(devModeSelected, { row, col });
     }
     return selectedPosition?.row === row && selectedPosition?.col === col;
   };
 
   const isDevModeTarget = (row: number, col: number) => {
-    if (isOnline || !effectiveDevMode || !devModeSelected) return false;
-    return !(devModeSelected.row === row && devModeSelected.col === col);
+    if (isOnline || !effectiveDevMode || devModeSelected.length === 0) return false;
+    return !isPositionSelected(devModeSelected, { row, col });
   };
 
   const isValidMove = (row: number, col: number) => displayedValidMoves.some((m) => m.row === row && m.col === col);
