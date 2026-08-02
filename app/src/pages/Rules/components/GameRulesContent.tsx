@@ -514,7 +514,7 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
             <li className="flex gap-2">
               <span className="text-amber-500/80 mt-0.5">•</span>
               <span>
-                <strong className="text-stone-300">Explosions:</strong> Bomber triggers affect same-type figures in a 2-step range.
+                <strong className="text-stone-300">Explosions:</strong> A Bomber&apos;s explosive net destroys any enemy that steps onto or passes through a net tile, except Chariot, Bomber, and Necromancer (Druid), who may pass over it.
               </span>
             </li>
             <li className="flex gap-2">

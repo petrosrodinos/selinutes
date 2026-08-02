@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getValidMoves, getValidAttacks } from '../../moveUtils'
+import { getValidMoves, getValidAttacks, makeMove } from '../../moveUtils'
 import { createNarcsForBomber, checkNarcNetTrigger } from '../../narcUtils'
 import { PieceTypes, ObstacleTypes } from '../../../types'
 import type { PlayerColor } from '../../../types'
@@ -146,5 +146,24 @@ describe('Bomber', () => {
 
     expect(checkNarcNetTrigger(board, DEFAULT_SIZE, netCell, 'black')).toBeDefined()
     expect(checkNarcNetTrigger(board, DEFAULT_SIZE, netCell, 'white')).toBeUndefined()
+  })
+
+  it('destroys enemies that pass through its net path, but not chariot bomber or necromancer', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(4, 5), { type: PieceTypes.BOMBER, color: 'black', hasMoved: true })
+
+    const ramFrom = pos(7, 5)
+    placePiece(board, ramFrom, { type: PieceTypes.RAM_TOWER, color: 'white' })
+    const ramResult = makeMove(board, ramFrom, pos(1, 5), DEFAULT_SIZE)
+    expect(ramResult.move.terminatedByNarc).toBe(true)
+    expect(ramResult.move.to).toEqual(pos(6, 5))
+
+    const chariotBoard = createEmptyBoard()
+    placePiece(chariotBoard, pos(4, 5), { type: PieceTypes.BOMBER, color: 'black', hasMoved: true })
+    const chariotFrom = pos(5, 3)
+    placePiece(chariotBoard, chariotFrom, { type: PieceTypes.CHARIOT, color: 'white', hasMoved: true })
+    const chariotResult = makeMove(chariotBoard, chariotFrom, pos(4, 3), DEFAULT_SIZE)
+    expect(chariotResult.move.terminatedByNarc).toBeUndefined()
+    expect(chariotResult.newBoard[4][3]?.type).toBe(PieceTypes.CHARIOT)
   })
 })

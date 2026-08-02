@@ -66,6 +66,7 @@ export interface PieceRules {
   rangeAttackCanPass?: ObstacleType[]
   freezeCanPass?: ObstacleType[]
   canJumpPieces?: boolean
+  canPassNarcNet?: boolean
   canChooseAttackMode: boolean
   maxRiverWidth?: number
   points: number

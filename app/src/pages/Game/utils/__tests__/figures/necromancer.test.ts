@@ -4,7 +4,8 @@ import {
   getValidAttacks,
   getNecromancerKillTargets,
   getNecromancerFreezeTargets,
-  applyNecromancerFreeze
+  applyNecromancerFreeze,
+  makeMove
 } from '../../moveUtils'
 import { PieceTypes, ObstacleTypes, isPiece } from '../../../types'
 import type { PlayerColor } from '../../../types'
@@ -209,5 +210,17 @@ describe('Necromancer', () => {
 
     expect(getNecromancerKillTargets(board, start, DEFAULT_SIZE)).toContainEqual({ row: 8, col: 5 })
     expect(getNecromancerFreezeTargets(board, start, DEFAULT_SIZE)).toHaveLength(0)
+  })
+
+  it('can pass over an enemy bomber narc net without being destroyed', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(4, 5), { type: PieceTypes.BOMBER, color: 'black', hasMoved: true })
+    const from = pos(5, 3)
+    placePiece(board, from, { type: PieceTypes.NECROMANCER, color: 'white' })
+
+    const { newBoard, move } = makeMove(board, from, pos(4, 3), DEFAULT_SIZE)
+
+    expect(move.terminatedByNarc).toBeUndefined()
+    expect(newBoard[4][3]?.type).toBe(PieceTypes.NECROMANCER)
   })
 })

@@ -56,6 +56,7 @@ export const PIECE_RULES: Record<string, PieceRules> = {
       ObstacleTypes.MYSTERY_BOX
     ],
     canJumpPieces: true,
+    canPassNarcNet: true,
     canChooseAttackMode: true,
     points: 16,
     zombiePoints: 13
@@ -65,6 +66,7 @@ export const PIECE_RULES: Record<string, PieceRules> = {
     attackRange: 0,
     canPass: [ObstacleTypes.CAVE, ObstacleTypes.RIVER, ObstacleTypes.MYSTERY_BOX],
     canJumpPieces: true,
+    canPassNarcNet: true,
     canChooseAttackMode: false,
     points: 12,
     zombiePoints: 9
@@ -128,6 +130,7 @@ export const PIECE_RULES: Record<string, PieceRules> = {
       ObstacleTypes.CANYON,
       ObstacleTypes.MYSTERY_BOX
     ],
+    canPassNarcNet: true,
     canChooseAttackMode: false,
     points: 13
   }
@@ -225,14 +228,16 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
     'Can jump over other figures on its path.',
     'Attacks: gamma-shaped (L) ranged kill only at gamma range 4 (3+1 or 1+3); shoots over friendly figures; range attacks pass over tree, cave, river, lake, canyon, and mystery box but rock blocks the shot; enemy figures block the shot. Capture-and-move only up to gamma range 3 (2+1 or 1+2) on a clear path — not at gamma range 4. Capture-and-move victims cannot be revived until that Chariot is killed.',
     'Can pass through rivers and land beyond them.',
+    'Can pass over enemy Bomber explosive nets without being destroyed.',
     'Cannot pass through lake, canyon, or cave.'
   ],
   [PieceTypes.BOMBER]: [
     'Moves 1 or 2 steps in cross or X patterns.',
     'Can jump over other figures on its path.',
     'Cannot attack or shoot directly.',
-    'After it moves, it lays a hidden net of explosives on nearby tiles (diagonals 1–2 away and orthogonals 2 away). Any enemy figure that steps onto a net tile is destroyed.',
+    'After it moves, it lays a hidden net of explosives on nearby tiles (diagonals 1–2 away and orthogonals 2 away). Any enemy figure that steps onto or passes through a net tile is destroyed, except Chariot, Bomber, and Necromancer (Druid), who may pass over the net.',
     'Can pass through river and cave.',
+    'Can pass over enemy Bomber explosive nets without being destroyed.',
     'Cannot pass through lake, canyon, tree, or rock.'
   ],
   [PieceTypes.PALADIN]: [
@@ -270,6 +275,7 @@ export const FIGURE_RULES_BULLETS: Record<PieceType, readonly string[]> = {
     'Freeze-stun: stuns an enemy in a straight line up to 8 steps away; rock blocks it, but tree, cave, river, lake, canyon, and mystery box do not. Stunned figures cannot move or capture-and-move, but can still use their normal ranged attacks. Freeze duration is always half the Necromancer\'s maximum freeze range (4 turns at full power). Each revival permanently reduces maximum freeze range by 2, which also lowers freeze duration (e.g. after one revival: range 6, duration 3 turns). After 4 revivals the Necromancer can no longer freeze.',
     'Can revive Ram, Chariot, Bomber, or Paladin when the Necromancer, Monarch, Duchess, and Warlock are on the same horizontal line. Chariot capture-and-move victims stay unrevivable until that Chariot is killed.',
     'Revived figures attack at range 1 only; a revived Bomber can still attack as a Zombie.',
+    'Can pass over enemy Bomber explosive nets without being destroyed.',
     'Cannot pass through cave, river, lake, or canyon.'
   ]
 } as const

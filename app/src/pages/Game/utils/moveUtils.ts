@@ -47,6 +47,29 @@ const canTeleportThroughCave = (pieceType: PieceType): boolean => {
   return pieceType === PieceTypes.BOMBER || pieceType === PieceTypes.HOPLITE
 }
 
+const canPassNarcNet = (pieceType: PieceType): boolean => {
+  return PIECE_RULES[pieceType].canPassNarcNet === true
+}
+
+const getStraightPathIntermediates = (from: Position, to: Position): Position[] => {
+  const dRow = to.row - from.row
+  const dCol = to.col - from.col
+  const isStraight =
+    dRow === 0 || dCol === 0 || Math.abs(dRow) === Math.abs(dCol)
+  if (!isStraight) return []
+
+  const rowDir = dRow === 0 ? 0 : dRow > 0 ? 1 : -1
+  const colDir = dCol === 0 ? 0 : dCol > 0 ? 1 : -1
+  const steps = Math.max(Math.abs(dRow), Math.abs(dCol))
+  const cells: Position[] = []
+
+  for (let i = 1; i < steps; i++) {
+    cells.push({ row: from.row + rowDir * i, col: from.col + colDir * i })
+  }
+
+  return cells
+}
+
 const getAdjacentEmptyPositions = (board: Board, pos: Position, boardSize: BoardSize): Position[] => {
   const directions = [
     [-1, 0], [1, 0], [0, -1], [0, 1],
@@ -1371,13 +1394,35 @@ export const makeMove = (
   }
 
   let newNarcs = [...narcs]
+  const pieceCanPassNarcNet = canPassNarcNet(piece.type)
 
   const isNarcTriggeredAt = (position: Position): boolean => {
     if (isAttack) return false
+    if (pieceCanPassNarcNet) return false
     return Boolean(
       checkNarcTrigger(newNarcs, position, piece.color) ||
       checkNarcNetTrigger(board, boardSize, position, piece.color)
     )
+  }
+
+  if (!isAttack && !pieceCanPassNarcNet) {
+    const pathEnd = isCaveDestination ? to : finalPosition
+    for (const cell of getStraightPathIntermediates(from, pathEnd)) {
+      if (!isNarcTriggeredAt(cell)) continue
+
+      newBoard[from.row][from.col] = sourceObstacle ? { type: sourceObstacle } : null
+
+      const narcMove: Move = {
+        from,
+        to: cell,
+        piece: { ...piece },
+        captured: { ...piece },
+        isAttack: false,
+        terminatedByNarc: true
+      }
+
+      return { newBoard, moves: [narcMove], move: narcMove, newNarcs }
+    }
   }
 
   if (isNarcTriggeredAt(finalPosition) && !captured) {

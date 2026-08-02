@@ -4,7 +4,8 @@ import {
   getValidAttacks,
   isChariotValidCaptureMoveTarget,
   getDisplayedAttackTargets,
-  resolveAttackModeAction
+  resolveAttackModeAction,
+  makeMove
 } from '../../moveUtils'
 import { PieceTypes, ObstacleTypes } from '../../../types'
 import type { PlayerColor } from '../../../types'
@@ -391,5 +392,17 @@ describe('Chariot', () => {
 
     expect(result.shouldUseMoveCapture).toBe(false)
     expect(result.shouldUseRangedAttack).toBe(true)
+  })
+
+  it('can pass over an enemy bomber narc net without being destroyed', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(4, 5), { type: PieceTypes.BOMBER, color: 'black', hasMoved: true })
+    const from = pos(5, 3)
+    placePiece(board, from, { type: PieceTypes.CHARIOT, color: 'white', hasMoved: true })
+
+    const { newBoard, move } = makeMove(board, from, pos(4, 3), DEFAULT_SIZE)
+
+    expect(move.terminatedByNarc).toBeUndefined()
+    expect(newBoard[4][3]?.type).toBe(PieceTypes.CHARIOT)
   })
 })

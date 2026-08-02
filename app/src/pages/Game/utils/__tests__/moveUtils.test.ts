@@ -130,6 +130,52 @@ describe('makeMove', () => {
     expect(newBoard[4][3]).toBeNull()
   })
 
+  it('destroys a piece that passes through an enemy narc net without landing on it', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(4, 5), { type: PieceTypes.BOMBER, color: 'black', hasMoved: true })
+    const from = pos(7, 5)
+    placePiece(board, from, { type: PieceTypes.RAM_TOWER, color: 'white' })
+
+    const { newBoard, move } = makeMove(board, from, pos(1, 5), DEFAULT_SIZE)
+
+    expect(move.terminatedByNarc).toBe(true)
+    expect(move.to).toEqual(pos(6, 5))
+    expect(newBoard[7][5]).toBeNull()
+    expect(newBoard[1][5]).toBeNull()
+    expect(newBoard[6][5]).toBeNull()
+  })
+
+  it.each([
+    PieceTypes.CHARIOT,
+    PieceTypes.BOMBER,
+    PieceTypes.NECROMANCER
+  ])('lets %s pass over an enemy narc net without dying', (pieceType) => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(4, 5), { type: PieceTypes.BOMBER, color: 'black', hasMoved: true })
+    const from = pos(5, 3)
+    placePiece(board, from, { type: pieceType, color: 'white', hasMoved: true })
+
+    const { newBoard, move } = makeMove(board, from, pos(4, 3), DEFAULT_SIZE)
+
+    expect(move.terminatedByNarc).toBeUndefined()
+    expect(newBoard[5][3]).toBeNull()
+    expect(newBoard[4][3]?.type).toBe(pieceType)
+  })
+
+  it('lets a bomber pass through an intermediate enemy narc net tile', () => {
+    const board = createEmptyBoard()
+    placePiece(board, pos(6, 6), { type: PieceTypes.BOMBER, color: 'black', hasMoved: true })
+    const from = pos(6, 3)
+    placePiece(board, from, { type: PieceTypes.BOMBER, color: 'white', hasMoved: true })
+
+    const { newBoard, move } = makeMove(board, from, pos(6, 5), DEFAULT_SIZE)
+
+    expect(move.terminatedByNarc).toBeUndefined()
+    expect(newBoard[6][3]).toBeNull()
+    expect(newBoard[6][5]?.type).toBe(PieceTypes.BOMBER)
+    expect(newBoard[6][5]?.color).toBe('white')
+  })
+
   it('logs capture and narc trap when move-capturing an enemy on a narc net tile', () => {
     const board = createEmptyBoard()
     placePiece(board, pos(4, 5), { type: PieceTypes.BOMBER, color: 'black', hasMoved: true })

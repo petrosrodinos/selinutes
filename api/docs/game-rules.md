@@ -215,7 +215,8 @@ river, lake, and canyon but **rock blocks the shot**; only **enemy figures** blo
 (3+1 or 1+3). Victims taken by capture-and-move **cannot be revived** (Necromancer Zombie
 revival or Mystery Box Hoplite Sacrifice & Revive) until **that specific Chariot** is removed
 from the board. Gamma range-4 ranged kills do not bind souls.
-- **Terrain:** Can pass/land on river. Cannot land on lake, canyon, or cave.
+- **Terrain:** Can pass/land on river. Cannot land on lake, canyon, or cave. Can pass over
+enemy Bomber explosive nets without being destroyed.
 
 ### 6.4 Bomber (Saboteur) — 12 pts (Zombie 9)
 
@@ -224,10 +225,12 @@ in its path.
 - **Attack:** **None.** The Bomber cannot shoot or capture directly.
 - **Explosive net:** After the Bomber moves, it lays a hidden net of explosives on nearby
 tiles — the **diagonals 1 and 2 tiles away** and the **orthogonal tiles 2 away**. **Any
-enemy figure that moves onto a net tile is destroyed** (the moving figure dies). The net
-belongs to the Bomber's owner and never harms its own side. Capturing the Bomber clears
-its net.
+enemy figure that moves onto or passes through a net tile is destroyed** (the moving figure
+dies), **except Chariot, Bomber, and Necromancer (Druid)**, who may pass over the net
+safely. The net belongs to the Bomber's owner and never harms its own side. Capturing the
+Bomber clears its net.
 - **Terrain:** Can pass river and cave (teleporting). Cannot pass lake, canyon, tree, or rock.
+Can pass over enemy Bomber explosive nets without being destroyed.
 
 ### 6.5 Paladin — 15 pts (Zombie 12)
 
@@ -287,7 +290,8 @@ freeze range by 2, which also lowers duration (6 → 3 turns, 4 → 2, 2 → 1).
 (1 tile) cannot be frozen — use melee kill instead. A figure that is already frozen cannot
 be frozen again.
 - **Revive (special action):** See Section 6.10.
-- **Terrain:** Cannot pass cave, river, lake, or canyon.
+- **Terrain:** Cannot pass cave, river, lake, or canyon. Can pass over enemy Bomber explosive
+nets without being destroyed.
 
 ### 6.10 Revival and Zombie ("Night") mode
 
@@ -342,7 +346,8 @@ selection. Obstacles cannot be placed on the 3rd row from either player's starti
 - **Caves:** Entering one cave allows exit from any other cave that has an empty adjacent
 tile (Hoplite and Bomber teleport; other cave-capable figures simply pass/rest).
 - **Bomber explosions:** A Bomber's explosive net destroys any enemy figure that steps onto
-a net tile (diagonals 1-2 away, orthogonals 2 away).
+or passes through a net tile (diagonals 1-2 away, orthogonals 2 away), except Chariot,
+Bomber, and Necromancer (Druid), who may pass over the net.
 - **Warlock swaps:** Reposition the Monarch with the Warlock or with a friendly Hoplite.
 - **Hoplite promotion:** A Hoplite that reaches the opponent's back rank becomes a Duchess
 (only 3 promotions allowed in the entire game).
@@ -417,9 +422,10 @@ Hoplite is a zombie).
 - **"My figure attacked but stayed in place — is that a bug?"** — No. In **range attack**
 mode the attacker stays put and removes the target. Switch to **capture and move** (or use
 a zombie) to land on the enemy square after killing it.
-- **"Why did my figure die just by moving there?"** — It stepped onto an enemy Bomber's
-explosive-net tile. Net tiles sit on the diagonals 1-2 away and the orthogonal tiles 2
-away from an enemy Bomber.
+- **"Why did my figure die just by moving there?"** — It stepped onto or passed through an
+enemy Bomber's explosive-net tile. Net tiles sit on the diagonals 1-2 away and the
+orthogonal tiles 2 away from an enemy Bomber. Only Chariot, Bomber, and Necromancer (Druid)
+may pass over those nets safely.
 - **"Why can't my Necromancer revive anyone?"** — Revival requires your Necromancer, Monarch,
 Duchess, and Warlock to all be on the same horizontal line, plus an eligible captured figure
 (Ram-Tower, Chariot, Bomber, or Paladin).
