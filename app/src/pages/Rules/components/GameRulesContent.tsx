@@ -459,14 +459,14 @@ export const GameRulesContent = ({ showHeader = true }: GameRulesContentProps) =
                   <td className="py-3.5 px-4 text-stone-400">Ruby-tier 3D skins</td>
                 </tr>
                 <tr className="border-b border-stone-700/40 hover:bg-stone-800/30 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-stone-200">Gold</td>
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Sapphire</td>
                   <td className="py-3.5 px-4">28–36</td>
-                  <td className="py-3.5 px-4 text-stone-400">Gold-tier 3D skins</td>
+                  <td className="py-3.5 px-4 text-stone-400">Sapphire-tier 3D skins</td>
                 </tr>
                 <tr className="hover:bg-stone-800/30 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-stone-200">Diamond</td>
+                  <td className="py-3.5 px-4 font-medium text-stone-200">Emerald</td>
                   <td className="py-3.5 px-4">37–45</td>
-                  <td className="py-3.5 px-4 text-stone-400">Diamond-tier 3D skins (highest)</td>
+                  <td className="py-3.5 px-4 text-stone-400">Emerald-tier 3D skins (highest)</td>
                 </tr>
               </tbody>
             </table>

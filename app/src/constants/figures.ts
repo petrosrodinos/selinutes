@@ -4,12 +4,6 @@ export const FigureTiers = {
   TIER3: 'tier3',
   TIER4: 'tier4',
   TIER5: 'tier5',
-  TIER6: 'tier6',
-  TIER7: 'tier7',
-  TIER8: 'tier8',
-  TIER9: 'tier9',
-  TIER10: 'tier10',
-  TIER11: 'tier11',
 } as const
 
 export type FigureTierKey = typeof FigureTiers[keyof typeof FigureTiers]
@@ -20,15 +14,30 @@ export const FIGURE_TIER_ORDER = [
   FigureTiers.TIER3,
   FigureTiers.TIER4,
   FigureTiers.TIER5,
-  FigureTiers.TIER6,
-  FigureTiers.TIER7,
-  FigureTiers.TIER8,
-  FigureTiers.TIER9,
-  FigureTiers.TIER10,
-  FigureTiers.TIER11,
 ] as const
 
 export const LEVELS_PER_FIGURE_TIER = 9
+
+export const FIGURE_TIER_NAMES: Record<FigureTierKey, string> = {
+  [FigureTiers.TIER1]: 'Bronze',
+  [FigureTiers.TIER2]: 'Silver',
+  [FigureTiers.TIER3]: 'Ruby',
+  [FigureTiers.TIER4]: 'Sapphire',
+  [FigureTiers.TIER5]: 'Emerald',
+}
+
+type FigureTierSkins = {
+  readonly variant_a: string
+  readonly variant_b: string
+}
+
+export const FIGURE_TIER_SKINS: Record<FigureTierKey, FigureTierSkins> = {
+  [FigureTiers.TIER1]: { variant_a: 'Yellow', variant_b: 'Green' },
+  [FigureTiers.TIER2]: { variant_a: 'Red', variant_b: 'Purple' },
+  [FigureTiers.TIER3]: { variant_a: 'Blue', variant_b: 'Orange' },
+  [FigureTiers.TIER4]: { variant_a: 'Giant', variant_b: 'Aqua' },
+  [FigureTiers.TIER5]: { variant_a: 'Fairy', variant_b: 'Vampire' },
+}
 
 export const FigureAssetFolders = {
   BOMBER: 'Bomber',
@@ -52,6 +61,7 @@ export const FigureAssetFolders = {
 export type FigureAssetFolder = typeof FigureAssetFolders[keyof typeof FigureAssetFolders]
 
 const FIGURES_ASSET_ROOT = 'figures' as const
+const FIGURE_3D_SKINS_ASSET_ROOT = 'figure-3d-skins' as const
 
 const FigureAssetFormats = {
   TWO_D: '2d',
@@ -81,10 +91,13 @@ const createPieceTierAssets = (figureFolder: FigureAssetFolder): Record<FigureTi
     variant_b: `${FIGURES_ASSET_ROOT}/${figureFolder}/${FigureTiers.TIER1}/${FigureAssetFormats.TWO_D}/${FigureVariants.B}/${FigureAssetFormats.FIGURE_PNG}`,
   }
 
-  const threeD = (tier: FigureTierKey): FigureVariantAssets => ({
-    variant_a: `${FIGURES_ASSET_ROOT}/${figureFolder}/${tier}/${FigureAssetFormats.THREE_D}/${FigureVariants.A}/${FigureAssetFormats.MESH_GLB}`,
-    variant_b: `${FIGURES_ASSET_ROOT}/${figureFolder}/${tier}/${FigureAssetFormats.THREE_D}/${FigureVariants.B}/${FigureAssetFormats.MESH_GLB}`,
-  })
+  const threeD = (tier: FigureTierKey): FigureVariantAssets => {
+    const skins = FIGURE_TIER_SKINS[tier]
+    return {
+      variant_a: `${FIGURE_3D_SKINS_ASSET_ROOT}/${figureFolder}/${tier}/${skins.variant_a.toLowerCase()}/${FigureAssetFormats.MESH_GLB}`,
+      variant_b: `${FIGURE_3D_SKINS_ASSET_ROOT}/${figureFolder}/${tier}/${skins.variant_b.toLowerCase()}/${FigureAssetFormats.MESH_GLB}`,
+    }
+  }
 
   return {
     tier1: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER1) },
@@ -92,12 +105,6 @@ const createPieceTierAssets = (figureFolder: FigureAssetFolder): Record<FigureTi
     tier3: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER3) },
     tier4: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER4) },
     tier5: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER5) },
-    tier6: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER6) },
-    tier7: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER7) },
-    tier8: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER8) },
-    tier9: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER9) },
-    tier10: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER10) },
-    tier11: { twoD: tier1TwoD, threeD: threeD(FigureTiers.TIER11) },
   }
 }
 

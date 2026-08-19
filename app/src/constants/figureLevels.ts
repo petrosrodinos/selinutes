@@ -145,7 +145,7 @@ export const FIGURE_LEVELS = {
   },
   [FigureLevels.GOLD]: {
     level: 4,
-    label: 'Gold',
+    label: 'Sapphire',
     figures: createFigureLevelFigures({
       [FigureLevelFigures.HOPLITE]: 'figure-levels/gold/Gold-Hop.jpg',
       [FigureLevelFigures.NECROMANCER]: 'figure-levels/gold/Gold-Dru.jpg',
@@ -160,7 +160,7 @@ export const FIGURE_LEVELS = {
   },
   [FigureLevels.DIAMOND]: {
     level: 5,
-    label: 'Diamond',
+    label: 'Emerald',
     figures: createFigureLevelFigures({
       [FigureLevelFigures.HOPLITE]: 'figure-levels/diamond/Diam-Hop.jpg',
       [FigureLevelFigures.NECROMANCER]: 'figure-levels/diamond/Diam-Dru.jpg',
