@@ -4,10 +4,12 @@ import { PieceTypes, PlayerColors } from '../../../types'
 import { getPiece3DBoardFacingY } from '../piece3dOrientation.utils'
 
 describe('getPiece3DBoardFacingY', () => {
-  it('keeps tier1 chariot on the default white/black yaw', () => {
-    expect(getPiece3DBoardFacingY(PieceTypes.CHARIOT, PlayerColors.WHITE, FigureTiers.TIER1)).toBe(0)
-    expect(getPiece3DBoardFacingY(PieceTypes.CHARIOT, PlayerColors.BLACK, FigureTiers.TIER1)).toBe(
+  it('faces tier1 chariot front for its yellow/green meshes', () => {
+    expect(getPiece3DBoardFacingY(PieceTypes.CHARIOT, PlayerColors.WHITE, FigureTiers.TIER1)).toBe(
       Math.PI,
+    )
+    expect(getPiece3DBoardFacingY(PieceTypes.CHARIOT, PlayerColors.BLACK, FigureTiers.TIER1)).toBe(
+      -Math.PI / 2,
     )
   })
 
