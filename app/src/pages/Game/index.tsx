@@ -17,8 +17,8 @@ import { RulesModal } from "../../components/RulesModal";
 import { useGameStore } from "../../store/gameStore";
 import { useUIStore } from "../../store/uiStore";
 import { useAuthStore } from "../../store/authStore";
-import { useGameMode, useOnlineGame, useSoundEffects } from "../../hooks";
-import { PlayerColors, MysteryBoxPhases, PieceTypes, ObstacleTypes, isObstacle, type Piece } from "./types";
+import { useGameMode, useOnlineGame, useSoundEffects, useFigureThemeSound } from "../../hooks";
+import { PlayerColors, MysteryBoxPhases, PieceTypes, ObstacleTypes, isObstacle, isPiece, type Piece } from "./types";
 import { BOT_DELAY, PIECE_RULES } from "./constants";
 import { PIECE_NAMES, PIECE_SYMBOLS } from "./constants";
 import { environments } from "../../config/environments";
@@ -143,6 +143,11 @@ const GamePage = () => {
   const boardSize = isOnline ? onlineBoardSize : gameState.boardSize;
   const capturedPieces = isOnline ? onlineCapturedPieces : gameState.capturedPieces;
   const lastMove = isOnline ? onlineLastMove : gameState.lastMove;
+
+  const selectedPosition = isOnline ? onlineSelectedPosition : gameState.selectedPosition;
+  const selectedCell = selectedPosition ? board[selectedPosition.row]?.[selectedPosition.col] : null;
+  const selectedPieceType = selectedCell && isPiece(selectedCell) ? selectedCell.type : null;
+  useFigureThemeSound(selectedPieceType);
 
   const { playBoardClick, playSwap, playMysteryBox, playCaveTeleport, playRevive, playGameOver } = useSoundEffects(lastMove);
 
