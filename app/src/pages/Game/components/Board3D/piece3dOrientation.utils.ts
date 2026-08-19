@@ -29,6 +29,10 @@ export const getPiece3DBoardFacingY = (
 ): number => {
   const baseFacingY = getTier1BoardFacingY(type, color)
 
+  if (type === PieceTypes.PALADIN) {
+    return normalizeFacingY(baseFacingY - QUARTER_TURN)
+  }
+
   if (tier === FigureTiers.TIER1) {
     return baseFacingY
   }
@@ -37,10 +41,6 @@ export const getPiece3DBoardFacingY = (
 
   if (type === PieceTypes.CHARIOT) {
     return normalizeFacingY(baseFacingY + (isWhite ? QUARTER_TURN : HALF_TURN))
-  }
-
-  if (type === PieceTypes.PALADIN) {
-    return normalizeFacingY(baseFacingY - QUARTER_TURN)
   }
 
   return baseFacingY
