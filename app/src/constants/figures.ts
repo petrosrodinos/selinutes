@@ -61,7 +61,6 @@ export const FigureAssetFolders = {
 export type FigureAssetFolder = typeof FigureAssetFolders[keyof typeof FigureAssetFolders]
 
 const FIGURES_ASSET_ROOT = 'figures' as const
-const FIGURE_3D_SKINS_ASSET_ROOT = 'figure-3d-skins' as const
 
 const FigureAssetFormats = {
   TWO_D: '2d',
@@ -94,8 +93,8 @@ const createPieceTierAssets = (figureFolder: FigureAssetFolder): Record<FigureTi
   const threeD = (tier: FigureTierKey): FigureVariantAssets => {
     const skins = FIGURE_TIER_SKINS[tier]
     return {
-      variant_a: `${FIGURE_3D_SKINS_ASSET_ROOT}/${figureFolder}/${tier}/${skins.variant_a.toLowerCase()}/${FigureAssetFormats.MESH_GLB}`,
-      variant_b: `${FIGURE_3D_SKINS_ASSET_ROOT}/${figureFolder}/${tier}/${skins.variant_b.toLowerCase()}/${FigureAssetFormats.MESH_GLB}`,
+      variant_a: `${FIGURES_ASSET_ROOT}/${figureFolder}/${tier}/${FigureAssetFormats.THREE_D}/${skins.variant_a.toLowerCase()}/${FigureAssetFormats.MESH_GLB}`,
+      variant_b: `${FIGURES_ASSET_ROOT}/${figureFolder}/${tier}/${FigureAssetFormats.THREE_D}/${skins.variant_b.toLowerCase()}/${FigureAssetFormats.MESH_GLB}`,
     }
   }
 
