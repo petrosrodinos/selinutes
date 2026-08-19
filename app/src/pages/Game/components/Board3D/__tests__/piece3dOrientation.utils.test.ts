@@ -37,4 +37,11 @@ describe('getPiece3DBoardFacingY', () => {
       expect(getPiece3DBoardFacingY(PieceTypes.CHARIOT, PlayerColors.BLACK, tier)).toBe(0)
     }
   })
+
+  it('faces tier1 hoplite, ram-tower, and warlock front for both colors', () => {
+    for (const type of [PieceTypes.HOPLITE, PieceTypes.RAM_TOWER, PieceTypes.WARLOCK]) {
+      expect(getPiece3DBoardFacingY(type, PlayerColors.WHITE, FigureTiers.TIER1)).toBe(Math.PI)
+      expect(getPiece3DBoardFacingY(type, PlayerColors.BLACK, FigureTiers.TIER1)).toBe(Math.PI)
+    }
+  })
 })

@@ -39,6 +39,14 @@ export const getPiece3DBoardFacingY = (
       return isWhite ? HALF_TURN : -QUARTER_TURN
     }
 
+    if (
+      type === PieceTypes.HOPLITE ||
+      type === PieceTypes.RAM_TOWER ||
+      type === PieceTypes.WARLOCK
+    ) {
+      return HALF_TURN
+    }
+
     return baseFacingY
   }
 
