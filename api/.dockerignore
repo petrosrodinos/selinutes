@@ -11,5 +11,7 @@ test
 .vscode
 README.md
 **/*.md
+!docs/
+!docs/**
 **/*.spec.ts
 **/__tests__

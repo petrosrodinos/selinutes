@@ -32,6 +32,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src/generated ./src/generated
 COPY prisma ./prisma
 COPY prisma.config.ts ./
+COPY docs ./docs
 
 EXPOSE 3001
 
