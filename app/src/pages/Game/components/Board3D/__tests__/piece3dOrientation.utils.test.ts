@@ -38,10 +38,15 @@ describe('getPiece3DBoardFacingY', () => {
     }
   })
 
-  it('faces tier1 hoplite, ram-tower, and warlock front for both colors', () => {
-    for (const type of [PieceTypes.HOPLITE, PieceTypes.RAM_TOWER, PieceTypes.WARLOCK]) {
-      expect(getPiece3DBoardFacingY(type, PlayerColors.WHITE, FigureTiers.TIER1)).toBe(Math.PI)
-      expect(getPiece3DBoardFacingY(type, PlayerColors.BLACK, FigureTiers.TIER1)).toBe(Math.PI)
+  it('faces tier1 ram-tower front for both colors', () => {
+    expect(getPiece3DBoardFacingY(PieceTypes.RAM_TOWER, PlayerColors.WHITE, FigureTiers.TIER1)).toBe(Math.PI)
+    expect(getPiece3DBoardFacingY(PieceTypes.RAM_TOWER, PlayerColors.BLACK, FigureTiers.TIER1)).toBe(Math.PI)
+  })
+
+  it('faces tier1 hoplite and warlock front (not sideways) for both colors', () => {
+    for (const type of [PieceTypes.HOPLITE, PieceTypes.WARLOCK]) {
+      expect(getPiece3DBoardFacingY(type, PlayerColors.WHITE, FigureTiers.TIER1)).toBe(Math.PI / 2)
+      expect(getPiece3DBoardFacingY(type, PlayerColors.BLACK, FigureTiers.TIER1)).toBe(-Math.PI / 2)
     }
   })
 })
