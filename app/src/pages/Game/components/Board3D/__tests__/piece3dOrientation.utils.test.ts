@@ -38,9 +38,9 @@ describe('getPiece3DBoardFacingY', () => {
     }
   })
 
-  it('faces tier1 ram-tower front for both colors', () => {
+  it('faces tier1 ram-tower rotated 180 degrees from its original facing, for both colors', () => {
     expect(getPiece3DBoardFacingY(PieceTypes.RAM_TOWER, PlayerColors.WHITE, FigureTiers.TIER1)).toBe(Math.PI)
-    expect(getPiece3DBoardFacingY(PieceTypes.RAM_TOWER, PlayerColors.BLACK, FigureTiers.TIER1)).toBe(Math.PI)
+    expect(getPiece3DBoardFacingY(PieceTypes.RAM_TOWER, PlayerColors.BLACK, FigureTiers.TIER1)).toBe(0)
   })
 
   it('faces tier1 hoplite and warlock front (not sideways) for both colors', () => {
