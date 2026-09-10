@@ -12,10 +12,17 @@
  * (three-stdlib wires up MeshoptDecoder already), so no client changes
  * are needed to read the optimized files.
  *
- * Run from app/: npm run figures:optimize
+ * Files already carrying EXT_meshopt_compression are skipped by default —
+ * re-simplifying an already-decimated mesh would destroy it further. This
+ * makes it safe to run over the whole tree any time a new figure is added:
+ * only the new/untouched mesh.glb files actually get processed.
+ *
+ * Run from app/ whenever a new figure's mesh.glb is added, before committing:
+ *   npm run figures:optimize
  * Single file (for spot-checking): npm run figures:optimize -- --only=Chariot
+ * Re-optimize files that were already processed: npm run figures:optimize -- --force
  */
-import { copyFile, readdir, stat, unlink } from 'node:fs/promises'
+import { copyFile, open, readdir, stat, unlink } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { NodeIO } from '@gltf-transform/core'
@@ -28,6 +35,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const figuresDir = path.join(__dirname, '../src/assets/figures')
 
 const onlyFilter = process.argv.find((a) => a.startsWith('--only='))?.slice('--only='.length)
+const force = process.argv.includes('--force')
 
 async function* walkMeshGlbs(dir) {
   const entries = await readdir(dir, { withFileTypes: true })
@@ -41,18 +49,43 @@ async function* walkMeshGlbs(dir) {
   }
 }
 
+// Cheap check (reads only the GLB header + JSON chunk) so re-running over the
+// whole tree doesn't have to fully decode every already-optimized mesh.
+async function alreadyOptimized(file) {
+  const handle = await open(file, 'r')
+  try {
+    const head = Buffer.alloc(20)
+    await handle.read(head, 0, 20, 0)
+    const jsonChunkLength = head.readUInt32LE(12)
+    const jsonBuf = Buffer.alloc(jsonChunkLength)
+    await handle.read(jsonBuf, 0, jsonChunkLength, 20)
+    const json = JSON.parse(jsonBuf.toString('utf8'))
+    return Boolean(json.extensionsUsed?.includes('EXT_meshopt_compression'))
+  } catch {
+    return false
+  } finally {
+    await handle.close()
+  }
+}
+
 await Promise.all([MeshoptEncoder.ready, MeshoptDecoder.ready, MeshoptSimplifier.ready])
 
 const io = new NodeIO()
   .registerExtensions(ALL_EXTENSIONS)
   .registerDependencies({ 'meshopt.encoder': MeshoptEncoder, 'meshopt.decoder': MeshoptDecoder })
 let ok = 0
+let skipped = 0
 let totalBefore = 0
 let totalAfter = 0
 
 for await (const file of walkMeshGlbs(figuresDir)) {
   const rel = path.relative(figuresDir, file)
   if (onlyFilter && !rel.split(path.sep).join('/').includes(onlyFilter)) continue
+
+  if (!force && (await alreadyOptimized(file))) {
+    skipped += 1
+    continue
+  }
 
   const tmp = `${file}.tmp-opt.glb`
   const before = (await stat(file)).size
@@ -92,5 +125,6 @@ for await (const file of walkMeshGlbs(figuresDir)) {
 }
 
 console.log(
-  `Done. ${ok} file(s) optimized. ${(totalBefore / 1e6).toFixed(0)}MB -> ${(totalAfter / 1e6).toFixed(0)}MB`,
+  `Done. ${ok} file(s) optimized, ${skipped} already-optimized file(s) skipped. ` +
+    `${(totalBefore / 1e6).toFixed(0)}MB -> ${(totalAfter / 1e6).toFixed(0)}MB`,
 )

@@ -2,6 +2,16 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Adding new 3D figures
+
+Raw exported `mesh.glb` files (Tripo/AI-generated) are extremely oversized for how small pieces render on the board — ~15MB and ~500k triangles each, unoptimized. Whenever a new figure's `mesh.glb` is added under `src/assets/figures/`, run this before committing:
+
+```
+npm run figures:optimize
+```
+
+It decimates geometry, compresses textures to WebP, and applies Meshopt compression — typically ~95% smaller with no visible quality loss at board scale. It's safe to run over the whole tree at any time: already-optimized files are detected and skipped automatically, so only new/untouched files get processed. Use `-- --only=<FigureName>` to target one figure, or `-- --force` to re-run on already-optimized files.
+
 Currently, two official plugins are available::
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
