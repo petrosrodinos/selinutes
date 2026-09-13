@@ -1,5 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Work+Sans:wght@300;400;500;600&display=swap");
 @import "tailwindcss";
+
+@theme {
+  --color-ink: #171613;
+  --color-paper: #f7f5ee;
+  --color-gold: #e8b727;
+  --color-parch: #7a7262;
+  --font-serif: "Instrument Serif", serif;
+}
 
 body {
   font-family: "Bricolage Grotesque", system-ui, sans-serif;
