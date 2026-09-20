@@ -17,8 +17,7 @@ export class GcsConfig {
         try {
             const projectId = this.configService.get('GCS_PROJECT_ID');
             const bucketName = this.configService.get('GCS_BUCKET_NAME');
-            const credentialsPath = this.configService.get('GCS_CREDENTIALS_PATH');
-            const credentials = this.configService.get('GCS_CREDENTIALS');
+            const credentialsJsonBase64 = this.configService.get('GCS_CREDENTIALS_JSON_BASE64');
             const folderName = this.configService.get('GCS_FOLDER_NAME');
 
             if (!projectId || !bucketName) {
@@ -26,29 +25,31 @@ export class GcsConfig {
                 return;
             }
 
+            if (!credentialsJsonBase64) {
+                this.logger.error('GCS_CREDENTIALS_JSON_BASE64 is required');
+                return;
+            }
+
             this.config = {
                 project_id: projectId,
                 bucket_name: bucketName,
-                credentials_path: credentialsPath,
-                credentials: credentials ? JSON.parse(credentials) : undefined,
+                credentials: this.decodeCredentials(credentialsJsonBase64),
                 folder_name: folderName || 'documents'
             };
 
-            const storageOptions: any = {
-                projectId: this.config.project_id
-            };
-
-            if (this.config.credentials_path) {
-                storageOptions.keyFilename = this.config.credentials_path;
-            } else if (this.config.credentials) {
-                storageOptions.credentials = this.config.credentials;
-            }
-
-            this.storageClient = new Storage(storageOptions);
+            this.storageClient = new Storage({
+                projectId: this.config.project_id,
+                credentials: this.config.credentials
+            });
             this.logger.debug('Google Cloud Storage initialized');
         } catch (error) {
             this.logger.error('Error initializing Google Cloud Storage', error);
         }
+    }
+
+    private decodeCredentials(credentialsJsonBase64: string): object {
+        const json = Buffer.from(credentialsJsonBase64, 'base64').toString('utf8');
+        return JSON.parse(json);
     }
 
     getStorageClient(): Storage {
