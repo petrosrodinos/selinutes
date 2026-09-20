@@ -1,40 +1,77 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import {
-  User,
-  Users,
-  Globe,
-  Grid3X3,
-  Swords,
-  Sparkles,
-  Mountain,
-  Box,
-  Zap,
-} from 'lucide-react'
-import { environments } from '../../config/environments'
-import { AppLogo } from '../../components/AppLogo'
-import { Navbar } from '../../components/Navbar'
-import { PoweredByFooter } from '../../components/PoweredByFooter.tsx'
+import heroImage from '../../assets/landing/selinutes-hero.jpg'
+import detailImage from '../../assets/landing/selinutes-detail.jpg'
+import ctaImage from '../../assets/landing/selinutes-cta.jpg'
 import { useAuthStore } from '../../store/authStore'
 
-const container = {
+const rise = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0 },
+}
+
+const heroContainer = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.15 },
+    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
   },
 }
 
-const item = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0 },
-}
+const modes = [
+  {
+    num: 'I',
+    title: 'Single player',
+    desc: 'Face the bot. Choose your board size and difficulty, then test your command.',
+  },
+  {
+    num: 'II',
+    title: 'Two players offline',
+    desc: 'Same device, two players. Pass and play a quiet duel of pure tactics.',
+  },
+  {
+    num: 'III',
+    title: 'Online',
+    desc: 'Create a game, share the code, and play your rival in real time.',
+  },
+]
+
+const mechanics = [
+  {
+    num: '01',
+    title: 'Caves',
+    desc: 'Enter any cave and exit from any other. Reposition an army in an instant.',
+  },
+  {
+    num: '02',
+    title: 'Revival',
+    desc: 'The Necromancer can revive fallen units when the Necromancer, Monarch, Duchess, and Warlock share a row.',
+  },
+  {
+    num: '03',
+    title: 'Zompie mode',
+    desc: 'Revived units return with reduced strength. The right tactics still win.',
+  },
+  {
+    num: '04',
+    title: 'Unique units',
+    desc: 'Command the Monarch, Duchess, Paladin, Chariot, Hoplites, and more.',
+  },
+]
 
 export const LandingPage = () => {
   const navigate = useNavigate()
   const user_uuid = useAuthStore((state) => state.user_uuid)
   const isLoggedIn = Boolean(user_uuid)
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20)
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleGetStarted = useCallback(() => {
     navigate('/login')
@@ -49,203 +86,276 @@ export const LandingPage = () => {
   }, [navigate])
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-100">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(180,83,9,0.15),transparent)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%2378716c\' fill-opacity=\'0.03\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-60 pointer-events-none" />
-
-      <Navbar />
-
-      <main className="relative z-10 max-w-6xl mx-auto px-6 pb-24">
-        <motion.section
-          className="pt-16 pb-24 md:pt-24 md:pb-32"
-          variants={container}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.div variants={item} className="flex justify-center mb-8">
-            <AppLogo size="xl" showName={false} linkToHome={false} />
-          </motion.div>
-          <motion.h1
-            variants={item}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-center max-w-4xl mx-auto mb-6"
-          >
-            <span className="bg-gradient-to-b from-amber-200 via-amber-100 to-amber-300/90 bg-clip-text text-transparent">
-              {environments.APP_NAME}
-            </span>
-          </motion.h1>
-          <motion.p variants={item} className="text-stone-400 text-center text-lg md:text-xl max-w-2xl mx-auto mb-10">
-            A strategic board game of monarchs, units, and tactics. Conquer the board alone, with a friend, or online.
-          </motion.p>
-          <motion.div variants={item} className="flex flex-wrap justify-center gap-3 sm:gap-4">
+    <div className="bg-ink text-paper antialiased" style={{ fontFamily: "'Work Sans', sans-serif" }}>
+      <nav
+        aria-label="Main navigation"
+        className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
+          isScrolled ? 'bg-ink/85 shadow-lg shadow-black/20 backdrop-blur-md' : 'bg-transparent'
+        }`}
+      >
+        <div className="mx-auto flex max-w-[1280px] items-center justify-between px-6 py-5 sm:px-10">
+          <span className="font-serif text-2xl text-paper">Selinutes</span>
+          <div className="flex items-center gap-5">
+            <a
+              href="#modes"
+              className="hidden cursor-pointer text-[10px] uppercase tracking-[0.24em] text-paper/60 transition-colors hover:text-gold sm:block"
+            >
+              Ways to play
+            </a>
+            <a
+              href="#mechanics"
+              className="hidden cursor-pointer text-[10px] uppercase tracking-[0.24em] text-paper/60 transition-colors hover:text-gold sm:block"
+            >
+              Mechanics
+            </a>
             <button
               type="button"
               onClick={handleGetStarted}
-              className="px-8 py-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-900 font-semibold shadow-lg shadow-amber-900/30 hover:shadow-amber-700/25 transition-all duration-200"
+              className="cursor-pointer border border-gold/60 px-4 py-2 text-[10px] font-medium uppercase tracking-[0.2em] text-gold transition-colors hover:bg-gold hover:text-ink"
             >
               Enter the battlefield
             </button>
-            <button
-              type="button"
-              onClick={handleRules}
-              className="px-8 py-4 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-400 font-semibold hover:bg-amber-500/20 hover:border-amber-500/60 transition-all duration-200"
-            >
-              Check the rules
-            </button>
-          </motion.div>
-        </motion.section>
-
-        <motion.section
-          className="py-16 border-t border-stone-800/80"
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.5 }}
-        >
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 text-amber-100/95">
-            How you play
-          </h2>
-          <p className="text-stone-400 text-center max-w-xl mx-auto mb-12">
-            Three ways to enjoy the game
-          </p>
-          <div className="grid md:grid-cols-3 gap-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0 }}
-              className="p-6 rounded-2xl border bg-stone-900/50 border-stone-700/50 hover:border-emerald-500/40 transition-colors"
-            >
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mb-4">
-                <User className="w-6 h-6 text-emerald-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-stone-100 mb-2">Single player</h3>
-              <p className="text-stone-400 text-sm leading-relaxed">Face the bot. Choose board size and difficulty.</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="p-6 rounded-2xl border bg-stone-900/50 border-stone-700/50 hover:border-violet-500/40 transition-colors"
-            >
-              <div className="w-12 h-12 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center mb-4">
-                <Users className="w-6 h-6 text-violet-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-stone-100 mb-2">Two players offline</h3>
-              <p className="text-stone-400 text-sm leading-relaxed">Same device, two players. Pass and play.</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="p-6 rounded-2xl border bg-stone-900/50 border-stone-700/50 hover:border-amber-500/40 transition-colors"
-            >
-              <div className="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center mb-4">
-                <Globe className="w-6 h-6 text-amber-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-stone-100 mb-2">Online</h3>
-              <p className="text-stone-400 text-sm leading-relaxed">Create a game, share the code, and play in real time.</p>
-            </motion.div>
           </div>
-        </motion.section>
+        </div>
+      </nav>
 
-        <motion.section
-          className="py-16 border-t border-stone-800/80"
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.5 }}
+      <header id="top" className="relative h-[100svh] min-h-[680px] w-full overflow-hidden bg-ink">
+        <motion.img
+          src={heroImage}
+          alt="A gold monarch and units on a dark Selinutes game board"
+          className="absolute inset-0 h-full w-full object-cover object-center"
+          width={1920}
+          height={1080}
+          initial={{ scale: 1 }}
+          animate={{ scale: [1, 1.08, 1] }}
+          transition={{ duration: 12, ease: [0.4, 0, 0.2, 1], repeat: Infinity }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/75 to-ink/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/50" />
+
+        <motion.div
+          className="relative mx-auto flex h-full max-w-[1280px] flex-col justify-between px-6 py-8 sm:px-10"
+          variants={heroContainer}
+          initial="hidden"
+          animate="visible"
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 text-amber-100/95">
-            Board & strategy
-          </h2>
-          <p className="text-stone-400 text-center max-w-xl mx-auto mb-12">
-            Variable boards and obstacles shape every game
-          </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { icon: Grid3X3, title: 'Three board sizes', desc: '12×12, 12×16, or 12×20. More space, more obstacles.' },
-              { icon: Mountain, title: 'Obstacles', desc: 'Caves, trees, rocks, lakes, rivers, canyons. Each affects movement.' },
-              { icon: Box, title: 'Mystery boxes', desc: 'Special squares with surprise effects and revival options.' },
-              { icon: Swords, title: 'Unique units', desc: 'Monarch, Duchess, Paladin, Chariot, Hoplites, and more.' },
-            ].map(({ icon: Icon, title, desc }, i) => (
-              <motion.div
-                key={title}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                className="p-5 rounded-xl bg-stone-900/40 border border-stone-800"
+          <div className="h-9 sm:h-10" aria-hidden="true" />
+
+          <div className="max-w-[720px] pb-4">
+            <motion.span variants={rise} className="mb-6 block text-[11px] uppercase tracking-[0.3em] text-gold">
+              Monarchs · Units · Obstacles · Caves
+            </motion.span>
+            <motion.h1
+              variants={rise}
+              className="max-w-[10ch] font-serif text-[clamp(3.4rem,7vw,6.4rem)] leading-[0.92] text-paper"
+            >
+              The reign is decided on the board.
+            </motion.h1>
+            <motion.p variants={rise} className="mt-6 max-w-[46ch] text-base leading-relaxed text-paper/75 sm:text-lg">
+              Conquer the board alone, with a friend, or online. Command every unit through shifting terrain and turn
+              a fallen army into a second chance.
+            </motion.p>
+            <motion.div variants={rise} className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
+              <button
+                type="button"
+                onClick={handleGetStarted}
+                className="group inline-flex cursor-pointer items-center gap-3 bg-gold px-7 py-4 text-sm font-medium uppercase tracking-[0.16em] text-ink ring-1 ring-gold transition-transform duration-300 hover:-translate-y-0.5"
               >
-                <Icon className="w-8 h-8 text-amber-500/70 mb-3" />
-                <h3 className="font-semibold text-stone-200 mb-1.5">{title}</h3>
-                <p className="text-stone-500 text-sm leading-relaxed">{desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.section>
-
-        <motion.section
-          className="py-16 border-t border-stone-800/80"
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.5 }}
-        >
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 text-amber-100/95">
-            Special mechanics
-          </h2>
-          <p className="text-stone-400 text-center max-w-xl mx-auto mb-12">
-            Caves, revival, and Zompie mode add depth
-          </p>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {[
-              { icon: Zap, title: 'Caves', desc: 'Enter any cave and exit from any other. Instant repositioning.' },
-              { icon: Sparkles, title: 'Revival', desc: 'Necromancer can revive fallen units when the Necromancer, Monarch, Duchess, and Warlock share a row.' },
-              { icon: Swords, title: 'Zompie mode', desc: 'Revived units return with reduced strength. Tactics still win.' },
-            ].map(({ icon: Icon, title, desc }, i) => (
-              <motion.div
-                key={title}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="p-6 rounded-2xl border border-amber-500/20 bg-amber-500/5"
+                Play the first turn <span className="text-base transition-transform group-hover:translate-x-1">→</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleRules}
+                className="inline-flex cursor-pointer items-center gap-2 text-sm uppercase tracking-[0.16em] text-paper/70 transition-colors hover:text-gold"
               >
-                <Icon className="w-8 h-8 text-amber-400/80 mb-3" />
-                <h3 className="font-semibold text-amber-100/90 mb-2">{title}</h3>
-                <p className="text-stone-400 text-sm leading-relaxed">{desc}</p>
-              </motion.div>
-            ))}
+                <span className="h-px w-6 bg-gold/60" />
+                Check the rules
+              </button>
+            </motion.div>
           </div>
-        </motion.section>
 
-        <motion.section
-          className="pt-16 pb-8"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-        >
-          <div className="rounded-2xl bg-gradient-to-br from-stone-800/80 to-stone-900/80 border border-stone-700/50 p-8 md:p-12 text-center">
-            <h2 className="text-xl md:text-2xl font-bold text-amber-100/95 mb-3">
-              Ready to play?
+          <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.26em] text-parch">
+            <span>Single player · Pass &amp; play · Online</span>
+            <motion.span
+              initial={{ scaleY: 0 }}
+              animate={{ scaleY: 1 }}
+              transition={{ duration: 1.2, delay: 0.5, ease: [0.2, 0.7, 0.2, 1] }}
+              className="hidden h-8 w-px origin-top bg-gold/60 sm:block"
+            />
+          </div>
+        </motion.div>
+      </header>
+
+      <main>
+        <section className="bg-ink text-paper">
+          <div className="mx-auto max-w-[1280px] px-6 py-24 sm:px-10 sm:py-32">
+            <div className="grid grid-cols-1 gap-12 sm:grid-cols-12 sm:gap-8">
+              <div className="sm:col-span-3">
+                <span className="text-[11px] uppercase tracking-[0.28em] text-gold">No. 02</span>
+                <span className="mt-4 block font-serif text-4xl text-parch">The premise</span>
+              </div>
+              <div className="sm:col-span-9">
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  whileInView={{ scaleX: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.1, ease: [0.2, 0.7, 0.2, 1] }}
+                  className="mb-8 h-px w-full origin-left bg-gold/30"
+                />
+                <p className="font-serif text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.12] text-paper">
+                  Every board is a new campaign. Obstacles alter movement, caves redraw the map, and mystery boxes can
+                  reverse the fate of an army.
+                </p>
+                <div className="mt-10 grid grid-cols-2 gap-8 border-t border-paper/10 pt-8 sm:grid-cols-4">
+                  <div>
+                    <span className="font-serif text-4xl text-gold">3</span>
+                    <span className="mt-2 block text-[11px] uppercase tracking-[0.2em] text-parch">Board sizes</span>
+                  </div>
+                  <div>
+                    <span className="font-serif text-4xl text-gold">6</span>
+                    <span className="mt-2 block text-[11px] uppercase tracking-[0.2em] text-parch">Terrain types</span>
+                  </div>
+                  <div>
+                    <span className="font-serif text-4xl text-gold">∞</span>
+                    <span className="mt-2 block text-[11px] uppercase tracking-[0.2em] text-parch">Tactical paths</span>
+                  </div>
+                  <div>
+                    <span className="font-serif text-4xl text-gold">1</span>
+                    <span className="mt-2 block text-[11px] uppercase tracking-[0.2em] text-parch">Crown to defend</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="modes" className="border-t border-paper/10 bg-ink text-paper">
+          <div className="mx-auto max-w-[1280px] px-6 py-24 sm:px-10 sm:py-32">
+            <div className="mb-16 flex items-end justify-between">
+              <div>
+                <span className="text-[11px] uppercase tracking-[0.28em] text-gold">No. 03</span>
+                <h2 className="mt-3 max-w-[15ch] font-serif text-[clamp(2.4rem,4vw,3.6rem)] leading-tight">
+                  Three ways to take the crown
+                </h2>
+              </div>
+              <span className="hidden text-[10px] uppercase tracking-[0.26em] text-parch sm:block">How you play</span>
+            </div>
+            <div className="grid grid-cols-1 gap-px bg-paper/10 sm:grid-cols-3">
+              {modes.map(({ num, title, desc }) => (
+                <article
+                  key={num}
+                  className="group bg-ink p-8 transition-colors duration-300 hover:bg-[#1b1915]"
+                >
+                  <span className="font-serif text-5xl text-parch transition-colors group-hover:text-gold">
+                    {num}
+                  </span>
+                  <h3 className="mt-6 font-serif text-2xl">{title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-paper/65">{desc}</p>
+                  <span className="mt-6 block h-px w-0 bg-gold transition-all duration-500 group-hover:w-full" />
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="mechanics" className="bg-paper text-ink">
+          <div className="mx-auto max-w-[1280px] px-6 py-24 sm:px-10 sm:py-32">
+            <div className="grid grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-16">
+              <div className="lg:col-span-5">
+                <span className="text-[11px] uppercase tracking-[0.28em] text-gold">No. 04</span>
+                <h2 className="mt-3 font-serif text-[clamp(2.4rem,4vw,3.5rem)] leading-tight">
+                  A board built for depth
+                </h2>
+                <p className="mt-6 max-w-[42ch] text-base leading-relaxed text-ink/70">
+                  Choose 12×12, 12×16, or 12×20. Caves, trees, rocks, lakes, rivers, and canyons shape movement while
+                  mystery boxes keep every encounter uncertain.
+                </p>
+                <img
+                  src={detailImage}
+                  alt="Golden monarch beside a cave on a carved game board"
+                  className="mt-10 aspect-[4/5] w-full object-cover"
+                  width={1080}
+                  height={1350}
+                  loading="lazy"
+                />
+              </div>
+              <div className="lg:col-span-7">
+                <span className="text-[11px] uppercase tracking-[0.28em] text-gold">No. 05</span>
+                <h2 className="mt-3 font-serif text-[clamp(2.1rem,3vw,2.8rem)] leading-tight">Special mechanics</h2>
+                <div className="mt-10 divide-y divide-ink/10 border-y border-ink/10">
+                  {mechanics.map(({ num, title, desc }) => (
+                    <div key={num} className="flex items-start gap-6 py-7">
+                      <span className="font-serif text-2xl text-gold">{num}</span>
+                      <div>
+                        <h3 className="font-serif text-2xl">{title}</h3>
+                        <p className="mt-1 text-sm leading-relaxed text-ink/65">{desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="play" className="relative overflow-hidden bg-ink text-paper">
+          <img
+            src={ctaImage}
+            alt="Two Selinutes armies facing each other beneath a spotlight"
+            className="absolute inset-0 h-full w-full object-cover"
+            width={1920}
+            height={900}
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-ink/75" />
+          <div className="relative mx-auto max-w-[1280px] px-6 py-28 text-center sm:px-10 sm:py-40">
+            <span className="text-[11px] uppercase tracking-[0.3em] text-gold">The board is set</span>
+            <h2 className="mx-auto mt-6 max-w-[14ch] font-serif text-[clamp(3rem,6vw,5rem)] leading-[0.98]">
+              Your reign begins here.
             </h2>
-            <p className="text-stone-400 mb-6 max-w-md mx-auto">
-              Enter your name and choose single player, offline two-player, or create an online game.
+            <p className="mx-auto mt-6 max-w-[44ch] text-base leading-relaxed text-paper/70 sm:text-lg">
+              Enter your name, choose your battlefield, and make the first move.
             </p>
-            <button
-              type="button"
-              onClick={handlePrimaryAction}
-              className="px-8 py-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-900 font-semibold shadow-lg shadow-amber-900/30 transition-all duration-200"
-            >
-              {isLoggedIn ? 'Home' : 'Get started'}
-            </button>
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
+              <button
+                type="button"
+                onClick={handlePrimaryAction}
+                className="group inline-flex cursor-pointer items-center gap-3 bg-gold px-8 py-4 text-sm font-medium uppercase tracking-[0.16em] text-ink ring-1 ring-gold transition-transform hover:-translate-y-0.5"
+              >
+                {isLoggedIn ? 'Continue your reign' : 'Enter the battlefield'}{' '}
+                <span className="text-base transition-transform group-hover:translate-x-1">→</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleRules}
+                className="inline-flex cursor-pointer items-center gap-2 text-sm uppercase tracking-[0.16em] text-paper/70 transition-colors hover:text-gold"
+              >
+                <span className="h-px w-6 bg-gold/60" />
+                Check the rules
+              </button>
+            </div>
           </div>
-        </motion.section>
+        </section>
       </main>
 
-      <PoweredByFooter />
+      <footer className="bg-ink text-paper">
+        <div className="mx-auto max-w-[1280px] px-6 py-10 sm:px-10">
+          <div className="flex flex-col items-start justify-between gap-4 border-t border-paper/10 pt-8 sm:flex-row sm:items-center">
+            <div className="flex items-baseline gap-3">
+              <span className="font-serif text-xl">Selinutes</span>
+              <span className="text-[10px] uppercase tracking-[0.24em] text-parch">A strategic board game</span>
+            </div>
+            <a
+              href="https://logiqdev.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cursor-pointer text-[10px] uppercase tracking-[0.24em] text-parch transition-colors hover:text-gold"
+            >
+              Powered by logiqdev
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
