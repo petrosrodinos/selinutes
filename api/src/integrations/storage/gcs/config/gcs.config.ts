@@ -41,10 +41,27 @@ export class GcsConfig {
                 projectId: this.config.project_id,
                 credentials: this.config.credentials
             });
+            this.disableResponseCompression(this.storageClient);
             this.logger.debug('Google Cloud Storage initialized');
         } catch (error) {
             this.logger.error('Error initializing Google Cloud Storage', error);
         }
+    }
+
+    // The node-fetch@2 used by Google's auth library fails to gunzip responses on newer
+    // Node versions ("Invalid response body ... Premature close"), which breaks the OAuth token request.
+    private disableResponseCompression(storage: Storage): void {
+        storage.authClient
+            .getClient()
+            .then((client) => {
+                if (client.transporter) {
+                    // `compress` is forwarded to node-fetch but missing from GaxiosOptions typings
+                    client.transporter.defaults = { ...client.transporter.defaults, compress: false } as typeof client.transporter.defaults;
+                }
+            })
+            .catch((error) => {
+                this.logger.error('Failed to configure Google auth transport', error);
+            });
     }
 
     private decodeCredentials(credentialsJsonBase64: string): object {

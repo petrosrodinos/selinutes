@@ -11,6 +11,7 @@ import { ConfigModule } from './shared/config/env/env.module';
 import { GameModule } from './modules/game/game.module';
 import { StatsModule } from './modules/stats/stats.module';
 import { DocsModule } from './modules/docs/docs.module';
+import { StoreModule } from './modules/store/store.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { DocsModule } from './modules/docs/docs.module';
     AuthModule,
     StatsModule,
     DocsModule,
+    StoreModule,
   ],
   controllers: [AppController],
   providers: [AppService],

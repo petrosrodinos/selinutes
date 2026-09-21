@@ -7,6 +7,7 @@ export interface UserStats {
     wins: number
     losses: number
     draws: number
+    points_spent: number
     created_at: string
     updated_at: string
 }

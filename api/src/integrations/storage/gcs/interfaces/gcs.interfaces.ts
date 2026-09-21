@@ -42,6 +42,12 @@ export interface ListImagesResponse {
     nextPageToken?: string;
 }
 
+export interface SignedDownloadUrlRequest {
+    path: string;
+    downloadName: string;
+    expiresInMinutes: number;
+}
+
 export interface DownloadImageRequest {
     filename: string;
     folder?: string;

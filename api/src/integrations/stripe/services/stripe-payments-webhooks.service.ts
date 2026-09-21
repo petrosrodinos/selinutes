@@ -25,6 +25,14 @@ export class StripePaymentsWebhooksService {
     }
 
 
+    constructEvent(rawBody: Buffer, signature: string): Stripe.Event {
+        try {
+            return this.stripe.webhooks.constructEvent(rawBody, signature, this.webhookSecret);
+        } catch (err: any) {
+            throw new BadRequestException(`Webhook Error: ${err.message}`);
+        }
+    }
+
     async handleStripeWebhook(body: any, signature: string) {
 
         let event: Stripe.Event;

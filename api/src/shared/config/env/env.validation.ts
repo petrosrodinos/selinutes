@@ -10,6 +10,8 @@ const EnvSchema = z.object({
     JWT_EXPIRATION_TIME: z.string().default('30d'),
     RESEND_API_KEY: z.string().optional(),
     RESEND_FROM_EMAIL: z.string().optional(),
+    STRIPE_SECRET_KEY: z.string().optional(),
+    STRIPE_WEBHOOK_SECRET: z.string().optional(),
 });
 
 

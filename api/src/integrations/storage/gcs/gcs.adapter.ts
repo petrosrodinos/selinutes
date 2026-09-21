@@ -7,7 +7,8 @@ import {
     ListImagesRequest,
     ListImagesResponse,
     DownloadImageRequest,
-    DownloadImageResponse
+    DownloadImageResponse,
+    SignedDownloadUrlRequest
 } from './interfaces/gcs.interfaces';
 import { GcsConfig } from './config/gcs.config';
 
@@ -156,6 +157,26 @@ export class GcsAdapter {
         } catch (error) {
             this.logger.error('Get signed URL error:', error);
             throw new Error(`Failed to get signed URL: ${error.message}`);
+        }
+    }
+
+    public async getSignedDownloadUrl(request: SignedDownloadUrlRequest): Promise<string> {
+        try {
+            const storage = this.gcsConfig.getStorageClient();
+            const bucket = storage.bucket(this.gcsConfig.getBucketName());
+            const file = bucket.file(request.path);
+
+            const [signedUrl] = await file.getSignedUrl({
+                version: 'v4',
+                action: 'read',
+                expires: Date.now() + request.expiresInMinutes * 60 * 1000,
+                responseDisposition: `attachment; filename*=UTF-8''${encodeURIComponent(request.downloadName)}`,
+            });
+
+            return signedUrl;
+        } catch (error) {
+            this.logger.error('Get signed download URL error:', error);
+            throw new Error(`Failed to get signed download URL: ${error.message}`);
         }
     }
 

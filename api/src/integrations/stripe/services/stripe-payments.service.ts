@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { StripeConfig } from '../stripe.config';
-import { StripeSessionResponse, StripeFee, StripePaymentIntentResponse, StripeChargeResponse, StripePaymentContext, CreateStripeCheckoutSession } from '../interfaces/stripe-payments.interface';
+import { StripeSessionResponse, StripeFee, StripePaymentIntentResponse, StripeChargeResponse, StripePaymentContext, CreateStripeCheckoutSession, CreateStripeOrderCheckoutSession } from '../interfaces/stripe-payments.interface';
 import { AppUrls } from '@/shared/config/app-urls';
 
 @Injectable()
@@ -55,6 +55,44 @@ export class StripePaymentsService {
         );
 
         return session;
+    }
+
+    async createOrderCheckoutSession(payload: CreateStripeOrderCheckoutSession): Promise<Stripe.Response<Stripe.Checkout.Session>> {
+        const { order_uuid, product_name, amount, currency, success_url, cancel_url } = payload;
+
+        return this.stripe.checkout.sessions.create({
+            mode: "payment",
+            line_items: [
+                {
+                    quantity: 1,
+                    price_data: {
+                        currency,
+                        unit_amount: amount,
+                        product_data: { name: product_name },
+                    },
+                },
+            ],
+            metadata: {
+                order_uuid,
+                context: StripePaymentContext.STORE_ORDER,
+            },
+            payment_intent_data: {
+                metadata: {
+                    order_uuid,
+                    context: StripePaymentContext.STORE_ORDER,
+                },
+            },
+            success_url,
+            cancel_url,
+        });
+    }
+
+    async getCheckoutSession(session_id: string): Promise<Stripe.Response<Stripe.Checkout.Session>> {
+        try {
+            return await this.stripe.checkout.sessions.retrieve(session_id);
+        } catch (error) {
+            throw new BadRequestException("Failed to get checkout session");
+        }
     }
 
     async getPaymentIntent(payment_intent_id: string): Promise<StripePaymentIntentResponse> {

@@ -8,7 +8,8 @@ import {
     ListImagesRequest,
     ListImagesResponse,
     DownloadImageRequest,
-    DownloadImageResponse
+    DownloadImageResponse,
+    SignedDownloadUrlRequest
 } from '../interfaces/gcs.interfaces';
 
 @Injectable()
@@ -52,6 +53,15 @@ export class GcsService {
         } catch (error) {
             this.logger.error('Get signed URL error:', error);
             throw new Error(`Failed to get signed URL: ${error.message}`);
+        }
+    }
+
+    public async getSignedDownloadUrl(request: SignedDownloadUrlRequest): Promise<string> {
+        try {
+            return await this.gcsAdapter.getSignedDownloadUrl(request);
+        } catch (error) {
+            this.logger.error('Get signed download URL error:', error);
+            throw new Error(`Failed to get signed download URL: ${error.message}`);
         }
     }
 

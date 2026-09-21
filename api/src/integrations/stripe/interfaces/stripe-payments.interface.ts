@@ -12,6 +12,15 @@ export interface CreateStripeCheckoutSession {
   promotion_code_uuid?: string;
 }
 
+export interface CreateStripeOrderCheckoutSession {
+  order_uuid: string;
+  product_name: string;
+  amount: number;
+  currency: string;
+  success_url: string;
+  cancel_url: string;
+}
+
 export interface CheckoutSessionDTO {
   id: string;
   status: "open" | "complete" | "expired";
@@ -83,6 +92,7 @@ export interface StripeFee {
 export const StripePaymentContext = {
   PROVIDER_PAYMENT: 'PROVIDER_PAYMENT',
   BOOKING_PAYMENT: 'BOOKING_PAYMENT',
+  STORE_ORDER: 'STORE_ORDER',
 } as const;
 
 export type StripePaymentContext = typeof StripePaymentContext[keyof typeof StripePaymentContext];

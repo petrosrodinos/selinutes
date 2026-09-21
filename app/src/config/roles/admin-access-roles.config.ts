@@ -19,3 +19,14 @@ export const canAccessAdminPage = (role: AuthRole | string | undefined | null): 
 
 export const canMutateAdmin = (role: AuthRole | string | undefined | null): boolean =>
     ADMIN_MUTATE_ROLES.some((allowed) => allowed === role)
+
+
+export const STORE_ADMIN_ROLES = [
+    AuthRoles.ADMIN,
+    AuthRoles.SUPER_ADMIN,
+] as const
+
+export type StoreAdminRole = (typeof STORE_ADMIN_ROLES)[number]
+
+export const canAccessStoreAdmin = (role: AuthRole | string | undefined | null): boolean =>
+    STORE_ADMIN_ROLES.some((allowed) => allowed === role)

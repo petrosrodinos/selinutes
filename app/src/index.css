@@ -10,6 +10,21 @@
   --font-serif: "Instrument Serif", serif;
 }
 
+@layer base {
+  a[href],
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  select {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
 body {
   font-family: "Bricolage Grotesque", system-ui, sans-serif;
   margin: 0;

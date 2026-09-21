@@ -33,6 +33,22 @@ export const ApiRoutes = {
         adminUpdateUser: (userUuid: string) => `/stats/admin/users/${userUuid}`,
         adminDeleteGame: (sessionId: string) => `/stats/admin/games/${sessionId}`,
     },
+    store: {
+        products: '/store/products',
+        product: (productUuid: string) => `/store/products/${productUuid}`,
+        purchase: (productUuid: string) => `/store/products/${productUuid}/purchase`,
+        confirmCheckout: '/store/checkout/confirm',
+        orders: '/store/orders',
+        downloadFile: (orderUuid: string, fileUuid: string) => `/store/orders/${orderUuid}/files/${fileUuid}/download`,
+        admin: {
+            overview: '/store/admin/overview',
+            orders: '/store/admin/orders',
+            order: (orderUuid: string) => `/store/admin/orders/${orderUuid}`,
+            cancelOrder: (orderUuid: string) => `/store/admin/orders/${orderUuid}/cancel`,
+            products: '/store/admin/products',
+            product: (productUuid: string) => `/store/admin/products/${productUuid}`,
+        },
+    },
     docs: {
         gameRules: '/docs/game-rules',
         updateGameRules: '/docs/game-rules',

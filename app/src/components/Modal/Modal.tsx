@@ -11,6 +11,7 @@ interface ModalProps {
   children: React.ReactNode
   size?: ModalSize
   elevation?: ModalElevation
+  closeOnBackdropClick?: boolean
 }
 
 const modalSizeClasses: Record<ModalSize, string> = {
@@ -23,7 +24,7 @@ const modalElevationClasses: Record<ModalElevation, string> = {
   overlay: 'z-[110]',
 }
 
-export const Modal = ({ isOpen, onClose, title, children, size = 'md', elevation = 'default' }: ModalProps) => {
+export const Modal = ({ isOpen, onClose, title, children, size = 'md', elevation = 'default', closeOnBackdropClick = true }: ModalProps) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -40,7 +41,7 @@ export const Modal = ({ isOpen, onClose, title, children, size = 'md', elevation
   return createPortal(
     <div
       className={`fixed inset-0 ${modalElevationClasses[elevation]} flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm`}
-      onClick={onClose}
+      onClick={closeOnBackdropClick ? onClose : undefined}
     >
       <div
         className={`bg-stone-800 rounded-xl border border-stone-700 w-full ${modalSizeClasses[size]} max-h-[92vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl`}

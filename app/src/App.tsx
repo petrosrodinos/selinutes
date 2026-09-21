@@ -8,6 +8,13 @@ import { ForgotPassword } from "./pages/Auth/ForgotPassword";
 import { ResetPassword } from "./pages/Auth/ResetPassword";
 import { AuthGuard } from "./components/AuthGuard";
 import { AdminGuard } from "./components/AdminGuard";
+import { StoreAdminGuard } from "./components/StoreAdminGuard";
+import { StorePage } from "./pages/Store/StorePage";
+import { ProductPage } from "./pages/Store/ProductPage";
+import { MyOrdersPage } from "./pages/Orders/MyOrdersPage";
+import { StoreOverviewPage } from "./pages/StoreAdmin/StoreOverviewPage";
+import { StoreProductsPage } from "./pages/StoreAdmin/StoreProductsPage";
+import { STORE_ROUTES } from "./config/store/store.config";
 import { useAuthStore } from "./store/authStore";
 import { Game } from "./pages/Game";
 import { LandingPage } from "./pages/Landing";
@@ -106,6 +113,46 @@ function App() {
               <AdminGuard>
                 <AdminPage />
               </AdminGuard>
+            }
+          />
+          <Route
+            path={STORE_ROUTES.STORE}
+            element={
+              <AuthGuard>
+                <StorePage />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path={STORE_ROUTES.PRODUCT(":productUuid")}
+            element={
+              <AuthGuard>
+                <ProductPage />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path={STORE_ROUTES.ORDERS}
+            element={
+              <AuthGuard>
+                <MyOrdersPage />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path={STORE_ROUTES.ADMIN_ORDERS}
+            element={
+              <StoreAdminGuard>
+                <StoreOverviewPage />
+              </StoreAdminGuard>
+            }
+          />
+          <Route
+            path={STORE_ROUTES.ADMIN_PRODUCTS}
+            element={
+              <StoreAdminGuard>
+                <StoreProductsPage />
+              </StoreAdminGuard>
             }
           />
           <Route path="/admin/users" element={<Navigate to="/admin" replace />} />

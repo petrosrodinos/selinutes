@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { Settings, LogOut, Shield, FileText } from "lucide-react";
 import { RulesNavIcon } from "../../../components/RulesNavIcon";
+import { StoreNavMenu } from "../../../components/StoreNavMenu";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
 import { useCanAccessAdmin, useIsAdmin } from "../../../hooks";
@@ -45,6 +46,7 @@ export const Navigation = () => {
                   <FileText className="h-4 w-4 text-amber-400 sm:h-5 sm:w-5" />
                 </Link>
               ) : null}
+              <StoreNavMenu />
               <RulesNavIcon />
               <button type="button" onClick={() => setShowSettings(true)} className="rounded-lg border border-stone-600/50 bg-stone-700/60 p-2 transition-all duration-200 hover:bg-stone-600/60 sm:p-2.5">
                 <Settings className="h-4 w-4 text-amber-400 sm:h-5 sm:w-5" />

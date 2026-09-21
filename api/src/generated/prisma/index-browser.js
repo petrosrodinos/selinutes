@@ -150,6 +150,7 @@ exports.Prisma.UserStatsScalarFieldEnum = {
   wins: 'wins',
   losses: 'losses',
   draws: 'draws',
+  points_spent: 'points_spent',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
@@ -168,6 +169,54 @@ exports.Prisma.GameScalarFieldEnum = {
   logs: 'logs',
   created_at: 'created_at',
   finished_at: 'finished_at'
+};
+
+exports.Prisma.ProductScalarFieldEnum = {
+  id: 'id',
+  uuid: 'uuid',
+  name: 'name',
+  description: 'description',
+  type: 'type',
+  payment_method: 'payment_method',
+  price: 'price',
+  image_path: 'image_path',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.ProductImageScalarFieldEnum = {
+  id: 'id',
+  uuid: 'uuid',
+  product_uuid: 'product_uuid',
+  path: 'path',
+  created_at: 'created_at'
+};
+
+exports.Prisma.ProductFileScalarFieldEnum = {
+  id: 'id',
+  uuid: 'uuid',
+  product_uuid: 'product_uuid',
+  name: 'name',
+  path: 'path',
+  size: 'size',
+  content_type: 'content_type',
+  created_at: 'created_at'
+};
+
+exports.Prisma.OrderScalarFieldEnum = {
+  id: 'id',
+  uuid: 'uuid',
+  user_uuid: 'user_uuid',
+  product_uuid: 'product_uuid',
+  status: 'status',
+  payment_method: 'payment_method',
+  total: 'total',
+  stripe_session_id: 'stripe_session_id',
+  stripe_payment_intent_id: 'stripe_payment_intent_id',
+  paid_at: 'paid_at',
+  cancelled_at: 'cancelled_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.SortOrder = {
@@ -214,11 +263,32 @@ exports.GameStatus = exports.$Enums.GameStatus = {
   DRAW: 'DRAW'
 };
 
+exports.ProductType = exports.$Enums.ProductType = {
+  physical: 'physical',
+  digital: 'digital',
+  in_game_asset: 'in_game_asset'
+};
+
+exports.PaymentMethod = exports.$Enums.PaymentMethod = {
+  points: 'points',
+  online: 'online'
+};
+
+exports.OrderStatus = exports.$Enums.OrderStatus = {
+  pending: 'pending',
+  paid: 'paid',
+  cancelled: 'cancelled'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   PasswordResetToken: 'PasswordResetToken',
   UserStats: 'UserStats',
-  Game: 'Game'
+  Game: 'Game',
+  Product: 'Product',
+  ProductImage: 'ProductImage',
+  ProductFile: 'ProductFile',
+  Order: 'Order'
 };
 
 /**
