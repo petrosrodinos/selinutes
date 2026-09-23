@@ -39,6 +39,7 @@ export const ApiRoutes = {
         purchase: (productUuid: string) => `/store/products/${productUuid}/purchase`,
         confirmCheckout: '/store/checkout/confirm',
         orders: '/store/orders',
+        downloadOrder: (orderUuid: string) => `/store/orders/${orderUuid}/download`,
         downloadFile: (orderUuid: string, fileUuid: string) => `/store/orders/${orderUuid}/files/${fileUuid}/download`,
         admin: {
             overview: '/store/admin/overview',

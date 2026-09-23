@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Readable } from 'stream';
 import { GcsAdapter } from '../gcs.adapter';
 import {
     UploadImageRequest,
@@ -110,6 +111,10 @@ export class GcsService {
             this.logger.error('Upload multiple images error:', error.message);
             throw new Error(`Failed to upload multiple images: ${error.message}`);
         }
+    }
+
+    public getReadStream(path: string): Readable {
+        return this.gcsAdapter.getReadStream(path);
     }
 
     public async downloadImage(request: DownloadImageRequest): Promise<DownloadImageResponse> {

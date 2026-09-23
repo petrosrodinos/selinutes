@@ -1,20 +1,20 @@
 import { Link } from 'react-router-dom'
 import { StoreLayout } from '../../components/StoreLayout'
 import { STORE_ROUTES } from '../../config/store/store.config'
-import { useCheckoutReturn, useDownloadFile, useMyOrders } from '../../features/store'
+import { useCheckoutReturn, useDownloadOrder, useMyOrders } from '../../features/store'
 import { OrderCard } from './components/OrderCard'
 
 export const MyOrdersPage = () => {
     useCheckoutReturn()
 
     const { data: orders, isLoading, isError } = useMyOrders()
-    const downloadMutation = useDownloadFile()
+    const downloadMutation = useDownloadOrder()
 
-    const downloadingFileUuid = downloadMutation.isPending ? downloadMutation.variables.fileUuid : null
+    const downloadingOrderUuid = downloadMutation.isPending ? downloadMutation.variables.orderUuid : null
     const orderList = orders ?? []
 
-    const handleDownload = (orderUuid: string, fileUuid: string) => {
-        downloadMutation.mutate({ orderUuid, fileUuid })
+    const handleDownload = (orderUuid: string, filename: string) => {
+        downloadMutation.mutate({ orderUuid, filename })
     }
 
     const storeLink = (
@@ -47,7 +47,7 @@ export const MyOrdersPage = () => {
                     <OrderCard
                         key={order.uuid}
                         order={order}
-                        downloadingFileUuid={downloadingFileUuid}
+                        isDownloading={downloadingOrderUuid === order.uuid}
                         onDownload={handleDownload}
                     />
                 ))}

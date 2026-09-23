@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Readable } from 'stream';
 import {
     UploadImageRequest,
     UploadImageResponse,
@@ -178,6 +179,13 @@ export class GcsAdapter {
             this.logger.error('Get signed download URL error:', error);
             throw new Error(`Failed to get signed download URL: ${error.message}`);
         }
+    }
+
+    public getReadStream(path: string): Readable {
+        const storage = this.gcsConfig.getStorageClient();
+        const bucket = storage.bucket(this.gcsConfig.getBucketName());
+
+        return bucket.file(path).createReadStream();
     }
 
     public async downloadImage(request: DownloadImageRequest): Promise<DownloadImageResponse> {

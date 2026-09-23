@@ -43,6 +43,11 @@ export const getFileDownloadUrl = async (orderUuid: string, fileUuid: string): P
     return response.data
 }
 
+export const downloadOrderArchive = async (orderUuid: string): Promise<Blob> => {
+    const response = await axiosInstance.get<Blob>(ApiRoutes.store.downloadOrder(orderUuid), { responseType: 'blob' })
+    return response.data
+}
+
 export const getStoreOverview = async (): Promise<StoreOverview> => {
     const response = await axiosInstance.get<StoreOverview>(ApiRoutes.store.admin.overview)
     return response.data

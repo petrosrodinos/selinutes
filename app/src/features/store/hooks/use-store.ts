@@ -13,7 +13,7 @@ import {
     getAdminOrder,
     getAdminOrders,
     getAdminProducts,
-    getFileDownloadUrl,
+    downloadOrderArchive,
     getMyOrders,
     getStoreOverview,
     getStoreProduct,
@@ -75,12 +75,19 @@ export const usePurchaseProduct = () => {
     })
 }
 
-export const useDownloadFile = () =>
+export const useDownloadOrder = () =>
     useMutation({
-        mutationFn: ({ orderUuid, fileUuid }: { orderUuid: string; fileUuid: string }) =>
-            getFileDownloadUrl(orderUuid, fileUuid),
-        onSuccess: ({ url }) => {
-            window.location.assign(url)
+        mutationFn: async ({ orderUuid, filename }: { orderUuid: string; filename: string }) => {
+            const blob = await downloadOrderArchive(orderUuid)
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement('a')
+
+            link.href = url
+            link.download = filename
+            document.body.appendChild(link)
+            link.click()
+            link.remove()
+            URL.revokeObjectURL(url)
         },
         onError: (error) => {
             toast.error(getErrorMessage(error))

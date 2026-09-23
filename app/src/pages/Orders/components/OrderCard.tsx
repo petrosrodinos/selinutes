@@ -1,17 +1,17 @@
 import { ORDER_STATUS_LABELS, ORDER_STATUS_STYLES, ORDER_STATUSES } from '../../../config/store/store.config'
 import type { Order } from '../../../features/store/interfaces/store.interface'
+import { Download } from 'lucide-react'
 import { formatDateTime, formatPrice } from '../../../utils/store.utils'
-import { OrderFilesList } from './OrderFilesList'
 
 interface OrderCardProps {
     order: Order
-    downloadingFileUuid: string | null
-    onDownload: (orderUuid: string, fileUuid: string) => void
+    isDownloading: boolean
+    onDownload: (orderUuid: string, filename: string) => void
 }
 
-export const OrderCard = ({ order, downloadingFileUuid, onDownload }: OrderCardProps) => {
-    const handleDownload = (fileUuid: string) => {
-        onDownload(order.uuid, fileUuid)
+export const OrderCard = ({ order, isDownloading, onDownload }: OrderCardProps) => {
+    const handleDownload = () => {
+        onDownload(order.uuid, `${order.product.name}.zip`)
     }
 
     const isPaid = order.status === ORDER_STATUSES.PAID
@@ -35,20 +35,25 @@ export const OrderCard = ({ order, downloadingFileUuid, onDownload }: OrderCardP
                         </p>
                     </div>
                 </div>
-                <span
-                    className={`w-fit rounded-md px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status]}`}
-                >
-                    {ORDER_STATUS_LABELS[order.status]}
-                </span>
+                <div className="flex flex-col items-start gap-3 sm:items-end">
+                    <span
+                        className={`w-fit rounded-md px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status]}`}
+                    >
+                        {ORDER_STATUS_LABELS[order.status]}
+                    </span>
+                    {isPaid ? (
+                        <button
+                            type="button"
+                            onClick={handleDownload}
+                            disabled={isDownloading}
+                            className="flex cursor-pointer items-center gap-2 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <Download className="h-4 w-4" />
+                            {isDownloading ? 'Preparing zip...' : 'Download all (.zip)'}
+                        </button>
+                    ) : null}
+                </div>
             </div>
-
-            {isPaid && order.files.length > 0 ? (
-                <OrderFilesList
-                    files={order.files}
-                    downloadingFileUuid={downloadingFileUuid}
-                    onDownload={handleDownload}
-                />
-            ) : null}
 
             {isPending ? (
                 <p className="text-sm text-stone-400">

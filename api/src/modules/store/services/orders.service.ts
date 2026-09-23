@@ -1,4 +1,5 @@
 import { BadGatewayException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import archiver = require('archiver')
 import { posix } from 'path'
 import { OrderStatus, PaymentMethod } from 'generated/prisma'
 import { PrismaService } from '@/core/databases/prisma/prisma.service'
@@ -8,11 +9,12 @@ import { STORE_DOWNLOAD_URL_EXPIRY_MINUTES, STORE_IMAGE_URL_EXPIRY_MINUTES } fro
 import {
     AdminOrderEntry,
     FileDownloadResult,
+    OrderArchiveResult,
     OrderEntry,
     OrderGroupSummary,
     StoreOverviewEntry,
 } from '../interfaces/store.interface'
-import { summarizeOrderGroups, toAdminOrderEntry, toOrderEntry } from '../helpers/store.helper'
+import { sanitizeFileName, summarizeOrderGroups, toAdminOrderEntry, toOrderEntry } from '../helpers/store.helper'
 
 @Injectable()
 export class OrdersService {
@@ -42,6 +44,63 @@ export class OrdersService {
             this.logger.error(`Failed to sign image URL for product ${productUuid}`)
             return null
         }
+    }
+
+    async getOrderArchive(userUuid: string, orderUuid: string): Promise<OrderArchiveResult> {
+        const order = await this.prisma.order.findFirst({
+            where: { uuid: orderUuid, user_uuid: userUuid, status: OrderStatus.paid },
+            include: ORDER_INCLUDE,
+        })
+
+        if (!order) {
+            throw new NotFoundException('Order not found')
+        }
+
+        const { product } = order
+        const usedNames = new Set<string>()
+        const toEntryName = (folder: string, name: string): string => {
+            const dot = name.lastIndexOf('.')
+            const stem = dot > 0 ? name.slice(0, dot) : name
+            const extension = dot > 0 ? name.slice(dot) : ''
+            let candidate = `${folder}${name}`
+            let counter = 1
+
+            while (usedNames.has(candidate)) {
+                candidate = `${folder}${stem} (${counter})${extension}`
+                counter += 1
+            }
+
+            usedNames.add(candidate)
+            return candidate
+        }
+        const storedImageName = (path: string): string => posix.basename(path).replace(/^d+-(d+-)?/, '')
+
+        const entries = [
+            ...product.files.map((file) => ({ path: file.path, name: toEntryName('files/', sanitizeFileName(file.name)) })),
+            ...(product.image_path ? [{ path: product.image_path, name: toEntryName('images/', `cover-${storedImageName(product.image_path)}`) }] : []),
+            ...product.images.map((image) => ({ path: image.path, name: toEntryName('images/gallery/', storedImageName(image.path)) })),
+        ]
+
+        const archive = archiver('zip', { zlib: { level: 6 } })
+
+        archive.on('warning', (error) => this.logger.warn(`Archive warning for order ${orderUuid}: ${error.message}`))
+        archive.on('error', (error) => {
+            this.logger.error(`Archive failed for order ${orderUuid}: ${error.message}`)
+            archive.destroy(error)
+        })
+
+        for (const entry of entries) {
+            const source = this.gcsService.getReadStream(entry.path)
+            source.on('error', (error) => {
+                this.logger.error(`Failed to read ${entry.path} for order ${orderUuid}: ${error.message}`)
+                archive.destroy(error)
+            })
+            archive.append(source, { name: entry.name })
+        }
+
+        void archive.finalize()
+
+        return { stream: archive, filename: `${sanitizeFileName(product.name)}.zip` }
     }
 
     async getFileDownloadUrl(userUuid: string, orderUuid: string, fileUuid: string): Promise<FileDownloadResult> {

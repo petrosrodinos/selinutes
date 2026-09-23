@@ -1,3 +1,4 @@
+import { Readable } from 'stream'
 import { OrderStatus, PaymentMethod, ProductType } from 'generated/prisma'
 
 export interface ProductFileEntry {
@@ -73,6 +74,11 @@ export interface StoreOverviewEntry {
 export interface PurchaseResult {
     order: OrderEntry
     checkout_url: string | null
+}
+
+export interface OrderArchiveResult {
+    stream: Readable
+    filename: string
 }
 
 export interface FileDownloadResult {
