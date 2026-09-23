@@ -62,6 +62,7 @@ export const STORE_ROUTES = {
     STORE: '/store',
     ORDERS: '/store/orders',
     PRODUCT: (productUuid: string) => `/store/${productUuid}`,
+    CHECKOUT: (productUuid: string) => `/store/${productUuid}/checkout`,
     ADMIN_ORDERS: '/admin/store',
     ADMIN_PRODUCTS: '/admin/store/products',
 } as const

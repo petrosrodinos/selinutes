@@ -87,6 +87,10 @@ export class PurchaseService {
             return { order: toOrderEntry(order), checkout_url: null }
         }
 
+        if (this.configService.get<string>('STORE_MOCK_PAYMENTS') !== 'false') {
+            return this.purchaseWithoutPayment(userUuid, productUuid, product.price)
+        }
+
         const appUrl = this.configService.get<string>('APP_URL')
 
         if (!appUrl || !this.stripeConfig.getStripeClient()) {
@@ -146,6 +150,33 @@ export class PurchaseService {
         this.logger.log(`Checkout session ${session.id} created for order ${order.uuid}`)
 
         return { order: toOrderEntry(order), checkout_url: session.url }
+    }
+
+    private async purchaseWithoutPayment(userUuid: string, productUuid: string, price: number): Promise<PurchaseResult> {
+        const owned = await this.prisma.order.findFirst({
+            where: { user_uuid: userUuid, product_uuid: productUuid, status: OrderStatus.paid },
+            select: { id: true },
+        })
+
+        if (owned) {
+            throw new ConflictException('You already own this product')
+        }
+
+        const order = await this.prisma.order.create({
+            data: {
+                user_uuid: userUuid,
+                product_uuid: productUuid,
+                payment_method: PaymentMethod.online,
+                status: OrderStatus.paid,
+                total: price,
+                paid_at: new Date(),
+            },
+            include: ORDER_INCLUDE,
+        })
+
+        this.logger.warn(`Order ${order.uuid} created WITHOUT payment (STORE_MOCK_PAYMENTS) for user ${userUuid}`)
+
+        return { order: toOrderEntry(order), checkout_url: null }
     }
 
     async confirmCheckout(userUuid: string, sessionId: string): Promise<OrderEntry> {

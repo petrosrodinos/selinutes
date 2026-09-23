@@ -33,6 +33,7 @@ const createOrder = (status: OrderStatus): OrderWithRelations => ({
         type: ProductType.digital,
         payment_method: PaymentMethod.points,
         price: 100,
+        quantity: 1,
         image_path: null,
         created_at: new Date('2026-01-01T00:00:00Z'),
         updated_at: new Date('2026-01-01T00:00:00Z'),

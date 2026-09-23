@@ -34,6 +34,7 @@ export interface OrderProduct {
     name: string
     description: string
     type: ProductType
+    image_url: string | null
 }
 
 export interface Order {

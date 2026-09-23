@@ -15,7 +15,6 @@ import { formatPoints, formatPrice, getAvailablePoints } from '../../utils/store
 import { OnlinePurchaseAction } from './components/OnlinePurchaseAction'
 import { PointsPurchaseAction } from './components/PointsPurchaseAction'
 import { ProductGallery } from './components/ProductGallery'
-import { PurchaseConfirmDialog } from './components/PurchaseConfirmDialog'
 import type { PurchaseActionProps } from './components/store-card.types'
 import { useProductPurchase } from './hooks/useProductPurchase'
 
@@ -138,12 +137,6 @@ export const ProductPage = () => {
                 </div>
             </div>
 
-            <PurchaseConfirmDialog
-                product={purchase.productToBuy}
-                isConfirming={purchase.isConfirming}
-                onClose={purchase.handleCloseConfirm}
-                onConfirm={purchase.handleConfirmPurchase}
-            />
         </StoreLayout>
     )
 }

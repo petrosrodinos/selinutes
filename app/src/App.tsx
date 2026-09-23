@@ -11,6 +11,7 @@ import { AdminGuard } from "./components/AdminGuard";
 import { StoreAdminGuard } from "./components/StoreAdminGuard";
 import { StorePage } from "./pages/Store/StorePage";
 import { ProductPage } from "./pages/Store/ProductPage";
+import { CheckoutPage } from "./pages/Checkout/CheckoutPage";
 import { MyOrdersPage } from "./pages/Orders/MyOrdersPage";
 import { StoreOverviewPage } from "./pages/StoreAdmin/StoreOverviewPage";
 import { StoreProductsPage } from "./pages/StoreAdmin/StoreProductsPage";
@@ -128,6 +129,14 @@ function App() {
             element={
               <AuthGuard>
                 <ProductPage />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path={STORE_ROUTES.CHECKOUT(":productUuid")}
+            element={
+              <AuthGuard>
+                <CheckoutPage />
               </AuthGuard>
             }
           />

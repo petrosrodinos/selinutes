@@ -95,6 +95,7 @@ model Product {
   type           ProductType
   payment_method PaymentMethod
   price          Int
+  quantity       Int           @default(1)
   image_path     String?
   created_at     DateTime      @default(now())
   updated_at     DateTime      @updatedAt

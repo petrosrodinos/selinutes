@@ -20,11 +20,20 @@ export const OrderCard = ({ order, downloadingFileUuid, onDownload }: OrderCardP
     return (
         <article className="space-y-4 rounded-xl border border-stone-700 bg-stone-800/70 p-5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                <div className="space-y-1">
-                    <h2 className="text-lg font-semibold text-amber-300">{order.product.name}</h2>
-                    <p className="text-xs text-stone-500">
-                        Ordered {formatDateTime(order.created_at)} · {formatPrice(order.payment_method, order.total)}
-                    </p>
+                <div className="flex items-center gap-3">
+                    {order.product.image_url ? (
+                        <img
+                            src={order.product.image_url}
+                            alt={order.product.name}
+                            className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                        />
+                    ) : null}
+                    <div className="space-y-1">
+                        <h2 className="text-lg font-semibold text-amber-300">{order.product.name}</h2>
+                        <p className="text-xs text-stone-500">
+                            Ordered {formatDateTime(order.created_at)} · {formatPrice(order.payment_method, order.total)}
+                        </p>
+                    </div>
                 </div>
                 <span
                     className={`w-fit rounded-md px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${ORDER_STATUS_STYLES[order.status]}`}

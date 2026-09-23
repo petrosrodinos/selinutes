@@ -6436,11 +6436,13 @@ export namespace Prisma {
   export type ProductAvgAggregateOutputType = {
     id: number | null
     price: number | null
+    quantity: number | null
   }
 
   export type ProductSumAggregateOutputType = {
     id: number | null
     price: number | null
+    quantity: number | null
   }
 
   export type ProductMinAggregateOutputType = {
@@ -6451,6 +6453,7 @@ export namespace Prisma {
     type: $Enums.ProductType | null
     payment_method: $Enums.PaymentMethod | null
     price: number | null
+    quantity: number | null
     image_path: string | null
     created_at: Date | null
     updated_at: Date | null
@@ -6464,6 +6467,7 @@ export namespace Prisma {
     type: $Enums.ProductType | null
     payment_method: $Enums.PaymentMethod | null
     price: number | null
+    quantity: number | null
     image_path: string | null
     created_at: Date | null
     updated_at: Date | null
@@ -6477,6 +6481,7 @@ export namespace Prisma {
     type: number
     payment_method: number
     price: number
+    quantity: number
     image_path: number
     created_at: number
     updated_at: number
@@ -6487,11 +6492,13 @@ export namespace Prisma {
   export type ProductAvgAggregateInputType = {
     id?: true
     price?: true
+    quantity?: true
   }
 
   export type ProductSumAggregateInputType = {
     id?: true
     price?: true
+    quantity?: true
   }
 
   export type ProductMinAggregateInputType = {
@@ -6502,6 +6509,7 @@ export namespace Prisma {
     type?: true
     payment_method?: true
     price?: true
+    quantity?: true
     image_path?: true
     created_at?: true
     updated_at?: true
@@ -6515,6 +6523,7 @@ export namespace Prisma {
     type?: true
     payment_method?: true
     price?: true
+    quantity?: true
     image_path?: true
     created_at?: true
     updated_at?: true
@@ -6528,6 +6537,7 @@ export namespace Prisma {
     type?: true
     payment_method?: true
     price?: true
+    quantity?: true
     image_path?: true
     created_at?: true
     updated_at?: true
@@ -6628,6 +6638,7 @@ export namespace Prisma {
     type: $Enums.ProductType
     payment_method: $Enums.PaymentMethod
     price: number
+    quantity: number
     image_path: string | null
     created_at: Date
     updated_at: Date
@@ -6660,6 +6671,7 @@ export namespace Prisma {
     type?: boolean
     payment_method?: boolean
     price?: boolean
+    quantity?: boolean
     image_path?: boolean
     created_at?: boolean
     updated_at?: boolean
@@ -6677,6 +6689,7 @@ export namespace Prisma {
     type?: boolean
     payment_method?: boolean
     price?: boolean
+    quantity?: boolean
     image_path?: boolean
     created_at?: boolean
     updated_at?: boolean
@@ -6690,6 +6703,7 @@ export namespace Prisma {
     type?: boolean
     payment_method?: boolean
     price?: boolean
+    quantity?: boolean
     image_path?: boolean
     created_at?: boolean
     updated_at?: boolean
@@ -6703,12 +6717,13 @@ export namespace Prisma {
     type?: boolean
     payment_method?: boolean
     price?: boolean
+    quantity?: boolean
     image_path?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
 
-  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "name" | "description" | "type" | "payment_method" | "price" | "image_path" | "created_at" | "updated_at", ExtArgs["result"]["product"]>
+  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "name" | "description" | "type" | "payment_method" | "price" | "quantity" | "image_path" | "created_at" | "updated_at", ExtArgs["result"]["product"]>
   export type ProductInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     files?: boolean | Product$filesArgs<ExtArgs>
     images?: boolean | Product$imagesArgs<ExtArgs>
@@ -6733,6 +6748,7 @@ export namespace Prisma {
       type: $Enums.ProductType
       payment_method: $Enums.PaymentMethod
       price: number
+      quantity: number
       image_path: string | null
       created_at: Date
       updated_at: Date
@@ -7169,6 +7185,7 @@ export namespace Prisma {
     readonly type: FieldRef<"Product", 'ProductType'>
     readonly payment_method: FieldRef<"Product", 'PaymentMethod'>
     readonly price: FieldRef<"Product", 'Int'>
+    readonly quantity: FieldRef<"Product", 'Int'>
     readonly image_path: FieldRef<"Product", 'String'>
     readonly created_at: FieldRef<"Product", 'DateTime'>
     readonly updated_at: FieldRef<"Product", 'DateTime'>
@@ -11170,6 +11187,7 @@ export namespace Prisma {
     type: 'type',
     payment_method: 'payment_method',
     price: 'price',
+    quantity: 'quantity',
     image_path: 'image_path',
     created_at: 'created_at',
     updated_at: 'updated_at'
@@ -11768,6 +11786,7 @@ export namespace Prisma {
     type?: EnumProductTypeFilter<"Product"> | $Enums.ProductType
     payment_method?: EnumPaymentMethodFilter<"Product"> | $Enums.PaymentMethod
     price?: IntFilter<"Product"> | number
+    quantity?: IntFilter<"Product"> | number
     image_path?: StringNullableFilter<"Product"> | string | null
     created_at?: DateTimeFilter<"Product"> | Date | string
     updated_at?: DateTimeFilter<"Product"> | Date | string
@@ -11784,6 +11803,7 @@ export namespace Prisma {
     type?: SortOrder
     payment_method?: SortOrder
     price?: SortOrder
+    quantity?: SortOrder
     image_path?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -11803,6 +11823,7 @@ export namespace Prisma {
     type?: EnumProductTypeFilter<"Product"> | $Enums.ProductType
     payment_method?: EnumPaymentMethodFilter<"Product"> | $Enums.PaymentMethod
     price?: IntFilter<"Product"> | number
+    quantity?: IntFilter<"Product"> | number
     image_path?: StringNullableFilter<"Product"> | string | null
     created_at?: DateTimeFilter<"Product"> | Date | string
     updated_at?: DateTimeFilter<"Product"> | Date | string
@@ -11819,6 +11840,7 @@ export namespace Prisma {
     type?: SortOrder
     payment_method?: SortOrder
     price?: SortOrder
+    quantity?: SortOrder
     image_path?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -11840,6 +11862,7 @@ export namespace Prisma {
     type?: EnumProductTypeWithAggregatesFilter<"Product"> | $Enums.ProductType
     payment_method?: EnumPaymentMethodWithAggregatesFilter<"Product"> | $Enums.PaymentMethod
     price?: IntWithAggregatesFilter<"Product"> | number
+    quantity?: IntWithAggregatesFilter<"Product"> | number
     image_path?: StringNullableWithAggregatesFilter<"Product"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"Product"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"Product"> | Date | string
@@ -12439,6 +12462,7 @@ export namespace Prisma {
     type: $Enums.ProductType
     payment_method: $Enums.PaymentMethod
     price: number
+    quantity?: number
     image_path?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -12455,6 +12479,7 @@ export namespace Prisma {
     type: $Enums.ProductType
     payment_method: $Enums.PaymentMethod
     price: number
+    quantity?: number
     image_path?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -12470,6 +12495,7 @@ export namespace Prisma {
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     payment_method?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     price?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12486,6 +12512,7 @@ export namespace Prisma {
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     payment_method?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     price?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12502,6 +12529,7 @@ export namespace Prisma {
     type: $Enums.ProductType
     payment_method: $Enums.PaymentMethod
     price: number
+    quantity?: number
     image_path?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -12514,6 +12542,7 @@ export namespace Prisma {
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     payment_method?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     price?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12527,6 +12556,7 @@ export namespace Prisma {
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     payment_method?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     price?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13324,6 +13354,7 @@ export namespace Prisma {
     type?: SortOrder
     payment_method?: SortOrder
     price?: SortOrder
+    quantity?: SortOrder
     image_path?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -13332,6 +13363,7 @@ export namespace Prisma {
   export type ProductAvgOrderByAggregateInput = {
     id?: SortOrder
     price?: SortOrder
+    quantity?: SortOrder
   }
 
   export type ProductMaxOrderByAggregateInput = {
@@ -13342,6 +13374,7 @@ export namespace Prisma {
     type?: SortOrder
     payment_method?: SortOrder
     price?: SortOrder
+    quantity?: SortOrder
     image_path?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -13355,6 +13388,7 @@ export namespace Prisma {
     type?: SortOrder
     payment_method?: SortOrder
     price?: SortOrder
+    quantity?: SortOrder
     image_path?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -13363,6 +13397,7 @@ export namespace Prisma {
   export type ProductSumOrderByAggregateInput = {
     id?: SortOrder
     price?: SortOrder
+    quantity?: SortOrder
   }
 
   export type EnumProductTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -14951,6 +14986,7 @@ export namespace Prisma {
     type: $Enums.ProductType
     payment_method: $Enums.PaymentMethod
     price: number
+    quantity?: number
     image_path?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -14966,6 +15002,7 @@ export namespace Prisma {
     type: $Enums.ProductType
     payment_method: $Enums.PaymentMethod
     price: number
+    quantity?: number
     image_path?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -14996,6 +15033,7 @@ export namespace Prisma {
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     payment_method?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     price?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15011,6 +15049,7 @@ export namespace Prisma {
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     payment_method?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     price?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15025,6 +15064,7 @@ export namespace Prisma {
     type: $Enums.ProductType
     payment_method: $Enums.PaymentMethod
     price: number
+    quantity?: number
     image_path?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -15040,6 +15080,7 @@ export namespace Prisma {
     type: $Enums.ProductType
     payment_method: $Enums.PaymentMethod
     price: number
+    quantity?: number
     image_path?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -15070,6 +15111,7 @@ export namespace Prisma {
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     payment_method?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     price?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15085,6 +15127,7 @@ export namespace Prisma {
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     payment_method?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     price?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15133,6 +15176,7 @@ export namespace Prisma {
     type: $Enums.ProductType
     payment_method: $Enums.PaymentMethod
     price: number
+    quantity?: number
     image_path?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -15148,6 +15192,7 @@ export namespace Prisma {
     type: $Enums.ProductType
     payment_method: $Enums.PaymentMethod
     price: number
+    quantity?: number
     image_path?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -15218,6 +15263,7 @@ export namespace Prisma {
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     payment_method?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     price?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15233,6 +15279,7 @@ export namespace Prisma {
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     payment_method?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     price?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string

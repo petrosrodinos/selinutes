@@ -4,7 +4,6 @@ import { useMyStats } from '../../features/stats'
 import { useCheckoutReturn, useStoreProducts } from '../../features/store'
 import { formatPoints, getAvailablePoints, isSupportedProductType } from '../../utils/store.utils'
 import { ProductCard } from './components/ProductCard'
-import { PurchaseConfirmDialog } from './components/PurchaseConfirmDialog'
 import { useProductPurchase } from './hooks/useProductPurchase'
 
 export const StorePage = () => {
@@ -58,12 +57,6 @@ export const StorePage = () => {
                 ))}
             </div>
 
-            <PurchaseConfirmDialog
-                product={purchase.productToBuy}
-                isConfirming={purchase.isConfirming}
-                onClose={purchase.handleCloseConfirm}
-                onConfirm={purchase.handleConfirmPurchase}
-            />
         </StoreLayout>
     )
 }

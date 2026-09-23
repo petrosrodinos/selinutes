@@ -101,7 +101,7 @@ export const toStoreProductEntry = (entry: ProductEntry, purchased: boolean): St
     purchased,
 })
 
-export const toOrderEntry = (order: OrderWithRelations): OrderEntry => ({
+export const toOrderEntry = (order: OrderWithRelations, imageUrl: string | null = null): OrderEntry => ({
     uuid: order.uuid,
     status: order.status,
     payment_method: order.payment_method,
@@ -111,6 +111,7 @@ export const toOrderEntry = (order: OrderWithRelations): OrderEntry => ({
         name: order.product.name,
         description: order.product.description,
         type: order.product.type,
+        image_url: imageUrl,
     },
     files: order.status === OrderStatus.paid ? order.product.files.map(toProductFileEntry) : [],
     created_at: order.created_at,

@@ -1,9 +1,10 @@
 import { BadGatewayException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { posix } from 'path'
 import { OrderStatus, PaymentMethod } from 'generated/prisma'
 import { PrismaService } from '@/core/databases/prisma/prisma.service'
 import { GcsService } from '@/integrations/storage/gcs/services/gcs.service'
 import { ORDER_INCLUDE } from '../constants/store-queries.constants'
-import { STORE_DOWNLOAD_URL_EXPIRY_MINUTES } from '../constants/store.constants'
+import { STORE_DOWNLOAD_URL_EXPIRY_MINUTES, STORE_IMAGE_URL_EXPIRY_MINUTES } from '../constants/store.constants'
 import {
     AdminOrderEntry,
     FileDownloadResult,
@@ -29,7 +30,18 @@ export class OrdersService {
             orderBy: { created_at: 'desc' },
         })
 
-        return orders.map(toOrderEntry)
+        return Promise.all(orders.map(async (order) => toOrderEntry(order, await this.getSignedImageUrl(order.product.uuid, order.product.image_path))))
+    }
+
+    private async getSignedImageUrl(productUuid: string, path: string | null): Promise<string | null> {
+        if (!path) return null
+
+        try {
+            return await this.gcsService.getSignedUrl(posix.basename(path), posix.dirname(path), STORE_IMAGE_URL_EXPIRY_MINUTES)
+        } catch {
+            this.logger.error(`Failed to sign image URL for product ${productUuid}`)
+            return null
+        }
     }
 
     async getFileDownloadUrl(userUuid: string, orderUuid: string, fileUuid: string): Promise<FileDownloadResult> {

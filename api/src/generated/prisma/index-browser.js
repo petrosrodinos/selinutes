@@ -179,6 +179,7 @@ exports.Prisma.ProductScalarFieldEnum = {
   type: 'type',
   payment_method: 'payment_method',
   price: 'price',
+  quantity: 'quantity',
   image_path: 'image_path',
   created_at: 'created_at',
   updated_at: 'updated_at'
