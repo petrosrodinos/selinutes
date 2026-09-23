@@ -333,6 +333,12 @@ export class ProductsService {
     }
 
     private async deleteStoredFiles(paths: string[]): Promise<void> {
-        await Promise.allSettled(paths.map((path) => this.gcsService.deleteImage({ filename: path })))
+        const results = await Promise.allSettled(paths.map((path) => this.gcsService.deleteImage({ filename: path })))
+
+        results.forEach((result, index) => {
+            if (result.status === 'rejected') {
+                this.logger.error(`Failed to delete ${paths[index]} from storage: ${result.reason instanceof Error ? result.reason.message : String(result.reason)}`)
+            }
+        })
     }
 }

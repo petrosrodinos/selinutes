@@ -1,17 +1,17 @@
-import { ArrowLeft, CalendarDays, CreditCard, PackageCheck, Trophy, Zap } from 'lucide-react'
+import { ArrowLeft, CreditCard, Trophy, Zap } from 'lucide-react'
 import type { ComponentType, ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { StoreLayout } from '../../components/StoreLayout'
 import {
     PAYMENT_METHOD_LABELS,
     PAYMENT_METHODS,
-    PRODUCT_TYPE_LABELS,
+    PRODUCT_TYPES,
     STORE_ROUTES,
     type PaymentMethod,
 } from '../../config/store/store.config'
 import { useMyStats } from '../../features/stats'
 import { useCheckoutReturn, useStoreProduct } from '../../features/store'
-import { formatDateTime, formatPoints, formatPrice, getAvailablePoints } from '../../utils/store.utils'
+import { formatPoints, formatPrice, getAvailablePoints } from '../../utils/store.utils'
 import { OnlinePurchaseAction } from './components/OnlinePurchaseAction'
 import { PointsPurchaseAction } from './components/PointsPurchaseAction'
 import { ProductGallery } from './components/ProductGallery'
@@ -26,7 +26,7 @@ const PURCHASE_ACTIONS: Record<PaymentMethod, ComponentType<PurchaseActionProps>
 
 const PRICE_STICKER_STYLES: Record<PaymentMethod, string> = {
     [PAYMENT_METHODS.POINTS]: 'from-amber-300 to-amber-500 text-stone-900',
-    [PAYMENT_METHODS.ONLINE]: 'from-emerald-300 to-emerald-500 text-emerald-950',
+    [PAYMENT_METHODS.ONLINE]: 'from-gold to-amber-500 text-ink',
 }
 
 interface InfoTileProps {
@@ -83,7 +83,7 @@ export const ProductPage = () => {
     const PaymentIcon = product.payment_method === PAYMENT_METHODS.POINTS ? Trophy : CreditCard
 
     return (
-        <StoreLayout title={product.name} description={PRODUCT_TYPE_LABELS[product.type]} actions={<BackToStoreLink />}>
+        <StoreLayout title={product.name} actions={<BackToStoreLink />}>
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
                 <ProductGallery name={product.name} coverUrl={product.image_url} gallery={product.gallery} />
 
@@ -99,25 +99,17 @@ export const ProductPage = () => {
                     </p>
 
                     <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                        <InfoTile
-                            icon={<Zap className="h-5 w-5" />}
-                            title="Instant delivery"
-                            text="Unlocked in My Orders right after you buy."
-                        />
+                        {product.type === PRODUCT_TYPES.PHYSICAL ? (
+                            <InfoTile
+                                icon={<Zap className="h-5 w-5" />}
+                                title="Instant delivery"
+                                text="Unlocked in My Orders right after you buy."
+                            />
+                        ) : null}
                         <InfoTile
                             icon={<PaymentIcon className="h-5 w-5" />}
                             title="Payment"
                             text={PAYMENT_METHOD_LABELS[product.payment_method]}
-                        />
-                        <InfoTile
-                            icon={<PackageCheck className="h-5 w-5" />}
-                            title="Type"
-                            text={PRODUCT_TYPE_LABELS[product.type]}
-                        />
-                        <InfoTile
-                            icon={<CalendarDays className="h-5 w-5" />}
-                            title="Added"
-                            text={formatDateTime(product.created_at)}
                         />
                     </ul>
 
@@ -125,7 +117,7 @@ export const ProductPage = () => {
                         {product.purchased ? (
                             <Link
                                 to={STORE_ROUTES.ORDERS}
-                                className="block cursor-pointer rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-center text-sm font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/20"
+                                className="block cursor-pointer rounded-lg border border-gold/30 bg-gold/10 px-4 py-2.5 text-center text-sm font-semibold text-gold transition-colors hover:bg-gold/20"
                             >
                                 Owned · View in My Orders
                             </Link>

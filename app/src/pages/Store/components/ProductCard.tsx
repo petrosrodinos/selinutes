@@ -61,7 +61,7 @@ export const ProductCard = ({ product, productType, availablePoints, isPurchasin
                 {product.purchased ? (
                     <Link
                         to={STORE_ROUTES.ORDERS}
-                        className="block cursor-pointer rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-center text-sm font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/20"
+                        className="block cursor-pointer rounded-lg border border-gold/30 bg-gold/10 px-4 py-2.5 text-center text-sm font-semibold text-gold transition-colors hover:bg-gold/20"
                     >
                         Owned · View in My Orders
                     </Link>

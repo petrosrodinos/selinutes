@@ -10,14 +10,14 @@ export const OnlinePurchaseAction = ({ product, isPurchasing, onPurchase }: Purc
     return (
         <div className="space-y-2">
             <div className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-emerald-400" />
-                <span className="text-xl font-bold text-emerald-400">{formatCents(product.price)}</span>
+                <CreditCard className="h-5 w-5 text-gold" />
+                <span className="text-xl font-bold text-gold">{formatCents(product.price)}</span>
             </div>
             <button
                 type="button"
                 onClick={handleClick}
                 disabled={isPurchasing}
-                className="w-full cursor-pointer rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full cursor-pointer rounded-lg bg-gold px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
                 {isPurchasing ? 'Redirecting...' : 'Pay online'}
             </button>
