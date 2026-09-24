@@ -3,6 +3,7 @@ import { ApiRoutes } from '../../../config/api/routes'
 import { buildProductFormData } from '../../../utils/store.utils'
 import type {
     AdminOrder,
+    AppConfig,
     CreateProductPayload,
     FileDownloadResult,
     Order,
@@ -23,8 +24,16 @@ export const getStoreProduct = async (productUuid: string): Promise<StoreProduct
     return response.data
 }
 
-export const purchaseProduct = async (productUuid: string): Promise<PurchaseResult> => {
-    const response = await axiosInstance.post<PurchaseResult>(ApiRoutes.store.purchase(productUuid))
+export const purchaseProduct = async ({
+    productUuid,
+    points,
+}: {
+    productUuid: string
+    points: number
+}): Promise<PurchaseResult> => {
+    const response = await axiosInstance.post<PurchaseResult>(ApiRoutes.store.purchase(productUuid), {
+        points,
+    })
     return response.data
 }
 
@@ -48,7 +57,17 @@ export const downloadOrderArchive = async (orderUuid: string): Promise<Blob> => 
     return response.data
 }
 
-export const getStoreOverview = async (): Promise<StoreOverview> => {
+export const getAppConfig = async (): Promise<AppConfig> => {
+    const response = await axiosInstance.get<AppConfig>(ApiRoutes.store.admin.config)
+    return response.data
+}
+
+export const updateAppConfig = async (payload: AppConfig): Promise<AppConfig> => {
+    const response = await axiosInstance.patch<AppConfig>(ApiRoutes.store.admin.config, payload)
+    return response.data
+}
+
+export const getStoreOverview =async (): Promise<StoreOverview> => {
     const response = await axiosInstance.get<StoreOverview>(ApiRoutes.store.admin.overview)
     return response.data
 }

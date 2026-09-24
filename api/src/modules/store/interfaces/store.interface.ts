@@ -18,16 +18,28 @@ export interface ProductEntry {
     name: string
     description: string
     type: ProductType
-    payment_method: PaymentMethod
     price: number
+    max_discount_percent: number
+    quantity: number
     image_url: string | null
     gallery: ProductGalleryImageEntry[]
     files: ProductFileEntry[]
     created_at: Date
 }
 
+export interface AppConfigEntry {
+    points_per_currency_unit: number
+}
+
+export interface PointsDiscountEntry {
+    points_used: number
+    discount_cents: number
+}
+
 export interface StoreProductEntry extends ProductEntry {
     purchased: boolean
+    points_discount: PointsDiscountEntry
+    points_per_currency_unit: number
 }
 
 export interface OrderProductEntry {
@@ -43,6 +55,11 @@ export interface OrderEntry {
     status: OrderStatus
     payment_method: PaymentMethod
     total: number
+    points_used: number
+    discount_cents: number
+    payment_summary: string | null
+    price_cents: number | null
+    points_per_currency_unit: number | null
     product: OrderProductEntry
     files: ProductFileEntry[]
     created_at: Date
@@ -90,4 +107,5 @@ export interface OrderGroupSummary {
     payment_method: PaymentMethod
     count: number
     total: number
+    points_used: number
 }

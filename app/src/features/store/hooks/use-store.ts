@@ -13,6 +13,7 @@ import {
     getAdminOrder,
     getAdminOrders,
     getAdminProducts,
+    getAppConfig,
     downloadOrderArchive,
     getMyOrders,
     getStoreOverview,
@@ -20,12 +21,14 @@ import {
     getStoreProducts,
     purchaseProduct,
     updateAdminProduct,
+    updateAppConfig,
 } from '../services/store.service'
 
 const STORE_KEYS = {
     products: ['store', 'products'],
     product: (productUuid: string | undefined) => ['store', 'product', productUuid],
     orders: ['store', 'orders'],
+    adminConfig: ['store', 'admin', 'config'],
     adminOverview: ['store', 'admin', 'overview'],
     adminOrders: ['store', 'admin', 'orders'],
     adminOrder: (orderUuid: string | null) => ['store', 'admin', 'order', orderUuid],
@@ -128,6 +131,27 @@ export const useCheckoutReturn = () => {
                 toast.error(getErrorMessage(error))
             })
     }, [status, sessionId, setSearchParams, queryClient])
+}
+
+export const useAppConfig = () =>
+    useQuery({
+        queryKey: STORE_KEYS.adminConfig,
+        queryFn: getAppConfig,
+    })
+
+export const useUpdateAppConfig = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: updateAppConfig,
+        onSuccess: async () => {
+            toast.success('Points rate updated')
+            await queryClient.invalidateQueries({ queryKey: ['store'] })
+        },
+        onError: (error) => {
+            toast.error(getErrorMessage(error))
+        },
+    })
 }
 
 export const useStoreOverview = () =>

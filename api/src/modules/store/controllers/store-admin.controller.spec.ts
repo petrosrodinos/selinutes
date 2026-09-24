@@ -5,6 +5,7 @@ import { PrismaService } from '@/core/databases/prisma/prisma.service'
 import { GcsService } from '@/integrations/storage/gcs/services/gcs.service'
 import { JwtGuard } from '@/shared/guards/jwt.guard'
 import { RolesGuard } from '@/shared/guards/roles.guard'
+import { AppConfigService } from '../services/app-config.service'
 import { OrdersService } from '../services/orders.service'
 import { ProductsService } from '../services/products.service'
 import { StoreAdminController } from './store-admin.controller'
@@ -26,6 +27,7 @@ describe('StoreAdminController product creation', () => {
             providers: [
                 ProductsService,
                 { provide: OrdersService, useValue: {} },
+                { provide: AppConfigService, useValue: { getPointsPerCurrencyUnit: () => Promise.resolve(100) } },
                 {
                     provide: PrismaService,
                     useValue: {
@@ -75,7 +77,6 @@ describe('StoreAdminController product creation', () => {
             name: data.name,
             description: data.description,
             type: data.type,
-            payment_method: data.payment_method,
             price: data.price,
             image_path: data.image_path,
             created_at: new Date('2026-01-01T00:00:00Z'),
@@ -88,13 +89,6 @@ describe('StoreAdminController product creation', () => {
                 path: 'secret/path',
                 ...file,
             })),
-            images: (data.images?.create ?? []).map((image: { path: string }, index: number) => ({
-                id: index,
-                uuid: `image-${index}`,
-                product_uuid: data.uuid,
-                created_at: new Date('2026-01-01T00:00:00Z'),
-                ...image,
-            })),
         }))
     })
 
@@ -104,7 +98,6 @@ describe('StoreAdminController product creation', () => {
             .field('name', 'Opening Playbook')
             .field('description', 'Guide')
             .field('type', 'digital')
-            .field('payment_method', 'points')
             .field('price', '250')
             .attach('files', Buffer.from('abc'), 'guide.pdf')
             .attach('files', Buffer.from('def'), 'cheatsheet.png')
@@ -123,8 +116,7 @@ describe('StoreAdminController product creation', () => {
             .field('name', 'With cover')
             .field('description', '')
             .field('type', 'digital')
-            .field('payment_method', 'points')
-            .field('price', '10')
+            .field('price', '1000')
             .attach('files', Buffer.from('abc'), 'guide.pdf')
             .attach('image', Buffer.from('img'), { filename: 'cover.png', contentType: 'image/png' })
 
@@ -141,8 +133,7 @@ describe('StoreAdminController product creation', () => {
             .field('name', 'Bad cover')
             .field('description', '')
             .field('type', 'digital')
-            .field('payment_method', 'points')
-            .field('price', '10')
+            .field('price', '1000')
             .attach('files', Buffer.from('abc'), 'guide.pdf')
             .attach('image', Buffer.from('nope'), { filename: 'cover.pdf', contentType: 'application/pdf' })
 
@@ -156,8 +147,7 @@ describe('StoreAdminController product creation', () => {
             .field('name', 'No cover')
             .field('description', '')
             .field('type', 'digital')
-            .field('payment_method', 'points')
-            .field('price', '10')
+            .field('price', '1000')
             .attach('files', Buffer.from('abc'), 'guide.pdf')
 
         expect(response.body.image_url).toBeNull()
@@ -170,8 +160,7 @@ describe('StoreAdminController product creation', () => {
             .field('name', 'Empty')
             .field('description', '')
             .field('type', 'digital')
-            .field('payment_method', 'points')
-            .field('price', '10')
+            .field('price', '1000')
 
         expect(response.status).toBe(HttpStatus.BAD_REQUEST)
         expect(uploadImageFromBuffer).not.toHaveBeenCalled()
@@ -184,21 +173,19 @@ describe('StoreAdminController product creation', () => {
             .field('name', 'Bad type')
             .field('description', '')
             .field('type', 'subscription')
-            .field('payment_method', 'points')
-            .field('price', '10')
+            .field('price', '1000')
             .attach('files', Buffer.from('abc'), 'a.pdf')
 
         expect(response.status).toBe(HttpStatus.BAD_REQUEST)
         expect(productCreate).not.toHaveBeenCalled()
     })
 
-    it('rejects an online price below the Stripe minimum', async () => {
+    it('rejects a price below the Stripe minimum', async () => {
         const response = await request(app.getHttpServer())
             .post('/store/admin/products')
             .field('name', 'Cheap')
             .field('description', '')
             .field('type', 'digital')
-            .field('payment_method', 'online')
             .field('price', '10')
             .attach('files', Buffer.from('abc'), 'a.pdf')
 
@@ -215,8 +202,7 @@ describe('StoreAdminController product creation', () => {
             .field('name', 'Doomed')
             .field('description', '')
             .field('type', 'digital')
-            .field('payment_method', 'points')
-            .field('price', '10')
+            .field('price', '1000')
             .attach('files', Buffer.from('abc'), 'a.pdf')
 
         expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -227,8 +213,6 @@ describe('StoreAdminController product creation', () => {
         const productUuid = '11111111-1111-4111-8111-111111111111'
         const keptFileUuid = '22222222-2222-4222-8222-222222222222'
         const removedFileUuid = '33333333-3333-4333-8333-333333333333'
-        const keptImageUuid = '55555555-5555-4555-8555-555555555555'
-        const removedImageUuid = '66666666-6666-4666-8666-666666666666'
         const existingFile = (uuid: string, name: string) => ({
             id: 1,
             uuid,
@@ -245,16 +229,11 @@ describe('StoreAdminController product creation', () => {
             name: 'Old',
             description: '',
             type: 'digital',
-            payment_method: 'points',
             price: 100,
             image_path: 'store-products/old/image/0-old.png',
             created_at: new Date('2026-01-01T00:00:00Z'),
             updated_at: new Date('2026-01-01T00:00:00Z'),
             files: [existingFile(keptFileUuid, 'kept.pdf'), existingFile(removedFileUuid, 'removed.pdf')],
-            images: [
-                { id: 1, uuid: keptImageUuid, product_uuid: productUuid, path: 'store-products/old/gallery/0-kept.png', created_at: new Date('2026-01-01T00:00:00Z') },
-                { id: 2, uuid: removedImageUuid, product_uuid: productUuid, path: 'store-products/old/gallery/1-removed.png', created_at: new Date('2026-01-01T00:00:00Z') },
-            ],
         }
 
         beforeEach(() => {
@@ -263,7 +242,6 @@ describe('StoreAdminController product creation', () => {
                 ...existingProduct,
                 ...data,
                 files: [existingProduct.files[0]],
-                images: [existingProduct.images[0]],
             }))
             deleteImage.mockResolvedValue({ success: true })
         })
@@ -274,7 +252,6 @@ describe('StoreAdminController product creation', () => {
                 .field('name', 'New name')
                 .field('description', 'Updated')
                 .field('type', 'digital')
-                .field('payment_method', 'points')
                 .field('price', '300')
                 .field('remove_file_uuids', removedFileUuid)
 
@@ -291,7 +268,6 @@ describe('StoreAdminController product creation', () => {
                 .field('name', 'Old')
                 .field('description', '')
                 .field('type', 'digital')
-                .field('payment_method', 'points')
                 .field('price', '100')
                 .attach('image', Buffer.from('img'), { filename: 'new.png', contentType: 'image/png' })
 
@@ -306,7 +282,6 @@ describe('StoreAdminController product creation', () => {
                 .field('name', 'Old')
                 .field('description', '')
                 .field('type', 'digital')
-                .field('payment_method', 'points')
                 .field('price', '100')
                 .field('remove_image', 'true')
 
@@ -321,7 +296,6 @@ describe('StoreAdminController product creation', () => {
                 .field('name', 'Old')
                 .field('description', '')
                 .field('type', 'digital')
-                .field('payment_method', 'points')
                 .field('price', '100')
 
             expect(productUpdate.mock.calls[0][0].data.image_path).toBeUndefined()
@@ -336,8 +310,7 @@ describe('StoreAdminController product creation', () => {
                 .field('name', 'Ghost')
                 .field('description', '')
                 .field('type', 'digital')
-                .field('payment_method', 'points')
-                .field('price', '10')
+                .field('price', '1000')
 
             expect(response.status).toBe(HttpStatus.NOT_FOUND)
             expect(productUpdate).not.toHaveBeenCalled()
@@ -349,8 +322,7 @@ describe('StoreAdminController product creation', () => {
                 .field('name', 'Empty')
                 .field('description', '')
                 .field('type', 'digital')
-                .field('payment_method', 'points')
-                .field('price', '10')
+                .field('price', '1000')
                 .field('remove_file_uuids', keptFileUuid)
                 .field('remove_file_uuids', removedFileUuid)
 
@@ -364,54 +336,37 @@ describe('StoreAdminController product creation', () => {
                 .field('name', 'Sneaky')
                 .field('description', '')
                 .field('type', 'digital')
-                .field('payment_method', 'points')
-                .field('price', '10')
+                .field('price', '1000')
                 .field('remove_file_uuids', '44444444-4444-4444-8444-444444444444')
 
             expect(response.status).toBe(HttpStatus.BAD_REQUEST)
             expect(productUpdate).not.toHaveBeenCalled()
         })
 
-        it('adds gallery images, removes one and deletes it from storage', async () => {
+        it('adds an image file, which is then part of the gallery', async () => {
             const response = await request(app.getHttpServer())
                 .patch(`/store/admin/products/${productUuid}`)
                 .field('name', 'Gallery')
                 .field('description', '')
                 .field('type', 'digital')
-                .field('payment_method', 'points')
-                .field('price', '10')
-                .field('remove_gallery_uuids', removedImageUuid)
-                .attach('gallery', Buffer.from('img'), { filename: 'extra.png', contentType: 'image/png' })
+                .field('price', '1000')
+                .attach('files', Buffer.from('img'), { filename: 'extra.png', contentType: 'image/png' })
 
             expect(response.status).toBe(HttpStatus.OK)
-            expect(productUpdate.mock.calls[0][0].data.images.deleteMany).toEqual({ uuid: { in: [removedImageUuid] } })
-            expect(productUpdate.mock.calls[0][0].data.images.create).toHaveLength(1)
-            expect(deleteImage).toHaveBeenCalledWith({ filename: 'store-products/old/gallery/1-removed.png' })
+            expect(productUpdate.mock.calls[0][0].data.files.create).toHaveLength(1)
+            expect(productUpdate.mock.calls[0][0].data.files.create[0].content_type).toBe('image/png')
         })
 
-        it('rejects removing a gallery image that belongs to another product', async () => {
+        it('rejects a non-image file on a non-digital product', async () => {
             const response = await request(app.getHttpServer())
                 .patch(`/store/admin/products/${productUuid}`)
-                .field('name', 'Sneaky')
+                .field('name', 'Bad')
                 .field('description', '')
-                .field('type', 'digital')
-                .field('payment_method', 'points')
-                .field('price', '10')
-                .field('remove_gallery_uuids', '44444444-4444-4444-8444-444444444444')
-
-            expect(response.status).toBe(HttpStatus.BAD_REQUEST)
-            expect(productUpdate).not.toHaveBeenCalled()
-        })
-
-        it('rejects a gallery image that is not an image', async () => {
-            const response = await request(app.getHttpServer())
-                .patch(`/store/admin/products/${productUuid}`)
-                .field('name', 'Bad gallery')
-                .field('description', '')
-                .field('type', 'digital')
-                .field('payment_method', 'points')
-                .field('price', '10')
-                .attach('gallery', Buffer.from('nope'), { filename: 'x.pdf', contentType: 'application/pdf' })
+                .field('type', 'physical')
+                .field('price', '1000')
+                .field('remove_file_uuids', keptFileUuid)
+                .field('remove_file_uuids', removedFileUuid)
+                .attach('files', Buffer.from('nope'), { filename: 'x.pdf', contentType: 'application/pdf' })
 
             expect(response.status).toBe(HttpStatus.BAD_REQUEST)
             expect(uploadImageFromBuffer).not.toHaveBeenCalled()
@@ -427,7 +382,7 @@ describe('StoreAdminController product creation', () => {
 
                 expect(response.status).toBe(HttpStatus.OK)
                 expect(productDelete).toHaveBeenCalledWith({ where: { uuid: productUuid } })
-                expect(deleteImage).toHaveBeenCalledTimes(5)
+                expect(deleteImage).toHaveBeenCalledTimes(3)
             })
 
             it('refuses to delete a product that has orders', async () => {

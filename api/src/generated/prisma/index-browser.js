@@ -171,26 +171,24 @@ exports.Prisma.GameScalarFieldEnum = {
   finished_at: 'finished_at'
 };
 
+exports.Prisma.AppConfigScalarFieldEnum = {
+  id: 'id',
+  points_per_currency_unit: 'points_per_currency_unit',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.ProductScalarFieldEnum = {
   id: 'id',
   uuid: 'uuid',
   name: 'name',
   description: 'description',
   type: 'type',
-  payment_method: 'payment_method',
   price: 'price',
+  max_discount_percent: 'max_discount_percent',
   quantity: 'quantity',
   image_path: 'image_path',
   created_at: 'created_at',
   updated_at: 'updated_at'
-};
-
-exports.Prisma.ProductImageScalarFieldEnum = {
-  id: 'id',
-  uuid: 'uuid',
-  product_uuid: 'product_uuid',
-  path: 'path',
-  created_at: 'created_at'
 };
 
 exports.Prisma.ProductFileScalarFieldEnum = {
@@ -212,6 +210,11 @@ exports.Prisma.OrderScalarFieldEnum = {
   status: 'status',
   payment_method: 'payment_method',
   total: 'total',
+  points_used: 'points_used',
+  discount_cents: 'discount_cents',
+  price_cents: 'price_cents',
+  points_per_currency_unit: 'points_per_currency_unit',
+  payment_summary: 'payment_summary',
   stripe_session_id: 'stripe_session_id',
   stripe_payment_intent_id: 'stripe_payment_intent_id',
   paid_at: 'paid_at',
@@ -270,15 +273,15 @@ exports.ProductType = exports.$Enums.ProductType = {
   in_game_asset: 'in_game_asset'
 };
 
-exports.PaymentMethod = exports.$Enums.PaymentMethod = {
-  points: 'points',
-  online: 'online'
-};
-
 exports.OrderStatus = exports.$Enums.OrderStatus = {
   pending: 'pending',
   paid: 'paid',
   cancelled: 'cancelled'
+};
+
+exports.PaymentMethod = exports.$Enums.PaymentMethod = {
+  points: 'points',
+  online: 'online'
 };
 
 exports.Prisma.ModelName = {
@@ -286,8 +289,8 @@ exports.Prisma.ModelName = {
   PasswordResetToken: 'PasswordResetToken',
   UserStats: 'UserStats',
   Game: 'Game',
+  AppConfig: 'AppConfig',
   Product: 'Product',
-  ProductImage: 'ProductImage',
   ProductFile: 'ProductFile',
   Order: 'Order'
 };

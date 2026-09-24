@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import { ConfirmationDialog } from '../../../components/ConfirmationDialog'
-import { PAYMENT_METHOD_LABELS, PRODUCT_TYPE_LABELS } from '../../../config/store/store.config'
+import { PRODUCT_TYPE_LABELS } from '../../../config/store/store.config'
 import { useAdminProducts, useDeleteAdminProduct } from '../../../features/store'
 import type { Product } from '../../../features/store/interfaces/store.interface'
-import { formatDateTime, formatFileSize, formatPrice } from '../../../utils/store.utils'
+import { formatCents, formatDateTime } from '../../../utils/store.utils'
 
 interface ProductsTableProps {
     onEdit: (product: Product) => void
@@ -104,8 +104,9 @@ export const ProductsTable = ({ onEdit }: ProductsTableProps) => {
                         <tr className="text-left text-xs uppercase tracking-wider text-stone-400">
                             <th className="px-4 py-3">Product</th>
                             <th className="px-4 py-3">Type</th>
-                            <th className="px-4 py-3">Payment</th>
+                            <th className="px-4 py-3">Points discount</th>
                             <th className="px-4 py-3">Price</th>
+                            <th className="px-4 py-3">Quantity</th>
                             <th className="px-4 py-3">Files</th>
                             <th className="px-4 py-3">Created</th>
                             <th className="px-4 py-3"><span className="sr-only">Actions</span></th>
@@ -133,19 +134,14 @@ export const ProductsTable = ({ onEdit }: ProductsTableProps) => {
                                     </div>
                                 </td>
                                 <td className="px-4 py-3 text-stone-300">{PRODUCT_TYPE_LABELS[product.type]}</td>
-                                <td className="px-4 py-3 text-stone-300">{PAYMENT_METHOD_LABELS[product.payment_method]}</td>
+                                <td className="px-4 py-3 text-stone-300">
+                                    {product.max_discount_percent > 0 ? `${product.max_discount_percent}%` : 'Not allowed'}
+                                </td>
                                 <td className="px-4 py-3 text-stone-200">
-                                    {formatPrice(product.payment_method, product.price)}
+                                    {formatCents(product.price)}
                                 </td>
-                                <td className="px-4 py-3">
-                                    <ul className="space-y-0.5 text-xs text-stone-400">
-                                        {product.files.map((file) => (
-                                            <li key={file.uuid}>
-                                                {file.name} <span className="text-stone-500">{formatFileSize(file.size)}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </td>
+                                <td className="px-4 py-3 text-stone-200">{product.quantity}</td>
+                                <td className="px-4 py-3 text-stone-200">{product.files.length}</td>
                                 <td className="px-4 py-3 text-stone-400">{formatDateTime(product.created_at)}</td>
                                 <td className="px-4 py-3 text-right">
                                     <div className="flex items-center justify-end gap-2">

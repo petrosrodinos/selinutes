@@ -17,16 +17,28 @@ export interface Product {
     name: string
     description: string
     type: ProductType
-    payment_method: PaymentMethod
     price: number
+    max_discount_percent: number
+    quantity: number
     image_url: string | null
     gallery: ProductGalleryImage[]
     files: ProductFile[]
     created_at: string
 }
 
+export interface AppConfig {
+    points_per_currency_unit: number
+}
+
+export interface PointsDiscount {
+    points_used: number
+    discount_cents: number
+}
+
 export interface StoreProduct extends Product {
     purchased: boolean
+    points_discount: PointsDiscount
+    points_per_currency_unit: number
 }
 
 export interface OrderProduct {
@@ -42,6 +54,11 @@ export interface Order {
     status: OrderStatus
     payment_method: PaymentMethod
     total: number
+    points_used: number
+    discount_cents: number
+    payment_summary: string | null
+    price_cents: number | null
+    points_per_currency_unit: number | null
     product: OrderProduct
     files: ProductFile[]
     created_at: string
@@ -83,15 +100,14 @@ export interface CreateProductPayload {
     name: string
     description: string
     type: ProductType
-    payment_method: PaymentMethod
     price: number
+    max_discount_percent: number
+    quantity: number
     image: File | null
-    gallery: File[]
     files: File[]
 }
 
 export interface UpdateProductPayload extends CreateProductPayload {
     remove_file_uuids: string[]
-    remove_gallery_uuids: string[]
     remove_image: boolean
 }

@@ -4,17 +4,19 @@ import { posix } from 'path'
 import { OrderStatus } from 'generated/prisma'
 import { PrismaService } from '@/core/databases/prisma/prisma.service'
 import { GcsService } from '@/integrations/storage/gcs/services/gcs.service'
+import { AppConfigService } from './app-config.service'
 import { CreateProductDto } from '../dto/create-product.dto'
 import { UpdateProductDto } from '../dto/update-product.dto'
 import { PRODUCT_INCLUDE, ProductWithFiles } from '../constants/store-queries.constants'
 import { STORE_GCS_FOLDER, STORE_IMAGE_URL_EXPIRY_MINUTES } from '../constants/store.constants'
-import { ProductEntry, ProductGalleryImageEntry, StoreProductEntry } from '../interfaces/store.interface'
+import { PointsDiscountEntry, ProductEntry, ProductGalleryImageEntry, StoreProductEntry } from '../interfaces/store.interface'
 import {
     decodeUploadedFileName,
     getProductFilesError,
-    getProductGalleryError,
     getProductImageError,
+    getPointsDiscount,
     getProductPricingError,
+    isImageContentType,
     sanitizeFileName,
     toProductEntry,
     toStoreProductEntry,
@@ -30,19 +32,16 @@ interface UploadedProductFile {
 interface UploadedProductAssets {
     files: UploadedProductFile[]
     image?: UploadedProductFile
-    gallery: UploadedProductFile[]
 }
 
 export interface ProductUploads {
     files: Express.Multer.File[]
     image?: Express.Multer.File
-    gallery: Express.Multer.File[]
 }
 
 const getUploadedPaths = (assets: UploadedProductAssets): string[] => [
     ...assets.files.map((file) => file.path),
     ...(assets.image ? [assets.image.path] : []),
-    ...assets.gallery.map((image) => image.path),
 ]
 
 @Injectable()
@@ -52,6 +51,7 @@ export class ProductsService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly gcsService: GcsService,
+        private readonly appConfig: AppConfigService,
     ) { }
 
     async listProducts(): Promise<ProductEntry[]> {
@@ -64,7 +64,8 @@ export class ProductsService {
     }
 
     async listStoreProducts(userUuid: string): Promise<StoreProductEntry[]> {
-        const [products, paidOrders] = await Promise.all([
+        const [pointsWallet, products, paidOrders] = await Promise.all([
+            this.getPointsWallet(userUuid),
             this.prisma.product.findMany({
                 include: PRODUCT_INCLUDE,
                 orderBy: { created_at: 'desc' },
@@ -78,12 +79,20 @@ export class ProductsService {
         const purchasedProductUuids = new Set(paidOrders.map((order) => order.product_uuid))
 
         return Promise.all(
-            products.map(async (product) => toStoreProductEntry(await this.toEntry(product), purchasedProductUuids.has(product.uuid))),
+            products.map(async (product) =>
+                toStoreProductEntry(
+                    await this.toEntry(product),
+                    purchasedProductUuids.has(product.uuid),
+                    this.getDiscount(product, pointsWallet),
+                    pointsWallet.pointsPerCurrencyUnit,
+                ),
+            ),
         )
     }
 
     async getStoreProduct(userUuid: string, productUuid: string): Promise<StoreProductEntry> {
-        const [product, paidOrder] = await Promise.all([
+        const [pointsWallet, product, paidOrder] = await Promise.all([
+            this.getPointsWallet(userUuid),
             this.prisma.product.findUnique({ where: { uuid: productUuid }, include: PRODUCT_INCLUDE }),
             this.prisma.order.findFirst({
                 where: { user_uuid: userUuid, product_uuid: productUuid, status: OrderStatus.paid },
@@ -95,15 +104,19 @@ export class ProductsService {
             throw new NotFoundException('Product not found')
         }
 
-        return toStoreProductEntry(await this.toEntry(product), paidOrder !== null)
+        return toStoreProductEntry(
+            await this.toEntry(product),
+            paidOrder !== null,
+            this.getDiscount(product, pointsWallet),
+            pointsWallet.pointsPerCurrencyUnit,
+        )
     }
 
     async createProduct(dto: CreateProductDto, uploads: ProductUploads): Promise<ProductEntry> {
         const validationError =
-            getProductPricingError(dto.payment_method, dto.price) ??
-            getProductFilesError(dto.type, uploads.files.length) ??
-            (uploads.image ? getProductImageError(uploads.image) : null) ??
-            getProductGalleryError(uploads.gallery, uploads.gallery.length)
+            getProductPricingError(dto.price) ??
+            getProductFilesError(dto.type, uploads.files.map((file) => file.mimetype)) ??
+            (uploads.image ? getProductImageError(uploads.image) : null)
 
         if (validationError) {
             throw new BadRequestException(validationError)
@@ -119,17 +132,17 @@ export class ProductsService {
                     name: dto.name,
                     description: dto.description,
                     type: dto.type,
-                    payment_method: dto.payment_method,
+                    max_discount_percent: dto.max_discount_percent,
                     price: dto.price,
+                    quantity: dto.quantity,
                     image_path: uploaded.image?.path ?? null,
                     files: { create: uploaded.files },
-                    images: { create: uploaded.gallery.map((image) => ({ path: image.path })) },
                 },
                 include: PRODUCT_INCLUDE,
             })
 
             this.logger.log(
-                `Product ${product.uuid} created (${product.type}, ${product.payment_method}, ${uploaded.files.length} files, ${uploaded.gallery.length} gallery images)`,
+                `Product ${product.uuid} created (${product.type}, ${uploaded.files.length} files)`,
             )
 
             return await this.toEntry(product)
@@ -155,25 +168,17 @@ export class ProductsService {
             throw new BadRequestException('Cannot remove a file that does not belong to this product')
         }
 
-        const existingGalleryUuids = new Set(existing.images.map((image) => image.uuid))
-
-        if (dto.remove_gallery_uuids.some((imageUuid) => !existingGalleryUuids.has(imageUuid))) {
-            throw new BadRequestException('Cannot remove a gallery image that does not belong to this product')
-        }
-
         const removedFileUuids = new Set(dto.remove_file_uuids)
         const removedFiles = existing.files.filter((file) => removedFileUuids.has(file.uuid))
-        const finalFileCount = existing.files.length - removedFiles.length + uploads.files.length
-
-        const removedGalleryUuids = new Set(dto.remove_gallery_uuids)
-        const removedGallery = existing.images.filter((image) => removedGalleryUuids.has(image.uuid))
-        const finalGalleryCount = existing.images.length - removedGallery.length + uploads.gallery.length
+        const finalContentTypes = [
+            ...existing.files.filter((file) => !removedFileUuids.has(file.uuid)).map((file) => file.content_type),
+            ...uploads.files.map((file) => file.mimetype),
+        ]
 
         const validationError =
-            getProductPricingError(dto.payment_method, dto.price) ??
-            getProductFilesError(dto.type, finalFileCount) ??
-            (uploads.image ? getProductImageError(uploads.image) : null) ??
-            getProductGalleryError(uploads.gallery, finalGalleryCount)
+            getProductPricingError(dto.price) ??
+            getProductFilesError(dto.type, finalContentTypes) ??
+            (uploads.image ? getProductImageError(uploads.image) : null)
 
         if (validationError) {
             throw new BadRequestException(validationError)
@@ -190,16 +195,13 @@ export class ProductsService {
                     name: dto.name,
                     description: dto.description,
                     type: dto.type,
-                    payment_method: dto.payment_method,
+                    max_discount_percent: dto.max_discount_percent,
                     price: dto.price,
+                    quantity: dto.quantity,
                     image_path: nextImagePath,
                     files: {
                         deleteMany: { uuid: { in: removedFiles.map((file) => file.uuid) } },
                         create: uploaded.files,
-                    },
-                    images: {
-                        deleteMany: { uuid: { in: removedGallery.map((image) => image.uuid) } },
-                        create: uploaded.gallery.map((image) => ({ path: image.path })),
                     },
                 },
                 include: PRODUCT_INCLUDE,
@@ -207,13 +209,12 @@ export class ProductsService {
 
             const obsoletePaths = [
                 ...removedFiles.map((file) => file.path),
-                ...removedGallery.map((image) => image.path),
                 ...(replacesImage && existing.image_path ? [existing.image_path] : []),
             ]
             await this.deleteStoredFiles(obsoletePaths)
 
             this.logger.log(
-                `Product ${product.uuid} updated (${product.type}, ${product.payment_method}, files +${uploaded.files.length}/-${removedFiles.length}, gallery +${uploaded.gallery.length}/-${removedGallery.length})`,
+                `Product ${product.uuid} updated (${product.type}, files +${uploaded.files.length}/-${removedFiles.length})`,
             )
 
             return await this.toEntry(product)
@@ -243,7 +244,6 @@ export class ProductsService {
 
         await this.deleteStoredFiles([
             ...existing.files.map((file) => file.path),
-            ...existing.images.map((image) => image.path),
             ...(existing.image_path ? [existing.image_path] : []),
         ])
 
@@ -252,13 +252,33 @@ export class ProductsService {
         return { message: 'Product deleted successfully' }
     }
 
-    private async toEntry(product: ProductWithFiles): Promise<ProductEntry> {
-        const [imageUrl, galleryUrls] = await Promise.all([
-            product.image_path ? this.getSignedImageUrl(product.uuid, product.image_path) : null,
-            Promise.all(product.images.map((image) => this.getSignedImageUrl(product.uuid, image.path))),
+    private async getPointsWallet(userUuid: string): Promise<{ availablePoints: number; pointsPerCurrencyUnit: number }> {
+        const [stats, pointsPerCurrencyUnit] = await Promise.all([
+            this.prisma.userStats.findUnique({
+                where: { user_uuid: userUuid },
+                select: { points: true, points_spent: true },
+            }),
+            this.appConfig.getPointsPerCurrencyUnit(),
         ])
 
-        const gallery = product.images.flatMap((image, index): ProductGalleryImageEntry[] => {
+        return { availablePoints: Math.max(0, (stats?.points ?? 0) - (stats?.points_spent ?? 0)), pointsPerCurrencyUnit }
+    }
+
+    private getDiscount(
+        product: ProductWithFiles,
+        wallet: { availablePoints: number; pointsPerCurrencyUnit: number },
+    ): PointsDiscountEntry {
+        return getPointsDiscount({ priceCents: product.price, maxDiscountPercent: product.max_discount_percent, ...wallet })
+    }
+
+    private async toEntry(product: ProductWithFiles): Promise<ProductEntry> {
+        const imageFiles = product.files.filter((file) => isImageContentType(file.content_type))
+        const [imageUrl, galleryUrls] = await Promise.all([
+            product.image_path ? this.getSignedImageUrl(product.uuid, product.image_path) : null,
+            Promise.all(imageFiles.map((file) => this.getSignedImageUrl(product.uuid, file.path))),
+        ])
+
+        const gallery = imageFiles.flatMap((image, index): ProductGalleryImageEntry[] => {
             const url = galleryUrls[index]
             return url ? [{ uuid: image.uuid, url }] : []
         })
@@ -277,7 +297,7 @@ export class ProductsService {
 
     private async uploadProductAssets(productUuid: string, uploads: ProductUploads): Promise<UploadedProductAssets> {
         const folder = `${STORE_GCS_FOLDER}/${productUuid}`
-        const uploaded: UploadedProductAssets = { files: [], gallery: [] }
+        const uploaded: UploadedProductAssets = { files: [] }
 
         try {
             uploaded.files = await this.uploadFiles(productUuid, folder, uploads.files)
@@ -285,8 +305,6 @@ export class ProductsService {
             if (uploads.image) {
                 ;[uploaded.image] = await this.uploadFiles(productUuid, `${folder}/image`, [uploads.image])
             }
-
-            uploaded.gallery = await this.uploadFiles(productUuid, `${folder}/gallery`, uploads.gallery)
 
             return uploaded
         } catch (error) {

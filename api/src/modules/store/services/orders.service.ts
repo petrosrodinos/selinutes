@@ -58,15 +58,15 @@ export class OrdersService {
 
         const { product } = order
         const usedNames = new Set<string>()
-        const toEntryName = (folder: string, name: string): string => {
+        const toEntryName = (name: string): string => {
             const dot = name.lastIndexOf('.')
             const stem = dot > 0 ? name.slice(0, dot) : name
             const extension = dot > 0 ? name.slice(dot) : ''
-            let candidate = `${folder}${name}`
+            let candidate = name
             let counter = 1
 
             while (usedNames.has(candidate)) {
-                candidate = `${folder}${stem} (${counter})${extension}`
+                candidate = `${stem} (${counter})${extension}`
                 counter += 1
             }
 
@@ -76,10 +76,8 @@ export class OrdersService {
         const storedImageName = (path: string): string => posix.basename(path).replace(/^d+-(d+-)?/, '')
 
         const entries = [
-            ...product.files.map((file) => ({ path: file.path, name: toEntryName('files/', sanitizeFileName(file.name)) })),
-            ...(product.image_path ? [{ path: product.image_path, name: toEntryName('images/', `cover-${storedImageName(product.image_path)}`) }] : []),
-            ...product.images.map((image) => ({ path: image.path, name: toEntryName('images/gallery/', storedImageName(image.path)) })),
-        ]
+            ...product.files.map((file) => ({ path: file.path, name: toEntryName(sanitizeFileName(file.name)) })),
+            ...(product.image_path ? [{ path: product.image_path, name: toEntryName(`cover-${storedImageName(product.image_path)}`) }] : []),        ]
 
         const archive = archiver('zip', { zlib: { level: 6 } })
 
@@ -140,7 +138,7 @@ export class OrdersService {
             this.prisma.order.groupBy({
                 by: ['status', 'payment_method'],
                 _count: { _all: true },
-                _sum: { total: true },
+                _sum: { total: true, points_used: true },
             }),
             this.prisma.product.count(),
         ])
@@ -150,6 +148,7 @@ export class OrdersService {
             payment_method: group.payment_method,
             count: group._count._all,
             total: group._sum.total ?? 0,
+            points_used: group._sum.points_used ?? 0,
         }))
 
         return summarizeOrderGroups(summaries, totalProducts)
@@ -198,10 +197,20 @@ export class OrdersService {
                 throw new ConflictException('Order was modified, please retry')
             }
 
-            if (order.status === OrderStatus.paid && order.payment_method === PaymentMethod.points) {
+            const legacyPointsOrderPaid = order.status === OrderStatus.paid && order.payment_method === PaymentMethod.points
+            const refundedPoints = order.points_used > 0 ? order.points_used : legacyPointsOrderPaid ? order.total : 0
+
+            if (order.status === OrderStatus.paid) {
+                await tx.product.update({
+                    where: { uuid: order.product_uuid },
+                    data: { quantity: { increment: 1 } },
+                })
+            }
+
+            if (refundedPoints > 0) {
                 await tx.userStats.update({
                     where: { user_uuid: order.user_uuid },
-                    data: { points_spent: { decrement: order.total } },
+                    data: { points_spent: { decrement: refundedPoints } },
                 })
             }
         })

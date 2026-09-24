@@ -18,12 +18,6 @@ export class UpdateProductDto extends CreateProductDto {
     @IsUUID('all', { each: true })
     remove_file_uuids: string[] = []
 
-    @ApiPropertyOptional({ type: [String], description: 'UUIDs of existing gallery images to remove' })
-    @Transform(toArray)
-    @IsArray()
-    @IsUUID('all', { each: true })
-    remove_gallery_uuids: string[] = []
-
     @ApiPropertyOptional({ description: 'Remove the current cover image (ignored when a new image is uploaded)' })
     @Transform(toBoolean)
     @IsBoolean()

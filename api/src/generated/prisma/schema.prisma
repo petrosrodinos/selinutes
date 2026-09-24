@@ -86,37 +86,32 @@ model Game {
   @@map("games")
 }
 
+model AppConfig {
+  id                       Int      @id @default(1)
+  points_per_currency_unit Int      @default(100)
+  updated_at               DateTime @updatedAt
+
+  @@map("app_config")
+}
+
 model Product {
-  id             Int           @id @default(autoincrement())
-  uuid           String        @unique @default(uuid())
-  name           String
-  description    String
-  type           ProductType
-  payment_method PaymentMethod
-  price          Int
-  quantity       Int           @default(1)
-  image_path     String?
-  created_at     DateTime      @default(now())
-  updated_at     DateTime      @updatedAt
+  id                   Int         @id @default(autoincrement())
+  uuid                 String      @unique @default(uuid())
+  name                 String
+  description          String
+  type                 ProductType
+  price                Int // USD cents, always paid for with real money
+  max_discount_percent Int         @default(0) // share of the price (0-100) a buyer may pay with in-game points
+  quantity             Int         @default(1)
+  image_path           String?
+  created_at           DateTime    @default(now())
+  updated_at           DateTime    @updatedAt
 
   files  ProductFile[]
-  images ProductImage[]
   orders Order[]
 
   @@index([type])
   @@map("products")
-}
-
-model ProductImage {
-  id           Int      @id @default(autoincrement())
-  uuid         String   @unique @default(uuid())
-  product_uuid String
-  path         String
-  created_at   DateTime @default(now())
-  product      Product  @relation(fields: [product_uuid], references: [uuid], onDelete: Cascade)
-
-  @@index([product_uuid])
-  @@map("product_images")
 }
 
 model ProductFile {
@@ -141,7 +136,12 @@ model Order {
   product_uuid             String
   status                   OrderStatus   @default(pending)
   payment_method           PaymentMethod
-  total                    Int
+  total                    Int // cents paid with real money (legacy points-only orders: points)
+  points_used              Int           @default(0)
+  discount_cents           Int           @default(0)
+  price_cents              Int? // list price when the order was placed
+  points_per_currency_unit Int? // points rate when the order was placed
+  payment_summary          String? // what the buyer saw, e.g. "€9.00 · 100 SEL used (−€1.00)"
   stripe_session_id        String?
   stripe_payment_intent_id String?
   paid_at                  DateTime?

@@ -1,7 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsEnum, IsInt, IsString, MaxLength, Min, MinLength } from 'class-validator'
-import { PaymentMethod, ProductType } from 'generated/prisma'
+import { IsEnum, IsInt, IsOptional, IsString, MaxLength, Max, Min, MinLength } from 'class-validator'
+import { ProductType } from 'generated/prisma'
 
 export class CreateProductDto {
     @ApiProperty({ example: 'Opening Playbook' })
@@ -19,13 +19,24 @@ export class CreateProductDto {
     @IsEnum(ProductType)
     type: ProductType
 
-    @ApiProperty({ enum: PaymentMethod, example: PaymentMethod.points })
-    @IsEnum(PaymentMethod)
-    payment_method: PaymentMethod
-
-    @ApiProperty({ example: 500, minimum: 1, description: 'In-game points for the points method, cents for the online method' })
+    @ApiProperty({ example: 500, minimum: 1, description: 'Price in cents, always paid with real money' })
     @Type(() => Number)
     @IsInt()
     @Min(1)
     price: number
+
+    @ApiPropertyOptional({ example: 30, minimum: 0, maximum: 100, description: 'Share of the price (percent) a buyer may pay with in-game points. 0 disables points, 100 allows paying entirely with points' })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @Min(0)
+    @Max(100)
+    max_discount_percent?: number
+
+    @ApiPropertyOptional({ example: 10, minimum: 1, description: 'Available quantity (defaults to 1 on create, unchanged on update)' })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @Min(1)
+    quantity?: number
 }

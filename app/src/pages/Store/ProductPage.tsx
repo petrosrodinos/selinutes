@@ -1,32 +1,14 @@
-import { ArrowLeft, CreditCard, Trophy, Zap } from 'lucide-react'
-import type { ComponentType, ReactNode } from 'react'
+import { ArrowLeft, CreditCard, Package, Trophy, Zap } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { StoreLayout } from '../../components/StoreLayout'
-import {
-    PAYMENT_METHOD_LABELS,
-    PAYMENT_METHODS,
-    PRODUCT_TYPES,
-    STORE_ROUTES,
-    type PaymentMethod,
-} from '../../config/store/store.config'
+import { PRODUCT_TYPES, STORE_ROUTES } from '../../config/store/store.config'
 import { useMyStats } from '../../features/stats'
 import { useCheckoutReturn, useStoreProduct } from '../../features/store'
-import { formatPoints, formatPrice, getAvailablePoints } from '../../utils/store.utils'
+import { formatCents, formatPoints, getAvailablePoints } from '../../utils/store.utils'
 import { OnlinePurchaseAction } from './components/OnlinePurchaseAction'
-import { PointsPurchaseAction } from './components/PointsPurchaseAction'
 import { ProductGallery } from './components/ProductGallery'
-import type { PurchaseActionProps } from './components/store-card.types'
 import { useProductPurchase } from './hooks/useProductPurchase'
-
-const PURCHASE_ACTIONS: Record<PaymentMethod, ComponentType<PurchaseActionProps>> = {
-    [PAYMENT_METHODS.POINTS]: PointsPurchaseAction,
-    [PAYMENT_METHODS.ONLINE]: OnlinePurchaseAction,
-}
-
-const PRICE_STICKER_STYLES: Record<PaymentMethod, string> = {
-    [PAYMENT_METHODS.POINTS]: 'from-amber-300 to-amber-500 text-stone-900',
-    [PAYMENT_METHODS.ONLINE]: 'from-gold to-amber-500 text-ink',
-}
 
 interface InfoTileProps {
     icon: ReactNode
@@ -78,9 +60,6 @@ export const ProductPage = () => {
         )
     }
 
-    const PurchaseAction = PURCHASE_ACTIONS[product.payment_method]
-    const PaymentIcon = product.payment_method === PAYMENT_METHODS.POINTS ? Trophy : CreditCard
-
     return (
         <StoreLayout title={product.name} actions={<BackToStoreLink />}>
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
@@ -88,9 +67,9 @@ export const ProductPage = () => {
 
                 <div className="space-y-6">
                     <div
-                        className={`inline-block -rotate-2 rounded-2xl bg-gradient-to-br px-5 py-2 text-2xl font-black shadow-lg transition-transform duration-200 hover:rotate-0 hover:scale-105 ${PRICE_STICKER_STYLES[product.payment_method]}`}
+                        className="inline-block -rotate-2 rounded-2xl bg-gradient-to-br from-gold to-amber-500 px-5 py-2 text-2xl font-black text-ink shadow-lg transition-transform duration-200 hover:rotate-0 hover:scale-105"
                     >
-                        {formatPrice(product.payment_method, product.price)}
+                        {formatCents(product.price)}
                     </div>
 
                     <p className="whitespace-pre-line text-base leading-relaxed text-stone-200">
@@ -106,10 +85,22 @@ export const ProductPage = () => {
                             />
                         ) : null}
                         <InfoTile
-                            icon={<PaymentIcon className="h-5 w-5" />}
-                            title="Payment"
-                            text={PAYMENT_METHOD_LABELS[product.payment_method]}
+                            icon={<Package className="h-5 w-5" />}
+                            title="Quantity"
+                            text={`${product.quantity} available`}
                         />
+                        <InfoTile icon={<CreditCard className="h-5 w-5" />} title="Payment" text="Online payment" />
+                        {product.max_discount_percent > 0 ? (
+                            <InfoTile
+                                icon={<Trophy className="h-5 w-5" />}
+                                title="Points discount"
+                                text={
+                                    product.max_discount_percent === 100
+                                        ? 'Can be bought entirely with points'
+                                        : `Pay up to ${product.max_discount_percent}% with points`
+                                }
+                            />
+                        ) : null}
                     </ul>
 
                     <div className="rounded-2xl border border-stone-700 bg-stone-800/70 p-5">
@@ -122,14 +113,14 @@ export const ProductPage = () => {
                             </Link>
                         ) : (
                             <div className="space-y-3">
-                                <PurchaseAction
+                                <OnlinePurchaseAction
                                     product={product}
                                     availablePoints={availablePoints}
                                     isPurchasing={purchase.purchasingUuid === product.uuid}
                                     onPurchase={purchase.handlePurchase}
                                 />
-                                {product.payment_method === PAYMENT_METHODS.POINTS ? (
-                                    <p className="text-xs text-stone-500">You have {formatPoints(availablePoints)} to spend.</p>
+                                {product.max_discount_percent > 0 ? (
+                                    <p className="text-xs text-stone-500">You have {formatPoints(availablePoints)} available.</p>
                                 ) : null}
                             </div>
                         )}

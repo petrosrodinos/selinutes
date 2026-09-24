@@ -5,7 +5,7 @@ import {
     PAYMENT_METHOD_LABELS,
 } from '../../../config/store/store.config'
 import type { AdminOrder } from '../../../features/store/interfaces/store.interface'
-import { formatDateTime, formatPrice } from '../../../utils/store.utils'
+import { formatDateTime, formatPoints, formatPrice } from '../../../utils/store.utils'
 
 const ORDER_ID_PREVIEW_LENGTH = 8
 
@@ -41,7 +41,10 @@ export const OrderRow = ({ order, onView, onCancel, onDelete }: OrderRowProps) =
             <td className="px-4 py-3 text-stone-200">{order.product.name}</td>
             <td className="px-4 py-3">
                 <p className="text-stone-200">{formatPrice(order.payment_method, order.total)}</p>
-                <p className="text-xs text-stone-500">{PAYMENT_METHOD_LABELS[order.payment_method]}</p>
+                <p className="text-xs text-stone-500">
+                    {order.total === 0 && order.points_used > 0 ? 'In-game points' : PAYMENT_METHOD_LABELS[order.payment_method]}
+                    {order.points_used > 0 ? ` · ${formatPoints(order.points_used)} used` : ''}
+                </p>
             </td>
             <td className="px-4 py-3">
                 <span

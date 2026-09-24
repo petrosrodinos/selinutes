@@ -7,7 +7,7 @@ import {
     PRODUCT_TYPE_LABELS,
 } from '../../../config/store/store.config'
 import { useAdminOrder } from '../../../features/store'
-import { formatDateTime, formatFileSize, formatPrice } from '../../../utils/store.utils'
+import { formatCents, formatDateTime, formatFileSize, formatPoints, formatPrice } from '../../../utils/store.utils'
 
 interface OrderDetailsModalProps {
     orderUuid: string | null
@@ -50,8 +50,23 @@ export const OrderDetailsModal = ({ orderUuid, onClose }: OrderDetailsModalProps
                         {order.product.name} · {PRODUCT_TYPE_LABELS[order.product.type]}
                     </DetailRow>
                     <DetailRow label="Payment">
-                        {PAYMENT_METHOD_LABELS[order.payment_method]} · {formatPrice(order.payment_method, order.total)}
+                        {order.total === 0 && order.points_used > 0 ? 'In-game points' : PAYMENT_METHOD_LABELS[order.payment_method]} ·{' '}
+                        {order.payment_summary ?? formatPrice(order.payment_method, order.total)}
                     </DetailRow>
+                    {order.payment_summary ? <DetailRow label="Shown to buyer">{order.payment_summary}</DetailRow> : null}
+                    {order.price_cents !== null ? (
+                        <DetailRow label="List price">{formatCents(order.price_cents)}</DetailRow>
+                    ) : null}
+                    {order.points_per_currency_unit !== null ? (
+                        <DetailRow label="Points rate">
+                            {formatPoints(order.points_per_currency_unit)} = {formatCents(100)} (at time of order)
+                        </DetailRow>
+                    ) : null}
+                    {order.points_used > 0 ? (
+                        <DetailRow label="Points used">
+                            {formatPoints(order.points_used)} (−{formatCents(order.discount_cents)})
+                        </DetailRow>
+                    ) : null}
                     <DetailRow label="Created">{formatDateTime(order.created_at)}</DetailRow>
                     {order.paid_at ? <DetailRow label="Paid">{formatDateTime(order.paid_at)}</DetailRow> : null}
                     {order.cancelled_at ? (

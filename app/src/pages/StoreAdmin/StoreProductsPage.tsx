@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Modal } from '../../components/Modal'
 import { useCreateAdminProduct, useUpdateAdminProduct } from '../../features/store'
 import type { Product, UpdateProductPayload } from '../../features/store/interfaces/store.interface'
+import { PointsRateCard } from './components/PointsRateCard'
 import { ProductForm } from './components/ProductForm'
 import { ProductsTable } from './components/ProductsTable'
 import { StoreAdminLayout } from './components/StoreAdminLayout'
@@ -38,6 +39,8 @@ export const StoreProductsPage = () => {
 
     return (
         <StoreAdminLayout title="Products" description="View, create and edit products.">
+            <PointsRateCard />
+
             <div className="flex justify-end">
                 <button
                     type="button"

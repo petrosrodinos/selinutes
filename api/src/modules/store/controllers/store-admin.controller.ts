@@ -24,27 +24,24 @@ import { CreateProductDto } from '../dto/create-product.dto'
 import { UpdateProductDto } from '../dto/update-product.dto'
 import {
     STORE_FILES_FIELD,
-    STORE_GALLERY_FIELD,
     STORE_IMAGE_FIELD,
     STORE_MAX_FILE_SIZE_BYTES,
-    STORE_MAX_GALLERY_IMAGES,
-    STORE_MAX_PRODUCT_FILES,
 } from '../constants/store.constants'
-import { AdminOrderEntry, ProductEntry, StoreOverviewEntry } from '../interfaces/store.interface'
+import { UpdateAppConfigDto } from '../dto/update-app-config.dto'
+import { AdminOrderEntry, AppConfigEntry, ProductEntry, StoreOverviewEntry } from '../interfaces/store.interface'
+import { AppConfigService } from '../services/app-config.service'
 import { ProductUploads, ProductsService } from '../services/products.service'
 import { OrdersService } from '../services/orders.service'
 
 interface ProductUploadFields {
     [STORE_FILES_FIELD]?: Express.Multer.File[]
     [STORE_IMAGE_FIELD]?: Express.Multer.File[]
-    [STORE_GALLERY_FIELD]?: Express.Multer.File[]
 }
 
 const productUploadInterceptor = FileFieldsInterceptor(
     [
-        { name: STORE_FILES_FIELD, maxCount: STORE_MAX_PRODUCT_FILES },
+        { name: STORE_FILES_FIELD },
         { name: STORE_IMAGE_FIELD, maxCount: 1 },
-        { name: STORE_GALLERY_FIELD, maxCount: STORE_MAX_GALLERY_IMAGES },
     ],
     {
         storage: memoryStorage(),
@@ -55,7 +52,6 @@ const productUploadInterceptor = FileFieldsInterceptor(
 const toProductUploads = (uploads: ProductUploadFields | undefined): ProductUploads => ({
     files: uploads?.[STORE_FILES_FIELD] ?? [],
     image: uploads?.[STORE_IMAGE_FIELD]?.[0],
-    gallery: uploads?.[STORE_GALLERY_FIELD] ?? [],
 })
 
 @ApiTags('Store Admin')
@@ -67,7 +63,27 @@ export class StoreAdminController {
     constructor(
         private readonly productsService: ProductsService,
         private readonly ordersService: OrdersService,
+        private readonly appConfigService: AppConfigService,
     ) { }
+
+    @Get('config')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Admin: get the store points rate' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Config retrieved successfully' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
+    getConfig(): Promise<AppConfigEntry> {
+        return this.appConfigService.getConfig()
+    }
+
+    @Patch('config')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Admin: change how many points are worth 1 EUR' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Config updated successfully' })
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid rate' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
+    updateConfig(@Body() dto: UpdateAppConfigDto): Promise<AppConfigEntry> {
+        return this.appConfigService.updateConfig(dto.points_per_currency_unit)
+    }
 
     @Get('overview')
     @HttpCode(HttpStatus.OK)

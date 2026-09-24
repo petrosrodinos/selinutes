@@ -1,25 +1,37 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import { X } from 'lucide-react'
+import { ConfirmationDialog } from '../../../components/ConfirmationDialog'
 import {
-    PAYMENT_METHOD_OPTIONS,
-    PAYMENT_METHODS,
     PRODUCT_TYPE_OPTIONS,
     STORE_IMAGE_MIME_TYPES,
-    STORE_MAX_GALLERY_IMAGES,
+    STORE_MIN_ONLINE_PRICE_CENTS,
+    STORE_MINOR_UNITS_PER_CURRENCY_UNIT,
     PRODUCT_TYPES,
-    type PaymentMethod,
     type ProductType,
 } from '../../../config/store/store.config'
+import { useAppConfig } from '../../../features/store'
 import type {
     Product,
     ProductFile,
-    ProductGalleryImage,
     UpdateProductPayload,
 } from '../../../features/store/interfaces/store.interface'
-import { formatFileSize, formatPriceInput, getProductPayloadError, parsePriceInput } from '../../../utils/store.utils'
+import {
+    formatCents,
+    formatFileSize,
+    formatPriceInput,
+    centsToPoints,
+    formatPoints,
+    getProductPayloadError,
+    parsePriceInput,
+} from '../../../utils/store.utils'
 
 const FIELD_CLASS =
     'w-full rounded-lg border border-stone-700 bg-stone-900/60 px-3 py-2 text-sm text-stone-100 outline-none transition-colors focus:border-amber-500/50'
+
+type PendingRemoval =
+    | { kind: 'cover' }
+    | { kind: 'new-file'; index: number; name: string }
+    | { kind: 'existing-file'; uuid: string; name: string }
 
 interface ProductFormProps {
     product?: Product
@@ -30,9 +42,6 @@ interface ProductFormProps {
 
 const isProductType = (value: string): value is ProductType =>
     PRODUCT_TYPE_OPTIONS.some((option) => option.value === value)
-
-const isPaymentMethod = (value: string): value is PaymentMethod =>
-    PAYMENT_METHOD_OPTIONS.some((option) => option.value === value)
 
 const isImageFile = (file: File): boolean => file.type.startsWith('image/')
 
@@ -48,64 +57,6 @@ const useObjectUrl = (file: File): string | null => {
     }, [url])
 
     return url
-}
-
-interface GalleryThumbProps {
-    src: string
-    label: string
-    isNew?: boolean
-    onRemove: () => void
-}
-
-const GalleryThumb = ({ src, label, isNew = false, onRemove }: GalleryThumbProps) => (
-    <li className="relative aspect-square overflow-hidden rounded-lg border border-stone-700 bg-stone-900/60">
-        <img src={src} alt={label} className="h-full w-full object-cover" />
-        {isNew ? (
-            <span className="absolute bottom-1 left-1 rounded bg-amber-600 px-1.5 py-0.5 text-[10px] font-semibold text-stone-900">
-                New
-            </span>
-        ) : null}
-        <button
-            type="button"
-            onClick={onRemove}
-            className="absolute right-1 top-1 cursor-pointer rounded-full bg-stone-900/80 p-1 text-stone-200 transition-colors hover:bg-stone-900"
-            aria-label={`Remove ${label}`}
-        >
-            <X className="h-4 w-4" />
-        </button>
-    </li>
-)
-
-interface NewGalleryThumbProps {
-    file: File
-    index: number
-    onRemove: (index: number) => void
-}
-
-const NewGalleryThumb = ({ file, index, onRemove }: NewGalleryThumbProps) => {
-    const url = useObjectUrl(file)
-
-    const handleRemove = () => {
-        onRemove(index)
-    }
-
-    if (!url) return null
-
-    return <GalleryThumb src={url} label={file.name} isNew onRemove={handleRemove} />
-}
-
-interface ExistingGalleryThumbProps {
-    image: ProductGalleryImage
-    index: number
-    onRemove: (imageUuid: string) => void
-}
-
-const ExistingGalleryThumb = ({ image, index, onRemove }: ExistingGalleryThumbProps) => {
-    const handleRemove = () => {
-        onRemove(image.uuid)
-    }
-
-    return <GalleryThumb src={image.url} label={`Gallery image ${index + 1}`} onRemove={handleRemove} />
 }
 
 interface SelectedFileRowProps {
@@ -140,16 +91,18 @@ const SelectedFileRow = ({ file, index, onRemove }: SelectedFileRowProps) => {
 
 interface ExistingFileRowProps {
     file: ProductFile
+    previewUrl?: string
     onRemove: (fileUuid: string) => void
 }
 
-const ExistingFileRow = ({ file, onRemove }: ExistingFileRowProps) => {
+const ExistingFileRow = ({ file, previewUrl, onRemove }: ExistingFileRowProps) => {
     const handleClick = () => {
         onRemove(file.uuid)
     }
 
     return (
         <li className="flex items-center gap-2 rounded-lg border border-stone-700/60 bg-stone-900/40 px-3 py-1.5 text-sm">
+            {previewUrl ? <img src={previewUrl} alt="" className="h-10 w-10 shrink-0 rounded object-cover" /> : null}
             <span className="min-w-0 flex-1 truncate text-stone-200">{file.name}</span>
             <span className="shrink-0 text-xs text-stone-500">{formatFileSize(file.size)}</span>
             <button
@@ -169,19 +122,27 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
     const [name, setName] = useState(product?.name ?? '')
     const [description, setDescription] = useState(product?.description ?? '')
     const [type, setType] = useState<ProductType>(product?.type ?? PRODUCT_TYPES.DIGITAL)
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(product?.payment_method ?? PAYMENT_METHODS.POINTS)
-    const [priceInput, setPriceInput] = useState(product ? formatPriceInput(product.payment_method, product.price) : '')
+    const [priceInput, setPriceInput] = useState(product ? formatPriceInput(product.price) : '')
+    const [maxPercentInput, setMaxPercentInput] = useState(String(product?.max_discount_percent ?? 0))
+    const [quantityInput, setQuantityInput] = useState(String(product?.quantity ?? 1))
     const [existingFiles, setExistingFiles] = useState<ProductFile[]>(product?.files ?? [])
     const [files, setFiles] = useState<File[]>([])
-    const [existingGallery, setExistingGallery] = useState<ProductGalleryImage[]>(product?.gallery ?? [])
-    const [gallery, setGallery] = useState<File[]>([])
     const [image, setImage] = useState<File | null>(null)
     const [removeImage, setRemoveImage] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [pendingRemoval, setPendingRemoval] = useState<PendingRemoval | null>(null)
 
-    const isPointsPayment = paymentMethod === PAYMENT_METHODS.POINTS
-    const priceLabel = isPointsPayment ? 'Price (points)' : 'Price (USD)'
-    const priceStep = isPointsPayment ? 1 : 0.01
+    const galleryUrls = useMemo(() => new Map((product?.gallery ?? []).map((image) => [image.uuid, image.url])), [product])
+    const { data: appConfig } = useAppConfig()
+    const priceCents = parsePriceInput(priceInput)
+    const maxPercent = Number(maxPercentInput)
+    const pointsRate = appConfig?.points_per_currency_unit
+    const isPercentValid = Number.isInteger(maxPercent) && maxPercent >= 0 && maxPercent <= 100
+    const maxDiscountCents = isPercentValid ? Math.floor((priceCents * maxPercent) / 100) : 0
+    const pointsPreview =
+        maxDiscountCents > 0 && pointsRate !== undefined
+            ? `${maxPercent === 100 ? 'Can be bought entirely with points' : `Buyers can pay up to ${formatCents(maxDiscountCents)} with points`} (about ${formatPoints(centsToPoints(maxDiscountCents, pointsRate))} at ${pointsRate.toLocaleString()} points = ${formatCents(STORE_MINOR_UNITS_PER_CURRENCY_UNIT)})`
+            : null
 
     const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
         setName(event.target.value)
@@ -197,18 +158,19 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
         }
     }
 
-    const handlePaymentMethodChange = (event: ChangeEvent<HTMLSelectElement>) => {
-        if (isPaymentMethod(event.target.value)) {
-            setPaymentMethod(event.target.value)
-            setPriceInput('')
-        }
-    }
-
     const handlePriceChange = (event: ChangeEvent<HTMLInputElement>) => {
         setPriceInput(event.target.value)
     }
 
-    const handleFilesChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const handleMaxPercentChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setMaxPercentInput(event.target.value)
+    }
+
+    const handleQuantityChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setQuantityInput(event.target.value)
+    }
+
+    const handleFilesChange =(event: ChangeEvent<HTMLInputElement>) => {
         const selected = Array.from(event.target.files ?? [])
         setFiles((previous) => [...previous, ...selected])
         event.target.value = ''
@@ -230,7 +192,7 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
         event.target.value = ''
     }
 
-    const handleRemoveImage = () => {
+    const removeCover = () => {
         if (image) {
             setImage(null)
             return
@@ -239,50 +201,59 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
         setRemoveImage(product?.image_url != null)
     }
 
-    const handleGalleryChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const selected = Array.from(event.target.files ?? [])
-        setGallery((previous) => [...previous, ...selected])
-        event.target.value = ''
-    }
-
-    const handleRemoveGalleryImage = (index: number) => {
-        setGallery((previous) => previous.filter((_, imageIndex) => imageIndex !== index))
-    }
-
-    const handleRemoveExistingGalleryImage = (imageUuid: string) => {
-        setExistingGallery((previous) => previous.filter((image) => image.uuid !== imageUuid))
-    }
-
-    const handleRemoveFile = (index: number) => {
+    const removeNewFile = (index: number) => {
         setFiles((previous) => previous.filter((_, fileIndex) => fileIndex !== index))
     }
 
-    const handleRemoveExistingFile = (fileUuid: string) => {
+    const removeExistingFile = (fileUuid: string) => {
         setExistingFiles((previous) => previous.filter((file) => file.uuid !== fileUuid))
+    }
+
+    const handleRemoveImage = () => {
+        setPendingRemoval({ kind: 'cover' })
+    }
+
+    const handleRemoveFile = (index: number) => {
+        setPendingRemoval({ kind: 'new-file', index, name: files[index]?.name ?? 'this file' })
+    }
+
+    const handleRemoveExistingFile = (fileUuid: string) => {
+        const file = existingFiles.find((existing) => existing.uuid === fileUuid)
+        setPendingRemoval({ kind: 'existing-file', uuid: fileUuid, name: file?.name ?? 'this file' })
+    }
+
+    const handleCancelRemoval = () => {
+        setPendingRemoval(null)
+    }
+
+    const handleConfirmRemoval = () => {
+        if (!pendingRemoval) return
+
+        if (pendingRemoval.kind === 'cover') removeCover()
+        else if (pendingRemoval.kind === 'new-file') removeNewFile(pendingRemoval.index)
+        else removeExistingFile(pendingRemoval.uuid)
+
+        setPendingRemoval(null)
     }
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
 
         const keptFileUuids = new Set(existingFiles.map((file) => file.uuid))
-        const keptGalleryUuids = new Set(existingGallery.map((galleryImage) => galleryImage.uuid))
         const payload: UpdateProductPayload = {
             name: name.trim(),
             description: description.trim(),
             type,
-            payment_method: paymentMethod,
-            price: parsePriceInput(paymentMethod, priceInput),
+            price: priceCents,
+            max_discount_percent: maxPercent,
+            quantity: Number(quantityInput),
             image,
-            gallery,
             files,
             remove_image: removeImage,
-            remove_gallery_uuids: (product?.gallery ?? [])
-                .filter((galleryImage) => !keptGalleryUuids.has(galleryImage.uuid))
-                .map((galleryImage) => galleryImage.uuid),
             remove_file_uuids: (product?.files ?? []).filter((file) => !keptFileUuids.has(file.uuid)).map((file) => file.uuid),
         }
 
-        const validationError = getProductPayloadError(payload, existingFiles.length, existingGallery.length)
+        const validationError = getProductPayloadError(payload, existingFiles.length)
         setError(validationError)
 
         if (validationError) return
@@ -291,6 +262,7 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
     }
 
     return (
+        <>
         <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block space-y-1.5 sm:col-span-2">
@@ -312,24 +284,42 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
                     </select>
                 </label>
                 <label className="block space-y-1.5">
-                    <span className="text-xs font-medium text-stone-400">Payment method</span>
-                    <select value={paymentMethod} onChange={handlePaymentMethodChange} className={FIELD_CLASS}>
-                        {PAYMENT_METHOD_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-                <label className="block space-y-1.5 sm:col-span-2">
-                    <span className="text-xs font-medium text-stone-400">{priceLabel}</span>
+                    <span className="text-xs font-medium text-stone-400">Price (EUR)</span>
                     <input
                         type="number"
                         required
-                        min={priceStep}
-                        step={priceStep}
+                        min={STORE_MIN_ONLINE_PRICE_CENTS / STORE_MINOR_UNITS_PER_CURRENCY_UNIT}
+                        step={0.01}
                         value={priceInput}
                         onChange={handlePriceChange}
+                        className={FIELD_CLASS}
+                    />
+                </label>
+                <label className="block space-y-1.5">
+                    <span className="text-xs font-medium text-stone-400">Max discount with points (%)</span>
+                    <input
+                        type="number"
+                        required
+                        min={0}
+                        max={100}
+                        step={1}
+                        value={maxPercentInput}
+                        onChange={handleMaxPercentChange}
+                        className={FIELD_CLASS}
+                    />
+                    <span className="block text-xs text-stone-500">
+                        {pointsPreview ?? '0 = points cannot be used, 100 = can be bought entirely with points.'}
+                    </span>
+                </label>
+                <label className="block space-y-1.5">
+                    <span className="text-xs font-medium text-stone-400">Quantity</span>
+                    <input
+                        type="number"
+                        required
+                        min={1}
+                        step={1}
+                        value={quantityInput}
+                        onChange={handleQuantityChange}
                         className={FIELD_CLASS}
                     />
                 </label>
@@ -359,44 +349,16 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
             </div>
 
             <div className="space-y-2">
-                <span className="text-xs font-medium text-stone-400">
-                    Gallery images ({existingGallery.length + gallery.length}/{STORE_MAX_GALLERY_IMAGES})
-                </span>
-                {existingGallery.length > 0 || gallery.length > 0 ? (
-                    <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                        {existingGallery.map((image, index) => (
-                            <ExistingGalleryThumb
-                                key={image.uuid}
-                                image={image}
-                                index={index}
-                                onRemove={handleRemoveExistingGalleryImage}
-                            />
-                        ))}
-                        {gallery.map((file, index) => (
-                            <NewGalleryThumb
-                                key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
-                                file={file}
-                                index={index}
-                                onRemove={handleRemoveGalleryImage}
-                            />
-                        ))}
-                    </ul>
-                ) : null}
-                <input
-                    type="file"
-                    multiple
-                    accept={STORE_IMAGE_MIME_TYPES.join(',')}
-                    onChange={handleGalleryChange}
-                    className="block w-full cursor-pointer text-sm text-stone-300 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-stone-700 file:px-3 file:py-2 file:text-sm file:font-medium file:text-stone-100 hover:file:bg-stone-600"
-                />
-            </div>
-
-            <div className="space-y-2">
                 <span className="text-xs font-medium text-stone-400">Files</span>
                 {existingFiles.length > 0 ? (
                     <ul className="space-y-1.5">
                         {existingFiles.map((file) => (
-                            <ExistingFileRow key={file.uuid} file={file} onRemove={handleRemoveExistingFile} />
+                            <ExistingFileRow
+                                key={file.uuid}
+                                file={file}
+                                previewUrl={galleryUrls.get(file.uuid)}
+                                onRemove={handleRemoveExistingFile}
+                            />
                         ))}
                     </ul>
                 ) : null}
@@ -440,5 +402,20 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
                 </button>
             </div>
         </form>
+
+        <ConfirmationDialog
+            isOpen={pendingRemoval !== null}
+            onClose={handleCancelRemoval}
+            onConfirm={handleConfirmRemoval}
+            title={pendingRemoval?.kind === 'cover' ? 'Remove cover image' : 'Remove file'}
+            message={
+                pendingRemoval?.kind === 'cover'
+                    ? 'Remove the cover image? It is deleted when you save the product.'
+                    : `Remove "${pendingRemoval?.name ?? ''}"? It is deleted when you save the product.`
+            }
+            confirmText="Remove"
+            elevated
+        />
+        </>
     )
 }

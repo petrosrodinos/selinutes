@@ -2,7 +2,6 @@ import { Prisma } from 'generated/prisma'
 
 export const PRODUCT_INCLUDE = {
     files: { orderBy: { created_at: 'asc' } },
-    images: { orderBy: { created_at: 'asc' } },
 } satisfies Prisma.ProductInclude
 
 export const ORDER_INCLUDE = {

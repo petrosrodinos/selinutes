@@ -1,7 +1,10 @@
 import { OrderStatus, PaymentMethod, ProductType } from 'generated/prisma'
 import { OrderWithRelations } from '../constants/store-queries.constants'
-import { STORE_MAX_PRODUCT_FILES, STORE_MIN_ONLINE_PRICE_CENTS } from '../constants/store.constants'
+import { STORE_MIN_ONLINE_PRICE_CENTS } from '../constants/store.constants'
 import {
+    buildPaymentSummary,
+    centsToPoints,
+    getPointsDiscount,
     getProductFilesError,
     getProductPricingError,
     sanitizeFileName,
@@ -18,6 +21,11 @@ const createOrder = (status: OrderStatus): OrderWithRelations => ({
     status,
     payment_method: PaymentMethod.points,
     total: 100,
+    points_used: 0,
+    discount_cents: 0,
+    price_cents: 100,
+    points_per_currency_unit: 100,
+    payment_summary: '€1.00',
     stripe_session_id: null,
     stripe_payment_intent_id: null,
     paid_at: null,
@@ -31,8 +39,8 @@ const createOrder = (status: OrderStatus): OrderWithRelations => ({
         name: 'Playbook',
         description: 'Guide',
         type: ProductType.digital,
-        payment_method: PaymentMethod.points,
         price: 100,
+        max_discount_percent: 0,
         quantity: 1,
         image_path: null,
         created_at: new Date('2026-01-01T00:00:00Z'),
@@ -49,7 +57,6 @@ const createOrder = (status: OrderStatus): OrderWithRelations => ({
                 created_at: new Date('2026-01-01T00:00:00Z'),
             },
         ],
-        images: [],
     },
 })
 
@@ -64,30 +71,98 @@ describe('sanitizeFileName', () => {
 })
 
 describe('getProductPricingError', () => {
-    it('rejects online prices under the Stripe minimum', () => {
-        expect(getProductPricingError(PaymentMethod.online, STORE_MIN_ONLINE_PRICE_CENTS - 1)).not.toBeNull()
+    it('rejects prices under the Stripe minimum', () => {
+        expect(getProductPricingError(STORE_MIN_ONLINE_PRICE_CENTS - 1)).not.toBeNull()
     })
 
-    it('accepts the minimum online price and any points price', () => {
-        expect(getProductPricingError(PaymentMethod.online, STORE_MIN_ONLINE_PRICE_CENTS)).toBeNull()
-        expect(getProductPricingError(PaymentMethod.points, 1)).toBeNull()
+    it('accepts the minimum price and above', () => {
+        expect(getProductPricingError(STORE_MIN_ONLINE_PRICE_CENTS)).toBeNull()
+        expect(getProductPricingError(1000)).toBeNull()
+    })
+})
+
+describe('centsToPoints', () => {
+    it('converts cents to points at the configured rate', () => {
+        expect(centsToPoints(500, 100)).toBe(500)
+        expect(centsToPoints(500, 250)).toBe(1250)
+    })
+
+    it('rounds partial points up so a product never costs less than its price', () => {
+        expect(centsToPoints(199, 3)).toBe(6)
+    })
+})
+
+describe('buildPaymentSummary', () => {
+    it('shows the paid amount and the points used', () => {
+        expect(buildPaymentSummary(900, 100, 100)).toBe('€9.00 · 100 SEL used (−€1.00)')
+    })
+
+    it('shows only the amount when no points were used', () => {
+        expect(buildPaymentSummary(1000, 0, 0)).toBe('€10.00')
+    })
+})
+
+describe('getPointsDiscount', () => {
+    const base = { priceCents: 1000, maxDiscountPercent: 30, availablePoints: 5000, pointsPerCurrencyUnit: 100 }
+
+    it('applies at most the product max discount percent', () => {
+        expect(getPointsDiscount(base)).toEqual({ points_used: 300, discount_cents: 300 })
+    })
+
+    it('is limited by the buyer balance', () => {
+        expect(getPointsDiscount({ ...base, availablePoints: 120 })).toEqual({ points_used: 120, discount_cents: 120 })
+    })
+
+    it('is limited by the points the buyer chose to spend', () => {
+        expect(getPointsDiscount({ ...base, requestedPoints: 50 })).toEqual({ points_used: 50, discount_cents: 50 })
+    })
+
+    it('can cover the whole price at 100%, so the product is bought with points only', () => {
+        expect(getPointsDiscount({ ...base, maxDiscountPercent: 100 })).toEqual({ points_used: 1000, discount_cents: 1000 })
+        expect(getPointsDiscount({ ...base, priceCents: STORE_MIN_ONLINE_PRICE_CENTS, maxDiscountPercent: 100 })).toEqual({
+            points_used: STORE_MIN_ONLINE_PRICE_CENTS,
+            discount_cents: STORE_MIN_ONLINE_PRICE_CENTS,
+        })
+    })
+
+    it('never leaves a partial charge under the Stripe minimum', () => {
+        expect(getPointsDiscount({ ...base, maxDiscountPercent: 100, requestedPoints: 980 })).toEqual({
+            points_used: 1000 - STORE_MIN_ONLINE_PRICE_CENTS,
+            discount_cents: 1000 - STORE_MIN_ONLINE_PRICE_CENTS,
+        })
+    })
+
+    it('gives no discount when points are disabled or unaffordable', () => {
+        expect(getPointsDiscount({ ...base, maxDiscountPercent: 0 })).toEqual({ points_used: 0, discount_cents: 0 })
+        expect(getPointsDiscount({ ...base, maxDiscountPercent: 100, availablePoints: 0 })).toEqual({
+            points_used: 0,
+            discount_cents: 0,
+        })
+    })
+
+    it('converts points at the configured rate without overcharging points', () => {
+        expect(getPointsDiscount({ ...base, maxDiscountPercent: 40, pointsPerCurrencyUnit: 250 })).toEqual({
+            points_used: 1000,
+            discount_cents: 400,
+        })
     })
 })
 
 describe('getProductFilesError', () => {
     it('requires at least one file for digital products', () => {
-        expect(getProductFilesError(ProductType.digital, 0)).not.toBeNull()
-        expect(getProductFilesError(ProductType.digital, 3)).toBeNull()
+        expect(getProductFilesError(ProductType.digital, [])).not.toBeNull()
+        expect(getProductFilesError(ProductType.digital, ['application/pdf', 'image/png', 'image/png'])).toBeNull()
     })
 
-    it('rejects files on non-digital products', () => {
-        expect(getProductFilesError(ProductType.physical, 1)).not.toBeNull()
-        expect(getProductFilesError(ProductType.in_game_asset, 1)).not.toBeNull()
-        expect(getProductFilesError(ProductType.physical, 0)).toBeNull()
+    it('only allows image files on non-digital products', () => {
+        expect(getProductFilesError(ProductType.physical, ['application/pdf'])).not.toBeNull()
+        expect(getProductFilesError(ProductType.in_game_asset, ['image/png', 'application/zip'])).not.toBeNull()
+        expect(getProductFilesError(ProductType.physical, ['image/png'])).toBeNull()
+        expect(getProductFilesError(ProductType.physical, [])).toBeNull()
     })
 
-    it('rejects more files than the limit', () => {
-        expect(getProductFilesError(ProductType.digital, STORE_MAX_PRODUCT_FILES + 1)).not.toBeNull()
+    it('does not limit the number of files', () => {
+        expect(getProductFilesError(ProductType.digital, Array(500).fill('application/pdf'))).toBeNull()
     })
 })
 
@@ -95,10 +170,10 @@ describe('summarizeOrderGroups', () => {
     it('counts orders by status and sums revenue for paid orders only', () => {
         const summary = summarizeOrderGroups(
             [
-                { status: OrderStatus.paid, payment_method: PaymentMethod.points, count: 2, total: 300 },
-                { status: OrderStatus.paid, payment_method: PaymentMethod.online, count: 1, total: 999 },
-                { status: OrderStatus.pending, payment_method: PaymentMethod.online, count: 4, total: 4000 },
-                { status: OrderStatus.cancelled, payment_method: PaymentMethod.points, count: 1, total: 50 },
+                { status: OrderStatus.paid, payment_method: PaymentMethod.points, count: 2, total: 300, points_used: 0 },
+                { status: OrderStatus.paid, payment_method: PaymentMethod.online, count: 1, total: 999, points_used: 150 },
+                { status: OrderStatus.pending, payment_method: PaymentMethod.online, count: 4, total: 4000, points_used: 0 },
+                { status: OrderStatus.cancelled, payment_method: PaymentMethod.points, count: 1, total: 50, points_used: 0 },
             ],
             5,
         )
@@ -109,7 +184,7 @@ describe('summarizeOrderGroups', () => {
             paid_orders: 3,
             pending_orders: 4,
             cancelled_orders: 1,
-            points_revenue: 300,
+            points_revenue: 450,
             online_revenue: 999,
         })
     })

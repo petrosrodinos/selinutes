@@ -33,11 +33,6 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
     [PAYMENT_METHODS.ONLINE]: 'Online payment',
 }
 
-export const PAYMENT_METHOD_OPTIONS = [
-    { value: PAYMENT_METHODS.POINTS, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.POINTS] },
-    { value: PAYMENT_METHODS.ONLINE, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.ONLINE] },
-] as const
-
 export const ORDER_STATUSES = {
     PENDING: 'pending',
     PAID: 'paid',
@@ -79,14 +74,12 @@ export const CHECKOUT_QUERY = {
     CANCELLED: 'cancelled',
 } as const
 
-export const STORE_CURRENCY_SYMBOL = '$'
+export const STORE_CURRENCY_SYMBOL = '€'
 export const STORE_MINOR_UNITS_PER_CURRENCY_UNIT = 100
 export const STORE_MIN_ONLINE_PRICE_CENTS = 50
-export const STORE_MAX_PRODUCT_FILES = 10
+export const STORE_MAX_POINTS_PER_CURRENCY_UNIT = 1_000_000
 export const STORE_MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024
 export const STORE_FILES_FIELD = 'files'
 export const STORE_IMAGE_FIELD = 'image'
-export const STORE_GALLERY_FIELD = 'gallery'
-export const STORE_MAX_GALLERY_IMAGES = 8
 export const STORE_MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
 export const STORE_IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const

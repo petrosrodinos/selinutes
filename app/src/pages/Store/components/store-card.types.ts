@@ -9,4 +9,6 @@ export interface PurchaseActionProps {
     availablePoints: number
     isPurchasing: boolean
     onPurchase: (product: StoreProduct) => void
+    /** When set, the "Buy now" button links here instead of starting the purchase. */
+    href?: string
 }

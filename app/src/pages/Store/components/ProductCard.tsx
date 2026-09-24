@@ -1,25 +1,13 @@
 import type { ComponentType } from 'react'
 import { Link } from 'react-router-dom'
-import {
-    PAYMENT_METHODS,
-    PRODUCT_TYPES,
-    STORE_ROUTES,
-    type PaymentMethod,
-    type SupportedProductType,
-} from '../../../config/store/store.config'
+import { PRODUCT_TYPES, STORE_ROUTES, type SupportedProductType } from '../../../config/store/store.config'
 import type { StoreProduct } from '../../../features/store/interfaces/store.interface'
 import { DigitalProductDetails } from './DigitalProductDetails'
 import { OnlinePurchaseAction } from './OnlinePurchaseAction'
-import { PointsPurchaseAction } from './PointsPurchaseAction'
-import type { ProductDetailsProps, PurchaseActionProps } from './store-card.types'
+import type { ProductDetailsProps } from './store-card.types'
 
 const PRODUCT_DETAILS: Record<SupportedProductType, ComponentType<ProductDetailsProps>> = {
     [PRODUCT_TYPES.DIGITAL]: DigitalProductDetails,
-}
-
-const PURCHASE_ACTIONS: Record<PaymentMethod, ComponentType<PurchaseActionProps>> = {
-    [PAYMENT_METHODS.POINTS]: PointsPurchaseAction,
-    [PAYMENT_METHODS.ONLINE]: OnlinePurchaseAction,
 }
 
 interface ProductCardProps {
@@ -32,7 +20,6 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product, productType, availablePoints, isPurchasing, onPurchase }: ProductCardProps) => {
     const Details = PRODUCT_DETAILS[productType]
-    const PurchaseAction = PURCHASE_ACTIONS[product.payment_method]
 
     return (
         <article className="group relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-xl border border-stone-700 bg-stone-800/70 pb-5 transition-colors hover:border-amber-500/40">
@@ -66,11 +53,12 @@ export const ProductCard = ({ product, productType, availablePoints, isPurchasin
                         Owned · View in My Orders
                     </Link>
                 ) : (
-                    <PurchaseAction
+                    <OnlinePurchaseAction
                         product={product}
                         availablePoints={availablePoints}
                         isPurchasing={isPurchasing}
                         onPurchase={onPurchase}
+                        href={STORE_ROUTES.PRODUCT(product.uuid)}
                     />
                 )}
             </div>

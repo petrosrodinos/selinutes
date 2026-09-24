@@ -42,6 +42,7 @@ export const ApiRoutes = {
         downloadOrder: (orderUuid: string) => `/store/orders/${orderUuid}/download`,
         downloadFile: (orderUuid: string, fileUuid: string) => `/store/orders/${orderUuid}/files/${fileUuid}/download`,
         admin: {
+            config: '/store/admin/config',
             overview: '/store/admin/overview',
             orders: '/store/admin/orders',
             order: (orderUuid: string) => `/store/admin/orders/${orderUuid}`,

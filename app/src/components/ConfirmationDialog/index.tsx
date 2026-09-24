@@ -9,6 +9,7 @@ interface ConfirmationDialogProps {
     confirmText?: string
     cancelText?: string
     isConfirming?: boolean
+    elevated?: boolean
 }
 
 export const ConfirmationDialog = ({
@@ -20,11 +21,12 @@ export const ConfirmationDialog = ({
     confirmText = 'Confirm',
     cancelText = 'Cancel',
     isConfirming = false,
+    elevated = false,
 }: ConfirmationDialogProps) => {
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 ${elevated ? 'z-[120]' : 'z-50'}`}>
             <div className="bg-stone-800 rounded-2xl p-6 max-w-md w-full shadow-2xl border border-stone-700">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-bold text-amber-400">{title}</h3>

@@ -1,11 +1,12 @@
+import { useState, type ChangeEvent } from 'react'
 import { CreditCard, Trophy } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { StoreLayout } from '../../components/StoreLayout'
-import { PAYMENT_METHOD_LABELS, PAYMENT_METHODS, STORE_ROUTES } from '../../config/store/store.config'
+import { STORE_ROUTES } from '../../config/store/store.config'
 import { useMyStats } from '../../features/stats'
 import { usePurchaseProduct, useStoreProduct } from '../../features/store'
 import { useAuthStore } from '../../store/authStore'
-import { formatPoints, formatPrice, getAvailablePoints } from '../../utils/store.utils'
+import { centsToPoints, formatCents, formatPoints, getAvailablePoints, getDiscountForPoints } from '../../utils/store.utils'
 
 const BackLink = ({ to }: { to: string }) => (
     <Link
@@ -30,6 +31,7 @@ export const CheckoutPage = () => {
     const { data: stats } = useMyStats()
     const purchaseMutation = usePurchaseProduct()
     const user = useAuthStore((state) => state.user)
+    const [selectedPoints, setSelectedPoints] = useState<number | null>(null)
 
     const availablePoints = getAvailablePoints(stats)
 
@@ -43,14 +45,23 @@ export const CheckoutPage = () => {
         )
     }
 
-    const isPoints = product.payment_method === PAYMENT_METHODS.POINTS
-    const PaymentIcon = isPoints ? Trophy : CreditCard
-    const missingPoints = isPoints ? Math.max(0, product.price - availablePoints) : 0
+    const { points_used: maxPoints, discount_cents: maxDiscountCents } = product.points_discount
+    const requestedPoints = Math.min(selectedPoints ?? maxPoints, maxPoints)
+    const discountCents = getDiscountForPoints(requestedPoints, product.points_per_currency_unit, product.price)
+    const pointsUsed = discountCents > 0 ? centsToPoints(discountCents, product.points_per_currency_unit) : 0
+    const total = product.price - discountCents
+    const maxDiscountPercent = Math.round((maxDiscountCents / product.price) * 100)
+    const discountPercent = Math.round((discountCents / product.price) * 100)
     const isOwned = product.purchased
-    const canPay = !isOwned && missingPoints === 0
+
+    const handlePointsChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setSelectedPoints(Number(event.target.value))
+    }
 
     const handlePay = async () => {
-        const result = await purchaseMutation.mutateAsync(product.uuid).catch(() => null)
+        const result = await purchaseMutation
+            .mutateAsync({ productUuid: product.uuid, points: pointsUsed })
+            .catch(() => null)
 
         if (result) {
             navigate(STORE_ROUTES.ORDERS)
@@ -80,20 +91,54 @@ export const CheckoutPage = () => {
                 <div className="space-y-3 rounded-2xl border border-stone-700 bg-stone-800/70 p-5">
                     <div className="flex items-center justify-between text-sm text-stone-300">
                         <span className="flex items-center gap-2">
-                            <PaymentIcon className="h-4 w-4 text-gold" />
-                            Payment method
+                            <CreditCard className="h-4 w-4 text-gold" />
+                            Price
                         </span>
-                        <span>{PAYMENT_METHOD_LABELS[product.payment_method]}</span>
+                        <span>{formatCents(product.price)}</span>
                     </div>
+                    {product.max_discount_percent > 0 ? (
+                        <div className="space-y-2 rounded-lg border border-stone-700 p-3 text-sm">
+                            <div className="flex items-center justify-between gap-3">
+                                <span className="flex items-center gap-1.5 font-medium text-amber-300">
+                                    <Trophy className="h-4 w-4" />
+                                    Store points
+                                </span>
+                                <span className="text-stone-300">
+                                    {maxPoints > 0 ? `${formatPoints(pointsUsed)} · ${discountPercent}% off` : 'None available'}
+                                </span>
+                            </div>
+                            <input
+                                type="range"
+                                min={0}
+                                max={maxPoints}
+                                step={1}
+                                value={requestedPoints}
+                                disabled={maxPoints === 0}
+                                onChange={handlePointsChange}
+                                aria-label="Points to use"
+                                className="w-full cursor-pointer accent-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
+                            />
+                            <div className="flex justify-between text-xs text-stone-500">
+                                <span>0%</span>
+                                <span>
+                                    Up to {maxDiscountPercent}% ({formatPoints(maxPoints)}) with your points
+                                </span>
+                            </div>
+                            <p className="text-xs text-stone-500">
+                                You have {formatPoints(availablePoints)}. Using points will not affect your leaderboard status.
+                            </p>
+                        </div>
+                    ) : null}
+                    {discountCents > 0 ? (
+                        <div className="flex items-center justify-between text-sm text-amber-300">
+                            <span>Points discount</span>
+                            <span>-{formatCents(discountCents)}</span>
+                        </div>
+                    ) : null}
                     <div className="flex items-center justify-between border-t border-stone-700 pt-3">
                         <span className="text-base font-semibold text-stone-100">Total</span>
-                        <span className="text-2xl font-black text-gold">{formatPrice(product.payment_method, product.price)}</span>
+                        <span className="text-2xl font-black text-gold">{formatCents(total)}</span>
                     </div>
-                    {isPoints ? (
-                        <p className="text-xs text-stone-500">
-                            You have {formatPoints(availablePoints)} to spend. This will not affect your leaderboard status.
-                        </p>
-                    ) : null}
                 </div>
 
                 {isOwned ? (
@@ -104,19 +149,18 @@ export const CheckoutPage = () => {
                         Owned · View in My Orders
                     </Link>
                 ) : (
-                    <>
-                        <button
-                            type="button"
-                            onClick={handlePay}
-                            disabled={!canPay || purchaseMutation.isPending}
-                            className="w-full cursor-pointer rounded-lg bg-gold px-4 py-3 text-sm font-semibold text-ink transition-colors hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            {purchaseMutation.isPending ? 'Processing...' : `Pay ${formatPrice(product.payment_method, product.price)}`}
-                        </button>
-                        {missingPoints > 0 ? (
-                            <p className="text-center text-xs text-stone-500">You need {formatPoints(missingPoints)} more</p>
-                        ) : null}
-                    </>
+                    <button
+                        type="button"
+                        onClick={handlePay}
+                        disabled={purchaseMutation.isPending}
+                        className="w-full cursor-pointer rounded-lg bg-gold px-4 py-3 text-sm font-semibold text-ink transition-colors hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        {purchaseMutation.isPending
+                            ? 'Processing...'
+                            : total === 0
+                              ? `Get it with ${formatPoints(pointsUsed)}`
+                              : `Pay ${formatCents(total)}`}
+                    </button>
                 )}
             </div>
         </StoreLayout>

@@ -1,7 +1,8 @@
 import { ORDER_STATUS_LABELS, ORDER_STATUS_STYLES, ORDER_STATUSES } from '../../../config/store/store.config'
 import type { Order } from '../../../features/store/interfaces/store.interface'
 import { Download } from 'lucide-react'
-import { formatDateTime, formatPrice } from '../../../utils/store.utils'
+import { STORE_MINOR_UNITS_PER_CURRENCY_UNIT } from '../../../config/store/store.config'
+import { formatCents, formatDateTime, formatPoints, formatPrice } from '../../../utils/store.utils'
 
 interface OrderCardProps {
     order: Order
@@ -31,7 +32,7 @@ export const OrderCard = ({ order, isDownloading, onDownload }: OrderCardProps) 
                     <div className="space-y-1">
                         <h2 className="text-lg font-semibold text-amber-300">{order.product.name}</h2>
                         <p className="text-xs text-stone-500">
-                            Ordered {formatDateTime(order.created_at)} · {formatPrice(order.payment_method, order.total)}
+                            Ordered {formatDateTime(order.created_at)} · {order.payment_summary ?? formatPrice(order.payment_method, order.total)}
                         </p>
                     </div>
                 </div>
@@ -54,6 +55,33 @@ export const OrderCard = ({ order, isDownloading, onDownload }: OrderCardProps) 
                     ) : null}
                 </div>
             </div>
+
+            {order.points_used > 0 ? (
+                <dl className="space-y-1 rounded-lg border border-stone-700/60 bg-stone-900/40 p-3 text-sm">
+                    {order.price_cents !== null ? (
+                        <div className="flex justify-between gap-4">
+                            <dt className="text-stone-400">Product price</dt>
+                            <dd className="text-stone-200">{formatCents(order.price_cents)}</dd>
+                        </div>
+                    ) : null}
+                    <div className="flex justify-between gap-4">
+                        <dt className="text-stone-400">Points used</dt>
+                        <dd className="text-amber-300">
+                            {formatPoints(order.points_used)} (−{formatCents(order.discount_cents)})
+                        </dd>
+                    </div>
+                    <div className="flex justify-between gap-4 border-t border-stone-700/60 pt-1">
+                        <dt className="text-stone-300">Paid</dt>
+                        <dd className="font-semibold text-stone-100">{formatCents(order.total)}</dd>
+                    </div>
+                    {order.points_per_currency_unit !== null ? (
+                        <p className="pt-1 text-xs text-stone-500">
+                            Points rate when you ordered: {formatPoints(order.points_per_currency_unit)} ={' '}
+                            {formatCents(STORE_MINOR_UNITS_PER_CURRENCY_UNIT)}. Later rate changes do not affect this order.
+                        </p>
+                    ) : null}
+                </dl>
+            ) : null}
 
             {isPending ? (
                 <p className="text-sm text-stone-400">

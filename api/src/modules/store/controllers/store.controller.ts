@@ -7,6 +7,7 @@ import { Roles } from '@/shared/decorators/roles.decorator'
 import { CurrentUser } from '@/shared/decorators/current-user.decorator'
 import { AuthRoles } from '@/modules/auth/interfaces/auth.interface'
 import { ConfirmCheckoutDto } from '../dto/confirm-checkout.dto'
+import { PurchaseProductDto } from '../dto/purchase-product.dto'
 import { FileDownloadResult, OrderEntry, PurchaseResult, StoreProductEntry } from '../interfaces/store.interface'
 import { ProductsService } from '../services/products.service'
 import { OrdersService } from '../services/orders.service'
@@ -46,15 +47,16 @@ export class StoreController {
 
     @Post('products/:productUuid/purchase')
     @HttpCode(HttpStatus.CREATED)
-    @ApiOperation({ summary: 'Purchase a product with points or start an online checkout' })
+    @ApiOperation({ summary: 'Purchase a product, optionally discounting it with in-game points' })
     @ApiResponse({ status: HttpStatus.CREATED, description: 'Purchase completed or checkout started' })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Not enough points or product not purchasable' })
     @ApiResponse({ status: HttpStatus.CONFLICT, description: 'Product already owned' })
     purchase(
         @CurrentUser('uuid') userUuid: string,
         @Param('productUuid', ParseUUIDPipe) productUuid: string,
+        @Body() dto: PurchaseProductDto,
     ): Promise<PurchaseResult> {
-        return this.purchaseService.purchase(userUuid, productUuid)
+        return this.purchaseService.purchase(userUuid, productUuid, dto.points ?? 0)
     }
 
     @Post('checkout/confirm')

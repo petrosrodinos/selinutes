@@ -5,6 +5,7 @@ import { StripeIntegrationModule } from '@/integrations/stripe/stripe.module'
 import { StoreController } from './controllers/store.controller'
 import { StoreAdminController } from './controllers/store-admin.controller'
 import { StoreWebhookController } from './controllers/store-webhook.controller'
+import { AppConfigService } from './services/app-config.service'
 import { ProductsService } from './services/products.service'
 import { OrdersService } from './services/orders.service'
 import { PurchaseService } from './services/purchase.service'
@@ -12,6 +13,6 @@ import { PurchaseService } from './services/purchase.service'
 @Module({
     imports: [PrismaModule, GcsIntegrationModule, StripeIntegrationModule],
     controllers: [StoreController, StoreAdminController, StoreWebhookController],
-    providers: [ProductsService, OrdersService, PurchaseService],
+    providers: [AppConfigService, ProductsService, OrdersService, PurchaseService],
 })
 export class StoreModule { }
