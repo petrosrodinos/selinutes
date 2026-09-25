@@ -28,6 +28,7 @@ const createOrder = (status: OrderStatus): OrderWithRelations => ({
     payment_summary: '€1.00',
     stripe_session_id: null,
     stripe_payment_intent_id: null,
+    stripe_fee_cents: null,
     paid_at: null,
     cancelled_at: null,
     created_at: new Date('2026-01-01T00:00:00Z'),

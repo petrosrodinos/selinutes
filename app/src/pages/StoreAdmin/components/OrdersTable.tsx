@@ -78,6 +78,7 @@ export const OrdersTable = () => {
                                 <th className="px-4 py-3">Customer</th>
                                 <th className="px-4 py-3">Product</th>
                                 <th className="px-4 py-3">Payment</th>
+                                <th className="px-4 py-3">Stripe fee</th>
                                 <th className="px-4 py-3">Status</th>
                                 <th className="px-4 py-3">Created</th>
                                 <th className="px-4 py-3">Actions</th>

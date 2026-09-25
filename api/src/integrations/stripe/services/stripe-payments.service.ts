@@ -235,6 +235,21 @@ export class StripePaymentsService {
         }
     }
 
+    async getPaymentIntentFee(payment_intent_id: string): Promise<number | null> {
+        try {
+            const paymentIntent = await this.stripe.paymentIntents.retrieve(payment_intent_id, {
+                expand: ['latest_charge.balance_transaction'],
+            });
+
+            const charge = paymentIntent.latest_charge;
+            const balanceTx = typeof charge === 'object' && charge !== null ? charge.balance_transaction : null;
+
+            return typeof balanceTx === 'object' && balanceTx !== null ? balanceTx.fee : null;
+        } catch (error) {
+            return null;
+        }
+    }
+
     async getAccountChargeFees(charge_id: string, stripe_account_id?: string) {
 
         try {

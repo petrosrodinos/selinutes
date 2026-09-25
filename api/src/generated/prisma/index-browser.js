@@ -217,6 +217,7 @@ exports.Prisma.OrderScalarFieldEnum = {
   payment_summary: 'payment_summary',
   stripe_session_id: 'stripe_session_id',
   stripe_payment_intent_id: 'stripe_payment_intent_id',
+  stripe_fee_cents: 'stripe_fee_cents',
   paid_at: 'paid_at',
   cancelled_at: 'cancelled_at',
   created_at: 'created_at',

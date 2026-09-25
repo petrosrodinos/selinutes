@@ -76,6 +76,7 @@ export interface AdminOrderEntry extends OrderEntry {
     user: AdminOrderUserEntry
     cancelled_at: Date | null
     stripe_payment_intent_id: string | null
+    stripe_fee_cents: number | null
 }
 
 export interface StoreOverviewEntry {

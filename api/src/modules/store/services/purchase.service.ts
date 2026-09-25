@@ -279,6 +279,22 @@ export class PurchaseService {
         if (marked) {
             this.logger.log(`Order ${orderUuid} marked as paid`)
         }
+
+        if (paymentIntentId) {
+            await this.recordStripeFee(orderUuid, paymentIntentId)
+        }
+    }
+
+    private async recordStripeFee(orderUuid: string, paymentIntentId: string): Promise<void> {
+        const order = await this.prisma.order.findUnique({ where: { uuid: orderUuid }, select: { stripe_fee_cents: true } })
+
+        if (!order || order.stripe_fee_cents !== null) return
+
+        const fee = await this.stripePayments.getPaymentIntentFee(paymentIntentId)
+
+        if (fee === null) return
+
+        await this.prisma.order.update({ where: { uuid: orderUuid }, data: { stripe_fee_cents: fee } })
     }
 
     private async decrementStock(tx: Prisma.TransactionClient, productUuid: string): Promise<boolean> {

@@ -168,6 +168,7 @@ export const toAdminOrderEntry = (order: OrderWithRelations): AdminOrderEntry =>
     user: order.user,
     cancelled_at: order.cancelled_at,
     stripe_payment_intent_id: order.stripe_payment_intent_id,
+    stripe_fee_cents: order.stripe_fee_cents,
 })
 
 export const getStripePaymentIntentId = (session: Stripe.Checkout.Session): string | null =>

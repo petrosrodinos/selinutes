@@ -9795,6 +9795,7 @@ export namespace Prisma {
     discount_cents: number | null
     price_cents: number | null
     points_per_currency_unit: number | null
+    stripe_fee_cents: number | null
   }
 
   export type OrderSumAggregateOutputType = {
@@ -9804,6 +9805,7 @@ export namespace Prisma {
     discount_cents: number | null
     price_cents: number | null
     points_per_currency_unit: number | null
+    stripe_fee_cents: number | null
   }
 
   export type OrderMinAggregateOutputType = {
@@ -9821,6 +9823,7 @@ export namespace Prisma {
     payment_summary: string | null
     stripe_session_id: string | null
     stripe_payment_intent_id: string | null
+    stripe_fee_cents: number | null
     paid_at: Date | null
     cancelled_at: Date | null
     created_at: Date | null
@@ -9842,6 +9845,7 @@ export namespace Prisma {
     payment_summary: string | null
     stripe_session_id: string | null
     stripe_payment_intent_id: string | null
+    stripe_fee_cents: number | null
     paid_at: Date | null
     cancelled_at: Date | null
     created_at: Date | null
@@ -9863,6 +9867,7 @@ export namespace Prisma {
     payment_summary: number
     stripe_session_id: number
     stripe_payment_intent_id: number
+    stripe_fee_cents: number
     paid_at: number
     cancelled_at: number
     created_at: number
@@ -9878,6 +9883,7 @@ export namespace Prisma {
     discount_cents?: true
     price_cents?: true
     points_per_currency_unit?: true
+    stripe_fee_cents?: true
   }
 
   export type OrderSumAggregateInputType = {
@@ -9887,6 +9893,7 @@ export namespace Prisma {
     discount_cents?: true
     price_cents?: true
     points_per_currency_unit?: true
+    stripe_fee_cents?: true
   }
 
   export type OrderMinAggregateInputType = {
@@ -9904,6 +9911,7 @@ export namespace Prisma {
     payment_summary?: true
     stripe_session_id?: true
     stripe_payment_intent_id?: true
+    stripe_fee_cents?: true
     paid_at?: true
     cancelled_at?: true
     created_at?: true
@@ -9925,6 +9933,7 @@ export namespace Prisma {
     payment_summary?: true
     stripe_session_id?: true
     stripe_payment_intent_id?: true
+    stripe_fee_cents?: true
     paid_at?: true
     cancelled_at?: true
     created_at?: true
@@ -9946,6 +9955,7 @@ export namespace Prisma {
     payment_summary?: true
     stripe_session_id?: true
     stripe_payment_intent_id?: true
+    stripe_fee_cents?: true
     paid_at?: true
     cancelled_at?: true
     created_at?: true
@@ -10054,6 +10064,7 @@ export namespace Prisma {
     payment_summary: string | null
     stripe_session_id: string | null
     stripe_payment_intent_id: string | null
+    stripe_fee_cents: number | null
     paid_at: Date | null
     cancelled_at: Date | null
     created_at: Date
@@ -10094,6 +10105,7 @@ export namespace Prisma {
     payment_summary?: boolean
     stripe_session_id?: boolean
     stripe_payment_intent_id?: boolean
+    stripe_fee_cents?: boolean
     paid_at?: boolean
     cancelled_at?: boolean
     created_at?: boolean
@@ -10117,6 +10129,7 @@ export namespace Prisma {
     payment_summary?: boolean
     stripe_session_id?: boolean
     stripe_payment_intent_id?: boolean
+    stripe_fee_cents?: boolean
     paid_at?: boolean
     cancelled_at?: boolean
     created_at?: boolean
@@ -10140,6 +10153,7 @@ export namespace Prisma {
     payment_summary?: boolean
     stripe_session_id?: boolean
     stripe_payment_intent_id?: boolean
+    stripe_fee_cents?: boolean
     paid_at?: boolean
     cancelled_at?: boolean
     created_at?: boolean
@@ -10163,13 +10177,14 @@ export namespace Prisma {
     payment_summary?: boolean
     stripe_session_id?: boolean
     stripe_payment_intent_id?: boolean
+    stripe_fee_cents?: boolean
     paid_at?: boolean
     cancelled_at?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "user_uuid" | "product_uuid" | "status" | "payment_method" | "total" | "points_used" | "discount_cents" | "price_cents" | "points_per_currency_unit" | "payment_summary" | "stripe_session_id" | "stripe_payment_intent_id" | "paid_at" | "cancelled_at" | "created_at" | "updated_at", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "user_uuid" | "product_uuid" | "status" | "payment_method" | "total" | "points_used" | "discount_cents" | "price_cents" | "points_per_currency_unit" | "payment_summary" | "stripe_session_id" | "stripe_payment_intent_id" | "stripe_fee_cents" | "paid_at" | "cancelled_at" | "created_at" | "updated_at", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -10204,6 +10219,7 @@ export namespace Prisma {
       payment_summary: string | null
       stripe_session_id: string | null
       stripe_payment_intent_id: string | null
+      stripe_fee_cents: number | null
       paid_at: Date | null
       cancelled_at: Date | null
       created_at: Date
@@ -10647,6 +10663,7 @@ export namespace Prisma {
     readonly payment_summary: FieldRef<"Order", 'String'>
     readonly stripe_session_id: FieldRef<"Order", 'String'>
     readonly stripe_payment_intent_id: FieldRef<"Order", 'String'>
+    readonly stripe_fee_cents: FieldRef<"Order", 'Int'>
     readonly paid_at: FieldRef<"Order", 'DateTime'>
     readonly cancelled_at: FieldRef<"Order", 'DateTime'>
     readonly created_at: FieldRef<"Order", 'DateTime'>
@@ -11197,6 +11214,7 @@ export namespace Prisma {
     payment_summary: 'payment_summary',
     stripe_session_id: 'stripe_session_id',
     stripe_payment_intent_id: 'stripe_payment_intent_id',
+    stripe_fee_cents: 'stripe_fee_cents',
     paid_at: 'paid_at',
     cancelled_at: 'cancelled_at',
     created_at: 'created_at',
@@ -11965,6 +11983,7 @@ export namespace Prisma {
     payment_summary?: StringNullableFilter<"Order"> | string | null
     stripe_session_id?: StringNullableFilter<"Order"> | string | null
     stripe_payment_intent_id?: StringNullableFilter<"Order"> | string | null
+    stripe_fee_cents?: IntNullableFilter<"Order"> | number | null
     paid_at?: DateTimeNullableFilter<"Order"> | Date | string | null
     cancelled_at?: DateTimeNullableFilter<"Order"> | Date | string | null
     created_at?: DateTimeFilter<"Order"> | Date | string
@@ -11988,6 +12007,7 @@ export namespace Prisma {
     payment_summary?: SortOrderInput | SortOrder
     stripe_session_id?: SortOrderInput | SortOrder
     stripe_payment_intent_id?: SortOrderInput | SortOrder
+    stripe_fee_cents?: SortOrderInput | SortOrder
     paid_at?: SortOrderInput | SortOrder
     cancelled_at?: SortOrderInput | SortOrder
     created_at?: SortOrder
@@ -12014,6 +12034,7 @@ export namespace Prisma {
     payment_summary?: StringNullableFilter<"Order"> | string | null
     stripe_session_id?: StringNullableFilter<"Order"> | string | null
     stripe_payment_intent_id?: StringNullableFilter<"Order"> | string | null
+    stripe_fee_cents?: IntNullableFilter<"Order"> | number | null
     paid_at?: DateTimeNullableFilter<"Order"> | Date | string | null
     cancelled_at?: DateTimeNullableFilter<"Order"> | Date | string | null
     created_at?: DateTimeFilter<"Order"> | Date | string
@@ -12037,6 +12058,7 @@ export namespace Prisma {
     payment_summary?: SortOrderInput | SortOrder
     stripe_session_id?: SortOrderInput | SortOrder
     stripe_payment_intent_id?: SortOrderInput | SortOrder
+    stripe_fee_cents?: SortOrderInput | SortOrder
     paid_at?: SortOrderInput | SortOrder
     cancelled_at?: SortOrderInput | SortOrder
     created_at?: SortOrder
@@ -12066,6 +12088,7 @@ export namespace Prisma {
     payment_summary?: StringNullableWithAggregatesFilter<"Order"> | string | null
     stripe_session_id?: StringNullableWithAggregatesFilter<"Order"> | string | null
     stripe_payment_intent_id?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    stripe_fee_cents?: IntNullableWithAggregatesFilter<"Order"> | number | null
     paid_at?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
     cancelled_at?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
     created_at?: DateTimeWithAggregatesFilter<"Order"> | Date | string
@@ -12660,6 +12683,7 @@ export namespace Prisma {
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
+    stripe_fee_cents?: number | null
     paid_at?: Date | string | null
     cancelled_at?: Date | string | null
     created_at?: Date | string
@@ -12683,6 +12707,7 @@ export namespace Prisma {
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
+    stripe_fee_cents?: number | null
     paid_at?: Date | string | null
     cancelled_at?: Date | string | null
     created_at?: Date | string
@@ -12701,6 +12726,7 @@ export namespace Prisma {
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
+    stripe_fee_cents?: NullableIntFieldUpdateOperationsInput | number | null
     paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12724,6 +12750,7 @@ export namespace Prisma {
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
+    stripe_fee_cents?: NullableIntFieldUpdateOperationsInput | number | null
     paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12745,6 +12772,7 @@ export namespace Prisma {
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
+    stripe_fee_cents?: number | null
     paid_at?: Date | string | null
     cancelled_at?: Date | string | null
     created_at?: Date | string
@@ -12763,6 +12791,7 @@ export namespace Prisma {
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
+    stripe_fee_cents?: NullableIntFieldUpdateOperationsInput | number | null
     paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12784,6 +12813,7 @@ export namespace Prisma {
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
+    stripe_fee_cents?: NullableIntFieldUpdateOperationsInput | number | null
     paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13496,6 +13526,7 @@ export namespace Prisma {
     payment_summary?: SortOrder
     stripe_session_id?: SortOrder
     stripe_payment_intent_id?: SortOrder
+    stripe_fee_cents?: SortOrder
     paid_at?: SortOrder
     cancelled_at?: SortOrder
     created_at?: SortOrder
@@ -13509,6 +13540,7 @@ export namespace Prisma {
     discount_cents?: SortOrder
     price_cents?: SortOrder
     points_per_currency_unit?: SortOrder
+    stripe_fee_cents?: SortOrder
   }
 
   export type OrderMaxOrderByAggregateInput = {
@@ -13526,6 +13558,7 @@ export namespace Prisma {
     payment_summary?: SortOrder
     stripe_session_id?: SortOrder
     stripe_payment_intent_id?: SortOrder
+    stripe_fee_cents?: SortOrder
     paid_at?: SortOrder
     cancelled_at?: SortOrder
     created_at?: SortOrder
@@ -13547,6 +13580,7 @@ export namespace Prisma {
     payment_summary?: SortOrder
     stripe_session_id?: SortOrder
     stripe_payment_intent_id?: SortOrder
+    stripe_fee_cents?: SortOrder
     paid_at?: SortOrder
     cancelled_at?: SortOrder
     created_at?: SortOrder
@@ -13560,6 +13594,7 @@ export namespace Prisma {
     discount_cents?: SortOrder
     price_cents?: SortOrder
     points_per_currency_unit?: SortOrder
+    stripe_fee_cents?: SortOrder
   }
 
   export type EnumOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -14383,6 +14418,7 @@ export namespace Prisma {
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
+    stripe_fee_cents?: number | null
     paid_at?: Date | string | null
     cancelled_at?: Date | string | null
     created_at?: Date | string
@@ -14404,6 +14440,7 @@ export namespace Prisma {
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
+    stripe_fee_cents?: number | null
     paid_at?: Date | string | null
     cancelled_at?: Date | string | null
     created_at?: Date | string
@@ -14553,6 +14590,7 @@ export namespace Prisma {
     payment_summary?: StringNullableFilter<"Order"> | string | null
     stripe_session_id?: StringNullableFilter<"Order"> | string | null
     stripe_payment_intent_id?: StringNullableFilter<"Order"> | string | null
+    stripe_fee_cents?: IntNullableFilter<"Order"> | number | null
     paid_at?: DateTimeNullableFilter<"Order"> | Date | string | null
     cancelled_at?: DateTimeNullableFilter<"Order"> | Date | string | null
     created_at?: DateTimeFilter<"Order"> | Date | string
@@ -14822,6 +14860,7 @@ export namespace Prisma {
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
+    stripe_fee_cents?: number | null
     paid_at?: Date | string | null
     cancelled_at?: Date | string | null
     created_at?: Date | string
@@ -14843,6 +14882,7 @@ export namespace Prisma {
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
+    stripe_fee_cents?: number | null
     paid_at?: Date | string | null
     cancelled_at?: Date | string | null
     created_at?: Date | string
@@ -15164,6 +15204,7 @@ export namespace Prisma {
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
+    stripe_fee_cents?: number | null
     paid_at?: Date | string | null
     cancelled_at?: Date | string | null
     created_at?: Date | string
@@ -15249,6 +15290,7 @@ export namespace Prisma {
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
+    stripe_fee_cents?: NullableIntFieldUpdateOperationsInput | number | null
     paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15270,6 +15312,7 @@ export namespace Prisma {
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
+    stripe_fee_cents?: NullableIntFieldUpdateOperationsInput | number | null
     paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15290,6 +15333,7 @@ export namespace Prisma {
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
+    stripe_fee_cents?: NullableIntFieldUpdateOperationsInput | number | null
     paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15320,6 +15364,7 @@ export namespace Prisma {
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
+    stripe_fee_cents?: number | null
     paid_at?: Date | string | null
     cancelled_at?: Date | string | null
     created_at?: Date | string
@@ -15367,6 +15412,7 @@ export namespace Prisma {
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
+    stripe_fee_cents?: NullableIntFieldUpdateOperationsInput | number | null
     paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15388,6 +15434,7 @@ export namespace Prisma {
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
+    stripe_fee_cents?: NullableIntFieldUpdateOperationsInput | number | null
     paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15408,6 +15455,7 @@ export namespace Prisma {
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
+    stripe_fee_cents?: NullableIntFieldUpdateOperationsInput | number | null
     paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string

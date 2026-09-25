@@ -144,6 +144,7 @@ model Order {
   payment_summary          String? // what the buyer saw, e.g. "€9.00 · 100 SEL used (−€1.00)"
   stripe_session_id        String?
   stripe_payment_intent_id String?
+  stripe_fee_cents         Int? // Stripe processing fee, known once the charge's balance transaction is available
   paid_at                  DateTime?
   cancelled_at             DateTime?
   created_at               DateTime      @default(now())
