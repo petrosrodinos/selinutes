@@ -38,9 +38,10 @@ export const StoreNavMenu = () => {
                 aria-haspopup="menu"
                 aria-expanded={isOpen}
                 aria-label="Store menu"
-                className="cursor-pointer rounded-lg border border-stone-600/50 bg-stone-700/60 p-2 transition-all duration-200 hover:bg-stone-600/60 sm:p-2.5"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-stone-600/50 bg-stone-700/60 p-2 transition-all duration-200 hover:bg-stone-600/60 sm:p-2.5 sm:px-3.5"
             >
                 <ShoppingBag className="h-4 w-4 text-amber-400 sm:h-5 sm:w-5" />
+                <span className="hidden text-sm font-medium text-stone-200 sm:inline">Store</span>
             </button>
             {isOpen ? (
                 <div

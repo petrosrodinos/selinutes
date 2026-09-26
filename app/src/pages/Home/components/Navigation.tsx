@@ -1,10 +1,9 @@
 import { useState, useCallback } from "react";
-import { Settings, LogOut, Shield, FileText } from "lucide-react";
 import { RulesNavIcon } from "../../../components/RulesNavIcon";
 import { StoreNavMenu } from "../../../components/StoreNavMenu";
-import { useNavigate, Link } from "react-router-dom";
+import { UserMenu } from "../../../components/UserMenu";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
-import { useCanAccessAdmin, useIsAdmin } from "../../../hooks";
 import { AppLogo } from "../../../components/AppLogo";
 import { SettingsModal } from "./SettingsModal";
 import { ConfirmationDialog } from "../../../components/ConfirmationDialog";
@@ -15,10 +14,12 @@ export const Navigation = () => {
   const userId = useAuthStore((state) => state.userId);
   const email = useAuthStore((state) => state.user?.email ?? null);
   const logout = useAuthStore((state) => state.logout);
-  const canAccessAdmin = useCanAccessAdmin();
-  const isAdmin = useIsAdmin();
   const [showSettings, setShowSettings] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const handleOpenSettings = useCallback(() => {
+    setShowSettings(true);
+  }, []);
 
   const handleLogoutClick = useCallback(() => {
     setShowLogoutConfirm(true);
@@ -36,24 +37,9 @@ export const Navigation = () => {
           <div className="flex items-center justify-between">
             <AppLogo size="md" className="sm:[&_span]:text-2xl" />
             <div className="flex items-center gap-1.5 sm:gap-2">
-              {canAccessAdmin ? (
-                <Link to="/admin" className="rounded-lg border border-stone-600/50 bg-stone-700/60 p-2 transition-all duration-200 hover:bg-stone-600/60 sm:p-2.5" aria-label="Admin dashboard">
-                  <Shield className="h-4 w-4 text-amber-400 sm:h-5 sm:w-5" />
-                </Link>
-              ) : null}
-              {isAdmin ? (
-                <Link to="/game-rules" className="rounded-lg border border-stone-600/50 bg-stone-700/60 p-2 transition-all duration-200 hover:bg-stone-600/60 sm:p-2.5" aria-label="Game rules documentation">
-                  <FileText className="h-4 w-4 text-amber-400 sm:h-5 sm:w-5" />
-                </Link>
-              ) : null}
               <StoreNavMenu />
-              <RulesNavIcon />
-              <button type="button" onClick={() => setShowSettings(true)} className="rounded-lg border border-stone-600/50 bg-stone-700/60 p-2 transition-all duration-200 hover:bg-stone-600/60 sm:p-2.5">
-                <Settings className="h-4 w-4 text-amber-400 sm:h-5 sm:w-5" />
-              </button>
-              <button type="button" onClick={handleLogoutClick} className="rounded-lg border border-stone-600/50 bg-stone-700/60 p-2 transition-all duration-200 hover:bg-stone-600/60 sm:p-2.5" aria-label="Sign out">
-                <LogOut className="h-4 w-4 text-stone-400 sm:h-5 sm:w-5" />
-              </button>
+              <RulesNavIcon showLabel />
+              <UserMenu onOpenSettings={handleOpenSettings} onLogout={handleLogoutClick} />
             </div>
           </div>
         </div>

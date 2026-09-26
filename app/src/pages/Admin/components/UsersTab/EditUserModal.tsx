@@ -25,7 +25,7 @@ export const EditUserModal = ({ user, isOpen, isSaving, onClose, onSave }: EditU
         role: ADMIN_USER_ROLE_OPTIONS[0].value,
         points: 0,
         level: 1,
-        rank: 1,
+        rank: 0,
         wins: 0,
         losses: 0,
         draws: 0,
@@ -135,14 +135,14 @@ export const EditUserModal = ({ user, isOpen, isSaving, onClose, onSave }: EditU
                             <span className="text-xs font-medium text-stone-400">Level</span>
                             <input
                                 type="number"
-                                min={1}
+                                min={0}
                                 max={MAX_LEVEL}
                                 required
                                 value={form.level}
                                 onChange={(event) =>
                                     setForm((prev) => ({
                                         ...prev,
-                                        level: Math.min(MAX_LEVEL, Math.max(1, parseNonNegativeInt(event.target.value) || 1)),
+                                        level: Math.min(MAX_LEVEL, parseNonNegativeInt(event.target.value)),
                                     }))
                                 }
                                 className="w-full rounded-lg border border-stone-700 bg-stone-900/60 px-3 py-2 text-sm text-stone-100 outline-none transition-colors focus:border-amber-500/50"
@@ -152,14 +152,11 @@ export const EditUserModal = ({ user, isOpen, isSaving, onClose, onSave }: EditU
                             <span className="text-xs font-medium text-stone-400">Rank</span>
                             <input
                                 type="number"
-                                min={1}
+                                min={0}
                                 required
                                 value={form.rank}
                                 onChange={(event) =>
-                                    setForm((prev) => ({
-                                        ...prev,
-                                        rank: Math.max(1, parseNonNegativeInt(event.target.value) || 1),
-                                    }))
+                                    setForm((prev) => ({ ...prev, rank: parseNonNegativeInt(event.target.value) }))
                                 }
                                 className="w-full rounded-lg border border-stone-700 bg-stone-900/60 px-3 py-2 text-sm text-stone-100 outline-none transition-colors focus:border-amber-500/50"
                             />

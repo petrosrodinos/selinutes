@@ -70,7 +70,7 @@ export class StatsController {
     }
 
     @Delete('admin/games/:sessionId')
-    @Roles(AuthRoles.ADMIN)
+    @Roles(AuthRoles.SUPER_ADMIN)
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Admin: delete a game session by code or UUID' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Game session deleted successfully' })
@@ -83,7 +83,7 @@ export class StatsController {
     }
 
     @Patch('admin/users/:userUuid')
-    @Roles(AuthRoles.ADMIN)
+    @Roles(AuthRoles.SUPER_ADMIN)
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Admin: update user profile and stats' })
     @ApiResponse({ status: HttpStatus.OK, description: 'User updated successfully' })
@@ -98,7 +98,7 @@ export class StatsController {
     }
 
     @Delete('admin/users/:userUuid')
-    @Roles(AuthRoles.ADMIN)
+    @Roles(AuthRoles.SUPER_ADMIN)
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Admin: delete user by UUID' })
     @ApiResponse({ status: HttpStatus.OK, description: 'User deleted successfully' })

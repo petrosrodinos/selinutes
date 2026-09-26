@@ -1,7 +1,7 @@
 import { useAuthStore } from "../store/authStore";
-import { canMutateAdmin } from "../config/roles/admin-access-roles.config";
+import { isAdminRole } from "../config/roles/admin-access-roles.config";
 
 export function useIsAdmin(): boolean {
   const role = useAuthStore((s) => s.user?.role);
-  return canMutateAdmin(role);
+  return isAdminRole(role);
 }

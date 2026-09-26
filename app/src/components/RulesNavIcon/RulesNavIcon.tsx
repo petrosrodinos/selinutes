@@ -14,10 +14,13 @@ type RulesNavIconProps = {
   onClick?: () => void;
   variant?: "navbar" | "ghost";
   compact?: boolean;
+  showLabel?: boolean;
 };
 
-export const RulesNavIcon = ({ onClick, variant = "navbar", compact = false }: RulesNavIconProps) => {
-  const className = variant === "ghost" ? (compact ? ghostCompactClassName : ghostClassName) : navbarClassName;
+export const RulesNavIcon = ({ onClick, variant = "navbar", compact = false, showLabel = false }: RulesNavIconProps) => {
+  const baseClassName = variant === "ghost" ? (compact ? ghostCompactClassName : ghostClassName) : navbarClassName;
+  const className = showLabel ? `${baseClassName} inline-flex items-center gap-2 sm:px-3.5` : baseClassName;
+  const label = showLabel ? <span className="hidden text-sm font-medium text-stone-200 sm:inline">Rules</span> : null;
   const iconClassName = variant === "ghost"
     ? compact
       ? "h-4 w-4"
@@ -28,6 +31,7 @@ export const RulesNavIcon = ({ onClick, variant = "navbar", compact = false }: R
     return (
       <button type="button" onClick={onClick} className={className} aria-label="Rules">
         <BookOpen className={iconClassName} strokeWidth={variant === "ghost" ? (compact ? 2.25 : 2) : undefined} />
+        {label}
       </button>
     );
   }
@@ -35,6 +39,7 @@ export const RulesNavIcon = ({ onClick, variant = "navbar", compact = false }: R
   return (
     <Link to="/rules" className={className} aria-label="Rules">
       <BookOpen className={iconClassName} />
+      {label}
     </Link>
   );
 };
