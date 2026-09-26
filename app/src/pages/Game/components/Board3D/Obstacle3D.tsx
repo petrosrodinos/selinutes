@@ -1,7 +1,5 @@
-import { memo, useRef, useMemo } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { memo, useMemo } from 'react'
 import { useGLTF } from '@react-three/drei'
-import type { Group } from 'three'
 import type { ObstacleType } from '../../types'
 import { ObstacleTypes } from '../../types'
 import { OBSTACLE_COLORS } from '../../constants'
@@ -29,33 +27,17 @@ const GLBObstacle = memo(function GLBObstacle({
   return <primitive object={cloned} scale={scale} position-y={positionY} rotation-y={Math.PI / 2} />
 })
 
-const AnimatedRiver = () => {
-  const ref = useRef<Group>(null)
-  useFrame((state) => {
-    if (ref.current) {
-      ref.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.02
-    }
-  })
-  return (
-    <group ref={ref}>
-      <GLBObstacle url={riverGLB} scale={0.95} positionY={0.08} />
-    </group>
-  )
-}
+const River = () => (
+  <group>
+    <GLBObstacle url={riverGLB} scale={0.95} positionY={0.08} />
+  </group>
+)
 
-const AnimatedLake = () => {
-  const ref = useRef<Group>(null)
-  useFrame((state) => {
-    if (ref.current) {
-      ref.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1
-    }
-  })
-  return (
-    <group ref={ref}>
-      <GLBObstacle url={lakeGLB} scale={0.95} positionY={0.08} />
-    </group>
-  )
-}
+const Lake = () => (
+  <group>
+    <GLBObstacle url={lakeGLB} scale={0.95} positionY={0.08} />
+  </group>
+)
 
 const Rock = ({ color }: { color: string }) => (
   <group position={[0, 0.08, 0]}>
@@ -70,27 +52,18 @@ const Rock = ({ color }: { color: string }) => (
   </group>
 )
 
-const MysteryBox = ({ color }: { color: string }) => {
-  const ref = useRef<Group>(null)
-  useFrame((state) => {
-    if (ref.current) {
-      ref.current.rotation.y = state.clock.elapsedTime * 1.5
-      ref.current.position.y = 0.25 + Math.sin(state.clock.elapsedTime * 2) * 0.05
-    }
-  })
-  return (
-    <group ref={ref} position={[0, 0.25, 0]}>
-      <mesh>
-        <boxGeometry args={[0.3, 0.3, 0.3]} />
-        <meshStandardMaterial color={color} metalness={0.5} roughness={0.3} />
-      </mesh>
-      <mesh>
-        <boxGeometry args={[0.31, 0.31, 0.31]} />
-        <meshBasicMaterial color="#ffd700" wireframe />
-      </mesh>
-    </group>
-  )
-}
+const MysteryBox = ({ color }: { color: string }) => (
+  <group position={[0, 0.25, 0]}>
+    <mesh>
+      <boxGeometry args={[0.3, 0.3, 0.3]} />
+      <meshStandardMaterial color={color} metalness={0.5} roughness={0.3} />
+    </mesh>
+    <mesh>
+      <boxGeometry args={[0.31, 0.31, 0.31]} />
+      <meshBasicMaterial color="#ffd700" wireframe />
+    </mesh>
+  </group>
+)
 
 export const Obstacle3D = ({ type, position }: Obstacle3DProps) => {
   const color = OBSTACLE_COLORS[type]
@@ -100,8 +73,8 @@ export const Obstacle3D = ({ type, position }: Obstacle3DProps) => {
       case ObstacleTypes.CANYON:     return <GLBObstacle url={canyonGLB} scale={0.9} />
       case ObstacleTypes.CAVE:       return <GLBObstacle url={caveGLB} scale={0.9} />
       case ObstacleTypes.TREE:       return <GLBObstacle url={treeGLB} scale={1.4} />
-      case ObstacleTypes.RIVER:      return <AnimatedRiver />
-      case ObstacleTypes.LAKE:       return <AnimatedLake />
+      case ObstacleTypes.RIVER:      return <River />
+      case ObstacleTypes.LAKE:       return <Lake />
       case ObstacleTypes.ROCK:       return rockGLB ? <GLBObstacle url={rockGLB} scale={0.9} /> : <Rock color={color} />
       case ObstacleTypes.MYSTERY_BOX: return mysteryBoxGLB ? <GLBObstacle url={mysteryBoxGLB} scale={0.9} /> : <MysteryBox color={color} />
     }

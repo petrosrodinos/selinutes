@@ -1,5 +1,5 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { isPiece, isObstacle, ObstacleTypes, PlayerColors } from "../../types";
 import type { Board as BoardType, BoardSize, Move, MysteryBoxState, ObstacleType, Position, SwapTarget } from "../../types";
@@ -33,6 +33,37 @@ interface GameSceneProps {
 }
 
 const obstacleUsesGltf = (type: ObstacleType): boolean => type !== ObstacleTypes.ROCK && type !== ObstacleTypes.MYSTERY_BOX;
+
+/**
+ * Releases the WebGL context and renderer-owned GPU resources when the 3D board
+ * unmounts (e.g. toggling 2D/3D, or leaving and re-entering a game).
+ *
+ * Without this, each unmounted <Canvas> leaves its WebGL context alive until the
+ * browser garbage-collects it. Contexts accumulate and their GPU memory (textures
+ * re-uploaded on every mount) piles up until the browser hits its context limit
+ * and force-drops the oldest ("THREE.WebGLRenderer: Context Lost."). That GPU
+ * pressure degrades the whole tab — both the 2D and 3D views — the longer a
+ * session runs. Forcing context loss on unmount frees the resources immediately,
+ * so at most one live context ever exists.
+ */
+const WebGLContextReleaser = () => {
+  const gl = useThree((state) => state.gl);
+  useEffect(() => {
+    return () => {
+      try {
+        // forceContextLoss() releases the context and all of its GPU resources
+        // immediately; dispose() then tears down the renderer's own caches.
+        if (!gl.getContext().isContextLost()) {
+          gl.forceContextLoss();
+        }
+        gl.dispose();
+      } catch {
+        // Renderer may already be torn down — nothing else to release.
+      }
+    };
+  }, [gl]);
+  return null;
+};
 
 const GameScene = ({ isOnline = false, attackMode: attackModeProp, onlineBoard, onlineBoardSize, onlineSelectedPosition, onlineValidMoves = [], onlineValidAttacks = [], onlineValidSwaps = [], onlineLastMove, onlineMysteryBoxState, onSquareClick, onMysteryBoxClick, getTierForColor }: GameSceneProps) => {
   const { gameState, hintMove, devModeSelectSquare, devModeSelected, mysteryBoxState: offlineMysteryBoxState, handleMysteryBoxSelection } = useGameStore();
@@ -336,7 +367,8 @@ export const Board3D = ({ isOnline = false, attackMode, onlineBoard, onlineBoard
       className="relative rounded-xl overflow-hidden shadow-2xl max-w-full"
       style={{ width: canvasSize, height: canvasSize }}
     >
-      <Canvas camera={{ position: [0, cameraY, cameraZ], fov: 45 }} gl={{ antialias: true, powerPreference: "high-performance" }} dpr={[1, 1.25]}>
+      <Canvas frameloop="demand" camera={{ position: [0, cameraY, cameraZ], fov: 45 }} gl={{ antialias: true, powerPreference: "high-performance" }} dpr={[1, 1.25]}>
+        <WebGLContextReleaser />
         <GltfLoadingProgressBridge onLoadingChange={handleGltfLoadingChange} />
         <color attach="background" args={["#1f2937"]} />
         <GameScene isOnline={isOnline} attackMode={attackMode} onlineBoard={onlineBoard} onlineBoardSize={onlineBoardSize} onlineSelectedPosition={onlineSelectedPosition} onlineValidMoves={onlineValidMoves} onlineValidAttacks={onlineValidAttacks} onlineValidSwaps={onlineValidSwaps} onlineLastMove={onlineLastMove} onlineMysteryBoxState={onlineMysteryBoxState} onSquareClick={onSquareClick} onMysteryBoxClick={onMysteryBoxClick} getTierForColor={getTierForColor} />

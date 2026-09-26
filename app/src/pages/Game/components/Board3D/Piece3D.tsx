@@ -1,5 +1,5 @@
-import { memo, useRef, useMemo } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { memo, useRef, useMemo, useEffect } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import type { Group } from 'three'
 import * as THREE from 'three'
@@ -61,6 +61,9 @@ export const Piece3D = ({
   const groupRef = useRef<Group>(null)
   const currentPosRef = useRef<THREE.Vector3 | null>(null)
   const targetPosRef = useRef<THREE.Vector3>(new THREE.Vector3(...position))
+  const invalidate = useThree((state) => state.invalidate)
+
+  const [px, py, pz] = position
 
   if (!rulesPreview && currentPosRef.current === null) {
     currentPosRef.current = new THREE.Vector3(...position)
@@ -68,60 +71,48 @@ export const Piece3D = ({
 
   if (
     !rulesPreview &&
-    (targetPosRef.current.x !== position[0] ||
-      targetPosRef.current.y !== position[1] ||
-      targetPosRef.current.z !== position[2])
+    (targetPosRef.current.x !== px ||
+      targetPosRef.current.y !== py ||
+      targetPosRef.current.z !== pz)
   ) {
-    targetPosRef.current.set(...position)
+    targetPosRef.current.set(px, py, pz)
   }
 
+  // On-demand rendering: when the target position changes (a move), request the
+  // frames needed to animate the piece into place. Once it arrives the loop stops
+  // invalidating, so an idle board renders nothing.
+  useEffect(() => {
+    if (!rulesPreview) invalidate()
+  }, [px, py, pz, rulesPreview, invalidate])
+
   useFrame((state, delta) => {
-    if (!groupRef.current) return
+    const group = groupRef.current
+    if (!group) return
 
     if (rulesPreview) {
-      const [x, y, z] = position
-      groupRef.current.position.set(x, y, z)
-      groupRef.current.rotation.y = 0
+      group.position.set(px, py, pz)
+      group.rotation.y = 0
       return
     }
 
-    if (!currentPosRef.current) return
+    const current = currentPosRef.current
+    if (!current) return
 
-    const hasOverlayMotion = isSelected || isHint || isSwapTarget || isTargeted
-
-    if (!hasOverlayMotion) {
-      const d2 = currentPosRef.current.distanceToSquared(targetPosRef.current)
-      if (d2 < 1e-10) {
-        groupRef.current.position.copy(targetPosRef.current)
-        groupRef.current.rotation.y = 0
-        return
-      }
+    const target = targetPosRef.current
+    if (current.distanceToSquared(target) < 1e-8) {
+      group.position.copy(target)
+      group.rotation.y = 0
+      return
     }
 
     const dt = Math.min(Math.max(delta, 1e-6), 0.1)
     const lerpFactor = 1 - Math.pow(0.001, dt)
-    currentPosRef.current.lerp(targetPosRef.current, lerpFactor)
+    current.lerp(target, lerpFactor)
+    group.position.copy(current)
+    group.rotation.y = 0
 
-    groupRef.current.position.x = currentPosRef.current.x
-    groupRef.current.position.z = currentPosRef.current.z
-
-    const baseY = currentPosRef.current.y
-    if (isSelected) {
-      groupRef.current.position.y = baseY + 0.15 + Math.sin(state.clock.elapsedTime * 3) * 0.08
-      groupRef.current.rotation.y = state.clock.elapsedTime * 2
-    } else if (isHint) {
-      groupRef.current.position.y = baseY + Math.sin(state.clock.elapsedTime * 4) * 0.05
-      groupRef.current.rotation.y = 0
-    } else if (isSwapTarget) {
-      groupRef.current.position.y = baseY + Math.sin(state.clock.elapsedTime * 4) * 0.04
-      groupRef.current.rotation.y = 0
-    } else if (isTargeted) {
-      groupRef.current.position.y = baseY + Math.sin(state.clock.elapsedTime * 5) * 0.03
-      groupRef.current.rotation.y = 0
-    } else {
-      groupRef.current.position.y = baseY
-      groupRef.current.rotation.y = 0
-    }
+    // Still moving — keep the frame loop alive for the next step.
+    state.invalidate()
   })
 
   const url = getPieceGlbUrl(type, color, tier)
