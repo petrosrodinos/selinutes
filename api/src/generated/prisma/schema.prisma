@@ -122,6 +122,7 @@ model ProductFile {
   path         String
   size         Int
   content_type String
+  is_preview   Boolean  @default(true) // shown in the public store gallery
   created_at   DateTime @default(now())
   product      Product  @relation(fields: [product_uuid], references: [uuid], onDelete: Cascade)
 

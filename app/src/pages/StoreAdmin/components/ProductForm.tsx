@@ -62,11 +62,18 @@ const useObjectUrl = (file: File): string | null => {
 interface SelectedFileRowProps {
     file: File
     index: number
+    isPreview: boolean
+    onTogglePreview: (index: number) => void
     onRemove: (index: number) => void
 }
 
-const SelectedFileRow = ({ file, index, onRemove }: SelectedFileRowProps) => {
+const SelectedFileRow = ({ file, index, isPreview, onTogglePreview, onRemove }: SelectedFileRowProps) => {
     const previewUrl = useObjectUrl(file)
+    const isImage = isImageFile(file)
+
+    const handlePreviewChange = () => {
+        onTogglePreview(index)
+    }
 
     const handleClick = () => {
         onRemove(index)
@@ -77,6 +84,12 @@ const SelectedFileRow = ({ file, index, onRemove }: SelectedFileRowProps) => {
             {previewUrl ? <img src={previewUrl} alt="" className="h-10 w-10 shrink-0 rounded object-cover" /> : null}
             <span className="min-w-0 flex-1 truncate text-stone-200">{file.name}</span>
             <span className="shrink-0 text-xs text-stone-500">{formatFileSize(file.size)}</span>
+            {isImage ? (
+                <label className="flex shrink-0 cursor-pointer items-center gap-1.5 text-xs text-stone-300">
+                    <input type="checkbox" checked={isPreview} onChange={handlePreviewChange} className="cursor-pointer accent-amber-500" />
+                    Preview
+                </label>
+            ) : null}
             <button
                 type="button"
                 onClick={handleClick}
@@ -92,10 +105,18 @@ const SelectedFileRow = ({ file, index, onRemove }: SelectedFileRowProps) => {
 interface ExistingFileRowProps {
     file: ProductFile
     previewUrl?: string
+    isPreview: boolean
+    onTogglePreview: (fileUuid: string) => void
     onRemove: (fileUuid: string) => void
 }
 
-const ExistingFileRow = ({ file, previewUrl, onRemove }: ExistingFileRowProps) => {
+const ExistingFileRow = ({ file, previewUrl, isPreview, onTogglePreview, onRemove }: ExistingFileRowProps) => {
+    const isImage = file.content_type.startsWith('image/')
+
+    const handlePreviewChange = () => {
+        onTogglePreview(file.uuid)
+    }
+
     const handleClick = () => {
         onRemove(file.uuid)
     }
@@ -105,6 +126,12 @@ const ExistingFileRow = ({ file, previewUrl, onRemove }: ExistingFileRowProps) =
             {previewUrl ? <img src={previewUrl} alt="" className="h-10 w-10 shrink-0 rounded object-cover" /> : null}
             <span className="min-w-0 flex-1 truncate text-stone-200">{file.name}</span>
             <span className="shrink-0 text-xs text-stone-500">{formatFileSize(file.size)}</span>
+            {isImage ? (
+                <label className="flex shrink-0 cursor-pointer items-center gap-1.5 text-xs text-stone-300">
+                    <input type="checkbox" checked={isPreview} onChange={handlePreviewChange} className="cursor-pointer accent-amber-500" />
+                    Preview
+                </label>
+            ) : null}
             <button
                 type="button"
                 onClick={handleClick}
@@ -127,6 +154,11 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
     const [quantityInput, setQuantityInput] = useState(String(product?.quantity ?? 1))
     const [existingFiles, setExistingFiles] = useState<ProductFile[]>(product?.files ?? [])
     const [files, setFiles] = useState<File[]>([])
+    const [previewUuids, setPreviewUuids] = useState<Set<string>>(
+        () => new Set((product?.files ?? []).filter((file) => file.is_preview).map((file) => file.uuid)),
+    )
+    // Parallel to `files`: whether each newly selected file is shown as a preview (images default to on)
+    const [newPreviews, setNewPreviews] = useState<boolean[]>([])
     const [image, setImage] = useState<File | null>(null)
     const [removeImage, setRemoveImage] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -173,6 +205,7 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
     const handleFilesChange =(event: ChangeEvent<HTMLInputElement>) => {
         const selected = Array.from(event.target.files ?? [])
         setFiles((previous) => [...previous, ...selected])
+        setNewPreviews((previous) => [...previous, ...selected.map(isImageFile)])
         event.target.value = ''
     }
 
@@ -203,10 +236,24 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
 
     const removeNewFile = (index: number) => {
         setFiles((previous) => previous.filter((_, fileIndex) => fileIndex !== index))
+        setNewPreviews((previous) => previous.filter((_, fileIndex) => fileIndex !== index))
     }
 
     const removeExistingFile = (fileUuid: string) => {
         setExistingFiles((previous) => previous.filter((file) => file.uuid !== fileUuid))
+    }
+
+    const toggleExistingPreview = (fileUuid: string) => {
+        setPreviewUuids((previous) => {
+            const next = new Set(previous)
+            if (next.has(fileUuid)) next.delete(fileUuid)
+            else next.add(fileUuid)
+            return next
+        })
+    }
+
+    const toggleNewPreview = (index: number) => {
+        setNewPreviews((previous) => previous.map((value, fileIndex) => (fileIndex === index ? !value : value)))
     }
 
     const handleRemoveImage = () => {
@@ -249,6 +296,8 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
             quantity: Number(quantityInput),
             image,
             files,
+            preview_new_indexes: files.flatMap((file, index) => (isImageFile(file) && newPreviews[index] ? [index] : [])),
+            preview_file_uuids: existingFiles.filter((file) => previewUuids.has(file.uuid)).map((file) => file.uuid),
             remove_image: removeImage,
             remove_file_uuids: (product?.files ?? []).filter((file) => !keptFileUuids.has(file.uuid)).map((file) => file.uuid),
         }
@@ -350,6 +399,7 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
 
             <div className="space-y-2">
                 <span className="text-xs font-medium text-stone-400">Files</span>
+                <p className="text-xs text-stone-500">Tick "Preview" on images to show them on the public store page. Other images stay hidden until purchase.</p>
                 {existingFiles.length > 0 ? (
                     <ul className="space-y-1.5">
                         {existingFiles.map((file) => (
@@ -357,6 +407,8 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
                                 key={file.uuid}
                                 file={file}
                                 previewUrl={galleryUrls.get(file.uuid)}
+                                isPreview={previewUuids.has(file.uuid)}
+                                onTogglePreview={toggleExistingPreview}
                                 onRemove={handleRemoveExistingFile}
                             />
                         ))}
@@ -375,6 +427,8 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
                                 key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
                                 file={file}
                                 index={index}
+                                isPreview={newPreviews[index] ?? false}
+                                onTogglePreview={toggleNewPreview}
                                 onRemove={handleRemoveFile}
                             />
                         ))}

@@ -55,6 +55,7 @@ const createOrder = (status: OrderStatus): OrderWithRelations => ({
                 path: 'store-products/product-uuid/1-guide.pdf',
                 size: 2048,
                 content_type: 'application/pdf',
+                is_preview: true,
                 created_at: new Date('2026-01-01T00:00:00Z'),
             },
         ],

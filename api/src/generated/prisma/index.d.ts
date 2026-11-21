@@ -8671,6 +8671,7 @@ export namespace Prisma {
     path: string | null
     size: number | null
     content_type: string | null
+    is_preview: boolean | null
     created_at: Date | null
   }
 
@@ -8682,6 +8683,7 @@ export namespace Prisma {
     path: string | null
     size: number | null
     content_type: string | null
+    is_preview: boolean | null
     created_at: Date | null
   }
 
@@ -8693,6 +8695,7 @@ export namespace Prisma {
     path: number
     size: number
     content_type: number
+    is_preview: number
     created_at: number
     _all: number
   }
@@ -8716,6 +8719,7 @@ export namespace Prisma {
     path?: true
     size?: true
     content_type?: true
+    is_preview?: true
     created_at?: true
   }
 
@@ -8727,6 +8731,7 @@ export namespace Prisma {
     path?: true
     size?: true
     content_type?: true
+    is_preview?: true
     created_at?: true
   }
 
@@ -8738,6 +8743,7 @@ export namespace Prisma {
     path?: true
     size?: true
     content_type?: true
+    is_preview?: true
     created_at?: true
     _all?: true
   }
@@ -8836,6 +8842,7 @@ export namespace Prisma {
     path: string
     size: number
     content_type: string
+    is_preview: boolean
     created_at: Date
     _count: ProductFileCountAggregateOutputType | null
     _avg: ProductFileAvgAggregateOutputType | null
@@ -8866,6 +8873,7 @@ export namespace Prisma {
     path?: boolean
     size?: boolean
     content_type?: boolean
+    is_preview?: boolean
     created_at?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["productFile"]>
@@ -8878,6 +8886,7 @@ export namespace Prisma {
     path?: boolean
     size?: boolean
     content_type?: boolean
+    is_preview?: boolean
     created_at?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["productFile"]>
@@ -8890,6 +8899,7 @@ export namespace Prisma {
     path?: boolean
     size?: boolean
     content_type?: boolean
+    is_preview?: boolean
     created_at?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["productFile"]>
@@ -8902,10 +8912,11 @@ export namespace Prisma {
     path?: boolean
     size?: boolean
     content_type?: boolean
+    is_preview?: boolean
     created_at?: boolean
   }
 
-  export type ProductFileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "product_uuid" | "name" | "path" | "size" | "content_type" | "created_at", ExtArgs["result"]["productFile"]>
+  export type ProductFileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "product_uuid" | "name" | "path" | "size" | "content_type" | "is_preview" | "created_at", ExtArgs["result"]["productFile"]>
   export type ProductFileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }
@@ -8929,6 +8940,7 @@ export namespace Prisma {
       path: string
       size: number
       content_type: string
+      is_preview: boolean
       created_at: Date
     }, ExtArgs["result"]["productFile"]>
     composites: {}
@@ -9361,6 +9373,7 @@ export namespace Prisma {
     readonly path: FieldRef<"ProductFile", 'String'>
     readonly size: FieldRef<"ProductFile", 'Int'>
     readonly content_type: FieldRef<"ProductFile", 'String'>
+    readonly is_preview: FieldRef<"ProductFile", 'Boolean'>
     readonly created_at: FieldRef<"ProductFile", 'DateTime'>
   }
     
@@ -11193,6 +11206,7 @@ export namespace Prisma {
     path: 'path',
     size: 'size',
     content_type: 'content_type',
+    is_preview: 'is_preview',
     created_at: 'created_at'
   };
 
@@ -11379,6 +11393,13 @@ export namespace Prisma {
    * Reference to a field of type 'ProductType[]'
    */
   export type ListEnumProductTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -11904,6 +11925,7 @@ export namespace Prisma {
     path?: StringFilter<"ProductFile"> | string
     size?: IntFilter<"ProductFile"> | number
     content_type?: StringFilter<"ProductFile"> | string
+    is_preview?: BoolFilter<"ProductFile"> | boolean
     created_at?: DateTimeFilter<"ProductFile"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }
@@ -11916,6 +11938,7 @@ export namespace Prisma {
     path?: SortOrder
     size?: SortOrder
     content_type?: SortOrder
+    is_preview?: SortOrder
     created_at?: SortOrder
     product?: ProductOrderByWithRelationInput
   }
@@ -11931,6 +11954,7 @@ export namespace Prisma {
     path?: StringFilter<"ProductFile"> | string
     size?: IntFilter<"ProductFile"> | number
     content_type?: StringFilter<"ProductFile"> | string
+    is_preview?: BoolFilter<"ProductFile"> | boolean
     created_at?: DateTimeFilter<"ProductFile"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }, "id" | "uuid">
@@ -11943,6 +11967,7 @@ export namespace Prisma {
     path?: SortOrder
     size?: SortOrder
     content_type?: SortOrder
+    is_preview?: SortOrder
     created_at?: SortOrder
     _count?: ProductFileCountOrderByAggregateInput
     _avg?: ProductFileAvgOrderByAggregateInput
@@ -11962,6 +11987,7 @@ export namespace Prisma {
     path?: StringWithAggregatesFilter<"ProductFile"> | string
     size?: IntWithAggregatesFilter<"ProductFile"> | number
     content_type?: StringWithAggregatesFilter<"ProductFile"> | string
+    is_preview?: BoolWithAggregatesFilter<"ProductFile"> | boolean
     created_at?: DateTimeWithAggregatesFilter<"ProductFile"> | Date | string
   }
 
@@ -12604,6 +12630,7 @@ export namespace Prisma {
     path: string
     size: number
     content_type: string
+    is_preview?: boolean
     created_at?: Date | string
     product: ProductCreateNestedOneWithoutFilesInput
   }
@@ -12616,6 +12643,7 @@ export namespace Prisma {
     path: string
     size: number
     content_type: string
+    is_preview?: boolean
     created_at?: Date | string
   }
 
@@ -12625,6 +12653,7 @@ export namespace Prisma {
     path?: StringFieldUpdateOperationsInput | string
     size?: IntFieldUpdateOperationsInput | number
     content_type?: StringFieldUpdateOperationsInput | string
+    is_preview?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     product?: ProductUpdateOneRequiredWithoutFilesNestedInput
   }
@@ -12637,6 +12666,7 @@ export namespace Prisma {
     path?: StringFieldUpdateOperationsInput | string
     size?: IntFieldUpdateOperationsInput | number
     content_type?: StringFieldUpdateOperationsInput | string
+    is_preview?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -12648,6 +12678,7 @@ export namespace Prisma {
     path: string
     size: number
     content_type: string
+    is_preview?: boolean
     created_at?: Date | string
   }
 
@@ -12657,6 +12688,7 @@ export namespace Prisma {
     path?: StringFieldUpdateOperationsInput | string
     size?: IntFieldUpdateOperationsInput | number
     content_type?: StringFieldUpdateOperationsInput | string
+    is_preview?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -12668,6 +12700,7 @@ export namespace Prisma {
     path?: StringFieldUpdateOperationsInput | string
     size?: IntFieldUpdateOperationsInput | number
     content_type?: StringFieldUpdateOperationsInput | string
+    is_preview?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -13449,6 +13482,11 @@ export namespace Prisma {
     _max?: NestedEnumProductTypeFilter<$PrismaModel>
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type ProductScalarRelationFilter = {
     is?: ProductWhereInput
     isNot?: ProductWhereInput
@@ -13462,6 +13500,7 @@ export namespace Prisma {
     path?: SortOrder
     size?: SortOrder
     content_type?: SortOrder
+    is_preview?: SortOrder
     created_at?: SortOrder
   }
 
@@ -13478,6 +13517,7 @@ export namespace Prisma {
     path?: SortOrder
     size?: SortOrder
     content_type?: SortOrder
+    is_preview?: SortOrder
     created_at?: SortOrder
   }
 
@@ -13489,12 +13529,21 @@ export namespace Prisma {
     path?: SortOrder
     size?: SortOrder
     content_type?: SortOrder
+    is_preview?: SortOrder
     created_at?: SortOrder
   }
 
   export type ProductFileSumOrderByAggregateInput = {
     id?: SortOrder
     size?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type EnumOrderStatusFilter<$PrismaModel = never> = {
@@ -13955,6 +14004,10 @@ export namespace Prisma {
     connect?: ProductWhereUniqueInput
   }
 
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
   export type ProductUpdateOneRequiredWithoutFilesNestedInput = {
     create?: XOR<ProductCreateWithoutFilesInput, ProductUncheckedCreateWithoutFilesInput>
     connectOrCreate?: ProductCreateOrConnectWithoutFilesInput
@@ -14276,6 +14329,19 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumProductTypeFilter<$PrismaModel>
     _max?: NestedEnumProductTypeFilter<$PrismaModel>
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedEnumOrderStatusFilter<$PrismaModel = never> = {
@@ -14825,6 +14891,7 @@ export namespace Prisma {
     path: string
     size: number
     content_type: string
+    is_preview?: boolean
     created_at?: Date | string
   }
 
@@ -14835,6 +14902,7 @@ export namespace Prisma {
     path: string
     size: number
     content_type: string
+    is_preview?: boolean
     created_at?: Date | string
   }
 
@@ -14926,6 +14994,7 @@ export namespace Prisma {
     path?: StringFilter<"ProductFile"> | string
     size?: IntFilter<"ProductFile"> | number
     content_type?: StringFilter<"ProductFile"> | string
+    is_preview?: BoolFilter<"ProductFile"> | boolean
     created_at?: DateTimeFilter<"ProductFile"> | Date | string
   }
 
@@ -15347,6 +15416,7 @@ export namespace Prisma {
     path: string
     size: number
     content_type: string
+    is_preview?: boolean
     created_at?: Date | string
   }
 
@@ -15377,6 +15447,7 @@ export namespace Prisma {
     path?: StringFieldUpdateOperationsInput | string
     size?: IntFieldUpdateOperationsInput | number
     content_type?: StringFieldUpdateOperationsInput | string
+    is_preview?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -15387,6 +15458,7 @@ export namespace Prisma {
     path?: StringFieldUpdateOperationsInput | string
     size?: IntFieldUpdateOperationsInput | number
     content_type?: StringFieldUpdateOperationsInput | string
+    is_preview?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -15397,6 +15469,7 @@ export namespace Prisma {
     path?: StringFieldUpdateOperationsInput | string
     size?: IntFieldUpdateOperationsInput | number
     content_type?: StringFieldUpdateOperationsInput | string
+    is_preview?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

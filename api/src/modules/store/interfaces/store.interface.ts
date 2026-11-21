@@ -6,11 +6,13 @@ export interface ProductFileEntry {
     name: string
     size: number
     content_type: string
+    is_preview: boolean
 }
 
 export interface ProductGalleryImageEntry {
     uuid: string
     url: string
+    is_preview: boolean
 }
 
 export interface ProductEntry {

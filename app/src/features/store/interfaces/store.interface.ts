@@ -5,11 +5,13 @@ export interface ProductFile {
     name: string
     size: number
     content_type: string
+    is_preview: boolean
 }
 
 export interface ProductGalleryImage {
     uuid: string
     url: string
+    is_preview: boolean
 }
 
 export interface Product {
@@ -106,9 +108,11 @@ export interface CreateProductPayload {
     quantity: number
     image: File | null
     files: File[]
+    preview_new_indexes: number[]
 }
 
 export interface UpdateProductPayload extends CreateProductPayload {
     remove_file_uuids: string[]
+    preview_file_uuids: string[]
     remove_image: boolean
 }

@@ -93,6 +93,7 @@ export const buildProductFormData = (payload: CreateProductPayload | UpdateProdu
     formData.append('max_discount_percent', String(payload.max_discount_percent))
     formData.append('quantity', String(payload.quantity))
     payload.files.forEach((file) => formData.append(STORE_FILES_FIELD, file))
+    payload.preview_new_indexes.forEach((index) => formData.append('preview_new_indexes', String(index)))
 
     if (payload.image) {
         formData.append(STORE_IMAGE_FIELD, payload.image)
@@ -100,6 +101,7 @@ export const buildProductFormData = (payload: CreateProductPayload | UpdateProdu
 
     if ('remove_file_uuids' in payload) {
         payload.remove_file_uuids.forEach((fileUuid) => formData.append('remove_file_uuids', fileUuid))
+        payload.preview_file_uuids.forEach((fileUuid) => formData.append('preview_file_uuids', fileUuid))
 
         if (payload.remove_image) {
             formData.append('remove_image', 'true')

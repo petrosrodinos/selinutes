@@ -40,7 +40,7 @@ const GalleryThumbnail = ({ image, name, index, isSelected, onSelect }: GalleryT
             aria-pressed={isSelected}
             className={`block cursor-pointer overflow-hidden rounded-xl border-2 bg-stone-900 transition-all duration-200 ${stateClass}`}
         >
-            <img src={image.url} alt="" loading="lazy" className="h-16 w-24 object-cover" />
+            <img src={image.url} alt="" loading="lazy" className="h-16 w-24 bg-stone-900 object-contain" />
         </button>
     )
 }
@@ -85,7 +85,7 @@ export const ProductGallery = ({ name, coverUrl, gallery }: ProductGalleryProps)
                 aria-label={`View ${name} full size`}
                 className="block w-full -rotate-1 cursor-zoom-in overflow-hidden rounded-3xl border-4 border-amber-400/70 bg-stone-900 shadow-[0_12px_0_0_rgba(251,191,36,0.15),0_24px_48px_-12px_rgba(0,0,0,0.6)] transition-transform duration-300 hover:rotate-0"
             >
-                <img src={selected.url} alt={name} className="aspect-[4/3] w-full object-cover" />
+                <img src={selected.url} alt={name} className="mx-auto max-h-[70vh] min-h-64 w-full bg-stone-900 object-contain" />
             </button>
 
             {isLightboxOpen ? (

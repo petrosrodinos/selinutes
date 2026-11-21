@@ -108,6 +108,7 @@ export const toProductFileEntry =(file: ProductFile): ProductFileEntry => ({
     name: file.name,
     size: file.size,
     content_type: file.content_type,
+    is_preview: file.is_preview,
 })
 
 export const toProductEntry = (
@@ -135,6 +136,9 @@ export const toStoreProductEntry = (
     pointsPerCurrencyUnit: number,
 ): StoreProductEntry => ({
     ...entry,
+    // Only files the admin marked as previews are shown to shoppers
+    gallery: entry.gallery.filter((image) => image.is_preview),
+    files: entry.files.filter((file) => file.is_preview),
     purchased,
     points_discount: pointsDiscount,
     points_per_currency_unit: pointsPerCurrencyUnit,

@@ -27,6 +27,7 @@ interface UploadedProductFile {
     path: string
     size: number
     content_type: string
+    is_preview: boolean
 }
 
 interface UploadedProductAssets {
@@ -123,7 +124,7 @@ export class ProductsService {
         }
 
         const productUuid = randomUUID()
-        const uploaded = await this.uploadProductAssets(productUuid, uploads)
+        const uploaded = await this.uploadProductAssets(productUuid, uploads, new Set(dto.preview_new_indexes))
 
         try {
             const product = await this.prisma.product.create({
@@ -184,7 +185,8 @@ export class ProductsService {
             throw new BadRequestException(validationError)
         }
 
-        const uploaded = await this.uploadProductAssets(productUuid, uploads)
+        const uploaded = await this.uploadProductAssets(productUuid, uploads, new Set(dto.preview_new_indexes))
+        const previewFileUuids = new Set(dto.preview_file_uuids)
         const replacesImage = uploaded.image !== undefined || dto.remove_image
         const nextImagePath = uploaded.image?.path ?? (dto.remove_image ? null : undefined)
 
@@ -201,6 +203,9 @@ export class ProductsService {
                     image_path: nextImagePath,
                     files: {
                         deleteMany: { uuid: { in: removedFiles.map((file) => file.uuid) } },
+                        update: existing.files
+                            .filter((file) => !removedFileUuids.has(file.uuid))
+                            .map((file) => ({ where: { uuid: file.uuid }, data: { is_preview: previewFileUuids.has(file.uuid) } })),
                         create: uploaded.files,
                     },
                 },
@@ -280,7 +285,7 @@ export class ProductsService {
 
         const gallery = imageFiles.flatMap((image, index): ProductGalleryImageEntry[] => {
             const url = galleryUrls[index]
-            return url ? [{ uuid: image.uuid, url }] : []
+            return url ? [{ uuid: image.uuid, url, is_preview: image.is_preview }] : []
         })
 
         return toProductEntry(product, imageUrl, gallery)
@@ -295,12 +300,16 @@ export class ProductsService {
         }
     }
 
-    private async uploadProductAssets(productUuid: string, uploads: ProductUploads): Promise<UploadedProductAssets> {
+    private async uploadProductAssets(
+        productUuid: string,
+        uploads: ProductUploads,
+        previewIndexes: Set<number> = new Set(),
+    ): Promise<UploadedProductAssets> {
         const folder = `${STORE_GCS_FOLDER}/${productUuid}`
         const uploaded: UploadedProductAssets = { files: [] }
 
         try {
-            uploaded.files = await this.uploadFiles(productUuid, folder, uploads.files)
+            uploaded.files = await this.uploadFiles(productUuid, folder, uploads.files, previewIndexes)
 
             if (uploads.image) {
                 ;[uploaded.image] = await this.uploadFiles(productUuid, `${folder}/image`, [uploads.image])
@@ -313,7 +322,12 @@ export class ProductsService {
         }
     }
 
-    private async uploadFiles(productUuid: string, folder: string, files: Express.Multer.File[]): Promise<UploadedProductFile[]> {
+    private async uploadFiles(
+        productUuid: string,
+        folder: string,
+        files: Express.Multer.File[],
+        previewIndexes: Set<number> = new Set(),
+    ): Promise<UploadedProductFile[]> {
         const uploadResults = await Promise.allSettled(
             files.map((file, index) =>
                 this.gcsService.uploadImageFromBuffer(
@@ -333,6 +347,7 @@ export class ProductsService {
                         path: result.value.path,
                         size: result.value.size,
                         content_type: result.value.contentType,
+                        is_preview: previewIndexes.has(index),
                     },
                 ]
                 : [],

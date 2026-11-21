@@ -21,6 +21,7 @@ const createPayload = (overrides: Partial<CreateProductPayload> = {}): CreatePro
     quantity: 1,
     image: null,
     files: [new File(['a'], 'a.pdf')],
+    preview_new_indexes: [],
     ...overrides,
 })
 

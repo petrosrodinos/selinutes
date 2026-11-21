@@ -199,6 +199,7 @@ exports.Prisma.ProductFileScalarFieldEnum = {
   path: 'path',
   size: 'size',
   content_type: 'content_type',
+  is_preview: 'is_preview',
   created_at: 'created_at'
 };
 
