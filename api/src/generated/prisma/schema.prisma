@@ -95,17 +95,18 @@ model AppConfig {
 }
 
 model Product {
-  id                   Int         @id @default(autoincrement())
-  uuid                 String      @unique @default(uuid())
-  name                 String
-  description          String
-  type                 ProductType
-  price                Int // USD cents, always paid for with real money
-  max_discount_percent Int         @default(0) // share of the price (0-100) a buyer may pay with in-game points
-  quantity             Int         @default(1)
-  image_path           String?
-  created_at           DateTime    @default(now())
-  updated_at           DateTime    @updatedAt
+  id                    Int         @id @default(autoincrement())
+  uuid                  String      @unique @default(uuid())
+  name                  String
+  description           String
+  type                  ProductType
+  price                 Int // USD cents, always paid for with real money
+  requires_verification Boolean     @default(false) // paid orders wait for an admin to verify them
+  max_discount_percent  Int         @default(0) // share of the price (0-100) a buyer may pay with in-game points
+  quantity              Int         @default(1)
+  image_path            String?
+  created_at            DateTime    @default(now())
+  updated_at            DateTime    @updatedAt
 
   files  ProductFile[]
   orders Order[]
@@ -131,27 +132,29 @@ model ProductFile {
 }
 
 model Order {
-  id                       Int           @id @default(autoincrement())
-  uuid                     String        @unique @default(uuid())
+  id                       Int               @id @default(autoincrement())
+  uuid                     String            @unique @default(uuid())
   user_uuid                String
   product_uuid             String
-  status                   OrderStatus   @default(pending)
+  status                   OrderStatus       @default(pending)
   payment_method           PaymentMethod
   total                    Int // cents paid with real money (legacy points-only orders: points)
-  points_used              Int           @default(0)
-  discount_cents           Int           @default(0)
+  points_used              Int               @default(0)
+  discount_cents           Int               @default(0)
   price_cents              Int? // list price when the order was placed
   points_per_currency_unit Int? // points rate when the order was placed
+  fulfillment_status       FulfillmentStatus @default(verified) // delivery progress, meaningful for physical orders
+  shipping_address         Json? // snapshot of the delivery details, physical products only
   payment_summary          String? // what the buyer saw, e.g. "€9.00 · 100 SEL used (−€1.00)"
   stripe_session_id        String?
   stripe_payment_intent_id String?
   stripe_fee_cents         Int? // Stripe processing fee, known once the charge's balance transaction is available
   paid_at                  DateTime?
   cancelled_at             DateTime?
-  created_at               DateTime      @default(now())
-  updated_at               DateTime      @updatedAt
-  user                     User          @relation(fields: [user_uuid], references: [uuid], onDelete: Cascade)
-  product                  Product       @relation(fields: [product_uuid], references: [uuid])
+  created_at               DateTime          @default(now())
+  updated_at               DateTime          @updatedAt
+  user                     User              @relation(fields: [user_uuid], references: [uuid], onDelete: Cascade)
+  product                  Product           @relation(fields: [product_uuid], references: [uuid])
 
   @@index([user_uuid])
   @@index([product_uuid])
@@ -168,6 +171,14 @@ enum ProductType {
 enum PaymentMethod {
   points
   online
+}
+
+enum FulfillmentStatus {
+  pending_verification
+  verified
+  preparing
+  shipped
+  delivered
 }
 
 enum OrderStatus {

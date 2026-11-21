@@ -184,6 +184,7 @@ exports.Prisma.ProductScalarFieldEnum = {
   description: 'description',
   type: 'type',
   price: 'price',
+  requires_verification: 'requires_verification',
   max_discount_percent: 'max_discount_percent',
   quantity: 'quantity',
   image_path: 'image_path',
@@ -215,6 +216,8 @@ exports.Prisma.OrderScalarFieldEnum = {
   discount_cents: 'discount_cents',
   price_cents: 'price_cents',
   points_per_currency_unit: 'points_per_currency_unit',
+  fulfillment_status: 'fulfillment_status',
+  shipping_address: 'shipping_address',
   payment_summary: 'payment_summary',
   stripe_session_id: 'stripe_session_id',
   stripe_payment_intent_id: 'stripe_payment_intent_id',
@@ -284,6 +287,14 @@ exports.OrderStatus = exports.$Enums.OrderStatus = {
 exports.PaymentMethod = exports.$Enums.PaymentMethod = {
   points: 'points',
   online: 'online'
+};
+
+exports.FulfillmentStatus = exports.$Enums.FulfillmentStatus = {
+  pending_verification: 'pending_verification',
+  verified: 'verified',
+  preparing: 'preparing',
+  shipped: 'shipped',
+  delivered: 'delivered'
 };
 
 exports.Prisma.ModelName = {

@@ -8,7 +8,7 @@ import { CurrentUser } from '@/shared/decorators/current-user.decorator'
 import { AuthRoles } from '@/modules/auth/interfaces/auth.interface'
 import { ConfirmCheckoutDto } from '../dto/confirm-checkout.dto'
 import { PurchaseProductDto } from '../dto/purchase-product.dto'
-import { FileDownloadResult, OrderEntry, PurchaseResult, StoreProductEntry } from '../interfaces/store.interface'
+import { FileDownloadResult, OrderEntry, PurchaseResult, ShippingAddressEntry, StoreProductEntry } from '../interfaces/store.interface'
 import { ProductsService } from '../services/products.service'
 import { OrdersService } from '../services/orders.service'
 import { PurchaseService } from '../services/purchase.service'
@@ -56,7 +56,15 @@ export class StoreController {
         @Param('productUuid', ParseUUIDPipe) productUuid: string,
         @Body() dto: PurchaseProductDto,
     ): Promise<PurchaseResult> {
-        return this.purchaseService.purchase(userUuid, productUuid, dto.points ?? 0)
+        return this.purchaseService.purchase(userUuid, productUuid, dto.points ?? 0, dto.shipping)
+    }
+
+    @Get('shipping-address')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Get the shipping address from the current user last physical order' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Address retrieved, null when there is none' })
+    getLastShippingAddress(@CurrentUser('uuid') userUuid: string): Promise<ShippingAddressEntry | null> {
+        return this.ordersService.getLastShippingAddress(userUuid)
     }
 
     @Post('checkout/confirm')

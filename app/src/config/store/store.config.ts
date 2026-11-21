@@ -6,7 +6,7 @@ export const PRODUCT_TYPES = {
 
 export type ProductType = (typeof PRODUCT_TYPES)[keyof typeof PRODUCT_TYPES]
 
-export const SUPPORTED_PRODUCT_TYPES = [PRODUCT_TYPES.DIGITAL] as const
+export const SUPPORTED_PRODUCT_TYPES = [PRODUCT_TYPES.DIGITAL, PRODUCT_TYPES.PHYSICAL] as const
 
 export type SupportedProductType = (typeof SUPPORTED_PRODUCT_TYPES)[number]
 
@@ -53,6 +53,48 @@ export const ORDER_STATUS_STYLES: Record<OrderStatus, string> = {
     [ORDER_STATUSES.CANCELLED]: 'bg-rose-500/15 text-rose-300',
 }
 
+export const FULFILLMENT_STATUSES = {
+    PENDING_VERIFICATION: 'pending_verification',
+    VERIFIED: 'verified',
+    PREPARING: 'preparing',
+    SHIPPED: 'shipped',
+    DELIVERED: 'delivered',
+} as const
+
+export type FulfillmentStatus = (typeof FULFILLMENT_STATUSES)[keyof typeof FULFILLMENT_STATUSES]
+
+export const FULFILLMENT_STATUS_ORDER: readonly FulfillmentStatus[] = [
+    FULFILLMENT_STATUSES.PENDING_VERIFICATION,
+    FULFILLMENT_STATUSES.VERIFIED,
+    FULFILLMENT_STATUSES.PREPARING,
+    FULFILLMENT_STATUSES.SHIPPED,
+    FULFILLMENT_STATUSES.DELIVERED,
+]
+
+export const FULFILLMENT_STATUS_LABELS: Record<FulfillmentStatus, string> = {
+    [FULFILLMENT_STATUSES.PENDING_VERIFICATION]: 'Pending verification',
+    [FULFILLMENT_STATUSES.VERIFIED]: 'Verified',
+    [FULFILLMENT_STATUSES.PREPARING]: 'Preparing for shipping',
+    [FULFILLMENT_STATUSES.SHIPPED]: 'Shipped',
+    [FULFILLMENT_STATUSES.DELIVERED]: 'Delivered',
+}
+
+export const FULFILLMENT_STATUS_HINTS: Record<FulfillmentStatus, string> = {
+    [FULFILLMENT_STATUSES.PENDING_VERIFICATION]: 'We are reviewing your order. We will verify it shortly.',
+    [FULFILLMENT_STATUSES.VERIFIED]: 'We received and verified your order.',
+    [FULFILLMENT_STATUSES.PREPARING]: 'We are packing your order.',
+    [FULFILLMENT_STATUSES.SHIPPED]: 'Your order is on its way.',
+    [FULFILLMENT_STATUSES.DELIVERED]: 'Your order has been delivered.',
+}
+
+export const FULFILLMENT_STATUS_STYLES: Record<FulfillmentStatus, string> = {
+    [FULFILLMENT_STATUSES.PENDING_VERIFICATION]: 'bg-stone-500/20 text-stone-300',
+    [FULFILLMENT_STATUSES.VERIFIED]: 'bg-sky-500/15 text-sky-300',
+    [FULFILLMENT_STATUSES.PREPARING]: 'bg-amber-500/15 text-amber-300',
+    [FULFILLMENT_STATUSES.SHIPPED]: 'bg-violet-500/15 text-violet-300',
+    [FULFILLMENT_STATUSES.DELIVERED]: 'bg-emerald-500/15 text-emerald-300',
+}
+
 export const STORE_ROUTES = {
     STORE: '/store',
     ORDERS: '/store/orders',
@@ -60,6 +102,8 @@ export const STORE_ROUTES = {
     CHECKOUT: (productUuid: string) => `/store/${productUuid}/checkout`,
     ADMIN_ORDERS: '/admin/store',
     ADMIN_PRODUCTS: '/admin/store/products',
+    ADMIN_PRODUCT_NEW: '/admin/store/products/new',
+    ADMIN_PRODUCT: (productUuid: string) => `/admin/store/products/${productUuid}`,
 } as const
 
 export const STORE_ADMIN_TABS = [

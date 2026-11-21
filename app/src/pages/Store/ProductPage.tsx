@@ -1,13 +1,14 @@
-import { ArrowLeft, CreditCard, Package, Trophy, Zap } from 'lucide-react'
+import { ArrowLeft, CreditCard, Package, Trophy, Truck } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { StoreLayout } from '../../components/StoreLayout'
 import { PRODUCT_TYPES, STORE_ROUTES } from '../../config/store/store.config'
 import { useMyStats } from '../../features/stats'
 import { useCheckoutReturn, useStoreProduct } from '../../features/store'
-import { formatCents, formatPoints, getAvailablePoints } from '../../utils/store.utils'
+import { formatCents, formatPoints, getAvailablePoints, isProductOwned } from '../../utils/store.utils'
 import { OnlinePurchaseAction } from './components/OnlinePurchaseAction'
 import { ProductGallery } from './components/ProductGallery'
+import { ProductPageSkeleton } from './components/StoreSkeletons'
 import { useProductPurchase } from './hooks/useProductPurchase'
 
 interface InfoTileProps {
@@ -50,7 +51,7 @@ export const ProductPage = () => {
         return (
             <StoreLayout title="Product" description="Product preview" actions={<BackToStoreLink />}>
                 {isLoading ? (
-                    <div className="rounded-xl border border-stone-700 bg-stone-800/70 p-6 text-stone-300">Loading product...</div>
+                    <ProductPageSkeleton />
                 ) : (
                     <div className="rounded-xl border border-red-700/50 bg-red-900/20 p-6 text-red-200">
                         This product could not be found.
@@ -79,9 +80,9 @@ export const ProductPage = () => {
                     <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                         {product.type === PRODUCT_TYPES.PHYSICAL ? (
                             <InfoTile
-                                icon={<Zap className="h-5 w-5" />}
-                                title="Instant delivery"
-                                text="Unlocked in My Orders right after you buy."
+                                icon={<Truck className="h-5 w-5" />}
+                                title="Shipped to you"
+                                text="Enter your delivery address at checkout."
                             />
                         ) : null}
                         <InfoTile
@@ -104,7 +105,7 @@ export const ProductPage = () => {
                     </ul>
 
                     <div className="rounded-2xl border border-stone-700 bg-stone-800/70 p-5">
-                        {product.purchased ? (
+                        {isProductOwned(product) ? (
                             <Link
                                 to={STORE_ROUTES.ORDERS}
                                 className="block cursor-pointer rounded-lg border border-gold/30 bg-gold/10 px-4 py-2.5 text-center text-sm font-semibold text-gold transition-colors hover:bg-gold/20"

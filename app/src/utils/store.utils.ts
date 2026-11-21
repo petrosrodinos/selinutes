@@ -15,7 +15,7 @@ import {
     type ProductType,
     type SupportedProductType,
 } from '../config/store/store.config'
-import type { CreateProductPayload, UpdateProductPayload } from '../features/store/interfaces/store.interface'
+import type { CreateProductPayload, ShippingAddress, UpdateProductPayload } from '../features/store/interfaces/store.interface'
 
 const BYTE_UNITS = ['B', 'KB', 'MB', 'GB'] as const
 
@@ -80,6 +80,54 @@ export const parsePriceInput = (input: string): number => {
 
 export const formatPriceInput = (cents: number): string => (cents / STORE_MINOR_UNITS_PER_CURRENCY_UNIT).toFixed(2)
 
+export const SHIPPING_COUNTRY_CODES = [
+    'AL', 'AT', 'AU', 'BA', 'BE', 'BG', 'BR', 'CA', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GB',
+    'GE', 'GR', 'HR', 'HU', 'IE', 'IL', 'IS', 'IT', 'LI', 'LT', 'LU', 'LV', 'MC', 'MD', 'ME', 'MK', 'MT', 'NL',
+    'NO', 'NZ', 'PL', 'PT', 'RO', 'RS', 'SE', 'SI', 'SK', 'TR', 'UA', 'US', 'XK',
+] as const
+
+export const formatCountry = (code: string): string => {
+    try {
+        return new Intl.DisplayNames(['en'], { type: 'region' }).of(code) ?? code
+    } catch {
+        return code
+    }
+}
+
+export const EMPTY_SHIPPING_ADDRESS: ShippingAddress = {
+    full_name: '',
+    phone: '',
+    line1: '',
+    line2: '',
+    city: '',
+    state: '',
+    postal_code: '',
+    country: 'GR',
+}
+
+const PHONE_PATTERN = /^\+?[0-9 ()-]{6,20}$/
+
+export type ShippingFieldErrors = Partial<Record<keyof ShippingAddress, string>>
+
+export const getShippingFieldErrors = (address: ShippingAddress): ShippingFieldErrors => {
+    const errors: ShippingFieldErrors = {}
+
+    if (address.full_name.trim().length === 0) errors.full_name = 'Enter the recipient full name'
+    if (!PHONE_PATTERN.test(address.phone.trim())) errors.phone = 'Enter a valid phone number'
+    if (address.line1.trim().length === 0) errors.line1 = 'Enter the street address'
+    if (address.city.trim().length === 0) errors.city = 'Enter the city'
+    if (address.postal_code.trim().length === 0) errors.postal_code = 'Enter the postal code'
+    if (address.country.length !== 2) errors.country = 'Select a country'
+
+    return errors
+}
+
+export const getShippingAddressError = (address: ShippingAddress): string | null =>
+    Object.values(getShippingFieldErrors(address))[0] ?? null
+
+export const isProductOwned = (product: { type: ProductType; purchased: boolean }): boolean =>
+    product.purchased && product.type !== PRODUCT_TYPES.PHYSICAL
+
 export const isSupportedProductType = (type: ProductType): type is SupportedProductType =>
     SUPPORTED_PRODUCT_TYPES.some((supported) => supported === type)
 
@@ -92,6 +140,7 @@ export const buildProductFormData = (payload: CreateProductPayload | UpdateProdu
     formData.append('price', String(payload.price))
     formData.append('max_discount_percent', String(payload.max_discount_percent))
     formData.append('quantity', String(payload.quantity))
+    formData.append('requires_verification', String(payload.requires_verification))
     payload.files.forEach((file) => formData.append(STORE_FILES_FIELD, file))
     payload.preview_new_indexes.forEach((index) => formData.append('preview_new_indexes', String(index)))
 

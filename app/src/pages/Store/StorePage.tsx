@@ -4,6 +4,7 @@ import { useMyStats } from '../../features/stats'
 import { useCheckoutReturn, useStoreProducts } from '../../features/store'
 import { formatPoints, getAvailablePoints, isSupportedProductType } from '../../utils/store.utils'
 import { ProductCard } from './components/ProductCard'
+import { ProductGridSkeleton } from './components/StoreSkeletons'
 import { useProductPurchase } from './hooks/useProductPurchase'
 
 export const StorePage = () => {
@@ -29,10 +30,8 @@ export const StorePage = () => {
     )
 
     return (
-        <StoreLayout title="Store" description="Spend your points or pay online to get digital products." actions={balance}>
-            {isLoading ? (
-                <div className="rounded-xl border border-stone-700 bg-stone-800/70 p-6 text-stone-300">Loading products...</div>
-            ) : null}
+        <StoreLayout title="Store" description="Browse digital and physical products. Pay online and use your points for a discount." actions={balance}>
+            {isLoading ? <ProductGridSkeleton /> : null}
 
             {isError ? (
                 <div className="rounded-xl border border-red-700/50 bg-red-900/20 p-6 text-red-200">Failed to load products.</div>

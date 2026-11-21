@@ -1,7 +1,7 @@
-import { BadGatewayException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { BadGatewayException, BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import archiver = require('archiver')
 import { posix } from 'path'
-import { OrderStatus, PaymentMethod } from 'generated/prisma'
+import { FulfillmentStatus, OrderStatus, PaymentMethod, Prisma, ProductType } from 'generated/prisma'
 import { PrismaService } from '@/core/databases/prisma/prisma.service'
 import { GcsService } from '@/integrations/storage/gcs/services/gcs.service'
 import { ORDER_INCLUDE } from '../constants/store-queries.constants'
@@ -12,9 +12,10 @@ import {
     OrderArchiveResult,
     OrderEntry,
     OrderGroupSummary,
+    ShippingAddressEntry,
     StoreOverviewEntry,
 } from '../interfaces/store.interface'
-import { sanitizeFileName, summarizeOrderGroups, toAdminOrderEntry, toOrderEntry } from '../helpers/store.helper'
+import { sanitizeFileName, summarizeOrderGroups, toAdminOrderEntry, toOrderEntry, toShippingAddress } from '../helpers/store.helper'
 
 @Injectable()
 export class OrdersService {
@@ -33,6 +34,16 @@ export class OrdersService {
         })
 
         return Promise.all(orders.map(async (order) => toOrderEntry(order, await this.getSignedImageUrl(order.product.uuid, order.product.image_path))))
+    }
+
+    async getLastShippingAddress(userUuid: string): Promise<ShippingAddressEntry | null> {
+        const order = await this.prisma.order.findFirst({
+            where: { user_uuid: userUuid, shipping_address: { not: Prisma.DbNull } },
+            orderBy: { created_at: 'desc' },
+            select: { shipping_address: true },
+        })
+
+        return toShippingAddress(order?.shipping_address ?? null)
     }
 
     private async getSignedImageUrl(productUuid: string, path: string | null): Promise<string | null> {
@@ -174,6 +185,32 @@ export class OrdersService {
         }
 
         return toAdminOrderEntry(order)
+    }
+
+    async updateFulfillment(orderUuid: string, status: FulfillmentStatus): Promise<AdminOrderEntry> {
+        const order = await this.prisma.order.findUnique({ where: { uuid: orderUuid }, include: { product: { select: { type: true } } } })
+
+        if (!order) {
+            throw new NotFoundException('Order not found')
+        }
+
+        if (order.product.type !== ProductType.physical) {
+            throw new BadRequestException('Only physical orders have a delivery status')
+        }
+
+        if (order.status !== OrderStatus.paid) {
+            throw new ConflictException('Only paid orders can be updated')
+        }
+
+        const updated = await this.prisma.order.update({
+            where: { uuid: orderUuid },
+            data: { fulfillment_status: status },
+            include: ORDER_INCLUDE,
+        })
+
+        this.logger.log(`Order ${orderUuid} fulfillment set to ${status}`)
+
+        return toAdminOrderEntry(updated)
     }
 
     async cancelOrder(orderUuid: string): Promise<AdminOrderEntry> {

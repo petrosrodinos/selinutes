@@ -15,6 +15,7 @@ import { CheckoutPage } from "./pages/Checkout/CheckoutPage";
 import { MyOrdersPage } from "./pages/Orders/MyOrdersPage";
 import { StoreOverviewPage } from "./pages/StoreAdmin/StoreOverviewPage";
 import { StoreProductsPage } from "./pages/StoreAdmin/StoreProductsPage";
+import { ProductEditorPage } from "./pages/StoreAdmin/ProductEditorPage";
 import { STORE_ROUTES } from "./config/store/store.config";
 import { useAuthStore } from "./store/authStore";
 import { Game } from "./pages/Game";
@@ -161,6 +162,22 @@ function App() {
             element={
               <StoreAdminGuard>
                 <StoreProductsPage />
+              </StoreAdminGuard>
+            }
+          />
+          <Route
+            path={STORE_ROUTES.ADMIN_PRODUCT_NEW}
+            element={
+              <StoreAdminGuard>
+                <ProductEditorPage />
+              </StoreAdminGuard>
+            }
+          />
+          <Route
+            path={STORE_ROUTES.ADMIN_PRODUCT(":productUuid")}
+            element={
+              <StoreAdminGuard>
+                <ProductEditorPage />
               </StoreAdminGuard>
             }
           />

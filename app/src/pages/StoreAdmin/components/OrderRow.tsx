@@ -4,6 +4,8 @@ import {
     ORDER_STATUSES,
     PAYMENT_METHOD_LABELS,
 } from '../../../config/store/store.config'
+import { FulfillmentBadge } from '../../../components/FulfillmentBadge'
+import { PRODUCT_TYPES } from '../../../config/store/store.config'
 import type { AdminOrder } from '../../../features/store/interfaces/store.interface'
 import { formatCents, formatDateTime, formatPoints, formatPrice } from '../../../utils/store.utils'
 
@@ -55,6 +57,11 @@ export const OrderRow = ({ order, onView, onCancel, onDelete }: OrderRowProps) =
                 >
                     {ORDER_STATUS_LABELS[order.status]}
                 </span>
+                {order.status === ORDER_STATUSES.PAID && order.product.type === PRODUCT_TYPES.PHYSICAL ? (
+                    <div className="mt-1.5">
+                        <FulfillmentBadge status={order.fulfillment_status} />
+                    </div>
+                ) : null}
             </td>
             <td className="px-4 py-3 text-stone-400">{formatDateTime(order.created_at)}</td>
             <td className="px-4 py-3">

@@ -15,11 +15,13 @@ import {
     getAdminProducts,
     getAppConfig,
     downloadOrderArchive,
+    getLastShippingAddress,
     getMyOrders,
     getStoreOverview,
     getStoreProduct,
     getStoreProducts,
     purchaseProduct,
+    updateAdminOrderFulfillment,
     updateAdminProduct,
     updateAppConfig,
 } from '../services/store.service'
@@ -28,6 +30,7 @@ const STORE_KEYS = {
     products: ['store', 'products'],
     product: (productUuid: string | undefined) => ['store', 'product', productUuid],
     orders: ['store', 'orders'],
+    shippingAddress: ['store', 'shipping-address'],
     adminConfig: ['store', 'admin', 'config'],
     adminOverview: ['store', 'admin', 'overview'],
     adminOrders: ['store', 'admin', 'orders'],
@@ -54,6 +57,14 @@ export const useMyOrders = () =>
         queryFn: getMyOrders,
     })
 
+export const useLastShippingAddress = (enabled: boolean) =>
+    useQuery({
+        queryKey: STORE_KEYS.shippingAddress,
+        queryFn: getLastShippingAddress,
+        enabled,
+        staleTime: 0,
+    })
+
 export const usePurchaseProduct = () => {
     const queryClient = useQueryClient()
 
@@ -69,6 +80,7 @@ export const usePurchaseProduct = () => {
             await Promise.all([
                 queryClient.invalidateQueries({ queryKey: STORE_KEYS.products }),
                 queryClient.invalidateQueries({ queryKey: STORE_KEYS.orders }),
+                queryClient.invalidateQueries({ queryKey: STORE_KEYS.shippingAddress }),
                 queryClient.invalidateQueries({ queryKey: ['stats', 'me'] }),
             ])
         },
@@ -172,6 +184,21 @@ export const useAdminOrder = (orderUuid: string | null) =>
         queryFn: () => getAdminOrder(orderUuid as string),
         enabled: orderUuid !== null,
     })
+
+export const useUpdateOrderFulfillment = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: updateAdminOrderFulfillment,
+        onSuccess: async () => {
+            toast.success('Delivery status updated')
+            await queryClient.invalidateQueries({ queryKey: ['store'] })
+        },
+        onError: (error) => {
+            toast.error(getErrorMessage(error))
+        },
+    })
+}
 
 export const useCancelAdminOrder = () => {
     const queryClient = useQueryClient()

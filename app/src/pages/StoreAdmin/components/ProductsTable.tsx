@@ -1,10 +1,13 @@
 import { useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { ExternalLink, Pencil, Trash2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { ConfirmationDialog } from '../../../components/ConfirmationDialog'
-import { PRODUCT_TYPE_LABELS } from '../../../config/store/store.config'
+import { PRODUCT_TYPE_LABELS, STORE_ROUTES } from '../../../config/store/store.config'
 import { useAdminProducts, useDeleteAdminProduct } from '../../../features/store'
 import type { Product } from '../../../features/store/interfaces/store.interface'
 import { formatCents, formatDateTime } from '../../../utils/store.utils'
+
+import { TableSkeleton } from './TableSkeleton'
 
 interface ProductsTableProps {
     onEdit: (product: Product) => void
@@ -37,6 +40,17 @@ const EditProductButton = ({ product, onEdit }: ProductRowProps) => {
         </button>
     )
 }
+
+const ViewProductLink = ({ product }: { product: Product }) => (
+    <Link
+        to={STORE_ROUTES.PRODUCT(product.uuid)}
+        className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-300 transition-colors hover:bg-stone-700 hover:text-stone-100"
+        aria-label={`View ${product.name} in the store`}
+    >
+        <ExternalLink className="h-3.5 w-3.5" />
+        View
+    </Link>
+)
 
 const DeleteProductButton = ({ product, onDelete }: DeleteProductButtonProps) => {
     const handleClick = () => {
@@ -74,9 +88,7 @@ export const ProductsTable = ({ onEdit }: ProductsTableProps) => {
     }
 
     if (isLoading) {
-        return (
-            <div className="rounded-xl border border-stone-700 bg-stone-800/70 p-6 text-stone-300">Loading products...</div>
-        )
+        return <TableSkeleton columns={8} label="Loading products" />
     }
 
     if (isError) {
@@ -145,6 +157,7 @@ export const ProductsTable = ({ onEdit }: ProductsTableProps) => {
                                 <td className="px-4 py-3 text-stone-400">{formatDateTime(product.created_at)}</td>
                                 <td className="px-4 py-3 text-right">
                                     <div className="flex items-center justify-end gap-2">
+                                        <ViewProductLink product={product} />
                                         <EditProductButton product={product} onEdit={onEdit} />
                                         <DeleteProductButton product={product} onDelete={setProductToDelete} />
                                     </div>

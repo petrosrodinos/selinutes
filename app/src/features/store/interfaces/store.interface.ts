@@ -1,4 +1,15 @@
-import type { OrderStatus, PaymentMethod, ProductType } from '../../../config/store/store.config'
+import type { FulfillmentStatus, OrderStatus, PaymentMethod, ProductType } from '../../../config/store/store.config'
+
+export interface ShippingAddress {
+    full_name: string
+    phone: string
+    line1: string
+    line2?: string
+    city: string
+    state?: string
+    postal_code: string
+    country: string
+}
 
 export interface ProductFile {
     uuid: string
@@ -21,6 +32,7 @@ export interface Product {
     type: ProductType
     price: number
     max_discount_percent: number
+    requires_verification: boolean
     quantity: number
     image_url: string | null
     gallery: ProductGalleryImage[]
@@ -48,6 +60,7 @@ export interface OrderProduct {
     name: string
     description: string
     type: ProductType
+    requires_verification: boolean
     image_url: string | null
 }
 
@@ -62,6 +75,8 @@ export interface Order {
     price_cents: number | null
     points_per_currency_unit: number | null
     product: OrderProduct
+    fulfillment_status: FulfillmentStatus
+    shipping_address: ShippingAddress | null
     files: ProductFile[]
     created_at: string
     paid_at: string | null
@@ -105,6 +120,7 @@ export interface CreateProductPayload {
     type: ProductType
     price: number
     max_discount_percent: number
+    requires_verification: boolean
     quantity: number
     image: File | null
     files: File[]

@@ -1,5 +1,6 @@
 import axiosInstance from '../../../config/api/axios'
 import { ApiRoutes } from '../../../config/api/routes'
+import type { FulfillmentStatus } from '../../../config/store/store.config'
 import { buildProductFormData } from '../../../utils/store.utils'
 import type {
     AdminOrder,
@@ -9,6 +10,7 @@ import type {
     Order,
     Product,
     PurchaseResult,
+    ShippingAddress,
     StoreOverview,
     StoreProduct,
     UpdateProductPayload,
@@ -27,14 +29,22 @@ export const getStoreProduct = async (productUuid: string): Promise<StoreProduct
 export const purchaseProduct = async ({
     productUuid,
     points,
+    shipping,
 }: {
     productUuid: string
     points: number
+    shipping?: ShippingAddress
 }): Promise<PurchaseResult> => {
     const response = await axiosInstance.post<PurchaseResult>(ApiRoutes.store.purchase(productUuid), {
         points,
+        shipping,
     })
     return response.data
+}
+
+export const getLastShippingAddress = async (): Promise<ShippingAddress | null> => {
+    const response = await axiosInstance.get<ShippingAddress | null>(ApiRoutes.store.shippingAddress)
+    return response.data || null
 }
 
 export const confirmCheckout = async (sessionId: string): Promise<Order> => {
@@ -79,6 +89,17 @@ export const getAdminOrders = async (): Promise<AdminOrder[]> => {
 
 export const getAdminOrder = async (orderUuid: string): Promise<AdminOrder> => {
     const response = await axiosInstance.get<AdminOrder>(ApiRoutes.store.admin.order(orderUuid))
+    return response.data
+}
+
+export const updateAdminOrderFulfillment = async ({
+    orderUuid,
+    status,
+}: {
+    orderUuid: string
+    status: FulfillmentStatus
+}): Promise<AdminOrder> => {
+    const response = await axiosInstance.patch<AdminOrder>(ApiRoutes.store.admin.orderFulfillment(orderUuid), { status })
     return response.data
 }
 

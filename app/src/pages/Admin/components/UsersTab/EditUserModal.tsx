@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Modal } from '../../../../components/Modal'
+import { Select } from '../../../../components/ui/Select'
 import { MAX_LEVEL } from '../../../../constants/game'
 import { ADMIN_USER_ROLE_OPTIONS, isAuthRole } from '../../config/admin-user-roles.config'
 import type { AdminUserOverviewEntry } from '../../../../features/stats/interfaces/stats.interface'
@@ -95,22 +96,16 @@ export const EditUserModal = ({ user, isOpen, isSaving, onClose, onSave }: EditU
                         </label>
                         <label className="block space-y-1.5 sm:col-span-2">
                             <span className="text-xs font-medium text-stone-400">Role</span>
-                            <select
+                            <Select
                                 value={form.role}
-                                onChange={(event) => {
-                                    const nextRole = event.target.value
+                                options={ADMIN_USER_ROLE_OPTIONS}
+                                ariaLabel="Role"
+                                onChange={(nextRole) => {
                                     if (isAuthRole(nextRole)) {
                                         setForm((prev) => ({ ...prev, role: nextRole }))
                                     }
                                 }}
-                                className="w-full rounded-lg border border-stone-700 bg-stone-900/60 px-3 py-2 text-sm text-stone-100 outline-none transition-colors focus:border-amber-500/50"
-                            >
-                                {ADMIN_USER_ROLE_OPTIONS.map((option) => (
-                                    <option key={option.value} value={option.value}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
+                            />
                         </label>
                     </div>
                 </section>

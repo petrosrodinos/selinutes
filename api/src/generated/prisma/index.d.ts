@@ -75,6 +75,17 @@ export const PaymentMethod: {
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
 
 
+export const FulfillmentStatus: {
+  pending_verification: 'pending_verification',
+  verified: 'verified',
+  preparing: 'preparing',
+  shipped: 'shipped',
+  delivered: 'delivered'
+};
+
+export type FulfillmentStatus = (typeof FulfillmentStatus)[keyof typeof FulfillmentStatus]
+
+
 export const OrderStatus: {
   pending: 'pending',
   paid: 'paid',
@@ -120,6 +131,10 @@ export const ProductType: typeof $Enums.ProductType
 export type PaymentMethod = $Enums.PaymentMethod
 
 export const PaymentMethod: typeof $Enums.PaymentMethod
+
+export type FulfillmentStatus = $Enums.FulfillmentStatus
+
+export const FulfillmentStatus: typeof $Enums.FulfillmentStatus
 
 export type OrderStatus = $Enums.OrderStatus
 
@@ -7452,6 +7467,7 @@ export namespace Prisma {
     description: string | null
     type: $Enums.ProductType | null
     price: number | null
+    requires_verification: boolean | null
     max_discount_percent: number | null
     quantity: number | null
     image_path: string | null
@@ -7466,6 +7482,7 @@ export namespace Prisma {
     description: string | null
     type: $Enums.ProductType | null
     price: number | null
+    requires_verification: boolean | null
     max_discount_percent: number | null
     quantity: number | null
     image_path: string | null
@@ -7480,6 +7497,7 @@ export namespace Prisma {
     description: number
     type: number
     price: number
+    requires_verification: number
     max_discount_percent: number
     quantity: number
     image_path: number
@@ -7510,6 +7528,7 @@ export namespace Prisma {
     description?: true
     type?: true
     price?: true
+    requires_verification?: true
     max_discount_percent?: true
     quantity?: true
     image_path?: true
@@ -7524,6 +7543,7 @@ export namespace Prisma {
     description?: true
     type?: true
     price?: true
+    requires_verification?: true
     max_discount_percent?: true
     quantity?: true
     image_path?: true
@@ -7538,6 +7558,7 @@ export namespace Prisma {
     description?: true
     type?: true
     price?: true
+    requires_verification?: true
     max_discount_percent?: true
     quantity?: true
     image_path?: true
@@ -7639,6 +7660,7 @@ export namespace Prisma {
     description: string
     type: $Enums.ProductType
     price: number
+    requires_verification: boolean
     max_discount_percent: number
     quantity: number
     image_path: string | null
@@ -7672,6 +7694,7 @@ export namespace Prisma {
     description?: boolean
     type?: boolean
     price?: boolean
+    requires_verification?: boolean
     max_discount_percent?: boolean
     quantity?: boolean
     image_path?: boolean
@@ -7689,6 +7712,7 @@ export namespace Prisma {
     description?: boolean
     type?: boolean
     price?: boolean
+    requires_verification?: boolean
     max_discount_percent?: boolean
     quantity?: boolean
     image_path?: boolean
@@ -7703,6 +7727,7 @@ export namespace Prisma {
     description?: boolean
     type?: boolean
     price?: boolean
+    requires_verification?: boolean
     max_discount_percent?: boolean
     quantity?: boolean
     image_path?: boolean
@@ -7717,6 +7742,7 @@ export namespace Prisma {
     description?: boolean
     type?: boolean
     price?: boolean
+    requires_verification?: boolean
     max_discount_percent?: boolean
     quantity?: boolean
     image_path?: boolean
@@ -7724,7 +7750,7 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "name" | "description" | "type" | "price" | "max_discount_percent" | "quantity" | "image_path" | "created_at" | "updated_at", ExtArgs["result"]["product"]>
+  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "name" | "description" | "type" | "price" | "requires_verification" | "max_discount_percent" | "quantity" | "image_path" | "created_at" | "updated_at", ExtArgs["result"]["product"]>
   export type ProductInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     files?: boolean | Product$filesArgs<ExtArgs>
     orders?: boolean | Product$ordersArgs<ExtArgs>
@@ -7746,6 +7772,7 @@ export namespace Prisma {
       description: string
       type: $Enums.ProductType
       price: number
+      requires_verification: boolean
       max_discount_percent: number
       quantity: number
       image_path: string | null
@@ -8182,6 +8209,7 @@ export namespace Prisma {
     readonly description: FieldRef<"Product", 'String'>
     readonly type: FieldRef<"Product", 'ProductType'>
     readonly price: FieldRef<"Product", 'Int'>
+    readonly requires_verification: FieldRef<"Product", 'Boolean'>
     readonly max_discount_percent: FieldRef<"Product", 'Int'>
     readonly quantity: FieldRef<"Product", 'Int'>
     readonly image_path: FieldRef<"Product", 'String'>
@@ -9833,6 +9861,7 @@ export namespace Prisma {
     discount_cents: number | null
     price_cents: number | null
     points_per_currency_unit: number | null
+    fulfillment_status: $Enums.FulfillmentStatus | null
     payment_summary: string | null
     stripe_session_id: string | null
     stripe_payment_intent_id: string | null
@@ -9855,6 +9884,7 @@ export namespace Prisma {
     discount_cents: number | null
     price_cents: number | null
     points_per_currency_unit: number | null
+    fulfillment_status: $Enums.FulfillmentStatus | null
     payment_summary: string | null
     stripe_session_id: string | null
     stripe_payment_intent_id: string | null
@@ -9877,6 +9907,8 @@ export namespace Prisma {
     discount_cents: number
     price_cents: number
     points_per_currency_unit: number
+    fulfillment_status: number
+    shipping_address: number
     payment_summary: number
     stripe_session_id: number
     stripe_payment_intent_id: number
@@ -9921,6 +9953,7 @@ export namespace Prisma {
     discount_cents?: true
     price_cents?: true
     points_per_currency_unit?: true
+    fulfillment_status?: true
     payment_summary?: true
     stripe_session_id?: true
     stripe_payment_intent_id?: true
@@ -9943,6 +9976,7 @@ export namespace Prisma {
     discount_cents?: true
     price_cents?: true
     points_per_currency_unit?: true
+    fulfillment_status?: true
     payment_summary?: true
     stripe_session_id?: true
     stripe_payment_intent_id?: true
@@ -9965,6 +9999,8 @@ export namespace Prisma {
     discount_cents?: true
     price_cents?: true
     points_per_currency_unit?: true
+    fulfillment_status?: true
+    shipping_address?: true
     payment_summary?: true
     stripe_session_id?: true
     stripe_payment_intent_id?: true
@@ -10074,6 +10110,8 @@ export namespace Prisma {
     discount_cents: number
     price_cents: number | null
     points_per_currency_unit: number | null
+    fulfillment_status: $Enums.FulfillmentStatus
+    shipping_address: JsonValue | null
     payment_summary: string | null
     stripe_session_id: string | null
     stripe_payment_intent_id: string | null
@@ -10115,6 +10153,8 @@ export namespace Prisma {
     discount_cents?: boolean
     price_cents?: boolean
     points_per_currency_unit?: boolean
+    fulfillment_status?: boolean
+    shipping_address?: boolean
     payment_summary?: boolean
     stripe_session_id?: boolean
     stripe_payment_intent_id?: boolean
@@ -10139,6 +10179,8 @@ export namespace Prisma {
     discount_cents?: boolean
     price_cents?: boolean
     points_per_currency_unit?: boolean
+    fulfillment_status?: boolean
+    shipping_address?: boolean
     payment_summary?: boolean
     stripe_session_id?: boolean
     stripe_payment_intent_id?: boolean
@@ -10163,6 +10205,8 @@ export namespace Prisma {
     discount_cents?: boolean
     price_cents?: boolean
     points_per_currency_unit?: boolean
+    fulfillment_status?: boolean
+    shipping_address?: boolean
     payment_summary?: boolean
     stripe_session_id?: boolean
     stripe_payment_intent_id?: boolean
@@ -10187,6 +10231,8 @@ export namespace Prisma {
     discount_cents?: boolean
     price_cents?: boolean
     points_per_currency_unit?: boolean
+    fulfillment_status?: boolean
+    shipping_address?: boolean
     payment_summary?: boolean
     stripe_session_id?: boolean
     stripe_payment_intent_id?: boolean
@@ -10197,7 +10243,7 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "user_uuid" | "product_uuid" | "status" | "payment_method" | "total" | "points_used" | "discount_cents" | "price_cents" | "points_per_currency_unit" | "payment_summary" | "stripe_session_id" | "stripe_payment_intent_id" | "stripe_fee_cents" | "paid_at" | "cancelled_at" | "created_at" | "updated_at", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "user_uuid" | "product_uuid" | "status" | "payment_method" | "total" | "points_used" | "discount_cents" | "price_cents" | "points_per_currency_unit" | "fulfillment_status" | "shipping_address" | "payment_summary" | "stripe_session_id" | "stripe_payment_intent_id" | "stripe_fee_cents" | "paid_at" | "cancelled_at" | "created_at" | "updated_at", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -10229,6 +10275,8 @@ export namespace Prisma {
       discount_cents: number
       price_cents: number | null
       points_per_currency_unit: number | null
+      fulfillment_status: $Enums.FulfillmentStatus
+      shipping_address: Prisma.JsonValue | null
       payment_summary: string | null
       stripe_session_id: string | null
       stripe_payment_intent_id: string | null
@@ -10673,6 +10721,8 @@ export namespace Prisma {
     readonly discount_cents: FieldRef<"Order", 'Int'>
     readonly price_cents: FieldRef<"Order", 'Int'>
     readonly points_per_currency_unit: FieldRef<"Order", 'Int'>
+    readonly fulfillment_status: FieldRef<"Order", 'FulfillmentStatus'>
+    readonly shipping_address: FieldRef<"Order", 'Json'>
     readonly payment_summary: FieldRef<"Order", 'String'>
     readonly stripe_session_id: FieldRef<"Order", 'String'>
     readonly stripe_payment_intent_id: FieldRef<"Order", 'String'>
@@ -11188,6 +11238,7 @@ export namespace Prisma {
     description: 'description',
     type: 'type',
     price: 'price',
+    requires_verification: 'requires_verification',
     max_discount_percent: 'max_discount_percent',
     quantity: 'quantity',
     image_path: 'image_path',
@@ -11225,6 +11276,8 @@ export namespace Prisma {
     discount_cents: 'discount_cents',
     price_cents: 'price_cents',
     points_per_currency_unit: 'points_per_currency_unit',
+    fulfillment_status: 'fulfillment_status',
+    shipping_address: 'shipping_address',
     payment_summary: 'payment_summary',
     stripe_session_id: 'stripe_session_id',
     stripe_payment_intent_id: 'stripe_payment_intent_id',
@@ -11428,6 +11481,20 @@ export namespace Prisma {
    * Reference to a field of type 'PaymentMethod[]'
    */
   export type ListEnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentMethod[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'FulfillmentStatus'
+   */
+  export type EnumFulfillmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FulfillmentStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'FulfillmentStatus[]'
+   */
+  export type ListEnumFulfillmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FulfillmentStatus[]'>
     
 
 
@@ -11834,6 +11901,7 @@ export namespace Prisma {
     description?: StringFilter<"Product"> | string
     type?: EnumProductTypeFilter<"Product"> | $Enums.ProductType
     price?: IntFilter<"Product"> | number
+    requires_verification?: BoolFilter<"Product"> | boolean
     max_discount_percent?: IntFilter<"Product"> | number
     quantity?: IntFilter<"Product"> | number
     image_path?: StringNullableFilter<"Product"> | string | null
@@ -11850,6 +11918,7 @@ export namespace Prisma {
     description?: SortOrder
     type?: SortOrder
     price?: SortOrder
+    requires_verification?: SortOrder
     max_discount_percent?: SortOrder
     quantity?: SortOrder
     image_path?: SortOrderInput | SortOrder
@@ -11869,6 +11938,7 @@ export namespace Prisma {
     description?: StringFilter<"Product"> | string
     type?: EnumProductTypeFilter<"Product"> | $Enums.ProductType
     price?: IntFilter<"Product"> | number
+    requires_verification?: BoolFilter<"Product"> | boolean
     max_discount_percent?: IntFilter<"Product"> | number
     quantity?: IntFilter<"Product"> | number
     image_path?: StringNullableFilter<"Product"> | string | null
@@ -11885,6 +11955,7 @@ export namespace Prisma {
     description?: SortOrder
     type?: SortOrder
     price?: SortOrder
+    requires_verification?: SortOrder
     max_discount_percent?: SortOrder
     quantity?: SortOrder
     image_path?: SortOrderInput | SortOrder
@@ -11907,6 +11978,7 @@ export namespace Prisma {
     description?: StringWithAggregatesFilter<"Product"> | string
     type?: EnumProductTypeWithAggregatesFilter<"Product"> | $Enums.ProductType
     price?: IntWithAggregatesFilter<"Product"> | number
+    requires_verification?: BoolWithAggregatesFilter<"Product"> | boolean
     max_discount_percent?: IntWithAggregatesFilter<"Product"> | number
     quantity?: IntWithAggregatesFilter<"Product"> | number
     image_path?: StringNullableWithAggregatesFilter<"Product"> | string | null
@@ -12006,6 +12078,8 @@ export namespace Prisma {
     discount_cents?: IntFilter<"Order"> | number
     price_cents?: IntNullableFilter<"Order"> | number | null
     points_per_currency_unit?: IntNullableFilter<"Order"> | number | null
+    fulfillment_status?: EnumFulfillmentStatusFilter<"Order"> | $Enums.FulfillmentStatus
+    shipping_address?: JsonNullableFilter<"Order">
     payment_summary?: StringNullableFilter<"Order"> | string | null
     stripe_session_id?: StringNullableFilter<"Order"> | string | null
     stripe_payment_intent_id?: StringNullableFilter<"Order"> | string | null
@@ -12030,6 +12104,8 @@ export namespace Prisma {
     discount_cents?: SortOrder
     price_cents?: SortOrderInput | SortOrder
     points_per_currency_unit?: SortOrderInput | SortOrder
+    fulfillment_status?: SortOrder
+    shipping_address?: SortOrderInput | SortOrder
     payment_summary?: SortOrderInput | SortOrder
     stripe_session_id?: SortOrderInput | SortOrder
     stripe_payment_intent_id?: SortOrderInput | SortOrder
@@ -12057,6 +12133,8 @@ export namespace Prisma {
     discount_cents?: IntFilter<"Order"> | number
     price_cents?: IntNullableFilter<"Order"> | number | null
     points_per_currency_unit?: IntNullableFilter<"Order"> | number | null
+    fulfillment_status?: EnumFulfillmentStatusFilter<"Order"> | $Enums.FulfillmentStatus
+    shipping_address?: JsonNullableFilter<"Order">
     payment_summary?: StringNullableFilter<"Order"> | string | null
     stripe_session_id?: StringNullableFilter<"Order"> | string | null
     stripe_payment_intent_id?: StringNullableFilter<"Order"> | string | null
@@ -12081,6 +12159,8 @@ export namespace Prisma {
     discount_cents?: SortOrder
     price_cents?: SortOrderInput | SortOrder
     points_per_currency_unit?: SortOrderInput | SortOrder
+    fulfillment_status?: SortOrder
+    shipping_address?: SortOrderInput | SortOrder
     payment_summary?: SortOrderInput | SortOrder
     stripe_session_id?: SortOrderInput | SortOrder
     stripe_payment_intent_id?: SortOrderInput | SortOrder
@@ -12111,6 +12191,8 @@ export namespace Prisma {
     discount_cents?: IntWithAggregatesFilter<"Order"> | number
     price_cents?: IntNullableWithAggregatesFilter<"Order"> | number | null
     points_per_currency_unit?: IntNullableWithAggregatesFilter<"Order"> | number | null
+    fulfillment_status?: EnumFulfillmentStatusWithAggregatesFilter<"Order"> | $Enums.FulfillmentStatus
+    shipping_address?: JsonNullableWithAggregatesFilter<"Order">
     payment_summary?: StringNullableWithAggregatesFilter<"Order"> | string | null
     stripe_session_id?: StringNullableWithAggregatesFilter<"Order"> | string | null
     stripe_payment_intent_id?: StringNullableWithAggregatesFilter<"Order"> | string | null
@@ -12527,6 +12609,7 @@ export namespace Prisma {
     description: string
     type: $Enums.ProductType
     price: number
+    requires_verification?: boolean
     max_discount_percent?: number
     quantity?: number
     image_path?: string | null
@@ -12543,6 +12626,7 @@ export namespace Prisma {
     description: string
     type: $Enums.ProductType
     price: number
+    requires_verification?: boolean
     max_discount_percent?: number
     quantity?: number
     image_path?: string | null
@@ -12558,6 +12642,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     price?: IntFieldUpdateOperationsInput | number
+    requires_verification?: BoolFieldUpdateOperationsInput | boolean
     max_discount_percent?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12574,6 +12659,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     price?: IntFieldUpdateOperationsInput | number
+    requires_verification?: BoolFieldUpdateOperationsInput | boolean
     max_discount_percent?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12590,6 +12676,7 @@ export namespace Prisma {
     description: string
     type: $Enums.ProductType
     price: number
+    requires_verification?: boolean
     max_discount_percent?: number
     quantity?: number
     image_path?: string | null
@@ -12603,6 +12690,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     price?: IntFieldUpdateOperationsInput | number
+    requires_verification?: BoolFieldUpdateOperationsInput | boolean
     max_discount_percent?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12617,6 +12705,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     price?: IntFieldUpdateOperationsInput | number
+    requires_verification?: BoolFieldUpdateOperationsInput | boolean
     max_discount_percent?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12713,6 +12802,8 @@ export namespace Prisma {
     discount_cents?: number
     price_cents?: number | null
     points_per_currency_unit?: number | null
+    fulfillment_status?: $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
@@ -12737,6 +12828,8 @@ export namespace Prisma {
     discount_cents?: number
     price_cents?: number | null
     points_per_currency_unit?: number | null
+    fulfillment_status?: $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
@@ -12756,6 +12849,8 @@ export namespace Prisma {
     discount_cents?: IntFieldUpdateOperationsInput | number
     price_cents?: NullableIntFieldUpdateOperationsInput | number | null
     points_per_currency_unit?: NullableIntFieldUpdateOperationsInput | number | null
+    fulfillment_status?: EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12780,6 +12875,8 @@ export namespace Prisma {
     discount_cents?: IntFieldUpdateOperationsInput | number
     price_cents?: NullableIntFieldUpdateOperationsInput | number | null
     points_per_currency_unit?: NullableIntFieldUpdateOperationsInput | number | null
+    fulfillment_status?: EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12802,6 +12899,8 @@ export namespace Prisma {
     discount_cents?: number
     price_cents?: number | null
     points_per_currency_unit?: number | null
+    fulfillment_status?: $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
@@ -12821,6 +12920,8 @@ export namespace Prisma {
     discount_cents?: IntFieldUpdateOperationsInput | number
     price_cents?: NullableIntFieldUpdateOperationsInput | number | null
     points_per_currency_unit?: NullableIntFieldUpdateOperationsInput | number | null
+    fulfillment_status?: EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12843,6 +12944,8 @@ export namespace Prisma {
     discount_cents?: IntFieldUpdateOperationsInput | number
     price_cents?: NullableIntFieldUpdateOperationsInput | number | null
     points_per_currency_unit?: NullableIntFieldUpdateOperationsInput | number | null
+    fulfillment_status?: EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -13406,6 +13509,11 @@ export namespace Prisma {
     not?: NestedEnumProductTypeFilter<$PrismaModel> | $Enums.ProductType
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type ProductFileListRelationFilter = {
     every?: ProductFileWhereInput
     some?: ProductFileWhereInput
@@ -13423,6 +13531,7 @@ export namespace Prisma {
     description?: SortOrder
     type?: SortOrder
     price?: SortOrder
+    requires_verification?: SortOrder
     max_discount_percent?: SortOrder
     quantity?: SortOrder
     image_path?: SortOrder
@@ -13444,6 +13553,7 @@ export namespace Prisma {
     description?: SortOrder
     type?: SortOrder
     price?: SortOrder
+    requires_verification?: SortOrder
     max_discount_percent?: SortOrder
     quantity?: SortOrder
     image_path?: SortOrder
@@ -13458,6 +13568,7 @@ export namespace Prisma {
     description?: SortOrder
     type?: SortOrder
     price?: SortOrder
+    requires_verification?: SortOrder
     max_discount_percent?: SortOrder
     quantity?: SortOrder
     image_path?: SortOrder
@@ -13482,9 +13593,12 @@ export namespace Prisma {
     _max?: NestedEnumProductTypeFilter<$PrismaModel>
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type ProductScalarRelationFilter = {
@@ -13538,14 +13652,6 @@ export namespace Prisma {
     size?: SortOrder
   }
 
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
   export type EnumOrderStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.OrderStatus | EnumOrderStatusFieldRefInput<$PrismaModel>
     in?: $Enums.OrderStatus[] | ListEnumOrderStatusFieldRefInput<$PrismaModel>
@@ -13560,6 +13666,13 @@ export namespace Prisma {
     not?: NestedEnumPaymentMethodFilter<$PrismaModel> | $Enums.PaymentMethod
   }
 
+  export type EnumFulfillmentStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.FulfillmentStatus | EnumFulfillmentStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.FulfillmentStatus[] | ListEnumFulfillmentStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FulfillmentStatus[] | ListEnumFulfillmentStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumFulfillmentStatusFilter<$PrismaModel> | $Enums.FulfillmentStatus
+  }
+
   export type OrderCountOrderByAggregateInput = {
     id?: SortOrder
     uuid?: SortOrder
@@ -13572,6 +13685,8 @@ export namespace Prisma {
     discount_cents?: SortOrder
     price_cents?: SortOrder
     points_per_currency_unit?: SortOrder
+    fulfillment_status?: SortOrder
+    shipping_address?: SortOrder
     payment_summary?: SortOrder
     stripe_session_id?: SortOrder
     stripe_payment_intent_id?: SortOrder
@@ -13604,6 +13719,7 @@ export namespace Prisma {
     discount_cents?: SortOrder
     price_cents?: SortOrder
     points_per_currency_unit?: SortOrder
+    fulfillment_status?: SortOrder
     payment_summary?: SortOrder
     stripe_session_id?: SortOrder
     stripe_payment_intent_id?: SortOrder
@@ -13626,6 +13742,7 @@ export namespace Prisma {
     discount_cents?: SortOrder
     price_cents?: SortOrder
     points_per_currency_unit?: SortOrder
+    fulfillment_status?: SortOrder
     payment_summary?: SortOrder
     stripe_session_id?: SortOrder
     stripe_payment_intent_id?: SortOrder
@@ -13664,6 +13781,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPaymentMethodFilter<$PrismaModel>
     _max?: NestedEnumPaymentMethodFilter<$PrismaModel>
+  }
+
+  export type EnumFulfillmentStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FulfillmentStatus | EnumFulfillmentStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.FulfillmentStatus[] | ListEnumFulfillmentStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FulfillmentStatus[] | ListEnumFulfillmentStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumFulfillmentStatusWithAggregatesFilter<$PrismaModel> | $Enums.FulfillmentStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumFulfillmentStatusFilter<$PrismaModel>
+    _max?: NestedEnumFulfillmentStatusFilter<$PrismaModel>
   }
 
   export type UserStatsCreateNestedOneWithoutUserInput = {
@@ -13942,6 +14069,10 @@ export namespace Prisma {
     set?: $Enums.ProductType
   }
 
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
   export type ProductFileUpdateManyWithoutProductNestedInput = {
     create?: XOR<ProductFileCreateWithoutProductInput, ProductFileUncheckedCreateWithoutProductInput> | ProductFileCreateWithoutProductInput[] | ProductFileUncheckedCreateWithoutProductInput[]
     connectOrCreate?: ProductFileCreateOrConnectWithoutProductInput | ProductFileCreateOrConnectWithoutProductInput[]
@@ -14004,10 +14135,6 @@ export namespace Prisma {
     connect?: ProductWhereUniqueInput
   }
 
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
-  }
-
   export type ProductUpdateOneRequiredWithoutFilesNestedInput = {
     create?: XOR<ProductCreateWithoutFilesInput, ProductUncheckedCreateWithoutFilesInput>
     connectOrCreate?: ProductCreateOrConnectWithoutFilesInput
@@ -14034,6 +14161,10 @@ export namespace Prisma {
 
   export type EnumPaymentMethodFieldUpdateOperationsInput = {
     set?: $Enums.PaymentMethod
+  }
+
+  export type EnumFulfillmentStatusFieldUpdateOperationsInput = {
+    set?: $Enums.FulfillmentStatus
   }
 
   export type UserUpdateOneRequiredWithoutOrdersNestedInput = {
@@ -14321,6 +14452,11 @@ export namespace Prisma {
     not?: NestedEnumProductTypeFilter<$PrismaModel> | $Enums.ProductType
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type NestedEnumProductTypeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.ProductType | EnumProductTypeFieldRefInput<$PrismaModel>
     in?: $Enums.ProductType[] | ListEnumProductTypeFieldRefInput<$PrismaModel>
@@ -14329,11 +14465,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumProductTypeFilter<$PrismaModel>
     _max?: NestedEnumProductTypeFilter<$PrismaModel>
-  }
-
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -14358,6 +14489,13 @@ export namespace Prisma {
     not?: NestedEnumPaymentMethodFilter<$PrismaModel> | $Enums.PaymentMethod
   }
 
+  export type NestedEnumFulfillmentStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.FulfillmentStatus | EnumFulfillmentStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.FulfillmentStatus[] | ListEnumFulfillmentStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FulfillmentStatus[] | ListEnumFulfillmentStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumFulfillmentStatusFilter<$PrismaModel> | $Enums.FulfillmentStatus
+  }
+
   export type NestedEnumOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.OrderStatus | EnumOrderStatusFieldRefInput<$PrismaModel>
     in?: $Enums.OrderStatus[] | ListEnumOrderStatusFieldRefInput<$PrismaModel>
@@ -14376,6 +14514,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPaymentMethodFilter<$PrismaModel>
     _max?: NestedEnumPaymentMethodFilter<$PrismaModel>
+  }
+
+  export type NestedEnumFulfillmentStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FulfillmentStatus | EnumFulfillmentStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.FulfillmentStatus[] | ListEnumFulfillmentStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FulfillmentStatus[] | ListEnumFulfillmentStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumFulfillmentStatusWithAggregatesFilter<$PrismaModel> | $Enums.FulfillmentStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumFulfillmentStatusFilter<$PrismaModel>
+    _max?: NestedEnumFulfillmentStatusFilter<$PrismaModel>
   }
 
   export type UserStatsCreateWithoutUserInput = {
@@ -14481,6 +14629,8 @@ export namespace Prisma {
     discount_cents?: number
     price_cents?: number | null
     points_per_currency_unit?: number | null
+    fulfillment_status?: $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
@@ -14503,6 +14653,8 @@ export namespace Prisma {
     discount_cents?: number
     price_cents?: number | null
     points_per_currency_unit?: number | null
+    fulfillment_status?: $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
@@ -14653,6 +14805,8 @@ export namespace Prisma {
     discount_cents?: IntFilter<"Order"> | number
     price_cents?: IntNullableFilter<"Order"> | number | null
     points_per_currency_unit?: IntNullableFilter<"Order"> | number | null
+    fulfillment_status?: EnumFulfillmentStatusFilter<"Order"> | $Enums.FulfillmentStatus
+    shipping_address?: JsonNullableFilter<"Order">
     payment_summary?: StringNullableFilter<"Order"> | string | null
     stripe_session_id?: StringNullableFilter<"Order"> | string | null
     stripe_payment_intent_id?: StringNullableFilter<"Order"> | string | null
@@ -14925,6 +15079,8 @@ export namespace Prisma {
     discount_cents?: number
     price_cents?: number | null
     points_per_currency_unit?: number | null
+    fulfillment_status?: $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
@@ -14947,6 +15103,8 @@ export namespace Prisma {
     discount_cents?: number
     price_cents?: number | null
     points_per_currency_unit?: number | null
+    fulfillment_status?: $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
@@ -15020,6 +15178,7 @@ export namespace Prisma {
     description: string
     type: $Enums.ProductType
     price: number
+    requires_verification?: boolean
     max_discount_percent?: number
     quantity?: number
     image_path?: string | null
@@ -15035,6 +15194,7 @@ export namespace Prisma {
     description: string
     type: $Enums.ProductType
     price: number
+    requires_verification?: boolean
     max_discount_percent?: number
     quantity?: number
     image_path?: string | null
@@ -15065,6 +15225,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     price?: IntFieldUpdateOperationsInput | number
+    requires_verification?: BoolFieldUpdateOperationsInput | boolean
     max_discount_percent?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15080,6 +15241,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     price?: IntFieldUpdateOperationsInput | number
+    requires_verification?: BoolFieldUpdateOperationsInput | boolean
     max_discount_percent?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15128,6 +15290,7 @@ export namespace Prisma {
     description: string
     type: $Enums.ProductType
     price: number
+    requires_verification?: boolean
     max_discount_percent?: number
     quantity?: number
     image_path?: string | null
@@ -15143,6 +15306,7 @@ export namespace Prisma {
     description: string
     type: $Enums.ProductType
     price: number
+    requires_verification?: boolean
     max_discount_percent?: number
     quantity?: number
     image_path?: string | null
@@ -15213,6 +15377,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     price?: IntFieldUpdateOperationsInput | number
+    requires_verification?: BoolFieldUpdateOperationsInput | boolean
     max_discount_percent?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15228,6 +15393,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     price?: IntFieldUpdateOperationsInput | number
+    requires_verification?: BoolFieldUpdateOperationsInput | boolean
     max_discount_percent?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     image_path?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15270,6 +15436,8 @@ export namespace Prisma {
     discount_cents?: number
     price_cents?: number | null
     points_per_currency_unit?: number | null
+    fulfillment_status?: $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
@@ -15356,6 +15524,8 @@ export namespace Prisma {
     discount_cents?: IntFieldUpdateOperationsInput | number
     price_cents?: NullableIntFieldUpdateOperationsInput | number | null
     points_per_currency_unit?: NullableIntFieldUpdateOperationsInput | number | null
+    fulfillment_status?: EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15378,6 +15548,8 @@ export namespace Prisma {
     discount_cents?: IntFieldUpdateOperationsInput | number
     price_cents?: NullableIntFieldUpdateOperationsInput | number | null
     points_per_currency_unit?: NullableIntFieldUpdateOperationsInput | number | null
+    fulfillment_status?: EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15399,6 +15571,8 @@ export namespace Prisma {
     discount_cents?: IntFieldUpdateOperationsInput | number
     price_cents?: NullableIntFieldUpdateOperationsInput | number | null
     points_per_currency_unit?: NullableIntFieldUpdateOperationsInput | number | null
+    fulfillment_status?: EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15431,6 +15605,8 @@ export namespace Prisma {
     discount_cents?: number
     price_cents?: number | null
     points_per_currency_unit?: number | null
+    fulfillment_status?: $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: string | null
     stripe_session_id?: string | null
     stripe_payment_intent_id?: string | null
@@ -15482,6 +15658,8 @@ export namespace Prisma {
     discount_cents?: IntFieldUpdateOperationsInput | number
     price_cents?: NullableIntFieldUpdateOperationsInput | number | null
     points_per_currency_unit?: NullableIntFieldUpdateOperationsInput | number | null
+    fulfillment_status?: EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15504,6 +15682,8 @@ export namespace Prisma {
     discount_cents?: IntFieldUpdateOperationsInput | number
     price_cents?: NullableIntFieldUpdateOperationsInput | number | null
     points_per_currency_unit?: NullableIntFieldUpdateOperationsInput | number | null
+    fulfillment_status?: EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15525,6 +15705,8 @@ export namespace Prisma {
     discount_cents?: IntFieldUpdateOperationsInput | number
     price_cents?: NullableIntFieldUpdateOperationsInput | number | null
     points_per_currency_unit?: NullableIntFieldUpdateOperationsInput | number | null
+    fulfillment_status?: EnumFulfillmentStatusFieldUpdateOperationsInput | $Enums.FulfillmentStatus
+    shipping_address?: NullableJsonNullValueInput | InputJsonValue
     payment_summary?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_payment_intent_id?: NullableStringFieldUpdateOperationsInput | string | null

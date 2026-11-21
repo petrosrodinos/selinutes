@@ -1,5 +1,16 @@
 import { Readable } from 'stream'
-import { OrderStatus, PaymentMethod, ProductType } from 'generated/prisma'
+import { FulfillmentStatus, OrderStatus, PaymentMethod, ProductType } from 'generated/prisma'
+
+export interface ShippingAddressEntry {
+    full_name: string
+    phone: string
+    line1: string
+    line2?: string
+    city: string
+    state?: string
+    postal_code: string
+    country: string
+}
 
 export interface ProductFileEntry {
     uuid: string
@@ -22,6 +33,7 @@ export interface ProductEntry {
     type: ProductType
     price: number
     max_discount_percent: number
+    requires_verification: boolean
     quantity: number
     image_url: string | null
     gallery: ProductGalleryImageEntry[]
@@ -49,6 +61,7 @@ export interface OrderProductEntry {
     name: string
     description: string
     type: ProductType
+    requires_verification: boolean
     image_url: string | null
 }
 
@@ -63,6 +76,8 @@ export interface OrderEntry {
     price_cents: number | null
     points_per_currency_unit: number | null
     product: OrderProductEntry
+    fulfillment_status: FulfillmentStatus
+    shipping_address: ShippingAddressEntry | null
     files: ProductFileEntry[]
     created_at: Date
     paid_at: Date | null

@@ -9,12 +9,13 @@ import {
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import Stripe from 'stripe'
-import { OrderStatus, PaymentMethod, Prisma, ProductType } from 'generated/prisma'
+import { FulfillmentStatus, OrderStatus, PaymentMethod, Prisma, ProductType } from 'generated/prisma'
 import { PrismaService } from '@/core/databases/prisma/prisma.service'
 import { StripeConfig } from '@/integrations/stripe/stripe.config'
 import { StripePaymentsService } from '@/integrations/stripe/services/stripe-payments.service'
 import { StripePaymentsWebhooksService } from '@/integrations/stripe/services/stripe-payments-webhooks.service'
 import { StripePaymentContext } from '@/integrations/stripe/interfaces/stripe-payments.interface'
+import { ShippingAddressDto } from '../dto/shipping-address.dto'
 import { ORDER_INCLUDE } from '../constants/store-queries.constants'
 import {
     STORE_APP_ROUTES,
@@ -39,15 +40,21 @@ export class PurchaseService {
         private readonly appConfig: AppConfigService,
     ) { }
 
-    async purchase(userUuid: string, productUuid: string, requestedPoints: number): Promise<PurchaseResult> {
+    async purchase(userUuid: string, productUuid: string, requestedPoints: number, shipping?: ShippingAddressDto): Promise<PurchaseResult> {
         const product = await this.prisma.product.findUnique({ where: { uuid: productUuid } })
 
         if (!product) {
             throw new NotFoundException('Product not found')
         }
 
-        if (product.type !== ProductType.digital) {
-            throw new BadRequestException('Only digital products can be purchased right now')
+        if (product.type === ProductType.in_game_asset) {
+            throw new BadRequestException('This product type cannot be purchased right now')
+        }
+
+        const isPhysical = product.type === ProductType.physical
+
+        if (isPhysical && !shipping) {
+            throw new BadRequestException('A shipping address is required for physical products')
         }
 
         const mockPayments = this.configService.get<string>('STORE_MOCK_PAYMENTS') !== 'false'
@@ -62,7 +69,7 @@ export class PurchaseService {
                 select: { id: true },
             })
 
-            if (owned) {
+            if (owned && !isPhysical) {
                 throw new ConflictException('You already own this product')
             }
 
@@ -137,6 +144,9 @@ export class PurchaseService {
                 points_per_currency_unit: pointsPerCurrencyUnit,
                 payment_summary: buildPaymentSummary(total, discount.points_used, discount.discount_cents),
                 stripe_session_id: null,
+                shipping_address: isPhysical && shipping ? { ...shipping } : Prisma.DbNull,
+                fulfillment_status:
+                    isPhysical && product.requires_verification ? FulfillmentStatus.pending_verification : FulfillmentStatus.verified,
             }
 
             if (paidNow && !(await this.decrementStock(tx, productUuid))) {

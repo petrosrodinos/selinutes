@@ -2,12 +2,14 @@ import type { ComponentType } from 'react'
 import { Link } from 'react-router-dom'
 import { PRODUCT_TYPES, STORE_ROUTES, type SupportedProductType } from '../../../config/store/store.config'
 import type { StoreProduct } from '../../../features/store/interfaces/store.interface'
+import { isProductOwned } from '../../../utils/store.utils'
 import { DigitalProductDetails } from './DigitalProductDetails'
 import { OnlinePurchaseAction } from './OnlinePurchaseAction'
 import type { ProductDetailsProps } from './store-card.types'
 
 const PRODUCT_DETAILS: Record<SupportedProductType, ComponentType<ProductDetailsProps>> = {
     [PRODUCT_TYPES.DIGITAL]: DigitalProductDetails,
+    [PRODUCT_TYPES.PHYSICAL]: DigitalProductDetails,
 }
 
 interface ProductCardProps {
@@ -24,12 +26,12 @@ export const ProductCard = ({ product, productType, availablePoints, isPurchasin
     return (
         <article className="group relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-xl border border-stone-700 bg-stone-800/70 pb-5 transition-colors hover:border-amber-500/40">
             {product.image_url ? (
-                <div className="overflow-hidden">
+                <div className="overflow-hidden bg-stone-900">
                     <img
                         src={product.image_url}
                         alt=""
                         loading="lazy"
-                        className="aspect-video w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="aspect-video w-full object-contain transition-transform duration-300 group-hover:scale-105"
                     />
                 </div>
             ) : null}
@@ -45,7 +47,7 @@ export const ProductCard = ({ product, productType, availablePoints, isPurchasin
                 <Details product={product} />
             </div>
             <div className="relative z-10 mx-5 cursor-default border-t border-stone-700/60 pt-4">
-                {product.purchased ? (
+                {isProductOwned(product) ? (
                     <Link
                         to={STORE_ROUTES.ORDERS}
                         className="block cursor-pointer rounded-lg border border-gold/30 bg-gold/10 px-4 py-2.5 text-center text-sm font-semibold text-gold transition-colors hover:bg-gold/20"

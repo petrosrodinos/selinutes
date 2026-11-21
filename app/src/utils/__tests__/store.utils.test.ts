@@ -8,6 +8,9 @@ import {
     getAvailablePoints,
     getDiscountForPoints,
     getProductPayloadError,
+    EMPTY_SHIPPING_ADDRESS,
+    getShippingAddressError,
+    isProductOwned,
     isSupportedProductType,
     parsePriceInput,
 } from '../store.utils'
@@ -19,6 +22,7 @@ const createPayload = (overrides: Partial<CreateProductPayload> = {}): CreatePro
     price: 500,
     max_discount_percent: 0,
     quantity: 1,
+    requires_verification: false,
     image: null,
     files: [new File(['a'], 'a.pdf')],
     preview_new_indexes: [],
@@ -85,9 +89,9 @@ describe('formatting', () => {
 })
 
 describe('isSupportedProductType', () => {
-    it('supports only digital products in the UI', () => {
+    it('supports digital and physical products in the UI', () => {
         expect(isSupportedProductType(PRODUCT_TYPES.DIGITAL)).toBe(true)
-        expect(isSupportedProductType(PRODUCT_TYPES.PHYSICAL)).toBe(false)
+        expect(isSupportedProductType(PRODUCT_TYPES.PHYSICAL)).toBe(true)
         expect(isSupportedProductType(PRODUCT_TYPES.IN_GAME_ASSET)).toBe(false)
     })
 })
@@ -119,5 +123,28 @@ describe('getProductPayloadError', () => {
 
         expect(getProductPayloadError(createPayload({ image: png }))).toBeNull()
         expect(getProductPayloadError(createPayload({ image: pdf }))).not.toBeNull()
+    })
+})
+
+describe('getShippingAddressError', () => {
+    const valid = { ...EMPTY_SHIPPING_ADDRESS, full_name: 'Maria P', phone: '+357 99 123456', line1: '12 Main St', city: 'Limassol', postal_code: '3025' }
+
+    it('accepts a complete address', () => {
+        expect(getShippingAddressError(valid)).toBeNull()
+    })
+
+    it('rejects missing required fields and bad phones', () => {
+        expect(getShippingAddressError({ ...valid, full_name: ' ' })).not.toBeNull()
+        expect(getShippingAddressError({ ...valid, phone: 'abc' })).not.toBeNull()
+        expect(getShippingAddressError({ ...valid, line1: '' })).not.toBeNull()
+        expect(getShippingAddressError({ ...valid, city: '' })).not.toBeNull()
+        expect(getShippingAddressError({ ...valid, postal_code: '' })).not.toBeNull()
+    })
+})
+
+describe('isProductOwned', () => {
+    it('lets users buy physical products again', () => {
+        expect(isProductOwned({ type: PRODUCT_TYPES.PHYSICAL, purchased: true })).toBe(false)
+        expect(isProductOwned({ type: PRODUCT_TYPES.DIGITAL, purchased: true })).toBe(true)
     })
 })

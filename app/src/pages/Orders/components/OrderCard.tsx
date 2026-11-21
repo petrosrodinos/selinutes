@@ -1,4 +1,6 @@
-import { ORDER_STATUS_LABELS, ORDER_STATUS_STYLES, ORDER_STATUSES } from '../../../config/store/store.config'
+import { FulfillmentTracker } from '../../../components/FulfillmentTracker'
+import { ShippingAddressBlock } from '../../../components/ShippingAddressBlock'
+import { ORDER_STATUS_LABELS, ORDER_STATUS_STYLES, ORDER_STATUSES, PRODUCT_TYPES } from '../../../config/store/store.config'
 import type { Order } from '../../../features/store/interfaces/store.interface'
 import { Download } from 'lucide-react'
 import { STORE_MINOR_UNITS_PER_CURRENCY_UNIT } from '../../../config/store/store.config'
@@ -17,6 +19,7 @@ export const OrderCard = ({ order, isDownloading, onDownload }: OrderCardProps) 
 
     const isPaid = order.status === ORDER_STATUSES.PAID
     const isPending = order.status === ORDER_STATUSES.PENDING
+    const isPhysical = order.product.type === PRODUCT_TYPES.PHYSICAL
 
     return (
         <article className="space-y-4 rounded-xl border border-stone-700 bg-stone-800/70 p-5">
@@ -42,7 +45,7 @@ export const OrderCard = ({ order, isDownloading, onDownload }: OrderCardProps) 
                     >
                         {ORDER_STATUS_LABELS[order.status]}
                     </span>
-                    {isPaid ? (
+                    {isPaid && !isPhysical ? (
                         <button
                             type="button"
                             onClick={handleDownload}
@@ -83,6 +86,15 @@ export const OrderCard = ({ order, isDownloading, onDownload }: OrderCardProps) 
                 </dl>
             ) : null}
 
+            {isPaid && isPhysical ? <FulfillmentTracker status={order.fulfillment_status} requiresVerification={order.product.requires_verification} /> : null}
+
+            {order.shipping_address ? (
+                <div className="rounded-lg border border-stone-700/60 bg-stone-900/40 p-3 text-sm text-stone-200">
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-400">Shipping to</p>
+                    <ShippingAddressBlock address={order.shipping_address} />
+                </div>
+            ) : null}
+
             {isPending ? (
                 <p className="text-sm text-stone-400">
                     Payment was not completed. Buy the product again from the store to finish this order.
@@ -90,7 +102,7 @@ export const OrderCard = ({ order, isDownloading, onDownload }: OrderCardProps) 
             ) : null}
 
             {order.status === ORDER_STATUSES.CANCELLED ? (
-                <p className="text-sm text-stone-400">This order was cancelled and its files are no longer available.</p>
+                <p className="text-sm text-stone-400">This order was cancelled.</p>
             ) : null}
         </article>
     )

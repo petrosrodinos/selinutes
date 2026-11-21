@@ -1,6 +1,7 @@
 import { LogOut } from 'lucide-react'
 import { Modal } from '../../../../components/Modal'
-import type { BoardSizeKey } from '../../types'
+import { Select, type SelectOption } from '../../../../components/ui/Select'
+import type { BoardSizeKey, BotDifficulty } from '../../types'
 import { BotDifficulties, BoardSizeKeys } from '../../types'
 import { useGameStore } from '../../../../store/gameStore'
 import { useUIStore } from '../../../../store/uiStore'
@@ -19,6 +20,17 @@ const BOARD_SIZE_LABELS: Record<BoardSizeKey, string> = {
   [BoardSizeKeys.MEDIUM]: 'Medium (12×16)',
   [BoardSizeKeys.LARGE]: 'Large (12×20)'
 }
+
+const BOARD_SIZE_OPTIONS: SelectOption<BoardSizeKey>[] = (Object.keys(BOARD_SIZE_LABELS) as BoardSizeKey[]).map((key) => ({
+  value: key,
+  label: BOARD_SIZE_LABELS[key]
+}))
+
+const BOT_DIFFICULTY_OPTIONS: SelectOption<BotDifficulty>[] = [
+  { value: BotDifficulties.EASY, label: 'Easy' },
+  { value: BotDifficulties.MEDIUM, label: 'Medium' },
+  { value: BotDifficulties.HARD, label: 'Hard' }
+]
 
 export const GameSettingsModal = ({ isOpen, onClose, onRequestLeave }: GameSettingsModalProps) => {
   const {
@@ -60,17 +72,12 @@ export const GameSettingsModal = ({ isOpen, onClose, onRequestLeave }: GameSetti
         {!isOnline && (
           <div>
             <label className="mb-1.5 block text-sm font-medium text-stone-300 sm:mb-2">Board size</label>
-            <select
+            <Select
               value={boardSizeKey}
-              onChange={(e) => handleBoardSizeChange(e.target.value as BoardSizeKey)}
-              className="w-full cursor-pointer rounded-lg border border-stone-600 bg-stone-700 px-3 py-2 text-sm text-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
-            >
-              {(Object.keys(BOARD_SIZE_LABELS) as BoardSizeKey[]).map((key) => (
-                <option key={key} value={key}>
-                  {BOARD_SIZE_LABELS[key]}
-                </option>
-              ))}
-            </select>
+              options={BOARD_SIZE_OPTIONS}
+              onChange={handleBoardSizeChange}
+              ariaLabel="Board size"
+            />
           </div>
         )}
 
@@ -89,15 +96,12 @@ export const GameSettingsModal = ({ isOpen, onClose, onRequestLeave }: GameSetti
             {botEnabled && (
               <div>
                 <label className="mb-1 block text-xs text-stone-400">Difficulty</label>
-                <select
+                <Select
                   value={botDifficulty}
-                  onChange={(e) => setDifficulty(e.target.value as typeof botDifficulty)}
-                  className="w-full cursor-pointer rounded-lg border border-stone-600 bg-stone-700 px-3 py-2 text-sm text-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                >
-                  <option value={BotDifficulties.EASY}>Easy</option>
-                  <option value={BotDifficulties.MEDIUM}>Medium</option>
-                  <option value={BotDifficulties.HARD}>Hard</option>
-                </select>
+                  options={BOT_DIFFICULTY_OPTIONS}
+                  onChange={setDifficulty}
+                  ariaLabel="Bot difficulty"
+                />
               </div>
             )}
           </div>

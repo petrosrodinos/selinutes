@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
-import { IsArray, IsEnum, IsInt, IsOptional, IsString, MaxLength, Max, Min, MinLength } from 'class-validator'
+import { IsArray, IsBoolean, IsEnum, IsInt, IsOptional, IsString, MaxLength, Max, Min, MinLength } from 'class-validator'
 import { ProductType } from 'generated/prisma'
 
 export const toArray = ({ value }: { value: unknown }): unknown[] => {
@@ -45,6 +45,12 @@ export class CreateProductDto {
     @IsInt()
     @Min(1)
     quantity?: number
+
+    @ApiPropertyOptional({ description: 'Physical products only: paid orders wait for admin verification before they are processed' })
+    @IsOptional()
+    @Transform(({ value }) => (value === 'true' ? true : value === 'false' ? false : value))
+    @IsBoolean()
+    requires_verification?: boolean
 
     @ApiPropertyOptional({ type: [Number], description: 'Indexes (in upload order) of newly uploaded files that are shown as previews in the store' })
     @Transform(({ value }) => toArray({ value }).map(Number))

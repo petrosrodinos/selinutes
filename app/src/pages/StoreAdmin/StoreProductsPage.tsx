@@ -1,40 +1,16 @@
-import { useState } from 'react'
-import { Modal } from '../../components/Modal'
-import { useCreateAdminProduct, useUpdateAdminProduct } from '../../features/store'
-import type { Product, UpdateProductPayload } from '../../features/store/interfaces/store.interface'
+import { Link, useNavigate } from 'react-router-dom'
+import { Plus } from 'lucide-react'
+import { STORE_ROUTES } from '../../config/store/store.config'
+import type { Product } from '../../features/store/interfaces/store.interface'
 import { PointsRateCard } from './components/PointsRateCard'
-import { ProductForm } from './components/ProductForm'
 import { ProductsTable } from './components/ProductsTable'
 import { StoreAdminLayout } from './components/StoreAdminLayout'
 
 export const StoreProductsPage = () => {
-    const [isCreateOpen, setIsCreateOpen] = useState(false)
-    const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-    const createMutation = useCreateAdminProduct()
-    const updateMutation = useUpdateAdminProduct()
+    const navigate = useNavigate()
 
-    const handleOpen = () => {
-        setIsCreateOpen(true)
-    }
-
-    const handleClose = () => {
-        setIsCreateOpen(false)
-    }
-
-    const handleEditClose = () => {
-        setEditingProduct(null)
-    }
-
-    const handleCreate = async (payload: UpdateProductPayload) => {
-        await createMutation.mutateAsync(payload).then(handleClose, () => undefined)
-    }
-
-    const handleUpdate = async (payload: UpdateProductPayload) => {
-        if (!editingProduct) return
-
-        await updateMutation
-            .mutateAsync({ productUuid: editingProduct.uuid, payload })
-            .then(handleEditClose, () => undefined)
+    const handleEdit = (product: Product) => {
+        navigate(STORE_ROUTES.ADMIN_PRODUCT(product.uuid))
     }
 
     return (
@@ -42,37 +18,16 @@ export const StoreProductsPage = () => {
             <PointsRateCard />
 
             <div className="flex justify-end">
-                <button
-                    type="button"
-                    onClick={handleOpen}
-                    className="cursor-pointer rounded-lg bg-amber-600 px-4 py-2 font-semibold text-stone-900 transition-colors hover:bg-amber-500"
+                <Link
+                    to={STORE_ROUTES.ADMIN_PRODUCT_NEW}
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 font-semibold text-stone-900 transition-colors hover:bg-amber-500"
                 >
+                    <Plus className="h-4 w-4" />
                     New product
-                </button>
+                </Link>
             </div>
 
-            <ProductsTable onEdit={setEditingProduct} />
-
-            <Modal isOpen={isCreateOpen} onClose={handleClose} title="New product" size="xl" closeOnBackdropClick={false}>
-                <ProductForm isSaving={createMutation.isPending} onCancel={handleClose} onSubmit={handleCreate} />
-            </Modal>
-
-            <Modal
-                isOpen={editingProduct !== null}
-                onClose={handleEditClose}
-                title="Edit product"
-                size="xl"
-                closeOnBackdropClick={false}
-            >
-                {editingProduct ? (
-                    <ProductForm
-                        product={editingProduct}
-                        isSaving={updateMutation.isPending}
-                        onCancel={handleEditClose}
-                        onSubmit={handleUpdate}
-                    />
-                ) : null}
-            </Modal>
+            <ProductsTable onEdit={handleEdit} />
         </StoreAdminLayout>
     )
 }

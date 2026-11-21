@@ -102,6 +102,7 @@ model Product {
   description    String
   type           ProductType
   price          Int // USD cents, always paid for with real money
+  requires_verification Boolean @default(false) // paid orders wait for an admin to verify them
   max_discount_percent Int     @default(0) // share of the price (0-100) a buyer may pay with in-game points
   quantity     Int           @default(1)
   image_path     String?
@@ -143,6 +144,8 @@ model Order {
   discount_cents           Int           @default(0)
   price_cents              Int? // list price when the order was placed
   points_per_currency_unit Int? // points rate when the order was placed
+  fulfillment_status       FulfillmentStatus @default(verified) // delivery progress, meaningful for physical orders
+  shipping_address         Json? // snapshot of the delivery details, physical products only
   payment_summary          String? // what the buyer saw, e.g. "€9.00 · 100 SEL used (−€1.00)"
   stripe_session_id       String?
   stripe_payment_intent_id String?
@@ -169,6 +172,14 @@ enum ProductType {
 enum PaymentMethod {
   points
   online
+}
+
+enum FulfillmentStatus {
+  pending_verification
+  verified
+  preparing
+  shipped
+  delivered
 }
 
 enum OrderStatus {

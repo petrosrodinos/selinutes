@@ -21,6 +21,7 @@ import { RolesGuard } from '@/shared/guards/roles.guard'
 import { Roles } from '@/shared/decorators/roles.decorator'
 import { AuthRoles } from '@/modules/auth/interfaces/auth.interface'
 import { CreateProductDto } from '../dto/create-product.dto'
+import { UpdateFulfillmentDto } from '../dto/update-fulfillment.dto'
 import { UpdateProductDto } from '../dto/update-product.dto'
 import {
     STORE_FILES_FIELD,
@@ -111,6 +112,21 @@ export class StoreAdminController {
     @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
     getOrder(@Param('orderUuid', ParseUUIDPipe) orderUuid: string): Promise<AdminOrderEntry> {
         return this.ordersService.getAdminOrder(orderUuid)
+    }
+
+    @Patch('orders/:orderUuid/fulfillment')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Admin: set the delivery status of a paid physical order' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Status updated successfully' })
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Order is not a physical order' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Order not found' })
+    @ApiResponse({ status: HttpStatus.CONFLICT, description: 'Order is not paid' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
+    updateFulfillment(
+        @Param('orderUuid', ParseUUIDPipe) orderUuid: string,
+        @Body() dto: UpdateFulfillmentDto,
+    ): Promise<AdminOrderEntry> {
+        return this.ordersService.updateFulfillment(orderUuid, dto.status)
     }
 
     @Patch('orders/:orderUuid/cancel')

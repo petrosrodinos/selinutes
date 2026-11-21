@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import { X } from 'lucide-react'
+import { Select } from '../../../components/ui/Select'
 import { ConfirmationDialog } from '../../../components/ConfirmationDialog'
 import {
     PRODUCT_TYPE_OPTIONS,
@@ -152,6 +153,7 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
     const [priceInput, setPriceInput] = useState(product ? formatPriceInput(product.price) : '')
     const [maxPercentInput, setMaxPercentInput] = useState(String(product?.max_discount_percent ?? 0))
     const [quantityInput, setQuantityInput] = useState(String(product?.quantity ?? 1))
+    const [requiresVerification, setRequiresVerification] = useState(product?.requires_verification ?? false)
     const [existingFiles, setExistingFiles] = useState<ProductFile[]>(product?.files ?? [])
     const [files, setFiles] = useState<File[]>([])
     const [previewUuids, setPreviewUuids] = useState<Set<string>>(
@@ -184,9 +186,9 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
         setDescription(event.target.value)
     }
 
-    const handleTypeChange = (event: ChangeEvent<HTMLSelectElement>) => {
-        if (isProductType(event.target.value)) {
-            setType(event.target.value)
+    const handleTypeChange = (value: string) => {
+        if (isProductType(value)) {
+            setType(value)
         }
     }
 
@@ -294,6 +296,7 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
             price: priceCents,
             max_discount_percent: maxPercent,
             quantity: Number(quantityInput),
+            requires_verification: type === PRODUCT_TYPES.PHYSICAL && requiresVerification,
             image,
             files,
             preview_new_indexes: files.flatMap((file, index) => (isImageFile(file) && newPreviews[index] ? [index] : [])),
@@ -324,13 +327,7 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
                 </label>
                 <label className="block space-y-1.5">
                     <span className="text-xs font-medium text-stone-400">Product type</span>
-                    <select value={type} onChange={handleTypeChange} className={FIELD_CLASS}>
-                        {PRODUCT_TYPE_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </select>
+                    <Select value={type} options={PRODUCT_TYPE_OPTIONS} onChange={handleTypeChange} ariaLabel="Product type" />
                 </label>
                 <label className="block space-y-1.5">
                     <span className="text-xs font-medium text-stone-400">Price (EUR)</span>
@@ -374,6 +371,29 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
                 </label>
             </div>
 
+            {type === PRODUCT_TYPES.PHYSICAL ? (
+                <div className="flex items-start justify-between gap-4 rounded-xl border border-stone-700 bg-stone-900/40 p-4">
+                    <div className="space-y-0.5">
+                        <p className="text-sm font-medium text-stone-100">Orders need verification</p>
+                        <p className="text-xs text-stone-500">
+                            New paid orders start as "Pending verification" until you mark them as verified. Turn off to verify them automatically.
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        role="switch"
+                        aria-checked={requiresVerification}
+                        aria-label="Orders need verification"
+                        onClick={() => setRequiresVerification((previous) => !previous)}
+                        className={`relative h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${requiresVerification ? 'bg-amber-500' : 'bg-stone-600'}`}
+                    >
+                        <span
+                            className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${requiresVerification ? 'translate-x-5' : 'translate-x-0'}`}
+                        />
+                    </button>
+                </div>
+            ) : null}
+
             <div className="space-y-2">
                 <span className="text-xs font-medium text-stone-400">Cover image</span>
                 {imagePreview ? (
@@ -414,9 +434,13 @@ export const ProductForm = ({ product, isSaving, onCancel, onSubmit }: ProductFo
                         ))}
                     </ul>
                 ) : null}
+                {type !== PRODUCT_TYPES.DIGITAL ? (
+                    <p className="text-xs text-stone-500">Physical products can only have image files. Buyers enter a shipping address at checkout.</p>
+                ) : null}
                 <input
                     type="file"
                     multiple
+                    accept={type === PRODUCT_TYPES.DIGITAL ? undefined : STORE_IMAGE_MIME_TYPES.join(',')}
                     onChange={handleFilesChange}
                     className="block w-full cursor-pointer text-sm text-stone-300 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-stone-700 file:px-3 file:py-2 file:text-sm file:font-medium file:text-stone-100 hover:file:bg-stone-600"
                 />

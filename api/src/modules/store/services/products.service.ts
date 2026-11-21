@@ -1,7 +1,7 @@
 import { BadGatewayException, BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { randomUUID } from 'crypto'
 import { posix } from 'path'
-import { OrderStatus } from 'generated/prisma'
+import { OrderStatus, ProductType } from 'generated/prisma'
 import { PrismaService } from '@/core/databases/prisma/prisma.service'
 import { GcsService } from '@/integrations/storage/gcs/services/gcs.service'
 import { AppConfigService } from './app-config.service'
@@ -134,6 +134,7 @@ export class ProductsService {
                     description: dto.description,
                     type: dto.type,
                     max_discount_percent: dto.max_discount_percent,
+                    requires_verification: dto.type === ProductType.physical && dto.requires_verification === true,
                     price: dto.price,
                     quantity: dto.quantity,
                     image_path: uploaded.image?.path ?? null,
@@ -198,6 +199,7 @@ export class ProductsService {
                     description: dto.description,
                     type: dto.type,
                     max_discount_percent: dto.max_discount_percent,
+                    requires_verification: dto.type === ProductType.physical && dto.requires_verification === true,
                     price: dto.price,
                     quantity: dto.quantity,
                     image_path: nextImagePath,

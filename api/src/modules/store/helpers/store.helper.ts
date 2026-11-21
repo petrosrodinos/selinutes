@@ -1,5 +1,5 @@
 import Stripe from 'stripe'
-import { PaymentMethod, ProductFile, ProductType, OrderStatus } from 'generated/prisma'
+import { Prisma, PaymentMethod, ProductFile, ProductType, OrderStatus } from 'generated/prisma'
 import {
     STORE_IMAGE_MIME_TYPES,
     STORE_CURRENCY_SYMBOL,
@@ -16,6 +16,7 @@ import {
     PointsDiscountEntry,
     ProductEntry,
     ProductFileEntry,
+    ShippingAddressEntry,
     ProductGalleryImageEntry,
     StoreOverviewEntry,
     StoreProductEntry,
@@ -122,6 +123,7 @@ export const toProductEntry = (
     type: product.type,
     price: product.price,
     max_discount_percent: product.max_discount_percent,
+    requires_verification: product.requires_verification,
     quantity: product.quantity,
     image_url: imageUrl,
     gallery,
@@ -144,6 +146,9 @@ export const toStoreProductEntry = (
     points_per_currency_unit: pointsPerCurrencyUnit,
 })
 
+export const toShippingAddress = (value: Prisma.JsonValue | null): ShippingAddressEntry | null =>
+    value !== null && typeof value === 'object' && !Array.isArray(value) ? (value as unknown as ShippingAddressEntry) : null
+
 export const toOrderEntry = (order: OrderWithRelations, imageUrl: string | null = null): OrderEntry => ({
     uuid: order.uuid,
     status: order.status,
@@ -159,8 +164,11 @@ export const toOrderEntry = (order: OrderWithRelations, imageUrl: string | null 
         name: order.product.name,
         description: order.product.description,
         type: order.product.type,
+        requires_verification: order.product.requires_verification,
         image_url: imageUrl,
     },
+    fulfillment_status: order.fulfillment_status,
+    shipping_address: toShippingAddress(order.shipping_address),
     files: order.status === OrderStatus.paid ? order.product.files.map(toProductFileEntry) : [],
     created_at: order.created_at,
     paid_at: order.paid_at,

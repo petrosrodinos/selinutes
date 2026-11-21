@@ -6,6 +6,8 @@ import type { AdminOrder } from '../../../features/store/interfaces/store.interf
 import { OrderDetailsModal } from './OrderDetailsModal'
 import { OrderRow } from './OrderRow'
 
+import { TableSkeleton } from './TableSkeleton'
+
 export const OrdersTable = () => {
     const { data: orders, isLoading, isError } = useAdminOrders()
     const cancelMutation = useCancelAdminOrder()
@@ -48,9 +50,7 @@ export const OrdersTable = () => {
     }
 
     if (isLoading) {
-        return (
-            <div className="rounded-xl border border-stone-700 bg-stone-800/70 p-6 text-stone-300">Loading orders...</div>
-        )
+        return <TableSkeleton columns={8} label="Loading orders" />
     }
 
     if (isError) {
